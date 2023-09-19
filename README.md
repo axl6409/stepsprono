@@ -12,7 +12,7 @@
 
 ## Introduction
 
-Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour que vous puissiez partager votre passion pour les sports avec vos amis. L'objectif principal de PronoFriends est de créer un espace convivial où les amateurs de sports peuvent prédire les résultats des matchs, créer des compétitions amicales et suivre les performances de leurs amis.
+Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour que vous puissiez partager votre passion pour les sports avec vos amis. L'objectif principal de Steps Prono est de créer un espace convivial où les amateurs de sports peuvent prédire les résultats des matchs, créer des compétitions amicales et suivre les performances de leurs amis.
 
 ## Fonctionnalités Principales
 
