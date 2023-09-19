@@ -1,0 +1,10 @@
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": ["node_modules"],
+  "execMap": {
+    "js": "node --inspect"
+  },
+  "delay": 1000,
+  "verbose": true
+}
