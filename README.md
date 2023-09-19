@@ -1,7 +1,8 @@
 ![MrR0b0t](https://github.com/axl6409/acffs/blob/master/ascii-mrr0b0t.png)
 
-# Steps Prono 
-## Application de Pronostics Sportifs entre Amis
+# Steps Prono
+![Steps Prono Logo](https://github.com/axl6409/stepsprono/blob/master/steps-prono-logo.png)
+## Application de Pronostics Sportifs entre Steps
 
 ![npm](https://img.shields.io/badge/npm-v7.24.0-green)
 ![Express.js](https://img.shields.io/badge/Express.js-v5.0.0-blue)
@@ -12,19 +13,19 @@
 
 ## Introduction
 
-Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour que vous puissiez partager votre passion pour les sports avec vos amis. L'objectif principal de Steps Prono est de créer un espace convivial où les amateurs de sports peuvent prédire les résultats des matchs, créer des compétitions amicales et suivre les performances de leurs amis.
+Bienvenue dans Steps Prono, une application de pronostics sportifs entre potes. L'objectif principal de Steps Prono est de prédire les résultats des matchs et créer des compétitions.
 
 ## Fonctionnalités Principales
 
 - **Pronostics Sportifs** : Faites vos pronostics sur les résultats des matchs de votre sport préféré.
 
-- **Créez des Groupes** : Formez des groupes avec vos amis et organisez des compétitions privées.
+- **Créez des Groupes** : Formez des groupes et organisez des compétitions.
 
 - **Classements** : Consultez les classements pour voir qui est en tête de la compétition.
 
 - **Mises à Jour en Temps Réel** : Recevez des mises à jour instantanées sur les scores des matchs.
 
-- **Badges et Récompenses** : Gagnez des badges et des récompenses en fonction de vos performances de pronostic.
+- **Badges et Récompenses** : Gagnez des badges en fonction de vos performances de pronostic.
 
 ## Comment Commencer
 
@@ -40,9 +41,12 @@ Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour 
 ## Contribution
 
 C'est un projet et challenge personnel pour le moment, je n'accueil pas de contributions.
+
 ## Auteur
 
+MrR0b0t...
 
 ## Licence
 
-Ce projet est sous licence [MIT](LICENSE).
+Ce projet est sous licence.
+![GNU GPL-3.0](https://www.gnu.org/graphics/gplv3-88x31.png)
