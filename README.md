@@ -40,7 +40,7 @@ Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour 
 C'est un projet et challenge personnel pour le moment, je n'accueil pas de contributions.
 ## Auteur
 
-
+``
 /$$      /$$           /$$$$$$$   /$$$$$$  /$$        /$$$$$$    /$$    
 | $$$    /$$$          | $$__  $$ /$$$_  $$| $$       /$$$_  $$  | $$    
 | $$$$  /$$$$  /$$$$$$ | $$  \ $$| $$$$\ $$| $$$$$$$ | $$$$\ $$ /$$$$$$  
@@ -49,7 +49,7 @@ C'est un projet et challenge personnel pour le moment, je n'accueil pas de contr
 | $$\  $ | $$| $$      | $$  \ $$| $$ \ $$$| $$  | $$| $$ \ $$$  | $$ /$$
 | $$ \/  | $$| $$      | $$  | $$|  $$$$$$/| $$$$$$$/|  $$$$$$/  |  $$$$/
 |__/     |__/|__/      |__/  |__/ \______/ |_______/  \______/    \___/
-
+``
 
 ## Licence
 
