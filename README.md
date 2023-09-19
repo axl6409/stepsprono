@@ -1,3 +1,5 @@
+![MrR0b0t](https://github.com/axl6409/acffs/blob/master/ascii-mrr0b0t.png
+
 # Steps Prono 
 ## Application de Pronostics Sportifs entre Amis
 
@@ -40,16 +42,6 @@ Bienvenue dans Steps Prono, une application de pronostics sportifs conçue pour 
 C'est un projet et challenge personnel pour le moment, je n'accueil pas de contributions.
 ## Auteur
 
-``
-/$$      /$$           /$$$$$$$   /$$$$$$  /$$        /$$$$$$    /$$    
-| $$$    /$$$          | $$__  $$ /$$$_  $$| $$       /$$$_  $$  | $$    
-| $$$$  /$$$$  /$$$$$$ | $$  \ $$| $$$$\ $$| $$$$$$$ | $$$$\ $$ /$$$$$$  
-| $$ $$/$$ $$ /$$__  $$| $$$$$$$/| $$ $$ $$| $$__  $$| $$ $$ $$|_  $$_/  
-| $$  $$$| $$| $$  \__/| $$__  $$| $$\ $$$$| $$  \ $$| $$\ $$$$  | $$    
-| $$\  $ | $$| $$      | $$  \ $$| $$ \ $$$| $$  | $$| $$ \ $$$  | $$ /$$
-| $$ \/  | $$| $$      | $$  | $$|  $$$$$$/| $$$$$$$/|  $$$$$$/  |  $$$$/
-|__/     |__/|__/      |__/  |__/ \______/ |_______/  \______/    \___/
-``
 
 ## Licence
 
