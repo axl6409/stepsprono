@@ -2,7 +2,7 @@
 import React from 'react';
 import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
 import App from './App'; // Import your main App component
-import HomePage from './pages/HomePage'; // Import your HomePage component
+import HomePage from './pages/Home.jsx'; // Import your HomePage component
 
 function AppRouter() {
   return (
