@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        'green-lime': "#00ff00",
+      },
       fontSize: {
         xs: '0.85rem', // 13.6px
         sm: '1rem', // 16px
@@ -28,6 +31,14 @@ export default {
         '90vh': '90vh',
         '100vh': '100vh',
       },
+      boxShadow: {
+        'menu': '0.25rem 0.5rem 2rem rgba(0,0,0,.16);',
+        'neomorph': '8px 8px 16px #bfbfbf, -8px -8px 16px #ffffff',
+        'neomorph-hover': 'inset 4px 4px 8px #bfbfbf, -4px -4px 8px #ffffff'
+      },
+      translate: {
+        '-5': '-1.25rem',
+      }
     },
   },
   plugins: [],
