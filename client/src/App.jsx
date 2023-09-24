@@ -1,9 +1,10 @@
 import React from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import Navbar from "./components/nav/Navbar.jsx"
-import Home from "./pages/Home.jsx"
-import Login from "./pages/Login.jsx"
-import Register from "./pages/Register.jsx"
+import Navbar from "./components/nav/Navbar"
+import Home from "./pages/Home"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
+import Dashboard from "./pages/Dashboard"
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>

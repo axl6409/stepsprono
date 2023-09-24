@@ -4,14 +4,12 @@ import {Link} from "react-router-dom";
 
 const Home = () => {
   return (
-    <div className="text-center p-10">
-      <h1 className="text-3xl font-bold mb-4">🎉 Bienvenue sur Steps Prono 🎉</h1>
+    <div className="text-center p-10 h-70vh flex flex-col justify-center">
+      <h1 className="text-3xl font-bold mb-4">⚽️ Bienvenue sur Steps Prono ⚽️</h1>
 
       <p className="text-lg mb-6">
         Votre nouvelle plateforme de paris sportifs en ligne !
       </p>
-
-      <p className="text-xl font-semibold mb-8">🔑 Prêt à commencer l'aventure ?</p>
 
       <div className="flex flex-row justify-evenly">
         <Link

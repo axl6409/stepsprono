@@ -9,6 +9,10 @@ export default {
       colors: {
         'green-lime': "#00ff00",
       },
+      fontFamily: {
+        'sans': ['Montserrat'],
+        'title': ['Darker Grotesque'],
+      },
       fontSize: {
         xs: '0.85rem', // 13.6px
         sm: '1rem', // 16px
