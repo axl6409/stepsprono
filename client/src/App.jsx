@@ -7,21 +7,24 @@ import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import TestComponent from "./components/Test";
 import ProtectedRoute from './components/ProtectedRoute';
+import {UserProvider} from "./contexts/UserContext.jsx";
 
 const App = () => {
   return (
-    <Router>
-      <Navbar />
-      <div className="container mx-auto p-4">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
-          <Route path="/test" element={<TestComponent />} />
-        </Routes>
-      </div>
-    </Router>
+    <UserProvider>
+      <Router>
+        <Navbar />
+        <div className="container mx-auto p-4">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+            <Route path="/test" element={<TestComponent />} />
+          </Routes>
+        </div>
+      </Router>
+    </UserProvider>
   )
 }
 

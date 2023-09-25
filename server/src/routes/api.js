@@ -41,6 +41,18 @@ router.get('/login', (req, res) => {
   res.json({ message: 'login page'})
 })
 
+router.post('/verifyToken', (req, res) => {
+  const { token } = req.body;
+
+  if (!token) return res.status(401).json({ isAuthenticated: false });
+
+  try {
+    const user = jwt.verify(token, secretKey);
+    res.json({ isAuthenticated: true, user });
+  } catch (error) {
+    res.status(401).json({ isAuthenticated: false });
+  }
+});
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body
