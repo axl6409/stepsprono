@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 
+
 const Dashboard = () => {
   return (
     <div className="text-center p-10 h-70vh flex flex-col justify-center">

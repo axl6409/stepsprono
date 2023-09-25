@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey, faUser} from "@fortawesome/free-solid-svg-icons";
+import {useNavigate} from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,31 +11,37 @@ const Register = () => {
     password: ''
   })
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-    [e.target.name]: e.target.value
+      [e.target.name]: e.target.value
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setErrorMessage('');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:3001/api/register', formData)
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        setErrorMessage(error.response.data.error);
+      const response = await axios.post('http://localhost:3001/api/register', {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        navigate('/dashboard');
       } else {
-        setErrorMessage('Une erreur s’est produite lors de la création du compte, veuillez réessayer.');
+        console.error('Token is missing in response', response.data);
       }
+    } catch (error) {
+      console.error('There was an error registering the user!', error);
     }
   }
 
   return (
     <div className="w-full h-100vh">
-      <div className="p-10 border-2 border-black w-[60%] mx-auto mt-20 relative bg-white shadow-md before:content-[''] before:block before:absolute before:inset-0 before:z-[-1] before:translate-x-4 before:translate-y-4 before:bg-green-lime before:border-2 before:border-black">
+      <div className="py-10 px-6 border-2 border-black w-full mx-auto mt-20 relative bg-white shadow-md before:content-[''] before:block before:absolute before:inset-0 before:z-[-1] before:translate-x-4 before:translate-y-4 before:bg-green-lime before:border-2 before:border-black">
         <h1 className="text-center mb-8 text-xl font-title uppercase font-bold">Créer un compte</h1>
         <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
         <form action="" onSubmit={handleSubmit} className="flex flex-col items-center">
@@ -48,7 +55,7 @@ const Register = () => {
               placeholder="Nom d'utilisateur"
               value={formData.username}
               onChange={handleChange}
-              className="p-3 w-[75%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
               />
           </label>
           <label htmlFor="email" className="my-4 w-full border-2 border-black flex flex-row justify-start">
@@ -61,7 +68,7 @@ const Register = () => {
               placeholder="adresse@email.com"
               value={formData.email}
               onChange={handleChange}
-              className="p-3 w-[75%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
               />
           </label>
           <label htmlFor="password" className="my-4 w-full border-2 border-black flex flex-row justify-start">
@@ -74,7 +81,7 @@ const Register = () => {
               placeholder="M0t2P44ssSuperSéCu%"
               value={formData.password}
               onChange={handleChange}
-              className="p-3 w-[75%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
               />
           </label>
           <button

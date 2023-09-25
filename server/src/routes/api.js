@@ -3,14 +3,35 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const { expressjwt } = require("express-jwt");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 
-const authenticateJWT = expressjwt({ secret: secretKey, algorithms: ['HS256'] });
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-// Define a GET route
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Authorization header is missing' });
+  }
+
+  const token = authHeader.split(' ')[1]; // Extract the token from Bearer
+  if (!token) {
+    return res.status(401).json({ error: 'Token is missing from Authorization header' });
+  }
+
+  jwt.verify(token, secretKey, (err, user) => {
+    if (err) {
+      let errorMsg = 'Invalid token';
+      if (err.name === 'TokenExpiredError') errorMsg = 'Token has expired';
+      return res.status(403).json({ error: errorMsg });
+    }
+
+    req.user = user;
+    next();
+  });
+};
+
+// Define a GET routes
 router.get('/data', (req, res) => {
   // Perform some operation (e.g., fetch data from a database)
   // Send a JSON response to the client
@@ -41,7 +62,9 @@ router.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
     })
-    res.status(201).json({ message: 'User created successfully', user })
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+    res.status(201).json({ message: 'User created successfully', user, token })
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message })
   }
@@ -75,6 +98,15 @@ router.post('/login', async (req, res) => {
 
 router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'This is a protected route' });
+});
+
+router.get('/test', (req, res, next) => {
+  authenticateJWT(req, res, (err) => {
+    if (err) return res.status(401).json({ error: 'Unauthorized' }); // if error, it is unauthorized
+    next();
+  });
+}, (req, res) => {
+  res.json({ message: 'This is a test route' });
 });
 
 module.exports = router;
