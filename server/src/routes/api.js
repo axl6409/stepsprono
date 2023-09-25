@@ -96,6 +96,7 @@ router.post('/login', async (req, res) => {
       secretKey,
       { expiresIn: '1h' }
     );
+    res.set('Cache-Control', 'no-store');
     res.cookie('token', token, {
       httpOnly: true,
       secure: true, //process.env.NODE_ENV !== 'development'

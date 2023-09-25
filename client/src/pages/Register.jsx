@@ -88,7 +88,7 @@ const Register = () => {
             type="submit"
             className="w-3/5 relative my-4 outline-none before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
             >
-            <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition border-black group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Register</span>
+            <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Créer le compte</span>
           </button>
         </form>
       </div>

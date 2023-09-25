@@ -26,8 +26,14 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem('token'); // supprimer le token de localStorage
+    setUser(null); // réinitialiser l'état de l'utilisateur
+    setIsAuthenticated(false); // réinitialiser l'état d'authentification
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, setIsAuthenticated }}>
+    <UserContext.Provider value={{ user, setUser, isAuthenticated, setIsAuthenticated, logout }}>
       {children}
     </UserContext.Provider>
   );

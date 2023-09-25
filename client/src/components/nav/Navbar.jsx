@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import logo from '/img/steps-prono-logo.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBars, faXmark} from "@fortawesome/free-solid-svg-icons";
@@ -7,7 +7,14 @@ import {UserContext} from "../../contexts/UserContext.jsx";
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useContext(UserContext);
+  const { isAuthenticated, logout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white p-4 relative z-[10] border-b border-black">
@@ -33,13 +40,22 @@ const UserMenu = () => {
           </button>
 
           {isAuthenticated ? (
-            <Link
-              to="/dashboard"
-              className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              onClick={() => setIsOpen(false)}
-            >
-              <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Dashboard</span>
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Tableau de bord</span>
+              </Link>
+              <Link
+                to="/"
+                className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                onClick={handleLogout}
+              >
+                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Déconnexion</span>
+              </Link>
+            </>
           ) : (
             <>
               <Link
@@ -47,14 +63,14 @@ const UserMenu = () => {
                 className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                 onClick={() => setIsOpen(false)}
               >
-                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Login</span>
+                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Connexion</span>
               </Link>
               <Link
                 to="/register"
                 className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                 onClick={() => setIsOpen(false)}
               >
-                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Register</span>
+                <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5">Inscription</span>
               </Link>
             </>
           )}
