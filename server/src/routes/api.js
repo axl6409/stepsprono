@@ -42,6 +42,7 @@ router.get('/login', (req, res) => {
 })
 
 router.post('/verifyToken', (req, res) => {
+  console.log(req.body)
   const { token } = req.body;
 
   if (!token) return res.status(401).json({ isAuthenticated: false });
@@ -96,14 +97,18 @@ router.post('/login', async (req, res) => {
       secretKey,
       { expiresIn: '1h' }
     );
-    res.set('Cache-Control', 'no-store');
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true, //process.env.NODE_ENV !== 'development'
-      sameSite: 'Strict'
-    });
 
-    res.status(200).json({ message: 'Connexion réussie', user });
+    res.set('Cache-Control', 'no-store');
+    const cookieConfig = {
+      httpOnly: true,
+      sameSite: 'Strict'
+    };
+    if (process.env.NODE_ENV !== 'production') {
+      cookieConfig.secure = false; // En mode développement (HTTP), définissez secure sur false
+    }
+    res.cookie('token', token, cookieConfig);
+
+    res.status(200).json({ message: 'Connexion réussie', user, token });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
   }
