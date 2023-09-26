@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard"
 import TestComponent from "./components/Test";
 import ProtectedRoute from './components/ProtectedRoute';
 import {UserProvider} from "./contexts/UserContext.jsx";
+import Teams from "./pages/Teams.jsx";
 
 const App = () => {
 
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+            <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/test" element={<TestComponent />} />
           </Routes>
         </div>

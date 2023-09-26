@@ -42,11 +42,8 @@ router.get('/login', (req, res) => {
 })
 
 router.post('/verifyToken', (req, res) => {
-  console.log(req.body)
   const { token } = req.body;
-
-  if (!token) return res.status(401).json({ isAuthenticated: false });
-
+  if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
   try {
     const user = jwt.verify(token, secretKey);
     res.json({ isAuthenticated: true, user });
@@ -64,9 +61,9 @@ router.post('/register', async (req, res) => {
     if (usernameExists && emailExists) {
       return res.status(400).json({ error: 'Le nom d’utilisateur et le mail existent déjà.' });
     } else if (usernameExists) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: 'Le nom d\'utilisateur est déjà utilisé'});
     } else if (emailExists) {
-      return res.status(400).json({ error: 'Email already exists' });
+      return res.status(400).json({ error: 'Ce mail est déjà utilisé' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -88,7 +85,7 @@ router.post('/register', async (req, res) => {
     // }
     res.cookie('token', token, cookieConfig);
 
-    res.status(201).json({ message: 'User created successfully', user, token })
+    res.status(201).json({ message: 'Utilisateur créé avec succès', user, token })
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message })
   }
@@ -96,18 +93,14 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(400).json({ error: 'Utilisateur non trouvé' });
+    const { username, password } = req.body;
+    const user = await User.findOne({ where: { username } });
+    if (!user) return res.status(400).json({ error: 'Utilisateur inconnu' });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe incorrect' });
 
-    const token = jwt.sign(
-      { userId: user.id },
-      secretKey,
-      { expiresIn: '1h' }
-    );
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {

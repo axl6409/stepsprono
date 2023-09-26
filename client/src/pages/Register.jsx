@@ -38,7 +38,11 @@ const Register = () => {
         console.error('Token is missing in response', response.data);
       }
     } catch (error) {
-      console.error('There was an error registering the user!', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setErrorMessage(error.response.data.error);
+      } else {
+        setErrorMessage('Une erreur s’est produite: ' + error);
+      }
     }
   }
 

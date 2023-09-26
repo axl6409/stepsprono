@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, {useContext, useState} from 'react'
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey} from "@fortawesome/free-solid-svg-icons";
 import { CookiesProvider, useCookies } from "react-cookie";
+import {UserContext} from "../contexts/UserContext.jsx";
 
 const Login = () => {
+  const { setIsAuthenticated } = useContext(UserContext);
   const [cookies, setCookie] = useCookies(["user"]);
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,6 +29,7 @@ const Login = () => {
       const response = await axios.post('http://127.0.0.1:3001/api/login', formData);
       localStorage.setItem('token', response.data.token);
       setCookie('token', response.data.token, { path: '/' });
+      setIsAuthenticated(true);
       navigate('/dashboard');
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
@@ -43,15 +46,15 @@ const Login = () => {
         <h1 className="text-center mb-8 text-xl font-title uppercase font-bold">Se connecter</h1>
         <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
-          <label htmlFor="email" className="my-4 w-full border-2 border-black flex flex-row justify-start">
+          <label htmlFor="username" className="my-4 w-full border-2 border-black flex flex-row justify-start">
             <div className="w-[15%] flex flex-col justify-center">
               <FontAwesomeIcon icon={faAt} className="w-[25px] h-[25px] mx-auto" />
             </div>
             <input
-              type="email"
-              name="email"
-              placeholder="adresse@email.com"
-              value={formData.email}
+              type="text"
+              name="username"
+              placeholder="Pseudo"
+              value={formData.username}
               onChange={handleChange}
               className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
             />
