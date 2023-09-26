@@ -3,8 +3,10 @@ import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey} from "@fortawesome/free-solid-svg-icons";
+import { CookiesProvider, useCookies } from "react-cookie";
 
 const Login = () => {
+  const [cookies, setCookie] = useCookies(["user"]);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -24,6 +26,7 @@ const Login = () => {
     try {
       const response = await axios.post('http://127.0.0.1:3001/api/login', formData);
       localStorage.setItem('token', response.data.token);
+      setCookie('token', response.data.token, { path: '/' });
       navigate('/dashboard');
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {

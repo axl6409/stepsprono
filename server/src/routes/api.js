@@ -77,6 +77,17 @@ router.post('/register', async (req, res) => {
     })
     const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
 
+    res.set('Cache-Control', 'no-store');
+    const cookieConfig = {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'Strict'
+    };
+    // if (process.env.NODE_ENV !== 'production') {
+    //   cookieConfig.secure = false; // En mode développement (HTTP), définissez secure sur false
+    // }
+    res.cookie('token', token, cookieConfig);
+
     res.status(201).json({ message: 'User created successfully', user, token })
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message })
@@ -100,12 +111,13 @@ router.post('/login', async (req, res) => {
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {
+      secure: true,
       httpOnly: true,
       sameSite: 'Strict'
     };
-    if (process.env.NODE_ENV !== 'production') {
-      cookieConfig.secure = false; // En mode développement (HTTP), définissez secure sur false
-    }
+    // if (process.env.NODE_ENV !== 'production') {
+    //   cookieConfig.secure = false; // En mode développement (HTTP), définissez secure sur false
+    // }
     res.cookie('token', token, cookieConfig);
 
     res.status(200).json({ message: 'Connexion réussie', user, token });

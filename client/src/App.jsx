@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import {UserProvider} from "./contexts/UserContext.jsx";
 
 const App = () => {
+
   return (
     <UserProvider>
       <Router>

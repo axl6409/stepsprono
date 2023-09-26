@@ -3,8 +3,10 @@ import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useNavigate} from "react-router-dom";
+import {useCookies} from "react-cookie";
 
 const Register = () => {
+  const [cookies, setCookie] = useCookies(["user"]);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -30,6 +32,7 @@ const Register = () => {
       });
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
+        setCookie('token', response.data.token, { path: '/' });
         navigate('/dashboard');
       } else {
         console.error('Token is missing in response', response.data);
