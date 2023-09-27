@@ -4,7 +4,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const apiRoutes = require('./src/routes/api')
 const sequelize = require('./database');
-const User = require('./src/models/User')
+const models = require('./src/models')
+const {Role} = require("./src/models");
 
 require('dotenv').config();
 
@@ -40,8 +41,12 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
-    await sequelize.sync()
+    await sequelize.sync({ force: false })
     console.log('Database synchronized.')
+    await Role.findOrCreate({ where: { name: 'admin' } });
+    await Role.findOrCreate({ where: { name: 'manager' } });
+    await Role.findOrCreate({ where: { name: 'user' } });
+    console.log('User role verified');
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

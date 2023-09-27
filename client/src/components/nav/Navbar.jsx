@@ -7,9 +7,8 @@ import {UserContext} from "../../contexts/UserContext.jsx";
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, logout } = useContext(UserContext);
+  const { user, isAuthenticated, logout } = useContext(UserContext);
   const navigate = useNavigate();
-
   const handleLogout = () => {
     logout();
     setIsOpen(false);
@@ -20,11 +19,9 @@ const UserMenu = () => {
     <header>
       <nav className="bg-white p-4 relative z-[10] border-b-2 border-black">
         <div className="container mx-auto flex justify-between items-center">
-
           <Link to="/">
             <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
           </Link>
-
           <button
             className="relative before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
             onClick={() => setIsOpen(!isOpen)}
@@ -60,6 +57,15 @@ const UserMenu = () => {
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Équipes</span>
                 </Link>
+                {user && user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Administration</span>
+                  </Link>
+                )}
                 <Link
                   to="/"
                   className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"

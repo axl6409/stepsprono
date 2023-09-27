@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
+const {Role} = require("../models");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -40,15 +41,22 @@ router.get('/data', (req, res) => {
 router.get('/login', (req, res) => {
   res.json({ message: 'login page'})
 })
-
-router.post('/verifyToken', (req, res) => {
+router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
   try {
-    const user = jwt.verify(token, secretKey);
-    res.json({ isAuthenticated: true, user });
+    const payload = jwt.verify(token, secretKey);
+    const user = await User.findOne({ where: { id: payload.userId }, include: Role });
+    if (!user) return res.status(401).json({ isAuthenticated: false });
+
+    const userWithRole = {
+      ...user.get({ plain: true }),
+      role: user.Roles && user.Roles.length > 0 ? user.Roles[0].name : 'user', // suppose que chaque utilisateur a un rôle
+    };
+
+    res.json({ isAuthenticated: true, user: userWithRole });
   } catch (error) {
-    res.status(401).json({ isAuthenticated: false });
+    res.status(401).json({ isAuthenticated: false, token, error: error.message });
   }
 });
 router.post('/register', async (req, res) => {
@@ -72,7 +80,12 @@ router.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
     })
-    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+    const [userRole, created] = await Role.findOrCreate({ where: { name: 'user' } });
+    if (!userRole) return res.status(500).json({ error: 'Rôle utilisateur non trouvé' })
+    await user.addRole(userRole);
+
+    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '365d' });
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {
@@ -90,7 +103,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Error creating user', error: error.message })
   }
 })
-
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -100,7 +112,7 @@ router.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe incorrect' });
 
-    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '365d' });
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {
@@ -123,13 +135,14 @@ router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'This is a protected route' });
 });
 
-router.get('/test', (req, res, next) => {
-  authenticateJWT(req, res, (err) => {
-    if (err) return res.status(401).json({ error: 'Unauthorized' }); // if error, it is unauthorized
-    next();
-  });
-}, (req, res) => {
-  res.json({ message: 'This is a test route' });
+router.get('/admin/users', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const users = await User.findAll({ include: Role });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

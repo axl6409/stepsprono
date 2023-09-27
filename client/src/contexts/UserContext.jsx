@@ -9,7 +9,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [cookies] = useCookies(['token']);
+  const [cookies, removeCookie, clearCookie] = useCookies(['token']);
 
   useEffect(() => {
     const loadToken = async () => {
@@ -28,15 +28,16 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         setIsAuthenticated(false);
       }
-      setIsLoading(false); // Marquer le chargement comme terminé
+      setIsLoading(false)
     };
-    loadToken(); // Appel de la fonction pour charger le token
+    loadToken()
   }, [cookies]);
 
   const logout = () => {
-    localStorage.removeItem('token'); // supprimer le token de localStorage
-    setUser(null); // réinitialiser l'état de l'utilisateur
-    setIsAuthenticated(false); // réinitialiser l'état d'authentification
+    localStorage.removeItem('token')
+    clearCookie('token')
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   if (isLoading) {
