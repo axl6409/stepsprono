@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, {useContext, useState} from 'react'
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useNavigate} from "react-router-dom";
 import {useCookies} from "react-cookie";
+import {UserContext} from "../contexts/UserContext.jsx";
 
 const Register = () => {
   const [cookies, setCookie] = useCookies(["user"]);
@@ -14,6 +15,7 @@ const Register = () => {
   })
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated } = useContext(UserContext);
 
   const handleChange = (e) => {
     setFormData({
@@ -33,6 +35,7 @@ const Register = () => {
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setCookie('token', response.data.token, { path: '/' });
+        setIsAuthenticated(true);
         navigate('/dashboard');
       } else {
         console.error('Token is missing in response', response.data);
@@ -47,8 +50,8 @@ const Register = () => {
   }
 
   return (
-    <div className="w-full h-100vh">
-      <div className="py-10 px-6 border-2 border-black w-full mx-auto mt-20 relative bg-white shadow-md before:content-[''] before:block before:absolute before:inset-0 before:z-[-1] before:translate-x-4 before:translate-y-4 before:bg-green-lime before:border-2 before:border-black">
+    <div className="w-full h-100vh pt-20">
+      <div className="block py-10 px-6 border-2 border-black w-11/12 mx-auto relative bg-white shadow-md before:content-[''] before:block before:absolute before:inset-0 before:z-[-1] before:translate-x-4 before:translate-y-4 before:bg-green-lime before:border-2 before:border-black">
         <h1 className="text-center mb-8 text-xl font-title uppercase font-bold">Créer un compte</h1>
         <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
         <form action="" onSubmit={handleSubmit} className="flex flex-col items-center">

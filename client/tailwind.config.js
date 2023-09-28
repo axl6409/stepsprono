@@ -8,6 +8,13 @@ export default {
     extend: {
       colors: {
         'green-lime': "#00ff00",
+        'flat-yellow': '#F4D738',
+        'bright-yellow': '#FFFF00',
+        'electric-blue': '#7DF9FF',
+        'flat-blue': '#3300FF',
+        'flat-purple': '#FF00F5',
+        'flat-red': '#FF4911',
+        'light-red': '#FF6B6B'
       },
       fontFamily: {
         'sans': ['Montserrat'],
@@ -37,8 +44,7 @@ export default {
       },
       boxShadow: {
         'menu': '0.25rem 0.5rem 2rem rgba(0,0,0,.16);',
-        'neomorph': '8px 8px 16px #bfbfbf, -8px -8px 16px #ffffff',
-        'neomorph-hover': 'inset 4px 4px 8px #bfbfbf, -4px -4px 8px #ffffff'
+        'flat-black': '3px 4px 0 rgba(0,0,0,1);',
       },
       translate: {
         '-5': '-1.25rem',

@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const {Role} = require("../models");
+const {Role, Teams} = require("../models");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -85,7 +85,7 @@ router.post('/register', async (req, res) => {
     if (!userRole) return res.status(500).json({ error: 'Rôle utilisateur non trouvé' })
     await user.addRole(userRole);
 
-    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '365d' });
+    const token = jwt.sign({ userId: user.id, role: userRole.name }, secretKey, { expiresIn: '365d' });
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {
@@ -109,10 +109,13 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ where: { username } });
     if (!user) return res.status(400).json({ error: 'Utilisateur inconnu' });
 
+    const userRoles = await user.getRoles();
+    const userRole = userRoles && userRoles.length > 0 ? userRoles[0].name : 'user';
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe incorrect' });
 
-    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '365d' });
+    const token = jwt.sign({ userId: user.id, role: userRole }, secretKey, { expiresIn: '365d' });
 
     res.set('Cache-Control', 'no-store');
     const cookieConfig = {
@@ -130,11 +133,9 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
   }
 });
-
 router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'This is a protected route' });
 });
-
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -142,6 +143,38 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+router.get('/admin/teams', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const users = await Teams.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.post('/admin/teams/add', async (req, res) => {
+  try {
+    const existingTeam = await Teams.findOne({ where: { slug: req.body.slug } });
+    if (existingTeam) {
+      return res.status(400).json({ error: 'Une équipe avec ce nom existe déjà' })
+    }
+    const team = await Teams.create(req.body)
+    res.status(201).json(team)
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
+  }
+});
+router.put('/admin/teams/edit/:id', async (req, res) => {
+  try {
+    const team = await Teams.findByPk(req.params.id)
+    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
+
+    await team.update(req.body)
+    res.status(200).json(team)
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
   }
 });
 

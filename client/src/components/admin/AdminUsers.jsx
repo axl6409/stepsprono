@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -33,14 +35,14 @@ const AdminUsers = () => {
   };
 
   return (
-    <div>
-      <h2>Manage Users</h2>
-      <ul>
+    <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
+      <ul className="flex flex-col justify-start">
         {users.map(user => (
-          <li key={user.id}>
-            {user.username}
-            <button onClick={() => handleEditUser(user.id)}>Modifier</button>
-            <button onClick={() => handleDeleteUser(user.id)}>Supprimer</button>
+          <li className="flex flex-row" key={user.id}>
+            <p className="username">{user.username}</p>
+            <p className="role">{user.Roles && user.Roles[0] ? user.Roles[0].name : 'Aucun rôle'}</p>
+            <button onClick={() => handleEditUser(user.id)}><FontAwesomeIcon icon={faPen} /></button>
+            <button onClick={() => handleDeleteUser(user.id)}><FontAwesomeIcon icon={faCircleXmark} /></button>
           </li>
         ))}
       </ul>

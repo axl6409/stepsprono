@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import {UserProvider} from "./contexts/UserContext.jsx";
 import Teams from "./pages/Teams.jsx";
 import Admin from "./pages/admin/Admin.jsx";
+import Users from "./pages/admin/Users.jsx";
+import EditTeams from "./components/admin/EditTeams.jsx";
 
 const App = () => {
 
@@ -17,7 +19,7 @@ const App = () => {
     <UserProvider>
       <Router>
         <Navbar />
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -25,6 +27,9 @@ const App = () => {
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
+            <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
+            <Route path="/admin/teams" element={<ProtectedRoute component={Teams} />} />
+            <Route path="/admin/teams/edit" element={<ProtectedRoute component={EditTeams} />} />
           </Routes>
         </div>
       </Router>
