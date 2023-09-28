@@ -4,11 +4,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../contexts/UserContext.jsx";
 import {Link, useNavigate} from "react-router-dom";
-import EditTeams from "../components/admin/EditTeams.jsx";
+import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
 
 const Teams = () => {
   const { user } = useContext(UserContext)
   const [teams, setTeams] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate();
 
@@ -30,7 +32,25 @@ const Teams = () => {
   }, []);
 
   const handleDeleteTeam = (teamId) => {
-    // Implémentez la logique pour supprimer l'équipe.
+    setTeamToDelete(teamId);
+    setIsModalOpen(true);
+  };
+
+  const confirmDeletion = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:3001/api/admin/teams/delete/${teamToDelete}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setTeams(teams.filter((team) => team.id !== teamToDelete));
+    } catch (error) {
+      console.error('Error while deleting the team', error);
+    }
+    setIsModalOpen(false);
+  };
+
+  const cancelDeletion = () => {
+    setTeamToDelete(null);
+    setIsModalOpen(false);
   };
 
   const handleEditTeam = (team) => {
@@ -39,6 +59,13 @@ const Teams = () => {
 
   return (
     <div className="inline-block w-full h-auto">
+      {isModalOpen && (
+        <ConfirmationModal
+          message="Êtes-vous sûr de vouloir supprimer cette équipe ?"
+          onConfirm={confirmDeletion}
+          onCancel={cancelDeletion}
+        />
+      )}
       <h1 className="text-center font-title uppercase font-black text-xxl my-4">Équipes de football françaises</h1>
       {user && user.role === 'admin' && (
         <button onClick={() => navigate('/admin/teams/edit', { state: { mode: 'add' } })}>Ajouter une équipe</button>

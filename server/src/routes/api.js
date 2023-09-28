@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const {Role, Teams} = require("../models");
+const {Role, Teams, League, Team} = require("../models");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -33,6 +33,14 @@ const authenticateJWT = (req, res, next) => {
 };
 
 // Define a GET routes
+router.get('/leagues', authenticateJWT, async (req, res) => {
+  try {
+    const leagues = await League.findAll();
+    res.json(leagues);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+})
 router.get('/data', (req, res) => {
   // Perform some operation (e.g., fetch data from a database)
   // Send a JSON response to the client
@@ -134,7 +142,7 @@ router.post('/login', async (req, res) => {
   }
 });
 router.get('/dashboard', authenticateJWT, (req, res) => {
-  res.json({ message: 'This is a protected route' });
+  res.json({ message: 'Route protégée' });
 });
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
@@ -147,20 +155,19 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
 });
 router.get('/admin/teams', authenticateJWT, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const users = await Teams.findAll();
-    res.json(users);
+    const teams = await Team.findAll();
+    res.json(teams);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 });
 router.post('/admin/teams/add', async (req, res) => {
   try {
-    const existingTeam = await Teams.findOne({ where: { slug: req.body.slug } });
+    const existingTeam = await Team.findOne({ where: { slug: req.body.slug } });
     if (existingTeam) {
       return res.status(400).json({ error: 'Une équipe avec ce nom existe déjà' })
     }
-    const team = await Teams.create(req.body)
+    const team = await Team.create(req.body)
     res.status(201).json(team)
   } catch (error) {
     res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
@@ -177,5 +184,7 @@ router.put('/admin/teams/edit/:id', async (req, res) => {
     res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
   }
 });
+
+router.delete('/admin/teams/delete/:id', authenticateJWT, TeamController.deleteTeam);
 
 module.exports = router;

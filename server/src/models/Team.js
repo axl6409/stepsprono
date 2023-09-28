@@ -1,7 +1,8 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../../database')
+const {League} = require("./index");
 
-const Teams = sequelize.define('Teams', {
+const Team = sequelize.define('Team', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -15,7 +16,15 @@ const Teams = sequelize.define('Teams', {
   logoUrl: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  leagueId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: League,
+      key: 'id'
+    }
   }
 })
 
-module.exports = Teams
+module.exports = Team

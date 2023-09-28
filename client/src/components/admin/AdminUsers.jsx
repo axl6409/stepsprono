@@ -14,7 +14,7 @@ const AdminUsers = () => {
       try {
         const response = await axios.get('http://127.0.0.1:3001/api/admin/users', {
           headers: {
-            'Authorization': `Bearer ${token}`, // remplacez `${token}` par le jeton JWT réel
+            'Authorization': `Bearer ${token}`,
           }
         });
         setUsers(response.data);
