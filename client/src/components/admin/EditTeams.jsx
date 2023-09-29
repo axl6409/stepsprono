@@ -123,6 +123,7 @@ const EditTeams = ({ team, mode, onSubmit }) => {
             htmlFor="leagueId"
             className="relative z-[3] font-sans font-bold text-sm py-1 px-2 w-fit bg-white border-t-2 border-r-2 border-l-2 border-t-black border-r-black border-l-black bottom-[-2px]">League</label>
           <select id="leagueId" className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black" {...register('leagueId', { required: 'Veuillez sélectionner une league' })}>
+            <option value="" disabled selected>Sélectionnez une ligue</option>
             {leagues.map((league) => (
               <option key={league.id} value={league.id}>
                 {league.name}
