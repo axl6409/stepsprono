@@ -153,10 +153,18 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/admin/teams', authenticateJWT, async (req, res) => {
+router.get('/teams', authenticateJWT, async (req, res) => {
   try {
-    const teams = await Team.findAll();
-    res.json(teams);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const teams = await Team.findAndCountAll({ offset, limit });
+    res.json({
+      data: teams.rows,
+      totalPages: Math.ceil(teams.count / limit),
+      currentPage: page,
+      totalCount: teams.count,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
