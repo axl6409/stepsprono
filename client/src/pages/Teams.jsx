@@ -63,7 +63,6 @@ const Teams = () => {
     setTeamToDelete(teamId);
     setIsModalOpen(true);
   };
-
   const confirmDeletion = async () => {
     try {
       await axios.delete(`http://127.0.0.1:3001/api/admin/teams/delete/${teamToDelete}`, {

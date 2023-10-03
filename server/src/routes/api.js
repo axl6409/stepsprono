@@ -155,13 +155,18 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
 });
 router.get('/teams', authenticateJWT, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
     const teams = await Team.findAndCountAll({ offset, limit });
     res.json({
       data: teams.rows,
-      totalPages: Math.ceil(teams.count / limit),
+      totalPages: limit ? Math.ceil(teams.count / limit) : 1,
       currentPage: page,
       totalCount: teams.count,
     });
