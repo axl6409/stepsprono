@@ -12,6 +12,8 @@ import Teams from "./pages/Teams.jsx";
 import Admin from "./pages/admin/Admin.jsx";
 import Users from "./pages/admin/Users.jsx";
 import EditTeams from "./components/admin/EditTeams.jsx";
+import Matchs from "./pages/Matchs.jsx";
+import Classements from "./pages/Classements.jsx";
 
 const App = () => {
 
@@ -25,6 +27,8 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+            <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+            <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
