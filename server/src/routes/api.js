@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const {Role, Teams, League, Team} = require("../models");
+const {Role, Teams, League, Team, Match} = require("../models");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -32,7 +32,7 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// Define a GET routes
+// Define GET routes
 router.get('/leagues', authenticateJWT, async (req, res) => {
   try {
     const leagues = await League.findAll();
@@ -49,6 +49,69 @@ router.get('/data', (req, res) => {
 router.get('/login', (req, res) => {
   res.json({ message: 'login page'})
 })
+router.get('/dashboard', authenticateJWT, (req, res) => {
+  res.json({ message: 'Route protégée' });
+});
+router.get('/admin/users', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const users = await User.findAll({ include: Role });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/teams', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+    const teams = await Team.findAndCountAll({ offset, limit });
+    res.json({
+      data: teams.rows,
+      totalPages: limit ? Math.ceil(teams.count / limit) : 1,
+      currentPage: page,
+      totalCount: teams.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+});
+router.get('/matches', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+    const matchs = await Match.findAndCountAll({
+      offset,
+      limit,
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    res.json({
+      data: matchs.rows,
+      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
+      currentPage: page,
+      totalCount: matchs.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+});
+
+// Define POST routes
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
@@ -141,39 +204,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
   }
 });
-router.get('/dashboard', authenticateJWT, (req, res) => {
-  res.json({ message: 'Route protégée' });
-});
-router.get('/admin/users', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const users = await User.findAll({ include: Role });
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-router.get('/teams', authenticateJWT, async (req, res) => {
-  try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
-    if (!req.query.page && !req.query.limit) {
-      limit = null;
-      offset = null;
-    }
-    const teams = await Team.findAndCountAll({ offset, limit });
-    res.json({
-      data: teams.rows,
-      totalPages: limit ? Math.ceil(teams.count / limit) : 1,
-      currentPage: page,
-      totalCount: teams.count,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée' , error: error.message });
-  }
-});
 router.post('/admin/teams/add', async (req, res) => {
   try {
     const existingTeam = await Team.findOne({ where: { slug: req.body.slug } });
@@ -186,18 +216,33 @@ router.post('/admin/teams/add', async (req, res) => {
     res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
   }
 });
-router.put('/admin/teams/edit/:id', async (req, res) => {
+router.post('/matchs/add', async (req, res) => {
   try {
-    const team = await Teams.findByPk(req.params.id)
-    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
-
-    await team.update(req.body)
-    res.status(200).json(team)
+    const date = req.body.date
+    const homeTeam = parseInt(req.body.homeTeam, 10)
+    const awayTeam = parseInt(req.body.awayTeam, 10)
+    const existingMatch = await Match.findOne({
+      where: {
+        date: date,
+        homeTeamId: homeTeam,
+        awayTeamId: awayTeam
+      }
+    })
+    if (existingMatch) {
+      return res.status(400).json({ error: 'Un match similaire existe déjà pour cette date et ces équipes' });
+    }
+    const match = await Match.create({
+      ...req.body,
+      homeTeamId: homeTeam,
+      awayTeamId: awayTeam
+    });
+    res.status(201).json(match);
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
+    res.status(400).json({ error: 'Impossible de créer le match', message: error, datas: req.body });
   }
 });
 
+// Define DELETE routes
 router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
@@ -210,6 +255,30 @@ router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
     res.status(200).json({ message: 'Équipe supprimée avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+});
+
+// Define PUT routes
+router.put('/admin/teams/edit/:id', async (req, res) => {
+  try {
+    const team = await Teams.findByPk(req.params.id)
+    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
+
+    await team.update(req.body)
+    res.status(200).json(team)
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
+  }
+});
+router.put('/matchs/edit/:id', async (req, res) => {
+  try {
+    const team = await Teams.findByPk(req.params.id)
+    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
+
+    await team.update(req.body)
+    res.status(200).json(team)
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
   }
 });
 

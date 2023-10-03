@@ -45,7 +45,7 @@ export default {
       boxShadow: {
         'menu': '0.25rem 0.5rem 2rem rgba(0,0,0,.16);',
         'flat-black': '3px 4px 0 rgba(0,0,0,1);',
-        'flat-black-adjust': '2px 3px 0 rgba(0,0,0,1)'
+        'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1)'
       },
       translate: {
         '-5': '-1.25rem',

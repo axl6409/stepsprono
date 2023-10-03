@@ -31,11 +31,6 @@ const Match = sequelize.define('Match', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  status: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: 'upcoming'
-  }
 })
 
 module.exports = Match

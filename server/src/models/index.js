@@ -10,8 +10,8 @@ User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId' })
 Role.belongsToMany(User, { through: UserRole, foreignKey: 'roleId' })
 League.hasMany(Team, { foreignKey: 'leagueId' });
 Team.belongsTo(League, { foreignKey: 'leagueId' });
-Team.hasMany(Match, { foreignKey: 'homeTeamId' });
-Team.hasMany(Match, { foreignKey: 'awayTeamId' });
+Team.hasMany(Match, { as: 'homeMatches', foreignKey: 'homeTeamId' });
+Team.hasMany(Match, { as: 'awayMatches', foreignKey: 'awayTeamId' });
 Match.belongsTo(Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
 Match.belongsTo(Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
 

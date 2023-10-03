@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 
-const EditMatchs = ({ match, mode, onSubmit }) => {
+const EditMatchs = ({ match, mode, onSubmit, onChange }) => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
@@ -15,6 +15,7 @@ const EditMatchs = ({ match, mode, onSubmit }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [teams, setTeams] = useState([]);
   const [selectedHomeTeam, setSelectedHomeTeam] = useState(null);
+  const [selectedAwayTeam, setSelectedAwayTeam] = useState(null);
 
   useEffect(() => {
     if (mode === 'edit' && match) {
@@ -68,11 +69,19 @@ const EditMatchs = ({ match, mode, onSubmit }) => {
       }
     }
   };
+  const handleHomeTeamChange = (e) => {
+    setSelectedHomeTeam(Number(e.target.value));
+    setSelectedAwayTeam(null);
+  };
+  const handleAwayTeamChange = (e) => {
+    setSelectedAwayTeam(Number(e.target.value));
+    setSelectedHomeTeam(null);
+  };
 
   return (
     <div className="px-6 py-4 relative">
       <Link
-        to="/admin/teams"
+        to="/matchs"
         className="w-fit block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
       >
         <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0"><FontAwesomeIcon icon={faCaretLeft} /></span>
@@ -89,19 +98,18 @@ const EditMatchs = ({ match, mode, onSubmit }) => {
             className="relative z-[3] font-sans font-bold text-sm py-1 px-2 w-fit bg-white border-t-2 border-r-2 border-l-2 border-t-black border-r-black border-l-black bottom-[-2px]">Home Team</label>
           <select
             id="homeTeam"
-            onChange={(e) => {
-              console.log("Changing home team to:", e.target.value);
-              setSelectedHomeTeam(e.target.value);
-              register('homeTeam').onChange(e);
-            }}
             className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black"
-            {...register('homeTeam')}>
+            {...register('homeTeam', {
+              onChange: (e) => handleHomeTeamChange(e),
+            })}>
             <option value="">Sélectionnez une équipe</option>
-            {teams.map(team => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
+            {teams
+              .filter(team => team.id !== selectedAwayTeam)
+              .map(team => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex flex-col my-4 group">
@@ -111,15 +119,17 @@ const EditMatchs = ({ match, mode, onSubmit }) => {
           <select
             id="awayTeam"
             className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black"
-            {...register('awayTeam')}>
+            {...register('awayTeam', {
+              onChange: (e) => handleAwayTeamChange(e),
+            })}>
             <option value="">Sélectionnez une équipe</option>
             {teams
-              .filter(team => team.id !== Number(selectedHomeTeam))
+              .filter(team => team.id !== selectedHomeTeam)
               .map(team => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
+                <option key={team.id} value={team.id} style={{ backgroundImage: team.logoUrl ? `url(${team.logoUrl})` : 'none' }}>
+                  {team.name}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex flex-col my-4 group">
