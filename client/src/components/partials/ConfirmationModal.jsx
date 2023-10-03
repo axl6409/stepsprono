@@ -4,7 +4,7 @@ import React from "react";
 
 const ConfirmationModal = ({ message, onConfirm, onCancel }) => {
   return (
-    <div className="modal relative w-full pt-4 pb-8 border-b-2 border-b-black bg-flat-yellow">
+    <div className="modal relative w-full pt-4 pb-8 border-b-2 border-t-2 border-black bg-flat-yellow">
       <div className="modal-content my-auto block w-[95%] mx-auto bg-white">
         <div className="py-4 px-6 mx-auto border-2 border-black w-full shadow-flat-black">
           <p className="font-sans text-center font-l font-medium leading-7">{message}</p>

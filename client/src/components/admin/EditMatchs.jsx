@@ -23,8 +23,6 @@ const EditMatchs = ({ match, mode, onSubmit, onChange }) => {
       setSelectedHomeTeam(match.homeTeam);
       setValue('awayTeam', match.awayTeam || '')
       setValue('date', match.date || '')
-      setValue('homeScore', match.homeScore || 0)
-      setValue('awayScore', match.awayScore || 0)
     }
   }, [mode, match, setValue]);
 
@@ -49,15 +47,15 @@ const EditMatchs = ({ match, mode, onSubmit, onChange }) => {
     setSuccessMessage('');
     try {
       const url = mode === 'edit'
-        ? `http://localhost:3001/api/matchs/edit/${match.id}`
-        : 'http://localhost:3001/api/matchs/add';
+        ? `http://localhost:3001/api/admin/matchs/edit/${match.id}`
+        : 'http://localhost:3001/api/admin/matchs/add';
       const method = mode === 'edit' ? 'put' : 'post';
 
       if (onSubmit) {
         await onSubmit(data);
       } else {
         await axios({ method, url, data });
-        setSuccessMessage('Match updated!');
+        setSuccessMessage('Match créé !');
         setTimeout(() => setSuccessMessage(''), 2000);
         reset();
       }
@@ -65,7 +63,7 @@ const EditMatchs = ({ match, mode, onSubmit, onChange }) => {
       if (error.response && error.response.data && error.response.data.error) {
         setErrorMessage(error.response.data.error);
       } else {
-        setErrorMessage('An unexpected error occurred');
+        setErrorMessage('Une erreur est arrivée: ' + error);
       }
     }
   };
@@ -140,24 +138,6 @@ const EditMatchs = ({ match, mode, onSubmit, onChange }) => {
             id="date"
             className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black"
             type="datetime-local" {...register('date')} />
-        </div>
-        <div className="flex flex-col my-4 group">
-          <label
-            htmlFor="homeScore"
-            className="relative z-[3] font-sans font-bold text-sm py-1 px-2 w-fit bg-white border-t-2 border-r-2 border-l-2 border-t-black border-r-black border-l-black bottom-[-2px]">Home Score</label>
-          <input
-            id="homeScore"
-            className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black"
-            type="number" {...register('homeScore')} />
-        </div>
-        <div className="flex flex-col my-4 group">
-          <label
-            htmlFor="awayScore"
-            className="relative z-[3] font-sans font-bold text-sm py-1 px-2 w-fit bg-white border-t-2 border-r-2 border-l-2 border-t-black border-r-black border-l-black bottom-[-2px]">Away Score</label>
-          <input
-            id="awayScore"
-            className="relative z-[2] px-2 py-1.5 w-full border-2 border-black font-sans font-regular text-sm transition duration-300 focus:outline-none focus:shadow-flat-black group-hover:shadow-flat-black"
-            type="number" {...register('awayScore')} />
         </div>
         <button
           type="submit"

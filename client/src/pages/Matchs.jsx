@@ -4,6 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCirclePlus, faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../contexts/UserContext.jsx";
 import axios from "axios";
+import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
 
 
 const Matchs = () => {
@@ -11,6 +12,8 @@ const Matchs = () => {
   const [matchs, setMatchs] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [teamToDelete, setTeamToDelete] = useState(null)
   const [totalPages, setTotalPages] = useState(0)
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
@@ -32,9 +35,36 @@ const Matchs = () => {
     }
     fetchMatchs()
   }, [currentPage, itemsPerPage]);
-  console.log(matchs);
+
+  const handleDeleteTeam = (teamId) => {
+    setTeamToDelete(teamId);
+    setIsModalOpen(true);
+  };
+  const confirmDeletion = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:3001/api/admin/matchs/delete/${teamToDelete}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setMatchs(matchs.filter((team) => team.id !== teamToDelete));
+    } catch (error) {
+      console.error('Error while deleting the team', error);
+    }
+    setIsModalOpen(false);
+  };
+  const cancelDeletion = () => {
+    setTeamToDelete(null);
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className="text-center relative h-70vh flex flex-col justify-center">
+    <div className="text-center relative h-auto pt-16 flex flex-col justify-center">
+      {isModalOpen && (
+        <ConfirmationModal
+          message="Êtes-vous sûr de vouloir supprimer cette équipe ?"
+          onConfirm={confirmDeletion}
+          onCancel={cancelDeletion}
+        />
+      )}
       {user && user.role === 'admin' && (
         <button
           className="group w-fit px-2.5 py-0.5 bg-white absolute -top-2 right-4 shadow-flat-black-adjust border-2 border-black rounded-br-xl rounded-bl-xl font-title text-l uppercase font-bold"
@@ -69,7 +99,7 @@ const Matchs = () => {
                       </button>
                       <button
                         className="w-fit h-[30px] block relative mx-auto my-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-x-0 before:inset-y-px before:bg-flat-red before:border-black before:border-2 group"
-                        >
+                        onClick={() => handleDeleteTeam(match.id)}>
                         <FontAwesomeIcon icon={faCircleXmark} className="relative z-[2] w-fit block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0" />
                       </button>
                     </>

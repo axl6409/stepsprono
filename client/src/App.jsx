@@ -14,7 +14,7 @@ import Users from "./pages/admin/Users.jsx";
 import EditTeams from "./components/admin/EditTeams.jsx";
 import Matchs from "./pages/Matchs.jsx";
 import Classements from "./pages/Classements.jsx";
-import EditMatchs from "./components/user/EditMatchs.jsx";
+import EditMatchs from "./components/admin/EditMatchs.jsx";
 
 const App = () => {
 

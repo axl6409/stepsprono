@@ -71,7 +71,6 @@ app.listen(PORT, async () => {
         slug: 'national-3',
         logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/f/fe/Logo_Championnat_Football_National_3_FFF_2017.svg/langfr-180px-Logo_Championnat_Football_National_3_FFF_2017.svg.png',
       } });
-    console.log('User role verified');
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

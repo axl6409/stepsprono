@@ -216,7 +216,7 @@ router.post('/admin/teams/add', async (req, res) => {
     res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
   }
 });
-router.post('/matchs/add', async (req, res) => {
+router.post('/admin/matchs/add', async (req, res) => {
   try {
     const date = req.body.date
     const homeTeam = parseInt(req.body.homeTeam, 10)
@@ -257,6 +257,21 @@ router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
 });
+router.delete('/admin/matchs/delete/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+
+    const matchId = req.params.id;
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await match.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+});
+
 
 // Define PUT routes
 router.put('/admin/teams/edit/:id', async (req, res) => {
@@ -270,7 +285,7 @@ router.put('/admin/teams/edit/:id', async (req, res) => {
     res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
   }
 });
-router.put('/matchs/edit/:id', async (req, res) => {
+router.put('/admin/matchs/edit/:id', async (req, res) => {
   try {
     const team = await Teams.findByPk(req.params.id)
     if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
