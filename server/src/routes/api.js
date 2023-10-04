@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const {Role, Teams, League, Team, Match} = require("../models");
+const {Role, Teams, League, Team, Match, Bets} = require("../models");
 
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -110,6 +110,30 @@ router.get('/matches', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 });
+router.get('/bets', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+    const bets = await Bets.findAndCountAll({
+      offset,
+      limit,
+      include: [
+        { model: Team, as: 'Winner' }
+      ]
+    });
+    res.json({
+      data: bets.rows,
+      totalPages: limit ? Math.ceil(bets.count / limit) : 1,
+      currentPage: page,
+      totalCount: bets.count,
+  }
+})
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
@@ -241,6 +265,29 @@ router.post('/admin/matchs/add', async (req, res) => {
     res.status(400).json({ error: 'Impossible de créer le match', message: error, datas: req.body });
   }
 });
+router.post('/bet/add', async (req, res) => {
+  try {
+    const date = req.body.date
+    const userId = req.body.userId
+    const existingBet = await Bets.findOne({
+      where: {
+        date: date,
+        userId: userId,
+      }
+    })
+    if (existingBet) {
+      return res.status(401).json({ error: 'Un pari similaire existe déjà pour cette date et cet utilisateur' });
+    }
+    const bet = await Bets.create({
+      ...req.body,
+      date: date,
+      userId: userId
+    })
+    res.status(201).json(bet);
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
+  }
+})
 
 // Define DELETE routes
 router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
@@ -271,7 +318,20 @@ router.delete('/admin/matchs/delete/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
 });
+router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
+    const betId = req.params.id;
+    const bet = await Match.findByPk(betId);
+    if (!bet) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await bet.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+})
 
 // Define PUT routes
 router.put('/admin/teams/edit/:id', async (req, res) => {
