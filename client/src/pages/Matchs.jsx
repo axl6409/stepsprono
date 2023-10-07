@@ -89,6 +89,9 @@ const Matchs = () => {
                 <div className="w-3/5 text-center flex flex-col justify-center px-6 py-2">
                   <p className="name font-sans text-base font-medium">{match.date}</p>
                 </div>
+                <Link to={`/pronostic/${match.id}`} className="w-1/5 flex flex-col justify-center">
+                  <FontAwesomeIcon icon={faPen} className="inline-block align-[-4px]" />
+                </Link>
                 <div className="w-1/5 flex flex-col justify-evenly">
                   {user && user.role === 'admin' && (
                     <>

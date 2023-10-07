@@ -4,9 +4,10 @@ const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const {Role, Teams, League, Team, Match, Bets} = require("../models");
-
+const axios = require('axios');
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
+const apiKey = process.env.FBD_API_KEY;
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -110,6 +111,14 @@ router.get('/matches', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 });
+router.get('/match/:matchId', authenticateJWT, async (req, res) => {
+  try {
+    const match = await Match.findByPk(req.params.matchId);
+    res.json(match);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+})
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -132,6 +141,22 @@ router.get('/bets', authenticateJWT, async (req, res) => {
       totalPages: limit ? Math.ceil(bets.count / limit) : 1,
       currentPage: page,
       totalCount: bets.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+})
+
+// Get routes for API
+router.get('/APIUpcomingMatches', authenticateJWT, async (req, res) => {
+  try {
+    const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
+      headers: { 'X-Auth-Token': apiKey }
+    });
+    const matches = response.data.matches;
+    res.json(matches);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
 

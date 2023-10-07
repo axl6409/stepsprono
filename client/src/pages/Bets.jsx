@@ -1,36 +1,42 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {UserContext} from "../contexts/UserContext.jsx";
 import axios from "axios";
 import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
+import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 
 const Bets = () => {
-  const {user, setUser} = useState(useContext)
+  const { user } = useContext(UserContext)
   const [bets, setBets] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [betToDelete, setBetToDelete] = useState(null)
-  const [totalPages, setTotalPages] = useState(0)
+  const { matchId } = useParams()
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchBets = async () => {
+    const fetchMatch = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/bets', {
-          params: { page: currentPage, limit: itemsPerPage },
+        const response = await axios.get('http://127.0.0.1:3001/api/match/${matchId}', {
           headers: {
-            'Authorization': `Bearer ${token}`, // remplacez `${token}` par le jeton JWT réel
+            'Authorization': `Bearer ${token}`,
           }
         });
         setBets(response.data.data);
-        setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Erreur lors de la récupération des paris :', error);
       }
     }
-    fetchBets()
-  }, [currentPage, itemsPerPage]);
+    fetchMatch()
+  });
+
+  return (
+    <div className="text-center relative h-auto pt-16 flex flex-col justify-center">
+      <h1 className="text-3xl font-bold mb-4">Pronostic</h1>
+      <div>
+
+      </div>
+    </div>
+  )
 }
+
+export default Bets;
