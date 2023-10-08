@@ -2,11 +2,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../database');
 
 const Season = sequelize.define('Season', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    allowNull: false,
-  },
   startDate: {
     type: DataTypes.DATE,
     allowNull: false,

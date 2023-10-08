@@ -6,6 +6,7 @@ const apiRoutes = require('./src/routes/api')
 const sequelize = require('./database');
 const models = require('./src/models')
 const {Role} = require("./src/models");
+const runCronJob = require("./cronJob");
 
 require('dotenv').config();
 
@@ -34,14 +35,15 @@ app.use(cors(corsOptions))
 // Use the API routes
 app.use('/api', apiRoutes);
 
+runCronJob();
 // Define other routes and middleware here
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
-    await sequelize.authenticate()
+    await models.sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
-    await sequelize.sync({ force: true })
+    await sequelize.sync({ force: false })
     console.log('Database synchronized.')
     await Role.findOrCreate({ where: { name: 'admin' } });
     await Role.findOrCreate({ where: { name: 'manager' } });

@@ -2,11 +2,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../database');
 
 const Area = sequelize.define('Area', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    allowNull: false,
-  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,

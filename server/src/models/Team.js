@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../../database')
-const {Competition} = require("./index");
 
 const Team = sequelize.define('Team', {
   name: {
@@ -8,10 +7,14 @@ const Team = sequelize.define('Team', {
     allowNull: false,
     unique: true,
   },
-  slug: {
+  shortName: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+  },
+  tla: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   logoUrl: {
     type: DataTypes.STRING,
@@ -20,10 +23,6 @@ const Team = sequelize.define('Team', {
   competitionId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: Competition,
-      key: 'id'
-    }
   }
 })
 
