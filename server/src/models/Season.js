@@ -16,7 +16,7 @@ const Season = sequelize.define('Season', {
     allowNull: false,
   },
   winner: {
-    type: DataTypes.INT,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
 });

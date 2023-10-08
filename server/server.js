@@ -5,7 +5,7 @@ const cors = require('cors')
 const apiRoutes = require('./src/routes/api')
 const sequelize = require('./database');
 const models = require('./src/models')
-const {Role, League} = require("./src/models");
+const {Role} = require("./src/models");
 
 require('dotenv').config();
 
@@ -41,36 +41,11 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
-    await sequelize.sync({ force: false })
+    await sequelize.sync({ force: true })
     console.log('Database synchronized.')
     await Role.findOrCreate({ where: { name: 'admin' } });
     await Role.findOrCreate({ where: { name: 'manager' } });
     await Role.findOrCreate({ where: { name: 'user' } });
-    await League.findOrCreate({ where: {
-        name: 'Ligue 1',
-        slug: 'ligue-1',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/3/3c/Logo_Ligue_1_Uber_Eats_2022.svg/langfr-130px-Logo_Ligue_1_Uber_Eats_2022.svg.png',
-    } });
-    await League.findOrCreate({ where: {
-        name: 'Ligue 2',
-        slug: 'ligue-2',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/4/4f/Logo_Ligue_2_BKT_2020.svg/langfr-130px-Logo_Ligue_2_BKT_2020.svg.png',
-      } });
-    await League.findOrCreate({ where: {
-        name: 'National',
-        slug: 'national',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/a/a0/Logo_Championnat_Football_National_FFF_2017.svg/langfr-180px-Logo_Championnat_Football_National_FFF_2017.svg.png',
-      } });
-    await League.findOrCreate({ where: {
-        name: 'National 2',
-        slug: 'national-2',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/8/8a/Logo_Championnat_Football_National_2_FFF_2017.svg/langfr-180px-Logo_Championnat_Football_National_2_FFF_2017.svg.png',
-      } });
-    await League.findOrCreate({ where: {
-        name: 'National 3',
-        slug: 'national-3',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/fr/thumb/f/fe/Logo_Championnat_Football_National_3_FFF_2017.svg/langfr-180px-Logo_Championnat_Football_National_3_FFF_2017.svg.png',
-      } });
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

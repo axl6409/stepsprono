@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const {Role, Teams, League, Team, Match, Bets} = require("../models");
+const {Role, Teams, Competition, Team, Match, Bets} = require("../models");
 const axios = require('axios');
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
@@ -34,10 +34,10 @@ const authenticateJWT = (req, res, next) => {
 };
 
 // Define GET routes
-router.get('/leagues', authenticateJWT, async (req, res) => {
+router.get('/competitions', authenticateJWT, async (req, res) => {
   try {
-    const leagues = await League.findAll();
-    res.json(leagues);
+    const competitions = await Competition.findAll();
+    res.json(competitions);
   } catch (error) {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }

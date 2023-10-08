@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../../database')
-const {League} = require("./index");
+const {Competition} = require("./index");
 
 const Team = sequelize.define('Team', {
   name: {
@@ -17,11 +17,11 @@ const Team = sequelize.define('Team', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  leagueId: {
+  competitionId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: League,
+      model: Competition,
       key: 'id'
     }
   }
