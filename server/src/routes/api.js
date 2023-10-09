@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
-const jwt = require('jsonwebtoken');
-const {Role, Teams, Competition, Team, Match, Bets} = require("../models");
-const axios = require('axios');
-require('dotenv').config();
-const secretKey = process.env.SECRET_KEY;
-const apiKey = process.env.FBD_API_KEY;
+const jwt = require('jsonwebtoken')
+const moment = require('moment-timezone')
+moment.tz.setDefault("Europe/Paris");
+const {Role, Teams, Competition, Team, Match, Bets} = require("../models")
+const axios = require('axios')
+require('dotenv').config()
+const secretKey = process.env.SECRET_KEY
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -120,7 +121,7 @@ router.get('/match/:matchId', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 })
-router.get('/matches/passed', authenticateJWT, async (req, res) => {
+router.get('/matchs/passed', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
     let page = parseInt(req.query.page) || 1;
@@ -154,6 +155,80 @@ router.get('/matches/passed', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
+router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+
+    const nextFriday = moment().tz("Europe/Paris").day(5).startOf('day').format('YYYY-DD-MM HH:mm:ss');
+    const nextSunday = moment().tz("Europe/Paris").day(7).endOf('day').format('YYYY-DD-MM HH:mm:ss');
+    const today = moment().tz("Europe/Paris").format('YYYY-DD-MM HH:mm:ss')
+
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utcDate: {
+          [Op.gte]: nextFriday,
+          [Op.lte]: nextSunday
+        }
+      },
+      offset,
+      limit,
+    });
+    res.json({
+      data: matchs.rows,
+      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
+      currentPage: page,
+      totalCount: matchs.count,
+      today: today,
+      nextFriday: moment(nextFriday).format('YYYY-MM-DD HH:mm:ss'),
+      nextSunday: moment(nextSunday).format('YYYY-MM-DD HH:mm:ss'),
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+
+    const startOfWeek = moment().tz("Europe/Paris").startOf('week').add((page - 1) * 7, 'days').format('YYYY-MM-DD HH:mm:ss');
+    const endOfWeek = moment().tz("Europe/Paris").startOf('week').add(page * 7 - 1, 'days').endOf('day').format('YYYY-MM-DD HH:mm:ss');
+
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utcDate: {
+          [Op.gte]: startOfWeek,
+          [Op.lte]: endOfWeek
+        }
+      },
+      offset,
+      limit,
+    });
+
+    res.json({
+      data: matchs.rows,
+      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
+      currentPage: page,
+      totalCount: matchs.count,
+      startOfWeek: startOfWeek,
+      endOfWeek: endOfWeek,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+
+
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;

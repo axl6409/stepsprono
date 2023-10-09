@@ -27,13 +27,14 @@ const Matchs = () => {
   useEffect(() => {
     const fetchPassedMatchs = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/matches/passed', {
+        const response = await axios.get('http://127.0.0.1:3001/api/matchs/by-week', {
           params: { page: currentPage, limit: itemsPerPage },
           headers: {
-            'Authorization': `Bearer ${token}`, // remplacez `${token}` par le jeton JWT réel
+            'Authorization': `Bearer ${token}`,
           }
         });
         setMatchs(response.data.data);
+        console.log(response)
         setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
