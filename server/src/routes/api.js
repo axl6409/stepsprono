@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
+const { Op } = require('sequelize')
 const jwt = require('jsonwebtoken');
 const {Role, Teams, Competition, Team, Match, Bets} = require("../models");
 const axios = require('axios');
@@ -119,6 +120,40 @@ router.get('/match/:matchId', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 })
+router.get('/matches/passed', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+    const currentDate = new Date()
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utcDate: {
+          [Op.lt]: currentDate
+        }
+      },
+      offset,
+      limit,
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    res.json({
+      data: matchs.rows,
+      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
+      currentPage: page,
+      totalCount: matchs.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -142,19 +177,6 @@ router.get('/bets', authenticateJWT, async (req, res) => {
       currentPage: page,
       totalCount: bets.count,
     });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée' , error: error.message });
-  }
-})
-
-// Get routes for API
-router.get('/APIUpcomingMatches', authenticateJWT, async (req, res) => {
-  try {
-    const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
-      headers: { 'X-Auth-Token': apiKey }
-    });
-    const matches = response.data.matches;
-    res.json(matches);
   } catch (error) {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }

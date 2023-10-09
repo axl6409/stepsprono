@@ -29,7 +29,7 @@ const runCronJob = () => {
     }
   })
 
-  cron.schedule('54 14 * * *', async () => {
+  cron.schedule('00 10 * * *', async () => {
     try {
       const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
         headers: { 'X-Auth-Token': apiKey }
