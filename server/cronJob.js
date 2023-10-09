@@ -1,33 +1,35 @@
 const cron = require('node-cron')
 const axios = require('axios');
-const { Match, Team } = require('./src/models');
+const { Match, Team, Area} = require('./src/models');
 const ProgressBar = require('progress');
 const apiKey = process.env.FBD_API_KEY;
 
 const runCronJob = () => {
-  // cron.schedule('00 01 * * *', async () => {
-  //   try {
-  //     const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/teams', {
-  //       headers: { 'X-Auth-Token': apiKey }
-  //     })
-  //     const teams = response.data.teams;
-  //     for (const team of teams) {
-  //       await Team.create({
-  //         id: team.id,
-  //         name: team.name,
-  //         shortName: team.shortName,
-  //         tla: team.tla,
-  //         logoUrl: team.crest,
-  //         competitionId: 2015,
-  //       })
-  //     }
-  //   } catch (error) {
-  //     console.log('Erreur lors de la mise à jour des données:', error);
-  //
-  //   }
-  // })
+  cron.schedule('00 01 * * *', async () => {
+    try {
+      const count = await Team.count();
+      if (count === 0) {
+        const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/teams', {
+          headers: { 'X-Auth-Token': apiKey }
+        })
+        const teams = response.data.teams;
+        for (const team of teams) {
+          await Team.create({
+            id: team.id,
+            name: team.name,
+            shortName: team.shortName,
+            tla: team.tla,
+            logoUrl: team.crest,
+            competitionId: 2015,
+          })
+        }
+      }
+    } catch (error) {
+      console.log('Erreur lors de la mise à jour des données:', error);
+    }
+  })
 
-  cron.schedule('00 15 * * *', async () => {
+  cron.schedule('54 14 * * *', async () => {
     try {
       const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
         headers: { 'X-Auth-Token': apiKey }
