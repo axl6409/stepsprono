@@ -157,39 +157,38 @@ router.get('/matchs/passed', authenticateJWT, async (req, res) => {
 });
 router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
   try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
-    if (!req.query.page && !req.query.limit) {
-      limit = null;
-      offset = null;
-    }
-
-    const nextFriday = moment().tz("Europe/Paris").day(5).startOf('day').format('YYYY-DD-MM HH:mm:ss');
-    const nextSunday = moment().tz("Europe/Paris").day(7).endOf('day').format('YYYY-DD-MM HH:mm:ss');
-    const today = moment().tz("Europe/Paris").format('YYYY-DD-MM HH:mm:ss')
-
-    const matchs = await Match.findAndCountAll({
+    const today = moment().tz("Europe/Paris").format('YYYY-MM-DD HH:mm:ss');
+    const nextMatch = await Match.findOne({
       where: {
         utcDate: {
-          [Op.gte]: nextFriday,
-          [Op.lte]: nextSunday
+          [Op.gte]: today
         }
       },
-      offset,
-      limit,
+      order: [
+        ['utcDate', 'ASC']
+      ]
+    });
+    if (!nextMatch) {
+      return res.status(404).json({ message: 'Aucun match trouvé' });
+    }
+    const matchday = nextMatch.matchday;
+    const matchs = await Match.findAndCountAll({
+      where: {
+        matchday: matchday
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
     });
     res.json({
       data: matchs.rows,
-      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
-      currentPage: page,
       totalCount: matchs.count,
       today: today,
-      nextFriday: moment(nextFriday).format('YYYY-MM-DD HH:mm:ss'),
-      nextSunday: moment(nextSunday).format('YYYY-MM-DD HH:mm:ss'),
+      nextMatchday: matchday
     });
   } catch (error) {
+    console.error("Erreur :", error);
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
