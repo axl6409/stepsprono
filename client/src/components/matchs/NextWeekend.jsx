@@ -7,6 +7,8 @@ import moment from "moment";
 import 'moment/locale/fr'
 
 const NextWeekend = ({token}) => {
+  moment.locale('fr')
+  console.log(moment.locale())
   const [matchs, setMatchs] = useState([])
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,7 +50,7 @@ const NextWeekend = ({token}) => {
                 <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo w-1/2 mx-auto"/>
               </div>
               <div className="w-3/5 text-center flex flex-col justify-center px-6 py-2">
-                <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('MMMM')}</p>
+                <p className="name font-sans text-base font-medium">{moment(match.utcDate).locale('fr').format('MMMM')}</p>
               </div>
               <Link to={`/pronostic/${match.id}`} className="w-1/5 flex flex-col justify-center">
                 <FontAwesomeIcon icon={faPen} className="inline-block align-[-4px]" />

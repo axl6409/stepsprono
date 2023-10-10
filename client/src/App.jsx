@@ -1,7 +1,5 @@
 import React from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import moment from "moment";
-import 'moment/locale/fr';
 import Navbar from "./components/nav/Navbar"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
@@ -17,8 +15,6 @@ import Classements from "./pages/Classements.jsx";
 import Bets from "./pages/Bets.jsx";
 
 const App = () => {
-  moment.locale('fr');
-
   return (
     <UserProvider>
       <Router>
