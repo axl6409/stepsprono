@@ -18,7 +18,7 @@ const Matchs = () => {
   const { user, setUser } = useContext(UserContext)
   const [matchs, setMatchs] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalPages, setTotalPages] = useState(0)
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
@@ -26,7 +26,7 @@ const Matchs = () => {
   useEffect(() => {
     const fetchMatchs = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/matchs/by-week', {
+        const response = await axios.get('http://127.0.0.1:3001/api/matchs/next-weekend', {
           params: { page: currentPage, limit: itemsPerPage },
           headers: {
             'Authorization': `Bearer ${token}`,
