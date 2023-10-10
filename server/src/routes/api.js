@@ -166,15 +166,15 @@ router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
       offset = null;
     }
 
-    const nextFriday = moment().tz("Europe/Paris").day(5).startOf('day').format('YYYY-DD-MM HH:mm:ss');
-    const nextSunday = moment().tz("Europe/Paris").day(7).endOf('day').format('YYYY-DD-MM HH:mm:ss');
-    const today = moment().tz("Europe/Paris").format('YYYY-DD-MM HH:mm:ss')
+    let referenceStartDate = req.query.referenceStartDate || moment().tz("Europe/Paris").startOf('week');
+    const startOfWeek = moment(referenceStartDate).add((page - 1) * 7, 'days').format('YYYY-MM-DD HH:mm:ss');
+    const endOfWeek = moment(referenceStartDate).add(page * 7 - 1, 'days').endOf('day').format('YYYY-MM-DD HH:mm:ss');
 
     const matchs = await Match.findAndCountAll({
       where: {
         utcDate: {
-          [Op.gte]: nextFriday,
-          [Op.lte]: nextSunday
+          [Op.gte]: startOfWeek,
+          [Op.lte]: endOfWeek
         }
       },
       offset,
@@ -185,9 +185,8 @@ router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
       totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
       currentPage: page,
       totalCount: matchs.count,
-      today: today,
-      nextFriday: moment(nextFriday).format('YYYY-MM-DD HH:mm:ss'),
-      nextSunday: moment(nextSunday).format('YYYY-MM-DD HH:mm:ss'),
+      startOfWeek: startOfWeek,
+      endOfWeek: endOfWeek,
     });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -200,29 +199,31 @@ router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
     let limit = parseInt(req.query.limit) || defaultLimit;
     let offset = (page - 1) * limit;
 
-    const startOfWeek = moment().tz("Europe/Paris").startOf('week').add((page - 1) * 7, 'days').format('YYYY-MM-DD HH:mm:ss');
-    const endOfWeek = moment().tz("Europe/Paris").startOf('week').add(page * 7 - 1, 'days').endOf('day').format('YYYY-MM-DD HH:mm:ss');
-
     const matchs = await Match.findAndCountAll({
       where: {
-        utcDate: {
-          [Op.gte]: startOfWeek,
-          [Op.lte]: endOfWeek
-        }
+        matchday: page
       },
+      include: [
+        {
+          model: Team,
+          as: 'HomeTeam',
+          attributes: ['logoUrl'],
+        },
+        {
+          model: Team,
+          as: 'AwayTeam',
+          attributes: ['logoUrl'],
+        }
+      ],
       offset,
       limit,
     });
-
     res.json({
       data: matchs.rows,
       totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
       currentPage: page,
       totalCount: matchs.count,
-      startOfWeek: startOfWeek,
-      endOfWeek: endOfWeek,
     });
-
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

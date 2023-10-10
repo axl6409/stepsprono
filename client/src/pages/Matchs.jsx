@@ -14,18 +14,17 @@ import axios from "axios";
 import Pagination from "../components/partials/Pagination.jsx";
 import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
 
-
 const Matchs = () => {
   const { user, setUser } = useContext(UserContext)
   const [matchs, setMatchs] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [totalPages, setTotalPages] = useState(0)
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchPassedMatchs = async () => {
+    const fetchMatchs = async () => {
       try {
         const response = await axios.get('http://127.0.0.1:3001/api/matchs/by-week', {
           params: { page: currentPage, limit: itemsPerPage },
@@ -40,7 +39,7 @@ const Matchs = () => {
         console.error('Erreur lors de la récupération des matchs :', error);
       }
     }
-    fetchPassedMatchs()
+    fetchMatchs()
   }, [currentPage, itemsPerPage]);
 
   return (
