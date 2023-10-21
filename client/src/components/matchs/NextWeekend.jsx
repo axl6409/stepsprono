@@ -39,18 +39,19 @@ const NextWeekend = ({token}) => {
   return (
     <div className="relative pt-12 border-2 border-black overflow-hidden py-8 px-2 bg-flat-yellow shadow-flat-black">
       <div>
-        <p>Page</p>
         <ul className="flex flex-col justify-start">
           {matchs.map(match => (
             <li className="flex flex-row p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black" key={match.id}>
               <div className="w-1/5 flex flex-col justify-center">
                 <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo w-1/2 mx-auto"/>
+                <p>{match.HomeTeam.shortName}</p>
               </div>
               <div className="w-1/5 flex flex-col justify-center">
                 <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo w-1/2 mx-auto"/>
+                <p>{match.AwayTeam.shortName}</p>
               </div>
               <div className="w-3/5 text-center flex flex-col justify-center px-6 py-2">
-                <p className="name font-sans text-base font-medium">{moment(match.utcDate).locale('fr').format('MMMM')}</p>
+                <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('dddd M')}</p>
               </div>
               <Link to={`/pronostic/${match.id}`} className="w-1/5 flex flex-col justify-center">
                 <FontAwesomeIcon icon={faPen} className="inline-block align-[-4px]" />

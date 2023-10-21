@@ -227,7 +227,6 @@ router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
   }
 });
 
-
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
