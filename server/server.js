@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001', 'http://192.168.128.61:5173', 'http://192.168.128.61:3001', 'http://192.168.1.22:5173']
+    const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001', 'http://stepsprono.arsher-off.fr:3001', 'http://stepsprono.arsher-off.fr:5173']
     if (allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
@@ -38,7 +38,7 @@ app.use('/api', apiRoutes);
 runCronJob();
 // Define other routes and middleware here
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
     await models.sequelize.authenticate()

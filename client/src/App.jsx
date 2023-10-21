@@ -15,6 +15,8 @@ import Classements from "./pages/Classements.jsx";
 import Bets from "./pages/Bets.jsx";
 import moment from "moment";
 import 'moment/locale/fr'
+import PassedMatchs from "./pages/matchs/PassedMatchs.jsx";
+import UpcomingMatchs from "./pages/matchs/UpcomingMatchs.jsx";
 
 const App = () => {
   moment.locale('fr')
@@ -30,6 +32,8 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+            <Route path="/matchs/passed" element={<ProtectedRoute component={PassedMatchs} />} />
+            <Route path="/matchs/upcoming" element={<ProtectedRoute component={UpcomingMatchs} />} />
             <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />

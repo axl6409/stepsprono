@@ -1,21 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-  faAngleLeft,
-  faAngleRight,
-  faAnglesLeft, faAnglesRight,
-  faCirclePlus,
-  faCircleXmark,
-  faPen
-} from "@fortawesome/free-solid-svg-icons";
-import {UserContext} from "../contexts/UserContext.jsx";
+import {UserContext} from "../../contexts/UserContext.jsx";
 import axios from "axios";
-import Pagination from "../components/partials/Pagination.jsx";
-import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
-import Weekend from "../components/matchs/Weekend.jsx";
+import Pagination from "../../components/partials/Pagination.jsx";
 
-const Matchs = () => {
+const PassedMatchs = () => {
   const { user, setUser } = useContext(UserContext)
   const [matchs, setMatchs] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -32,10 +21,9 @@ const Matchs = () => {
       <h1 className="text-3xl font-bold mb-4">Matchs</h1>
       <div className="px-4">
         <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-r-2 border-b-2 border-l-2 border-black rounded-br-md rounded-bl-md relative z-[5] bottom-[-35px] shadow-flat-black-adjust">Ce Weekend</h2>
-        <Weekend token={token} user={user}/>
       </div>
     </div>
   );
 }
 
-export default Matchs
+export default PassedMatchs

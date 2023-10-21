@@ -16,7 +16,7 @@ const UserMenu = () => {
   };
 
   return (
-    <header>
+    <header className="relative z-[90]">
       <nav className="bg-white p-4 relative z-[10] border-b-2 border-black">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/">

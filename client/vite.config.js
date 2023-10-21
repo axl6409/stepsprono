@@ -6,6 +6,6 @@ export default defineConfig({
     react(),
   ],
   server: {
-    host: true
+    host: '0.0.0.0',
   }
 })
