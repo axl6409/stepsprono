@@ -18,7 +18,6 @@ import 'moment/locale/fr'
 
 const App = () => {
   moment.locale('fr')
-  console.log(moment.locale())
 
   return (
     <UserProvider>

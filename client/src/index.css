@@ -30,3 +30,35 @@ body {
     scrollbar-width: thin;
     scrollbar-color: #00ff00 #393939;
 }
+
+/* Swiper */
+.swiper-wrapper {
+    margin-top: 3rem;
+}
+
+.swiper-pagination {
+    top: 1rem !important;
+    bottom: inherit !important;
+}
+.swiper-pagination-bullet {
+    width: 15px;
+    height: 15px;
+    opacity: 1;
+    background-color: white;
+}
+.swiper-pagination-bullet-active {
+    width: 20px;
+    height: 20px;
+    vertical-align: top;
+    background-color: white;
+    background-image: url("./assets/icons/futbol-regular.svg");
+}
+.swiper-button-prev:after {
+    display: none;
+}
+.swiper-button-next:after {
+    display: none;
+}
+.swiper-button-disabled {
+    display: none;
+}
