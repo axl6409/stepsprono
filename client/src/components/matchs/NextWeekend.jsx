@@ -4,11 +4,8 @@ import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPen} from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
-import 'moment/locale/fr'
 
 const NextWeekend = ({token}) => {
-  moment.locale('fr')
-  console.log(moment.locale())
   const [matchs, setMatchs] = useState([])
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

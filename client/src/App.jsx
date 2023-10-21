@@ -13,8 +13,13 @@ import Users from "./pages/admin/Users.jsx";
 import Matchs from "./pages/Matchs.jsx";
 import Classements from "./pages/Classements.jsx";
 import Bets from "./pages/Bets.jsx";
+import moment from "moment";
+import 'moment/locale/fr'
 
 const App = () => {
+  moment.locale('fr')
+  console.log(moment.locale())
+
   return (
     <UserProvider>
       <Router>
