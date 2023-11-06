@@ -385,7 +385,7 @@ router.post('/admin/matchs/add', async (req, res) => {
     res.status(400).json({ error: 'Impossible de créer le match', message: error, datas: req.body });
   }
 });
-router.post('/bet/add', async (req, res) => {
+router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
     const date = req.body.date
     const userId = req.body.userId
@@ -398,11 +398,7 @@ router.post('/bet/add', async (req, res) => {
     if (existingBet) {
       return res.status(401).json({ error: 'Un pari similaire existe déjà pour cette date et cet utilisateur' });
     }
-    const bet = await Bets.create({
-      ...req.body,
-      date: date,
-      userId: userId
-    })
+    const bet = await Bets.create(req.body)
     res.status(201).json(bet);
   } catch (error) {
     res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });

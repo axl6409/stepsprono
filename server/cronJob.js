@@ -5,7 +5,7 @@ const ProgressBar = require('progress');
 const apiKey = process.env.FBD_API_KEY;
 
 const runCronJob = () => {
-  cron.schedule('00 19 * * *', async () => {
+  cron.schedule('30 00 * * *', async () => {
     try {
       const count = await Team.count();
       if (count === 0) {
@@ -29,7 +29,7 @@ const runCronJob = () => {
     }
   })
 
-  cron.schedule('15 19 * * *', async () => {
+  cron.schedule('30 00 * * *', async () => {
     try {
       const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
         headers: { 'X-Auth-Token': apiKey }

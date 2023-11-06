@@ -16,14 +16,16 @@ import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 const Weekend = ({token, user}) => {
   const [matchs, setMatchs] = useState([])
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [lastMatch, setLastMatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const now = moment();
-  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
+  const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
-  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
+  const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
+  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
 
   useEffect(() => {
     const fetchMatchs = async () => {
@@ -38,6 +40,7 @@ const Weekend = ({token, user}) => {
           return new Date(a.utcDate) - new Date(b.utcDate);
         })
         setMatchs(sortedMatchs);
+        setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
         setLoading(false);
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
@@ -79,10 +82,10 @@ const Weekend = ({token, user}) => {
         >
           {matchs.map(match => {
             const matchDate = moment(match.utcDate);
-            const isMatchInFuture = matchDate.isAfter(simulatedNow);
+            const isMatchInFuture = matchDate.isAfter(now);
 
             return (
-            <SwiperSlide className="flex flex-row flex-wrap p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[250px]" key={match.id}>
+            <SwiperSlide className="flex flex-row flex-wrap p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
               <div className="w-full text-center flex flex-col justify-center px-6 py-2">
                 <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('DD-MM')}</p>
               </div>
@@ -117,7 +120,7 @@ const Weekend = ({token, user}) => {
         </Swiper>
       </div>
 
-        <Pronostic match={selectedMatch} userId={user.id} closeModal={closeModal} isModalOpen={isModalOpen} />
+      <Pronostic match={selectedMatch} userId={user.id} lastMatch={lastMatch} closeModal={closeModal} isModalOpen={isModalOpen} token={token} />
 
     </div>
   )
