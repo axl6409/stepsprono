@@ -8,6 +8,7 @@ const Bets = require('./Bets')
 const Area = require('./Area')
 const Competition = require('./Competition')
 const Season = require('./Season')
+const Settings = require('./Settings')
 
 User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId' })
 User.hasMany(Bets, { foreignKey: 'userId' })
@@ -36,4 +37,5 @@ module.exports = {
   Team,
   Match,
   Bets,
+  Settings,
 };

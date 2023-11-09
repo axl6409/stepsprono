@@ -6,7 +6,7 @@ const apiRoutes = require('./src/routes/api')
 const sequelize = require('./database');
 const models = require('./src/models')
 const {Role} = require("./src/models");
-const runCronJob = require("./cronJob");
+const { runCronJob, updateTeams, updateMatches } = require("./cronJob");
 
 require('dotenv').config();
 
@@ -35,9 +35,6 @@ app.use(cors(corsOptions))
 // Use the API routes
 app.use('/api', apiRoutes);
 
-runCronJob();
-// Define other routes and middleware here
-
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
@@ -48,6 +45,9 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'admin' } });
     await Role.findOrCreate({ where: { name: 'manager' } });
     await Role.findOrCreate({ where: { name: 'user' } });
+    // await updateTeams();
+    // await updateMatches();
+    runCronJob();
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

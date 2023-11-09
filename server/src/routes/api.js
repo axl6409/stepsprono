@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {Role, Teams, Competition, Team, Match, Bets} = require("../models")
+const {User, Role, Teams, Competition, Team, Match, Bets, Settings } = require("../models")
 const axios = require('axios')
 require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
@@ -60,6 +59,18 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     const users = await User.findAll({ include: Role });
     res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/admin/settings', authenticateJWT, async (req, res) => {
+  try {
+    // Vérifiez si l'utilisateur est admin ou manager
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const settings = await Settings.findAll();
+    res.json(settings);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -226,7 +237,6 @@ router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;

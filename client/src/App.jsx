@@ -17,6 +17,7 @@ import moment from "moment";
 import 'moment/locale/fr'
 import PassedMatchs from "./pages/matchs/PassedMatchs.jsx";
 import UpcomingMatchs from "./pages/matchs/UpcomingMatchs.jsx";
+import Settings from "./pages/admin/Settings.jsx";
 
 const App = () => {
   moment.locale('fr')
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
+            <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={Teams} />} />
           </Routes>
         </div>

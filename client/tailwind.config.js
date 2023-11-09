@@ -26,9 +26,12 @@ export default {
         base: '1.2rem', // 18px
         l: '1.25rem', // 20px
         xl: '1.45rem', // 24px
-        xxl: '1.72rem', // 28px
-        xxxl: '2rem', // 32px
-        x4l: '2.5rem', // 40px
+        xl2: '1.72rem', // 28px
+        xl3: '2rem', // 32px
+        xl4: '2.5rem', // 40px
+        xl5: '3rem', // 48px
+        xl6: '4rem', // 64px
+        xl7: '5rem', // 80px
       },
       height: {
         '10vh': '10vh',
