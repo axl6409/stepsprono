@@ -50,6 +50,9 @@ const authenticateJWT = (req, res, next) => {
 };
 const upload = multer({ storage: storage });
 
+// Define STATIC routes
+router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Define GET routes
 router.get('/competitions', authenticateJWT, async (req, res) => {
   try {

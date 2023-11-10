@@ -20,14 +20,14 @@ app.use(bodyParser.urlencoded({ extended: true }))
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001', 'http://stepsprono.arsher-off.fr:3001', 'http://stepsprono.arsher-off.fr:5173']
+    const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001']
     if (allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,USE',
   credentials: true, // Enable credentials (cookies, authorization headers)
 };
 app.use(cors(corsOptions))

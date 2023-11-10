@@ -11,7 +11,8 @@ const EditUser = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    avatar: null
+    avatar: null,
+    avatarUrl: '',
   });
   const [cookies] = useCookies(['token']);
   const { id } = useParams()
@@ -24,7 +25,7 @@ const EditUser = () => {
         const response = await axios.get(`http://127.0.0.1:3001/api/admin/user/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setUser({ ...response.data, password: '', confirmPassword: '' });
+        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:3001/${response.data.img}`, password: '', confirmPassword: '' });
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
       }
@@ -101,7 +102,8 @@ const EditUser = () => {
           </div>
         )}
         <div>
-          <label htmlFor="avatar">Image d'avatar</label>
+          <label htmlFor="avatar">Image de profil</label>
+          {user.avatarUrl && <img src={user.avatarUrl} alt="Avatar actuel" />}
           <input type="file" id="avatar" onChange={handleFileChange} />
         </div>
         <button type="submit">Mettre à jour</button>
