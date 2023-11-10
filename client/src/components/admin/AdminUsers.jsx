@@ -4,35 +4,58 @@ import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
+import ConfirmationModal from "../partials/ConfirmationModal.jsx";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [cookies] = useCookies(['token']);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState(null);
+  const [modalAnimation, setModalAnimation] = useState('');
   const token = localStorage.getItem('token') || cookies.token
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:3001/api/admin/users', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        setUsers(response.data);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des utilisateurs :', error);
-      }
-    };
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:3001/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des utilisateurs :', error);
+    }
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   const handleDeleteUser = (userId) => {
-    // Implémentez la logique pour supprimer l'utilisateur.
+    setShowConfirmationModal(true)
+    setUserIdToDelete(userId)
+    setModalAnimation('modal-enter')
   };
 
-  const handleEditUser = (userId) => {
-    // Implémentez la logique pour modifier l'utilisateur.
+  const deleteUser = async () => {
+    setModalAnimation('modal-exit');
+    setTimeout(async () => {
+      try {
+        await axios.delete(`http://127.0.0.1:3001/api/admin/user/delete/${userIdToDelete}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setShowConfirmationModal(false)
+        setModalAnimation('')
+        await fetchUsers()
+      } catch (error) {
+        console.error('Erreur lors de la suppression de l\'utilisateur :', error);
+      }
+    }, 500);
+  };
+
+  const handleCloseModal = () => {
+    setModalAnimation('modal-exit');
+    setTimeout(() => setShowConfirmationModal(false), 500);
   };
 
   return (
@@ -61,6 +84,15 @@ const AdminUsers = () => {
           </li>
         ))}
       </ul>
+      {showConfirmationModal && (
+        <div className={`modal ${modalAnimation} fixed z-[30] top-32 left-0 right-0`}>
+          <ConfirmationModal
+            message="Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+            onConfirm={deleteUser}
+            onCancel={handleCloseModal}
+          />
+        </div>
+      )}
     </div>
   );
 }

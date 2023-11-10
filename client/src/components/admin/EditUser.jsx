@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
-import {useParams} from "react-router-dom";
+import {faCaretLeft, faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
+import {Link, useParams} from "react-router-dom";
 
 const EditUser = () => {
   const [user, setUser] = useState({
@@ -25,7 +25,11 @@ const EditUser = () => {
         const response = await axios.get(`http://127.0.0.1:3001/api/admin/user/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:3001/${response.data.img}`, password: '', confirmPassword: '' });
+        const correctedAvatarUrl = response.data.img
+        if (response.data.img) {
+          const correctedAvatarUrl = response.data.img.replace(/\\/g, '/');
+        }
+        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:3001/${correctedAvatarUrl}`, password: '', confirmPassword: '' });
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
       }
@@ -76,39 +80,58 @@ const EditUser = () => {
   };
 
   return (
-    <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Nom d'utilisateur</label>
-          <input type="text" id="username" value={user.username} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" value={user.email} onChange={handleChange} />
-        </div>
-        <button type="button" onClick={() => setShowPasswordFields(!showPasswordFields)}>
-          Modifier le mot de passe
-        </button>
-        {showPasswordFields && (
-          <div>
-            <div>
-              <label htmlFor="password">Mot de passe</label>
-              <input type="password" id="password" onChange={handleChange} />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
-              <input type="password" id="confirmPassword" onChange={handleChange} />
-            </div>
+    <div className="pt-8">
+      <Link
+        to="/admin/users"
+        className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+      >
+        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+          <FontAwesomeIcon icon={faCaretLeft} />
+        </span>
+      </Link>
+      <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-8 border-2 border-black shadow-flat-black">
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col my-4">
+            <label htmlFor="username" className="font-title font-bold text-xl">Nom d'utilisateur</label>
+            <input type="text" id="username" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={user.username} onChange={handleChange} />
           </div>
-        )}
-        <div>
-          <label htmlFor="avatar">Image de profil</label>
-          {user.avatarUrl && <img src={user.avatarUrl} alt="Avatar actuel" />}
-          <input type="file" id="avatar" onChange={handleFileChange} />
-        </div>
-        <button type="submit">Mettre à jour</button>
-      </form>
-
+          <div className="flex flex-col my-4">
+            <label htmlFor="email" className="font-title font-bold text-xl">Email</label>
+            <input type="email" id="email" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={user.email} onChange={handleChange} />
+          </div>
+          <button
+            type="button"
+            className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:bg-light-red before:border-black before:border-2 before:translate-x-1.5 group"
+            onClick={() => setShowPasswordFields(!showPasswordFields)}>
+            <span className="relative z-[2] w-full block border-2 border-black text-black font-bold px-3 py-2 text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0 group-hover:translate-x-1.5">Modifier le mot de passe</span>
+          </button>
+          {showPasswordFields && (
+            <div className="flex flex-col mb-8">
+              <div className="flex flex-col">
+                <label htmlFor="password" className="font-title font-bold text-xl">Mot de passe</label>
+                <input type="password" id="password" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" onChange={handleChange} />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="confirmPassword" className="font-title font-bold text-xl">Confirmer le mot de passe</label>
+                <input type="password" id="confirmPassword" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" onChange={handleChange} />
+              </div>
+            </div>
+          )}
+          <div className="flex flex-row flex-wrap">
+            <label htmlFor="avatar" className="w-full font-title font-bold text-xl">Image de profil</label>
+            <input type="file" id="avatar"
+                   className="block w-full font-sans text-sm text-black cursor-pointer file:me-4 file:py-2 file:px-4 file:cursor-pointer file:border-2 file:border-solid file:border-black file:text-sm file:font-bold file:bg-black file:text-white hover:file:bg-white hover:file:text-black file:disabled:opacity-50 file:disabled:pointer-events-none"
+                   onChange={handleFileChange} />
+            {user.avatarUrl && <div className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black"><img src={user.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto" /></div>}
+          </div>
+          <button
+            type="submit"
+            className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:bg-green-lime before:border-black before:border-2 before:translate-x-1.5 group"
+          >
+            <span className="relative z-[2] w-full block border-2 border-black text-black font-bold px-3 py-2 text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0 group-hover:translate-x-1.5">Mettre à jour</span>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

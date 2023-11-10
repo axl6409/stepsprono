@@ -50,9 +50,6 @@ const authenticateJWT = (req, res, next) => {
 };
 const upload = multer({ storage: storage });
 
-// Define STATIC routes
-router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Define GET routes
 router.get('/competitions', authenticateJWT, async (req, res) => {
   try {
@@ -90,7 +87,6 @@ router.get('/admin/user/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 });
-
 router.get('/admin/settings', authenticateJWT, async (req, res) => {
   try {
     // Vérifiez si l'utilisateur est admin ou manager
@@ -484,6 +480,20 @@ router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
     res.status(200).json({ message: 'Équipe supprimée avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+})
+router.delete('/admin/user/delete/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+
+    const userId = req.params.id;
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvée' });
+
+    await user.destroy();
+    res.status(200).json({ message: 'Utilisateur supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l\'utilisateur', message: error.message });
   }
 })
 

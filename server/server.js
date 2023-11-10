@@ -7,6 +7,7 @@ const sequelize = require('./database');
 const models = require('./src/models')
 const {Role} = require("./src/models");
 const { runCronJob, updateTeams, updateMatches } = require("./cronJob");
+const path = require("path");
 
 require('dotenv').config();
 
@@ -19,21 +20,20 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001']
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,USE',
-  credentials: true, // Enable credentials (cookies, authorization headers)
+  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001'],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
 };
-app.use(cors(corsOptions))
 
-// Use the API routes
+// Utiliser CORS pour toutes les routes
+app.use(cors(corsOptions));
+
+// Routes statiques avec CORS
+app.use('/uploads', cors(corsOptions), express.static(path.join(__dirname, 'uploads')));
+
+// Routes API
 app.use('/api', apiRoutes);
+
 
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`)
