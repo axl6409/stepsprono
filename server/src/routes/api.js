@@ -7,8 +7,23 @@ const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
 const {User, Role, Teams, Competition, Team, Match, Bets, Settings } = require("../models")
 const axios = require('axios')
+const multer = require("multer");
+const path = require("path");
+const {mkdirSync} = require("fs");
 require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dest = 'uploads/users/' + req.params.id;
+    mkdirSync(dest, { recursive: true }); // Crée le dossier s'il n'existe pas
+    cb(null, dest);
+  },
+  filename: function(req, file, cb) {
+    cb(null, 'pp_img_' + req.params.id + path.extname(file.originalname));
+  }
+});
+
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -33,6 +48,7 @@ const authenticateJWT = (req, res, next) => {
     next();
   });
 };
+const upload = multer({ storage: storage });
 
 // Define GET routes
 router.get('/competitions', authenticateJWT, async (req, res) => {
@@ -63,6 +79,15 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/admin/user/:id', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+});
+
 router.get('/admin/settings', authenticateJWT, async (req, res) => {
   try {
     // Vérifiez si l'utilisateur est admin ou manager
@@ -460,7 +485,7 @@ router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
 })
 
 // Define PUT routes
-router.put('/admin/teams/edit/:id', async (req, res) => {
+router.put('/admin/teams/edit/:id', authenticateJWT,  async (req, res) => {
   try {
     const team = await Teams.findByPk(req.params.id)
     if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
@@ -471,15 +496,34 @@ router.put('/admin/teams/edit/:id', async (req, res) => {
     res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
   }
 });
-router.put('/admin/matchs/edit/:id', async (req, res) => {
+router.put('/admin/matchs/edit/:id', authenticateJWT, async (req, res) => {
   try {
-    const team = await Teams.findByPk(req.params.id)
-    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
+    const match = await Match.findByPk(req.params.id)
+    if (!match) return res.status(404).json({ error: 'Match non trouvée' })
 
-    await team.update(req.body)
-    res.status(200).json(team)
+    await match.update(req.body)
+    res.status(200).json(match)
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
+    res.status(400).json({ error: 'Impossible de mettre à jour le match' })
+  }
+});
+router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const { username, email, password } = req.body
+    if (username) user.username = username
+    if (email) user.email = email
+    if (password) user.password = await bcrypt.hash(password, 10)
+    if (req.file) {
+      user.img = req.file.path
+    }
+
+    await user.save()
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de mettre à jour l\'utilisateur' + error, });
   }
 });
 

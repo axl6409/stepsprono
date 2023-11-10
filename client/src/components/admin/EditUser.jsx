@@ -3,48 +3,110 @@ import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
+import {useParams} from "react-router-dom";
 
 const EditUser = () => {
-  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    avatar: null
+  });
   const [cookies] = useCookies(['token']);
+  const { id } = useParams()
   const token = localStorage.getItem('token') || cookies.token
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:3001/api/admin/user/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setUser({ ...response.data, password: '', confirmPassword: '' });
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
+      }
     };
 
-    fetchUsers();
-  }, []);
+    fetchUser();
+  }, [id, token]);
 
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.id]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setUser({ ...user, avatar: e.target.files[0] });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('username', user.username);
+    formData.append('email', user.email);
+    if (showPasswordFields) {
+      formData.append('password', user.password);
+      formData.append('confirmPassword', user.confirmPassword);
+    }
+    if (user.avatar) {
+      formData.append('avatar', user.avatar);
+    }
+
+    try {
+      const response = await axios.put(`http://127.0.0.1:3001/api/admin/user/update/${id}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log(response)
+      const result = await response.data;
+      if (response.status === 200) {
+        console.log("Utilisateur modifié avec succès :", result);
+      } else {
+        console.error("Erreur lors de la mise à jour de l'utilisateur :", result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi des informations de l\'utilisateur', error);
+    }
+  };
 
   return (
     <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
-      <ul className="flex flex-col justify-start">
-        {users.map(user => (
-          <li className="flex flex-row justify-between" key={user.id}>
-            <p className="username font-title font-bold text-xl leading-6 border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">{user.username}</p>
-            <div className="flex flex-row">
-              <button
-                onClick={() => handleEditUser(user.id)}
-                className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              >
-                  <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                    <FontAwesomeIcon icon={faPen} />
-                  </span>
-              </button>
-              <button
-                onClick={() => handleDeleteUser(user.id)}
-                className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              >
-                  <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                    <FontAwesomeIcon icon={faCircleXmark} />
-                  </span>
-              </button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="username">Nom d'utilisateur</label>
+          <input type="text" id="username" value={user.username} onChange={handleChange} />
+        </div>
+        <div>
+          <label htmlFor="email">Email</label>
+          <input type="email" id="email" value={user.email} onChange={handleChange} />
+        </div>
+        <button type="button" onClick={() => setShowPasswordFields(!showPasswordFields)}>
+          Modifier le mot de passe
+        </button>
+        {showPasswordFields && (
+          <div>
+            <div>
+              <label htmlFor="password">Mot de passe</label>
+              <input type="password" id="password" onChange={handleChange} />
             </div>
-          </li>
-        ))}
-      </ul>
+            <div>
+              <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+              <input type="password" id="confirmPassword" onChange={handleChange} />
+            </div>
+          </div>
+        )}
+        <div>
+          <label htmlFor="avatar">Image d'avatar</label>
+          <input type="file" id="avatar" onChange={handleFileChange} />
+        </div>
+        <button type="submit">Mettre à jour</button>
+      </form>
+
     </div>
   );
 }

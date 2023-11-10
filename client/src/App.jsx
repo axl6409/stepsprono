@@ -41,7 +41,7 @@ const App = () => {
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
-            <Route path="/admin/users/edit:id" element={<ProtectedRoute component={EditUser} />} />
+            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={Teams} />} />
           </Routes>

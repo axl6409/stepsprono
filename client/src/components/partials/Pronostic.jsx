@@ -19,10 +19,10 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         playerGoal: data.scorer,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
         },
       });
 
