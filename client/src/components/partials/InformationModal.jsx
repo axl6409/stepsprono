@@ -16,7 +16,7 @@ const InformationModal = ({ message, closeModal }) => {
   };
 
   return (
-    <div className={`modal ${isExiting ? 'modal-exit' : 'modal-enter'} fixed z-[20] right-0 left-0 top-0 w-full h-100vh flex flex-col justify-center pt-4 pb-8 border-2 border-black bg-flat-yellow`}>
+    <div className={`modal ${isExiting ? 'modal-exit' : 'modal-enter'} fixed z-[20] right-0 left-0 top-0 w-full h-100vh flex flex-col justify-center pt-4 pb-8 border-2 border-black bg-electric-blue`}>
       <button
         onClick={handleClose}
         className="relative ml-auto mr-4 mb-4 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"

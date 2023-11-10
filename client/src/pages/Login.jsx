@@ -78,7 +78,7 @@ const Login = () => {
           >
             <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Connexion</span>
           </button>
-          <Link to="/register" className="text-black transition font-sans text-sm font-medium">Pas encore de compte? <span className="underline">Inscrivez-vous</span></Link>
+          <Link to="/register" className="text-black transition font-sans text-sm font-medium">Pas encore de compte? <span className="underline block">Inscrivez-vous</span></Link>
         </form>
       </div>
     </div>
