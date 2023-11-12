@@ -59,14 +59,6 @@ router.get('/competitions', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
-router.get('/data', (req, res) => {
-  // Perform some operation (e.g., fetch data from a database)
-  // Send a JSON response to the client
-  res.json({ message: 'Data from the server' });
-});
-router.get('/login', (req, res) => {
-  res.json({ message: 'login page'})
-})
 router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'Route protégée' });
 });
@@ -330,7 +322,7 @@ router.post('/register', async (req, res) => {
       password: hashedPassword,
     })
 
-    const [userRole, created] = await Role.findOrCreate({ where: { name: 'user' } });
+    const [userRole, created] = await Role.findOrCreate({ where: { name: 'visitor' } });
     if (!userRole) return res.status(500).json({ error: 'Rôle utilisateur non trouvé' })
     await user.addRole(userRole);
 
