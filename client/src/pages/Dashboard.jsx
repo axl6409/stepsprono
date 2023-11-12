@@ -12,7 +12,7 @@ const Dashboard = () => {
 
   return (
     <div className="text-center p-10 h-70vh flex flex-col justify-center">
-      <h1 className="text-3xl font-bold mb-4">⚽️ Bienvenue sur votre tableau de bord ⚽️</h1>
+      <h1 className="text-3xl font-bold mb-4"><span>⚽️</span><span>Bienvenue sur StepsProno</span><span>⚽️</span></h1>
       <Link
         to="/matchs"
         className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
