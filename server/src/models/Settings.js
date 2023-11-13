@@ -7,17 +7,22 @@ const Settings = sequelize.define('Settings', {
     allowNull: false,
     unique: true
   },
+  displayName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: false
+  },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true,
   },
   options: {
     type: DataTypes.JSON,
-    allowNull: false
+    allowNull: true
   },
   activeOption: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   }
 })
 

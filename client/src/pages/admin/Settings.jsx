@@ -5,6 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
 import InformationModal from "../../components/partials/InformationModal.jsx";
 import SettingFormSelect from "../../components/partials/SettingFormSelect.jsx";
+import SettingFormText from "../../components/partials/SettingFormText.jsx";
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
@@ -27,10 +28,12 @@ const Settings = () => {
         const initialSelectedOptions = {}
         const selectedOptionDescription = {}
         fetchedSettings.forEach(setting => {
-          const selectedOptionKey = Object.keys(setting.options).find(key => setting.options[key].status === "true")
-          if (selectedOptionKey) {
-            initialSelectedOptions[setting.key] = selectedOptionKey
-            selectedOptionDescription[setting.key] = setting.options[selectedOptionKey].description
+          if (setting.options) {
+            const selectedOptionKey = Object.keys(setting.options).find(key => setting.options[key].status === "true")
+            if (selectedOptionKey) {
+              initialSelectedOptions[setting.key] = selectedOptionKey
+              selectedOptionDescription[setting.key] = setting.options[selectedOptionKey].description
+            }
           }
         });
         setSelectedOptions(initialSelectedOptions)
@@ -58,26 +61,28 @@ const Settings = () => {
   return (
     <div>
       <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
-        <p className="font-title uppercase text-xl font-black mb-4">Mode de match</p>
         <div className="flex flex-col justify-start">
           {settings.map((setting) => {
             switch (setting.id) {
               case '1':
                 return <SettingFormSelect
-                          setting={setting}
-                          handleSelectChange={handleSelectChange}
-                          selectedOptions={selectedOptions}
-                          openModal={openModal}
-                        />;
+                  key={setting.id}
+                  setting={setting}
+                  handleSelectChange={handleSelectChange}
+                  selectedOptions={selectedOptions}
+                  openModal={openModal}
+                />;
               case '2':
-                return <SettingFormSelect
+                return <SettingFormText
+                  key={setting.id}
                   setting={setting}
                   handleSelectChange={handleSelectChange}
                   selectedOptions={selectedOptions}
                   openModal={openModal}
                 />;
               default:
-                return <SettingFormSelect
+                return <SettingFormText
+                  key={setting.id}
                   setting={setting}
                   handleSelectChange={handleSelectChange}
                   selectedOptions={selectedOptions}

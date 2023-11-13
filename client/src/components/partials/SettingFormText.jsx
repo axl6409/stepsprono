@@ -3,22 +3,12 @@ import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 
-const SettingFormSelect = ({ setting, handleSelectChange, selectedOptions, openModal }) => {
+const SettingFormText = ({ setting, handleSelectChange, selectedOptions, openModal }) => {
   return (
     <div key={setting.id} className="flex flex-col items-center relative">
       <p className="font-title uppercase text-xl font-black mb-4">{setting.displayName}</p>
       <form action="" className="w-full">
-        <select
-          name={setting.key}
-          id={setting.key}
-          className="w-full py-2 px-4 font-sans text-sm uppercase border-2 border-black shadow-flat-black"
-          onChange={(e) => handleSelectChange(setting.key, e.target.value)}
-          value={selectedOptions[setting.key]}
-        >
-          {Object.entries(setting.options).map(([key, option]) => (
-            <option key={key} value={key}>{option.title}</option>
-          ))}
-        </select>
+
         <button
           className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
           type="submit"
@@ -40,4 +30,4 @@ const SettingFormSelect = ({ setting, handleSelectChange, selectedOptions, openM
   );
 };
 
-export default SettingFormSelect;
+export default SettingFormText;
