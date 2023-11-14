@@ -12,6 +12,11 @@ const Settings = sequelize.define('Settings', {
     allowNull: true,
     unique: false
   },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: false
+  },
   description: {
     type: DataTypes.TEXT,
     allowNull: true,
