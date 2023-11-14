@@ -48,6 +48,24 @@ const Settings = () => {
     setSelectedOptions(prev => ({ ...prev, [settingName]: selectedValue }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(e)
+    console.log(selectedOptions)
+    try {
+      const response = await axios.put(`http://127.0.0.1:3001/api/admin/settings`, {
+        settings: selectedOptions
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      // Gérer la réponse ici
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des réglages :', error);
+    }
+  };
+
   const openModal = (description) => {
     setModalMessage(description);
     setShowInfoModal(true);
@@ -59,20 +77,16 @@ const Settings = () => {
 
   return (
     <div>
-      <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
-        <div className="flex flex-col justify-start">
-          {settings.map((setting) => (
-            <DynamicFormComponent
-              key={setting.id}
-              setting={setting}
-              handleSelectChange={handleSelectChange}
-              selectedOptions={selectedOptions}
-              openModal={openModal}
-            />
-          ))}
-        </div>
-        {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
-      </div>
+      {settings.map((setting) => (
+        <DynamicFormComponent
+          key={setting.id}
+          setting={setting}
+          handleSelectChange={handleSelectChange}
+          selectedOptions={selectedOptions}
+          openModal={openModal}
+        />
+      ))}
+    {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
     </div>
   );
 }
