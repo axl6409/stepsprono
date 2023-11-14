@@ -490,28 +490,6 @@ router.delete('/admin/user/delete/:id', authenticateJWT, async (req, res) => {
 })
 
 // Define PUT routes
-router.put('/admin/teams/edit/:id', authenticateJWT,  async (req, res) => {
-  try {
-    const team = await Teams.findByPk(req.params.id)
-    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' })
-
-    await team.update(req.body)
-    res.status(200).json(team)
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour l’équipe' })
-  }
-});
-router.put('/admin/matchs/edit/:id', authenticateJWT, async (req, res) => {
-  try {
-    const match = await Match.findByPk(req.params.id)
-    if (!match) return res.status(404).json({ error: 'Match non trouvée' })
-
-    await match.update(req.body)
-    res.status(200).json(match)
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour le match' })
-  }
-});
 router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -531,5 +509,15 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
     res.status(400).json({ error: 'Impossible de mettre à jour l\'utilisateur' + error, });
   }
 });
+router.put('/admin/setting/update/:id', authenticateJWT, async (req, res) => {
+  try {
+    const setting = await Settings.findByPk(req.params.id);
+    if (!setting) return res.status(404).json({ error: 'Réglage non trouvé' });
+
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de mettre à jour le réglage' + error, });
+  }
+});
+
 
 module.exports = router;

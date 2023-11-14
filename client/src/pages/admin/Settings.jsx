@@ -4,8 +4,7 @@ import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
 import InformationModal from "../../components/partials/InformationModal.jsx";
-import SettingFormSelect from "../../components/partials/SettingFormSelect.jsx";
-import SettingFormText from "../../components/partials/SettingFormText.jsx";
+import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
@@ -62,34 +61,15 @@ const Settings = () => {
     <div>
       <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
         <div className="flex flex-col justify-start">
-          {settings.map((setting) => {
-            switch (setting.id) {
-              case '1':
-                return <SettingFormSelect
-                  key={setting.id}
-                  setting={setting}
-                  handleSelectChange={handleSelectChange}
-                  selectedOptions={selectedOptions}
-                  openModal={openModal}
-                />;
-              case '2':
-                return <SettingFormText
-                  key={setting.id}
-                  setting={setting}
-                  handleSelectChange={handleSelectChange}
-                  selectedOptions={selectedOptions}
-                  openModal={openModal}
-                />;
-              default:
-                return <SettingFormText
-                  key={setting.id}
-                  setting={setting}
-                  handleSelectChange={handleSelectChange}
-                  selectedOptions={selectedOptions}
-                  openModal={openModal}
-                />;
-            }
-          })}
+          {settings.map((setting) => (
+            <DynamicFormComponent
+              key={setting.id}
+              setting={setting}
+              handleSelectChange={handleSelectChange}
+              selectedOptions={selectedOptions}
+              openModal={openModal}
+            />
+          ))}
         </div>
         {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
       </div>
