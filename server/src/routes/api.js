@@ -514,8 +514,19 @@ router.put('/admin/setting/update/:id', authenticateJWT, async (req, res) => {
     const setting = await Settings.findByPk(req.params.id);
     if (!setting) return res.status(404).json({ error: 'Réglage non trouvé' });
 
+    const type = setting.type;
+    if (type === 'select') {
+      setting.activeOption = req.body.newValue;
+    } else if (type === 'text') {
+      const newOptions = { ...setting.options }
+      newOptions['Value'] = req.body.newValue
+      setting.options = newOptions
+    }
+
+    await setting.save();
+    res.status(200).json(setting);
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour le réglage' + error, });
+    res.status(400).json({ error: 'Impossible de mettre à jour le réglage' + error });
   }
 });
 

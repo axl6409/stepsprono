@@ -28,7 +28,7 @@ const Settings = () => {
         const selectedOptionDescription = {}
         fetchedSettings.forEach(setting => {
           if (setting.options) {
-            const selectedOptionKey = Object.keys(setting.options).find(key => setting.options[key].status === "true")
+            const selectedOptionKey = Object.keys(setting.options).find(key => setting.options[key] === setting.activeOption)
             if (selectedOptionKey) {
               initialSelectedOptions[setting.key] = selectedOptionKey
               selectedOptionDescription[setting.key] = setting.options[selectedOptionKey].description
@@ -48,24 +48,6 @@ const Settings = () => {
     setSelectedOptions(prev => ({ ...prev, [settingName]: selectedValue }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(e)
-    console.log(selectedOptions)
-    try {
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/settings`, {
-        settings: selectedOptions
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      // Gérer la réponse ici
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des réglages :', error);
-    }
-  };
-
   const openModal = (description) => {
     setModalMessage(description);
     setShowInfoModal(true);
@@ -81,8 +63,6 @@ const Settings = () => {
         <DynamicFormComponent
           key={setting.id}
           setting={setting}
-          handleSelectChange={handleSelectChange}
-          selectedOptions={selectedOptions}
           openModal={openModal}
         />
       ))}

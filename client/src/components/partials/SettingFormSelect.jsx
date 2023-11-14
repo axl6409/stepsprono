@@ -1,9 +1,50 @@
 // SettingFormSelect.jsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
-const SettingFormSelect = ({ setting, handleSelectChange, selectedOptions, openModal, handleSubmit }) => {
+const SettingFormSelect = ({ setting, openModal, token }) => {
+  const [selectedOption, setSelectedOption] = useState(setting.activeOption);
+
+  useEffect(() => {
+    console.log(selectedOption)
+  }, [selectedOption])
+
+  const handleChange = (settingName, selectedValue) => {
+    setSelectedOption(selectedValue)
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateSetting(setting.id, selectedOption);
+      setSelectedOption(selectedOption)
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du réglage :', error);
+    }
+  };
+
+  // Exemple d'une fonction utilitaire
+  const updateSetting = async (settingId) => {
+    try{
+      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: selectedOption }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const result = await response.data;
+      if (response.status === 200) {
+        console.log("Reglage mis à jour avec succès :", result);
+      } else {
+        console.error("Erreur lors de la mise à jour de du réglage :", result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du réglage : ', error);
+    }
+  };
+
   return (
     <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
       <div className="flex flex-col justify-start">
@@ -14,8 +55,8 @@ const SettingFormSelect = ({ setting, handleSelectChange, selectedOptions, openM
               name={setting.key}
               id={setting.key}
               className="w-full py-2 px-4 font-sans text-sm uppercase border-2 border-black shadow-flat-black"
-              onChange={(e) => handleSelectChange(setting.key, e.target.value)}
-              value={selectedOptions[setting.key]}
+              onChange={(e) => handleChange(setting.key, e.target.value)}
+              value={selectedOption}
             >
               {Object.entries(setting.options).map(([key, option]) => (
                 <option key={key} value={key}>{option.title}</option>

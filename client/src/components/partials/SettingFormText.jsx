@@ -1,20 +1,50 @@
 // SettingFormSelect.jsx
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import {Editor} from "@tinymce/tinymce-react";
+import axios from "axios";
 
-const SettingFormText = ({ setting, handleSelectChange, selectedOptions, openModal, handleSubmit }) => {
-  const editorRef = useRef(null);
+const SettingFormText = ({ setting, openModal, token, }) => {
+  const editorRef = useRef(setting.options['Value'])
   const apiKey = import.meta.env.VITE_TINYMCE_API_KEY;
 
-  useEffect(() => {
+  const handleEditorChange = (content) => {
+    editorRef.current = content;
+  };
 
-  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const content = editorRef.current;
+    if (editorRef.current) {
+      const content = editorRef.current;
+      console.log(content)
+      try {
+        await updateSetting(setting.id, content);
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour du réglage :', error);
+      }
+    }
+  };
 
-  const updateSetting = async () => {
-
-  }
+  const updateSetting = async (settingId, content) => {
+    try{
+      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: content }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const result = await response.data;
+      if (response.status === 200) {
+        console.log("Réglage mis à jour avec succès :", result);
+      } else {
+        console.error("Erreur lors de la mise à jour de du réglage :", result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du réglage : ', error);
+    }
+  };
 
   return (
     <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
@@ -25,10 +55,11 @@ const SettingFormText = ({ setting, handleSelectChange, selectedOptions, openMod
             <Editor
               apiKey={apiKey}
               init={{
-                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                plugins: 'anchor autolink charmap codesample emoticons link lists visualblocks',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
               }}
-              initialValue={setting.options["Value"]}
+              initialValue={setting.options['Value']}
+              onEditorChange={handleEditorChange}
             />
             <button
               className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
