@@ -189,6 +189,9 @@ router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
       where: {
         utcDate: {
           [Op.gte]: today
+        },
+        status: {
+          [Op.not]: 'SCHEDULED'
         }
       },
       order: [
@@ -201,7 +204,10 @@ router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
     const matchday = nextMatch.matchday;
     const matchs = await Match.findAndCountAll({
       where: {
-        matchday: matchday
+        matchday: matchday,
+        status: {
+          [Op.not]: 'SCHEDULED'
+        }
       },
       include: [
         { model: Team, as: 'HomeTeam' },

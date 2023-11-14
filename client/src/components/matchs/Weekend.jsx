@@ -87,7 +87,7 @@ const Weekend = ({token, user}) => {
             return (
             <SwiperSlide className="flex flex-row flex-wrap p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
               <div className="w-full text-center flex flex-col justify-center px-6 py-2">
-                <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('DD-MM')}</p>
+                <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('DD MMMM')}</p>
               </div>
               <div className="w-2/4 flex flex-col justify-center">
                 <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo w-1/2 mx-auto"/>
