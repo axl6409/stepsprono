@@ -10,7 +10,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCaretRight, faPen, faReceipt} from "@fortawesome/free-solid-svg-icons";
 import Pronostic from "../partials/Pronostic.jsx";
 import moment from "moment";
-
+import 'moment/locale/fr';
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 
 const Weekend = ({token, user}) => {
@@ -20,7 +20,7 @@ const Weekend = ({token, user}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  moment.locale('fr');
   const now = moment();
   const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
