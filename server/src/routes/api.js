@@ -12,18 +12,24 @@ const path = require("path");
 const {mkdirSync} = require("fs");
 require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
+const sharp = require('sharp')
+
+function generateRandomString(length) {
+  return Math.random().toString(36).substring(2, 2 + length);
+}
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    const dest = 'uploads/users/' + req.params.id;
+    const dest = path.join('..', '/client/src/assets/uploads/users/', req.params.id);
     mkdirSync(dest, { recursive: true }); // Crée le dossier s'il n'existe pas
     cb(null, dest);
   },
+
   filename: function(req, file, cb) {
-    cb(null, 'pp_img_' + req.params.id + path.extname(file.originalname));
+    const randomString = generateRandomString(10);
+    cb(null, 'pp_img_' + req.params.id + '_' + randomString + path.extname(file.originalname));
   }
 });
-
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -89,6 +95,18 @@ router.get('/admin/settings', authenticateJWT, async (req, res) => {
     res.json(settings);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/settings/reglement', authenticateJWT, async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ where: { key: 'regulation' } });
+    if (!setting) {
+      return res.status(404).json({ message: 'Règlement non trouvé' });
+    }
+    res.json(setting);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 });
 router.get('/teams', authenticateJWT, async (req, res) => {
@@ -421,17 +439,18 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
     const date = req.body.date
     const userId = req.body.userId
+    const matchId = req.body.matchId
     const existingBet = await Bets.findOne({
       where: {
-        date: date,
         userId: userId,
+        matchId: matchId
       }
     })
     if (existingBet) {
-      return res.status(401).json({ error: 'Un pari similaire existe déjà pour cette date et cet utilisateur' });
+      return res.status(401).json({ error: 'Un pari similaire existe déjà pour ce match et cet utilisateur' });
     }
     const bet = await Bets.create(req.body)
-    res.status(201).json(bet);
+    res.status(200).json(bet);
   } catch (error) {
     res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
   }
@@ -506,7 +525,23 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
     if (email) user.email = email
     if (password) user.password = await bcrypt.hash(password, 10)
     if (req.file) {
-      user.img = req.file.path
+      const imagePath = req.file.path;
+      const baseName = path.basename(imagePath, path.extname(imagePath));
+      // Créer des variations redimensionnées
+      await sharp(imagePath)
+        .resize(120, 120)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_120x120${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450, 450)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_450x450${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_450xAuto${path.extname(imagePath)}`);
+
+      const relativePath = req.file.path.split('client')[1]
+      user.img = relativePath
     }
 
     await user.save()

@@ -57,6 +57,8 @@ const SettingFormText = ({ setting, openModal, token, }) => {
               init={{
                 plugins: 'anchor autolink charmap codesample emoticons link lists visualblocks',
                 toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
+                content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
               }}
               initialValue={setting.options['Value']}
               onEditorChange={handleEditorChange}

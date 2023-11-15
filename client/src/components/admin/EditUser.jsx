@@ -29,7 +29,7 @@ const EditUser = () => {
         if (response.data.img) {
           const correctedAvatarUrl = response.data.img.replace(/\\/g, '/');
         }
-        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:3001/${correctedAvatarUrl}`, password: '', confirmPassword: '' });
+        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:5173/${correctedAvatarUrl}`, password: '', confirmPassword: '' });
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
       }

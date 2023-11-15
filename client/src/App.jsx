@@ -13,26 +13,28 @@ import Users from "./pages/admin/Users.jsx";
 import Matchs from "./pages/Matchs.jsx";
 import Classements from "./pages/Classements.jsx";
 import Bets from "./pages/Bets.jsx";
+import 'moment/dist/locale/fr'
 import moment from "moment";
-import 'moment/locale/fr'
 import PassedMatchs from "./pages/matchs/PassedMatchs.jsx";
 import UpcomingMatchs from "./pages/matchs/UpcomingMatchs.jsx";
 import Settings from "./pages/admin/Settings.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
+import Reglement from "./pages/Reglement.jsx";
 
 const App = () => {
-  moment.locale('fr')
+  moment.updateLocale('fr', {})
 
   return (
     <UserProvider>
       <Router>
         <Navbar />
-        <div className="container mx-auto">
+        <div className="container mx-auto pt-8">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+            <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
             <Route path="/matchs/passed" element={<ProtectedRoute component={PassedMatchs} />} />
             <Route path="/matchs/upcoming" element={<ProtectedRoute component={UpcomingMatchs} />} />

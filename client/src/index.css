@@ -57,12 +57,11 @@ body {
 
 /* Swiper */
 .swiper-wrapper {
-    margin-top: 3rem;
+    margin: 3rem 0;
 }
 
 .swiper-pagination {
-    top: 1rem !important;
-    bottom: inherit !important;
+    bottom: 0rem !important;
 }
 .swiper-pagination-bullet {
     width: 15px;
@@ -119,4 +118,27 @@ body {
 }
 .informations-text-styles ul li p > span:nth-child(0n+1) {
     font-weight: 700;
+}
+
+/* Réglement */
+.reglement-container h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    margin: 1rem 0;
+    padding: 0 1rem;
+    width: 100%;
+}
+.reglement-container h1 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    line-height: 30px;
+    color: black;
+}
+
+.reglement-container p {
+    font-family: 'Darker Grotesque', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 22px;
+    margin: 1rem 0;
 }

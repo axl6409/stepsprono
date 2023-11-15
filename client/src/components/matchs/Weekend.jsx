@@ -9,9 +9,8 @@ import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCaretRight, faPen, faReceipt} from "@fortawesome/free-solid-svg-icons";
 import Pronostic from "../partials/Pronostic.jsx";
-import moment from "moment";
-import 'moment/locale/fr';
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
+import moment from "moment";
 
 const Weekend = ({token, user}) => {
   const [matchs, setMatchs] = useState([])
@@ -20,7 +19,6 @@ const Weekend = ({token, user}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  moment.locale('fr');
   const now = moment();
   const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
@@ -81,13 +79,19 @@ const Weekend = ({token, user}) => {
           className="mySwiper flex flex-col justify-start"
         >
           {matchs.map(match => {
-            const matchDate = moment(match.utcDate);
+            const matchDate = moment(match.utcDate)
             const isMatchInFuture = matchDate.isAfter(now);
 
             return (
             <SwiperSlide className="flex flex-row flex-wrap p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
               <div className="w-full text-center flex flex-col justify-center px-6 py-2">
-                <p className="name font-sans text-base font-medium">{moment(match.utcDate).format('DD MMMM')}</p>
+                <p className="name font-sans text-base font-medium capitalize">{matchDate.format('DD MMMM')}
+                  <span className="flex flex-row justify-center">
+                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('HH')}</span>
+                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('mm')}</span>
+                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('ss')}</span>
+                  </span>
+                </p>
               </div>
               <div className="w-2/4 flex flex-col justify-center">
                 <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo w-1/2 mx-auto"/>
@@ -111,10 +115,10 @@ const Weekend = ({token, user}) => {
             </SwiperSlide>
             );
           })}
-          <div className="swiper-button-prev w-[50px] h-[50px] bg-white -top-4 left-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+          <div className="swiper-button-prev w-[50px] h-[50px] bg-white top-4 left-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <FontAwesomeIcon icon={faCaretLeft} className="text-black" />
           </div>
-          <div className="swiper-button-next w-[50px] h-[50px] bg-white -top-4 right-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+          <div className="swiper-button-next w-[50px] h-[50px] bg-white top-4 right-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <FontAwesomeIcon icon={faCaretRight} className="text-black" />
           </div>
         </Swiper>

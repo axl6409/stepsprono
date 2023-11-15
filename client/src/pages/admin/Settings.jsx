@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
+import {faCaretLeft, faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
 import InformationModal from "../../components/partials/InformationModal.jsx";
 import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
+import {Link} from "react-router-dom";
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
@@ -59,6 +60,14 @@ const Settings = () => {
 
   return (
     <div>
+      <Link
+        to="/admin"
+        className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+      >
+        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+          <FontAwesomeIcon icon={faCaretLeft} />
+        </span>
+      </Link>
       {settings.map((setting) => (
         <DynamicFormComponent
           key={setting.id}
@@ -66,7 +75,7 @@ const Settings = () => {
           openModal={openModal}
         />
       ))}
-    {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
+      {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
     </div>
   );
 }

@@ -29,7 +29,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes statiques avec CORS
-app.use('/uploads', cors(corsOptions), express.static(path.join(__dirname, 'uploads')));
 
 // Routes API
 app.use('/api', apiRoutes);

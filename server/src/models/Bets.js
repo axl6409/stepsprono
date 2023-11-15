@@ -12,7 +12,7 @@ const Bets = sequelize.define('Bets', {
   },
   winnerId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   homeScore: {
     type: DataTypes.STRING,

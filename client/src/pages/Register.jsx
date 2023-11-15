@@ -36,7 +36,7 @@ const Register = () => {
         localStorage.setItem('token', response.data.token);
         setCookie('token', response.data.token, { path: '/' });
         setIsAuthenticated(true);
-        navigate('/dashboard');
+        navigate('/reglement');
       } else {
         console.error('Token is missing in response', response.data);
       }

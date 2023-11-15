@@ -28,10 +28,13 @@ const Matchs = () => {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="text-center relative h-auto pt-16 flex flex-col justify-center">
-      <h1 className="text-3xl font-bold mb-4">Matchs</h1>
-      <div className="px-4">
-        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-r-2 border-b-2 border-l-2 border-black rounded-br-md rounded-bl-md relative z-[5] bottom-[-35px] shadow-flat-black-adjust">Ce Weekend</h2>
+    <div className="text-center relative h-auto flex flex-col justify-center my-8">
+      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Matchs
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Matchs</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Matchs</span>
+      </h1>
+      <div className="px-4 relative">
+        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-[5%] mt-0 z-[5] shadow-flat-black-adjust">Ce Weekend</h2>
         <Weekend token={token} user={user}/>
       </div>
     </div>
