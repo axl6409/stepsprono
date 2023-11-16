@@ -2,7 +2,7 @@
   "name": "StepsProno",
   "version": "2.1.6",
   "scripts": {
-    "start": "cd server && npm start",
+    "start": "node server/index.js",
     "build": "cd client && npm install && npm run build"
   },
   "engines": {
