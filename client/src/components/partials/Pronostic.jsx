@@ -22,6 +22,16 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
 
   const onSubmit = async (data) => {
     try {
+      if (match.id === lastMatch.id) {
+        if (!data.homeScore || !data.awayScore) {
+          setErrorMessage('Score obligatoire');
+          return
+        }
+        if (!data.scorer) {
+          setErrorMessage('Buteur obligatoire');
+          return
+        }
+      }
       const response = await axios.post('http://127.0.0.1:3001/api/bet/add', {
         userId: userId,
         matchId: match.id,
@@ -56,15 +66,15 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   };
 
   return (
-    <div className={`modal fixed top-16 left-0 right-0 bottom-0 z-[40] w-full pt-20 pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
+    <div className={`modal fixed top-16 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full pt-20 pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
       {errorMessage && (
-        <div className="modal-error relative bg-white w-[90%] mx-auto pt-4 pb-12 px-4 mb-8 border-2 border-black shadow-flat-black">
-          <p className="font-sans uppercase font-bold text-sm">{errorMessage}</p>
+        <div className="modal-error relative bg-white w-[90%] mx-auto p-4 pr-12 mb-8 border-2 border-black shadow-flat-black">
+          <p className="font-sans uppercase font-bold text-xs">{errorMessage}</p>
           <button
             onClick={closeInfoModal}
-            className="absolute bottom-2 right-2 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-flat-red before:border-black before:border-2 group"
+            className="absolute top-4 right-2 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-flat-red before:border-black before:border-2 group"
           >
-            <span className="relative z-[2] w-full flex flex-col justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            <span className="relative z-[2] w-full flex flex-col justify-center border-2 border-black text-black px-1 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
                <FontAwesomeIcon icon={faXmark} className="h-[20px]"/>
             </span>
           </button>

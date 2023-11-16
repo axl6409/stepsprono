@@ -80,7 +80,7 @@ const EditUser = () => {
   };
 
   return (
-    <div className="pt-8">
+    <div>
       <Link
         to="/admin/users"
         className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
@@ -89,6 +89,10 @@ const EditUser = () => {
           <FontAwesomeIcon icon={faCaretLeft} />
         </span>
       </Link>
+      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">{user.username}
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">{user.username}</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">{user.username}</span>
+      </h1>
       <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-8 border-2 border-black shadow-flat-black">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col my-4">

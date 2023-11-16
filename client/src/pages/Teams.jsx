@@ -50,7 +50,10 @@ const Teams = () => {
 
   return (
     <div className="inline-block w-full h-auto">
-      <h1 className="text-center font-title uppercase font-black text-xxl my-4">Liste des équipes</h1>
+      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Équipes
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Équipes</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Équipes</span>
+      </h1>
       <div className="relative border-t-2 border-b-2 border-black overflow-hidden py-8 px-2 pt-0 bg-flat-yellow">
         <ul className="flex flex-col justify-start">
           {teams.map(team => (

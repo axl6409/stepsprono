@@ -304,6 +304,20 @@ router.get('/bets', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
+router.get('/bets/user/:id', authenticateJWT, async (req, res) => {
+  try {
+    const bets = await Bets.findAll({
+      where: {
+        UserId: req.params.id
+      },
+    });
+    res.json({
+      data: bets,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+})
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
@@ -447,7 +461,7 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
       }
     })
     if (existingBet) {
-      return res.status(401).json({ error: 'Un pari similaire existe déjà pour ce match et cet utilisateur' });
+      return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
     const bet = await Bets.create(req.body)
     res.status(200).json(bet);

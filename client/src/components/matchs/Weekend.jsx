@@ -47,6 +47,22 @@ const Weekend = ({token, user}) => {
       }
     }
     fetchMatchs()
+
+    const fetchBets = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+        console.log(response)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des matchs :', error);
+        setError(error);
+        setLoading(false);
+      }
+    }
+    fetchBets()
   }, [token])
 
   const closeModal = () => {

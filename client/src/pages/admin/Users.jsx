@@ -4,6 +4,7 @@ import {UserContext} from "../../contexts/UserContext.jsx";
 import {Link, Navigate, useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
+import BackButton from "../../components/nav/BackButton.jsx";
 
 const Users = () => {
   const { user } = useContext(UserContext)
@@ -22,7 +23,10 @@ const Users = () => {
           <FontAwesomeIcon icon={faCaretLeft} />
         </span>
       </Link>
-      <h1 className="text-center font-title uppercase font-black text-xxl my-4">Gestion des utilisateurs</h1>
+      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto text-center">Gestion des utilisateurs
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] text-center transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Gestion des utilisateurs</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] text-center transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Gestion des utilisateurs</span>
+      </h1>
       <AdminUsers />
     </div>
   );

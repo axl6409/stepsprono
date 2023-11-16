@@ -8,7 +8,11 @@ const Home = () => {
 
   return (
     <div className="text-center p-10 h-70vh flex flex-col justify-center">
-      <h1 className="text-3xl font-bold mb-4">⚽️ Bienvenue sur Steps Prono ⚽️</h1>
+      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Steps Prono
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Steps Prono</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Steps Prono</span>
+      </h1>
+      <p className="text-lg font-bold mb-4">⚽️ Bienvenue sur Steps Prono ⚽️</p>
 
       <p className="text-lg mb-6">
         Votre nouvelle plateforme de paris sportifs en ligne !
