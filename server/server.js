@@ -48,7 +48,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'visitor' } });
     // await updateTeams();
     // await updateMatches();
-    // await updateTeamsRanking()
+    await updateTeamsRanking()
     runCronJob();
   } catch (error) {
     console.log('Unable to connect to the database: ', error)

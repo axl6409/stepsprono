@@ -11,7 +11,6 @@ const UserMenu = () => {
   let cleanImageUrl = '/src/assets/react.svg'
 
   if (isAuthenticated) {
-    console.log(user)
     const profilImg = user.img.replace(/(\.[^/.]+)$/, '_120x120$1') || '/src/assets/react.svg'
     cleanImageUrl = profilImg.replace(/\\/g, '/').replace(/^\.\.\//, '').replace(/ /g, '%20');
   }
