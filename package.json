@@ -1,0 +1,11 @@
+{
+  "name": "StepsProno",
+  "version": "2.1.6",
+  "scripts": {
+    "start": "cd server && npm start",
+    "build": "cd client && npm install && npm run build"
+  },
+  "engines": {
+    "node": "14.x"
+  }
+}
