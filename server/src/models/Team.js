@@ -23,6 +23,46 @@ const Team = sequelize.define('Team', {
   competitionId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  position: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  playedGames: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  won: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  draw: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  lost: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  form: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  points: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  goalsFor: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  goalsAgainst: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  goalDifference: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   }
 })
 

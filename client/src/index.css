@@ -55,6 +55,10 @@ body {
     scrollbar-color: #00ff00 #393939;
 }
 
+.stroke-black {
+    -webkit-text-stroke: 1px #000000;
+}
+
 /* Swiper */
 .swiper-wrapper {
     margin: 3rem 0;

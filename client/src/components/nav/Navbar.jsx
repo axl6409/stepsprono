@@ -9,7 +9,9 @@ const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useContext(UserContext);
   let cleanImageUrl = '/src/assets/react.svg'
+
   if (isAuthenticated) {
+    console.log(user)
     const profilImg = user.img.replace(/(\.[^/.]+)$/, '_120x120$1') || '/src/assets/react.svg'
     cleanImageUrl = profilImg.replace(/\\/g, '/').replace(/^\.\.\//, '').replace(/ /g, '%20');
   }
@@ -25,9 +27,15 @@ const UserMenu = () => {
     <header className="fixed top-0 left-0 right-0 z-[90]">
       <nav className="bg-white px-4 py-2 relative z-[10] border-b-2 border-black">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to="/">
-            <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
-          </Link>
+          {isAuthenticated && user ? (
+            <Link to="/dashboard">
+              <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
+            </Link>
+          ) : (
+            <Link to="/">
+              <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
+            </Link>
+          )}
           {isAuthenticated && user ? (
             <button
               className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
@@ -54,21 +62,21 @@ const UserMenu = () => {
               <>
                 <Link
                   to="/dashboard"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Tableau de bord</span>
                 </Link>
                 <Link
                   to="/teams"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Équipes</span>
                 </Link>
                 <Link
                   to="/matchs"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Matchs</span>
@@ -76,7 +84,7 @@ const UserMenu = () => {
                 {user && user.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                    className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => setIsOpen(false)}
                   >
                     <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Administration</span>
@@ -84,7 +92,7 @@ const UserMenu = () => {
                 )}
                 <Link
                   to="/"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={handleLogout}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Déconnexion</span>
@@ -94,14 +102,14 @@ const UserMenu = () => {
               <>
                 <Link
                   to="/login"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Connexion</span>
                 </Link>
                 <Link
                   to="/register"
-                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Inscription</span>

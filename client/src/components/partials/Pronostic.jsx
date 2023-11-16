@@ -141,7 +141,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                   <div className="flex flex-row justify-evenly my-4">
                     <label className="flex flex-col w-2/5">
                       <span className="font-sans uppercase text-black font-medium text-sm">Score</span>
-                      <span className="font-sans text-black font-medium text-sm">{match.HomeTeam.name}</span>
+                      <span className="font-sans text-black font-medium text-sm">{match.HomeTeam.shortName}</span>
                       <input
                         className="border-2 border-black text-sans font-medium text-base text-center shadow-flat-black"
                         type="number"
@@ -151,7 +151,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                     </label>
                     <label className="flex flex-col w-2/5">
                       <span className="font-sans uppercase text-black font-medium text-sm">Score</span>
-                      <span className="font-sans text-black font-medium text-sm">{match.AwayTeam.name}</span>
+                      <span className="font-sans text-black font-medium text-sm">{match.AwayTeam.shortName}</span>
                       <input
                         className="border-2 border-black text-sans font-medium text-base text-center shadow-flat-black"
                         type="number"

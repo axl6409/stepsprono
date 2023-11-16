@@ -5,6 +5,7 @@ import Weekend from "../components/matchs/Weekend.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
+import Passed from "../components/matchs/Passed.jsx";
 
 const Matchs = () => {
   const { user, setUser } = useContext(UserContext)
@@ -35,6 +36,10 @@ const Matchs = () => {
       <div className="px-4 relative">
         <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-[5%] mt-0 z-[5] shadow-flat-black-adjust">Ce Weekend</h2>
         <Weekend token={token} user={user}/>
+      </div>
+      <div className="px-4 relative my-8">
+        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-[5%] mt-0 z-[5] shadow-flat-black-adjust">Passés</h2>
+        <Passed token={token} user={user}/>
       </div>
     </div>
   );

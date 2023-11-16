@@ -28,6 +28,33 @@ async function updateTeams() {
   }
 }
 
+async function updateTeamsRanking() {
+  try {
+    const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/standings?season=2023', {
+      headers: { 'X-Auth-Token': apiKey }
+    })
+    const ranking = response.data.standings[0].table;
+    for (const teamInfo of ranking) {
+      await Team.update({
+        position: teamInfo.position,
+        playedGames: teamInfo.playedGames,
+        won: teamInfo.won,
+        draw: teamInfo.draw,
+        lost: teamInfo.lost,
+        form: teamInfo.form,
+        points: teamInfo.points,
+        goalsFor: teamInfo.goalsFor,
+        goalsAgainst: teamInfo.goalsAgainst,
+        goalDifference: teamInfo.goalDifference
+      }, {
+        where: { id: teamInfo.team.id }
+      });
+    }
+  } catch (error) {
+    console.log('Erreur lors de la mise à jour des données:', error);
+  }
+}
+
 async function updateMatches() {
   try {
     const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/matches', {
@@ -70,8 +97,8 @@ async function updateMatches() {
 
 const runCronJob = () => {
   cron.schedule('31 00 * * *', updateTeams)
-
   cron.schedule('32 00 * * *', updateMatches)
+  cron.schedule('33 00 * * *', updateTeamsRanking)
 }
 
-module.exports = { runCronJob, updateTeams, updateMatches };
+module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking };

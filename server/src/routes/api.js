@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const { Op } = require('sequelize')
+const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
@@ -97,7 +97,6 @@ router.get('/admin/settings', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 router.get('/settings/reglement', authenticateJWT, async (req, res) => {
   try {
     const setting = await Settings.findOne({ where: { key: 'regulation' } });
@@ -115,11 +114,19 @@ router.get('/teams', authenticateJWT, async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || defaultLimit;
     let offset = (page - 1) * limit;
+    const sortBy = req.query.sortBy || 'position';
+    const order = req.query.order || 'ASC';
+
     if (!req.query.page && !req.query.limit) {
       limit = null;
       offset = null;
     }
-    const teams = await Team.findAndCountAll({ offset, limit });
+
+    const teams = await Team.findAndCountAll({
+      offset,
+      limit,
+      order: [[sortBy, order.toUpperCase()]]
+    });
     res.json({
       data: teams.rows,
       totalPages: limit ? Math.ceil(teams.count / limit) : 1,
@@ -166,25 +173,17 @@ router.get('/match/:matchId', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 })
-router.get('/matchs/passed', authenticateJWT, async (req, res) => {
+router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
   try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
-    if (!req.query.page && !req.query.limit) {
-      limit = null;
-      offset = null;
-    }
+    let matchday = parseInt(req.params.matchday) || 1;
     const currentDate = new Date()
     const matchs = await Match.findAndCountAll({
       where: {
-        utcDate: {
-          [Op.lt]: currentDate
-        }
+        matchday: matchday,
+        status: {
+          [Op.or]: ["FINISHED", "CANCELED"]
+        },
       },
-      offset,
-      limit,
       include: [
         { model: Team, as: 'HomeTeam' },
         { model: Team, as: 'AwayTeam' }
@@ -192,12 +191,31 @@ router.get('/matchs/passed', authenticateJWT, async (req, res) => {
     });
     res.json({
       data: matchs.rows,
-      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
-      currentPage: page,
-      totalCount: matchs.count,
     });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const matchdays = await Match.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('matchday')), 'matchday'],
+      ],
+      where: {
+        utcDate: {
+          [Op.lt]: currentDate
+        }
+      },
+      order: [
+        ['matchday', 'ASC']
+      ]
+    });
+    const uniqueMatchdays = matchdays.map(match => match.matchday);
+    res.json(uniqueMatchdays);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
   }
 });
 router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
@@ -304,20 +322,6 @@ router.get('/bets', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
-router.get('/bets/user/:id', authenticateJWT, async (req, res) => {
-  try {
-    const bets = await Bets.findAll({
-      where: {
-        UserId: req.params.id
-      },
-    });
-    res.json({
-      data: bets,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée' , error: error.message });
-  }
-})
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
@@ -411,7 +415,7 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
   }
-});
+})
 router.post('/admin/teams/add', async (req, res) => {
   try {
     const existingTeam = await Team.findOne({ where: { slug: req.body.slug } });
@@ -423,7 +427,7 @@ router.post('/admin/teams/add', async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
   }
-});
+})
 router.post('/admin/matchs/add', async (req, res) => {
   try {
     const date = req.body.date
@@ -448,7 +452,7 @@ router.post('/admin/matchs/add', async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Impossible de créer le match', message: error, datas: req.body });
   }
-});
+})
 router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
     const date = req.body.date
@@ -467,6 +471,25 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     res.status(200).json(bet);
   } catch (error) {
     res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
+  }
+})
+router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
+  const matchIds = req.body.matchIds;
+
+  try {
+    const bets = await Bets.findAll({
+      where: {
+        UserId: req.params.id,
+        MatchId: {
+          [Op.in]: matchIds
+        }
+      },
+    });
+    res.json({
+      data: bets,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
 

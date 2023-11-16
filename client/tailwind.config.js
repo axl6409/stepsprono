@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         'green-lime': "#00ff00",
+        'green-lime-deep': '#02d302',
         'flat-yellow': '#F4D738',
         'bright-yellow': '#FFFF00',
         'electric-blue': '#7DF9FF',
@@ -48,7 +49,9 @@ export default {
       boxShadow: {
         'menu': '0.25rem 0.5rem 2rem rgba(0,0,0,.16);',
         'flat-black': '3px 4px 0 rgba(0,0,0,1);',
-        'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1)'
+        'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1);',
+        'flat-black-adjust-50': '2px 2px 0 rgba(0,0,0,0.5);',
+        'inner-black-light': 'inset 0px 5px 5px 5px rgba(0,0,0,0.5);',
       },
       translate: {
         '-5': '-1.25rem',

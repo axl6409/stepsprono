@@ -2,20 +2,27 @@
 import React, {useContext} from 'react';
 import {Link} from "react-router-dom";
 import {UserContext} from "../contexts/UserContext.jsx";
+import futbol from "/img/futbol-solid.svg";
 
 const Home = () => {
   const { isAuthenticated } = useContext(UserContext);
 
   return (
-    <div className="text-center p-10 h-70vh flex flex-col justify-center">
-      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Steps Prono
+    <div className="text-center p-10 relative flex flex-col justify-center">
+      <span className="absolute top-10 left-4 text-xl text-black">
+        <img className="w-[30px]" src={futbol} alt="football icon"/>
+      </span>
+      <span className="absolute top-10 right-4 text-xl text-black">
+        <img className="w-[30px]" src={futbol} alt="football icon"/>
+      </span>
+      <h1 className="text-3xl font-black my-8 mt-0 uppercase relative w-fit mx-auto">Steps Prono
         <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Steps Prono</span>
         <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Steps Prono</span>
       </h1>
-      <p className="text-lg font-bold mb-4">⚽️ Bienvenue sur Steps Prono ⚽️</p>
+      <p className="text-lg font-bold mb-4">Bienvenue sur Steps Prono</p>
 
       <p className="text-lg mb-6">
-        Votre nouvelle plateforme de paris sportifs en ligne !
+        Votre nouvelle plateforme de pronos en ligne !
       </p>
 
       <div className="flex flex-col justify-evenly">

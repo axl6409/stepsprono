@@ -25,6 +25,10 @@ const Bets = sequelize.define('Bets', {
   playerGoal: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  points: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   }
 })
 
