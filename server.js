@@ -2,11 +2,11 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const apiRoutes = require('./src/routes/api')
-const sequelize = require('./database');
-const models = require('./src/models')
-const {Role} = require("./src/models");
-const { runCronJob, updateTeams, updateMatches, updateTeamsRanking } = require("./cronJob");
+const apiRoutes = require('./server/src/routes/api')
+const sequelize = require('./server/database');
+const models = require('./server/src/models')
+const {Role} = require("./server/src/models");
+const { runCronJob, updateTeams, updateMatches, updateTeamsRanking } = require("./server/cronJob");
 const path = require("path");
 
 require('dotenv').config();
