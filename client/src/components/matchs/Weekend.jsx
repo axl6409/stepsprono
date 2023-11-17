@@ -67,7 +67,6 @@ const Weekend = ({token, user}) => {
             'Authorization': `Bearer ${token}`,
           }
         });
-        console.log(response.data.data)
         setBets(response.data.data)
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
@@ -78,6 +77,8 @@ const Weekend = ({token, user}) => {
   }, [token])
 
   const isBetPlaced = (matchId) => {
+    console.log(bets)
+    console.log(matchId)
     return bets.some(bet => bet.matchId === matchId);
   };
 
