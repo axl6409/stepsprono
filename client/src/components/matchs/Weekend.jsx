@@ -152,11 +152,7 @@ const Weekend = ({token, user}) => {
                     className="relative mt-8 mx-auto block h-fit"
                   >
                     <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
-                      {!isMatchInFuture && !isBeforeNextFriday ? (
-                        <span>Temps écoulé</span>
-                      ) : (
-                        <span>Temps écoulé</span>
-                      )}
+                      Prono reçu
                     </span>
                   </div>
                 )}
