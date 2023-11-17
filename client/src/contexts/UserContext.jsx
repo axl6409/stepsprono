@@ -10,13 +10,14 @@ export const UserProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [cookies, removeCookie, clearCookie] = useCookies(['token']);
-
+  const host = import.meta.env.VITE_HOST;
+  
   useEffect(() => {
     const loadToken = async () => {
       const token = cookies.token || localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.post('http://localhost:3001/api/verifyToken', { token });
+          const response = await axios.post(`${host}/api/verifyToken`, { token });
           if (response.data.isAuthenticated) {
             setUser(response.data.user);
             setIsAuthenticated(true);

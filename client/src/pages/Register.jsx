@@ -16,6 +16,7 @@ const Register = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const { isAuthenticated, setIsAuthenticated } = useContext(UserContext);
+  const host = import.meta.env.VITE_HOST;
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +28,7 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/register', {
+      const response = await axios.post(`${host}/api/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
