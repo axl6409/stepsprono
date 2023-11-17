@@ -50,26 +50,26 @@ app.listen(PORT, async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
-    await Settings.upsert({
-      where: {
-        key: 'matchMode',
-        displayName: 'Mode de match',
-        type: 'select',
-        description: '<p>Quel mode de pari utiliser pour les matchs ?</p><ul><li><p><span>Mode par défaut : </span><span>Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur</span></li><li><p><span>Mode Full : </span><span>Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur</span></li><li><p><span>Mode Select : </span><span>Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur</span></li></ul>',
-        options: '{"Full": {"title": "Full", "value": "full", "description": "Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur"}, "Default": {"title": "Défaut", "value": "default", "description": "Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur"}, "Selected": {"title": "Select", "value": "select", "Description": "Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur"}}',
-        activeOption: 'Default'
-      }
-    })
-    await Settings.upsert({
-      where: {
-        key: 'regulation',
-        displayName: 'Règlement',
-        type: 'text',
-        description: '<p>Règlement intérieur des steps prono</p>',
-        options: '{"Value": ""}',
-        activeOption: 'Default'
-      }
-    })
+    // await Settings.upsert({
+    //   where: {
+    //     key: 'matchMode',
+    //     displayName: 'Mode de match',
+    //     type: 'select',
+    //     description: '<p>Quel mode de pari utiliser pour les matchs ?</p><ul><li><p><span>Mode par défaut : </span><span>Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur</span></li><li><p><span>Mode Full : </span><span>Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur</span></li><li><p><span>Mode Select : </span><span>Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur</span></li></ul>',
+    //     options: '{"Full": {"title": "Full", "value": "full", "description": "Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur"}, "Default": {"title": "Défaut", "value": "default", "description": "Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur"}, "Selected": {"title": "Select", "value": "select", "Description": "Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur"}}',
+    //     activeOption: 'Default'
+    //   }
+    // })
+    // await Settings.upsert({
+    //   where: {
+    //     key: 'regulation',
+    //     displayName: 'Règlement',
+    //     type: 'text',
+    //     description: '<p>Règlement intérieur des steps prono</p>',
+    //     options: '{"Value": ""}',
+    //     activeOption: 'Default'
+    //   }
+    // })
     await updateTeams();
     await updateMatches();
     await updateTeamsRanking()
