@@ -127,7 +127,7 @@ const Teams = () => {
                 <div className="my-4">
                   <p className="font-sans text-xs font-bold text-center uppercase mb-2">5 derniers matchs</p>
                   <ul className="flex flex-row justify-center">
-                    {team.form.split(',').map((result, index) => (
+                    {team.form && team.form.split(',').map((result, index) => (
                       <li className="mx-2 text-lg rounded-full bg-black h-fit" key={index}>{getResultIcon(result)}</li>
                     ))}
                   </ul>
