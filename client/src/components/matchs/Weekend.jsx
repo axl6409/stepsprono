@@ -155,7 +155,7 @@ const Weekend = ({token, user}) => {
                       {!isMatchInFuture && !isBeforeNextFriday ? (
                         <span>Temps écoulé</span>
                       ) : (
-                        <span>Prono reçu</span>
+                        <span>Temps écoulé</span>
                       )}
                     </span>
                   </div>
