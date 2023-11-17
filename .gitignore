@@ -7,7 +7,6 @@ node_modules/
 # Ignore environment-specific files (e.g., .env for configuration)
 .env
 client/.env
-.env
 
 .idea
 
