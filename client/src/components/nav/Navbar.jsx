@@ -10,7 +10,7 @@ const UserMenu = () => {
   const { user, isAuthenticated, logout } = useContext(UserContext);
   let cleanImageUrl = '/src/assets/react.svg'
 
-  if (isAuthenticated) {
+  if (isAuthenticated && user.img) {
     const profilImg = user.img.replace(/(\.[^/.]+)$/, '_120x120$1') || '/src/assets/react.svg'
     cleanImageUrl = profilImg.replace(/\\/g, '/').replace(/^\.\.\//, '').replace(/ /g, '%20');
   }
