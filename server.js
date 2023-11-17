@@ -5,7 +5,7 @@ const cors = require('cors')
 const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
-const {Role} = require("./server/src/models");
+const {Role, Area, Competition, Season, Settings} = require("./server/src/models");
 const { runCronJob, updateTeams, updateMatches, updateTeamsRanking } = require("./server/cronJob");
 const path = require("path");
 
@@ -50,6 +50,51 @@ app.listen(PORT, async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
+    await Area.findOrCreate({
+      where: {
+        id: 2081,
+        name: 'France',
+        code: 'FRA',
+        flag: 'https://crests.football-data.org/773.svg',
+      }
+    });
+    await Competition.findOrCreate({
+      where: {
+        id: 2015,
+        name: 'Ligue 1',
+        code: 'FL1',
+        type: 'LEAGUE',
+        emblem: 'https://crests.football-data.org/FL1.png',
+      }
+    });
+    await Season.findOrCreate({
+      where: {
+        id: 1595,
+        statDate: '2023-08-13 00:00:00',
+        endDate: '2024-05-18 00:00:00',
+        winner: null
+      }
+    })
+    await Settings.findOrCreate({
+      where: {
+        key: 'matchMode',
+        displayName: 'Mode de match',
+        type: 'select',
+        description: '<p>Quel mode de pari utiliser pour les matchs ?</p><ul><li><p><span>Mode par défaut : </span><span>Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur</span></li><li><p><span>Mode Full : </span><span>Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur</span></li><li><p><span>Mode Select : </span><span>Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur</span></li></ul>',
+        options: '{"Full": {"title": "Full", "value": "full", "description": "Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur"}, "Default": {"title": "Défaut", "value": "default", "description": "Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur"}, "Selected": {"title": "Select", "value": "select", "Description": "Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur"}}',
+        activeOption: 'Default'
+      }
+    })
+    await Settings.findOrCreate({
+      where: {
+        key: 'regulation',
+        displayName: 'Règlement',
+        type: 'text',
+        description: '<p>Règlement intérieur des steps prono</p>',
+        options: '{"Value": ""}',
+        activeOption: 'Default'
+      }
+    })
     await updateTeams();
     await updateMatches();
     await updateTeamsRanking()
