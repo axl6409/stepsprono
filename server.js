@@ -50,31 +50,6 @@ app.listen(PORT, async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
-    await Area.upsert({
-      where: {
-        id: 2081,
-        name: 'France',
-        code: 'FRA',
-        flag: 'https://crests.football-data.org/773.svg',
-      }
-    });
-    await Competition.upsert({
-      where: {
-        id: 2015,
-        name: 'Ligue 1',
-        code: 'FL1',
-        type: 'LEAGUE',
-        emblem: 'https://crests.football-data.org/FL1.png',
-      }
-    });
-    await Season.upsert({
-      where: {
-        id: 1595,
-        startDate: '2023-08-13 00:00:00',
-        endDate: '2024-05-18 00:00:00',
-        winner: null
-      }
-    })
     await Settings.upsert({
       where: {
         key: 'matchMode',
