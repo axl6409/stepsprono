@@ -28,7 +28,7 @@ const App = () => {
     <UserProvider>
       <Router>
         <Navbar />
-        <div className="container mx-auto pt-16">
+        <div className="container mx-auto pt-16 overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
