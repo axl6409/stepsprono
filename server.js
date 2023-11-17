@@ -70,7 +70,7 @@ app.listen(PORT, async () => {
     await Season.findOrCreate({
       where: {
         id: 1595,
-        statDate: '2023-08-13 00:00:00',
+        startDate: '2023-08-13 00:00:00',
         endDate: '2024-05-18 00:00:00',
         winner: null
       }
