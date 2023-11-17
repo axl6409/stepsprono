@@ -114,8 +114,8 @@ const Weekend = ({token, user}) => {
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
             const isMatchInFuture = matchDate.isAfter(simulatedNow);
-const hasBet = isBetPlaced(match.id)
-const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
+            const hasBet = isBetPlaced(match.id)
+            const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
