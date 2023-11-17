@@ -39,7 +39,7 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
     await models.sequelize.authenticate()
