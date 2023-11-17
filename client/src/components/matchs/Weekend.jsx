@@ -67,6 +67,7 @@ const Weekend = ({token, user}) => {
             'Authorization': `Bearer ${token}`,
           }
         });
+        console.log(response.data.data)
         setBets(response.data.data)
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
