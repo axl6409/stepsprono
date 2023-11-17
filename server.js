@@ -38,7 +38,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
 });
 
-
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
@@ -51,8 +50,8 @@ app.listen(PORT, async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
-    // await updateTeams();
-    // await updateMatches();
+    await updateTeams();
+    await updateMatches();
     await updateTeamsRanking()
     runCronJob();
   } catch (error) {

@@ -96,9 +96,9 @@ async function updateMatches() {
 }
 
 const runCronJob = () => {
-  cron.schedule('31 00 * * *', updateTeams)
-  cron.schedule('32 00 * * *', updateMatches)
-  cron.schedule('33 00 * * *', updateTeamsRanking)
+  cron.schedule('30 00 * * *', updateTeams)
+  cron.schedule('35 00 * * *', updateMatches)
+  cron.schedule('45 00 * * *', updateTeamsRanking)
 }
 
 module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking };
