@@ -139,7 +139,7 @@ const Weekend = ({token, user}) => {
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
                   <p>{match.AwayTeam.shortName}</p>
                 </div>
-                {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
+                {(!isBetPlaced(match.id) || bets.length === 0) && isMatchInFuture && isBeforeNextFriday ? (
                   <button
                     className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
