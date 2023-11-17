@@ -50,7 +50,7 @@ app.listen(PORT, async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
-    await Area.findOrCreate({
+    await Area.upsert({
       where: {
         id: 2081,
         name: 'France',
@@ -58,7 +58,7 @@ app.listen(PORT, async () => {
         flag: 'https://crests.football-data.org/773.svg',
       }
     });
-    await Competition.findOrCreate({
+    await Competition.upsert({
       where: {
         id: 2015,
         name: 'Ligue 1',
@@ -67,7 +67,7 @@ app.listen(PORT, async () => {
         emblem: 'https://crests.football-data.org/FL1.png',
       }
     });
-    await Season.findOrCreate({
+    await Season.upsert({
       where: {
         id: 1595,
         startDate: '2023-08-13 00:00:00',
@@ -75,7 +75,7 @@ app.listen(PORT, async () => {
         winner: null
       }
     })
-    await Settings.findOrCreate({
+    await Settings.upsert({
       where: {
         key: 'matchMode',
         displayName: 'Mode de match',
@@ -85,7 +85,7 @@ app.listen(PORT, async () => {
         activeOption: 'Default'
       }
     })
-    await Settings.findOrCreate({
+    await Settings.upsert({
       where: {
         key: 'regulation',
         displayName: 'Règlement',
