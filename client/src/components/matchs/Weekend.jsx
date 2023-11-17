@@ -114,6 +114,8 @@ const Weekend = ({token, user}) => {
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
             const isMatchInFuture = matchDate.isAfter(simulatedNow);
+const hasBet = isBetPlaced(match.id)
+const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
@@ -139,7 +141,7 @@ const Weekend = ({token, user}) => {
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
                   <p>{match.AwayTeam.shortName}</p>
                 </div>
-                {(!isBetPlaced(match.id) || bets.length === 0) && isMatchInFuture && isBeforeNextFriday ? (
+                {(!hasBet || bets.lenght === 0) && isMatchInFuture && isBeforeNextFriday ? (
                   <button
                     className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
@@ -149,6 +151,14 @@ const Weekend = ({token, user}) => {
                       <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
                     </span>
                   </button>
+                ) : !hasBet && isAfterFridayNoon ? (
+                  <div
+                    className="relative mt-8 mx-auto block h-fit"
+                  >
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                      Trop tard !
+                    </span>
+                  </div>
                 ) : (
                   <div
                     className="relative mt-8 mx-auto block h-fit"
