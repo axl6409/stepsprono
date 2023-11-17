@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
-  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001'],
+  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001', 'https://steps-prono-03d6d44a1031.herokuapp.com/'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
