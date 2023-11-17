@@ -137,7 +137,7 @@ const Weekend = ({token, user}) => {
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
                   <p>{match.AwayTeam.shortName}</p>
                 </div>
-                {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
+                {!isBetPlaced(match.id) ? (
                   <button
                     className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
@@ -147,6 +147,14 @@ const Weekend = ({token, user}) => {
                   <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
                 </span>
                   </button>
+                ) : isMatchInFuture && isBeforeNextFriday ? (
+                  <div
+                    className="relative mt-8 mx-auto block h-fit"
+                  >
+                <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                  Délai de remise du prono dépassée
+                </span>
+                  </div>
                 ) : (
                   <div
                     className="relative mt-8 mx-auto block h-fit"
