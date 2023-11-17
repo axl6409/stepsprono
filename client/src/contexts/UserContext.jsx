@@ -11,7 +11,7 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [cookies, removeCookie, clearCookie] = useCookies(['token']);
   const host = import.meta.env.VITE_HOST;
-  
+
   useEffect(() => {
     const loadToken = async () => {
       const token = cookies.token || localStorage.getItem('token');

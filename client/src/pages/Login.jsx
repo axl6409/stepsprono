@@ -15,7 +15,6 @@ const Login = () => {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const host = import.meta.env.VITE_HOST;
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +26,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${host}/api/login`, formData);
+      const response = await axios.post('/api/login', formData);
       localStorage.setItem('token', response.data.token);
       setCookie('token', response.data.token, { path: '/' });
       setIsAuthenticated(true);
