@@ -31,7 +31,7 @@ const Weekend = ({token, user}) => {
   const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
+  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
 
   useEffect(() => {
     const fetchMatchs = async () => {
@@ -113,7 +113,7 @@ const Weekend = ({token, user}) => {
         >
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
-            const isMatchInFuture = matchDate.isAfter(now);
+            const isMatchInFuture = matchDate.isAfter(simulatedNow);
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
