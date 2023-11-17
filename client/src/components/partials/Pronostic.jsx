@@ -32,7 +32,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           return
         }
       }
-      const response = await axios.post('http://127.0.0.1:3001/api/bet/add', {
+      const response = await axios.post('/api/bet/add', {
         userId: userId,
         matchId: match.id,
         winnerId: selectedTeam,

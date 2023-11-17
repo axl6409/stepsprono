@@ -28,7 +28,7 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
   // Exemple d'une fonction utilitaire
   const updateSetting = async (settingId) => {
     try{
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: selectedOption }, {
+      const response = await axios.put(`/api/admin/setting/update/${settingId}`, { newValue: selectedOption }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

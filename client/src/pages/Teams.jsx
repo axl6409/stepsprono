@@ -32,7 +32,7 @@ const Teams = () => {
 
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/teams', {
+        const response = await axios.get('/api/teams', {
           params: { page: currentPage, limit: itemsPerPage, sortBy: 'position', order: 'asc' },
           headers: {
             'Authorization': `Bearer ${token}`,

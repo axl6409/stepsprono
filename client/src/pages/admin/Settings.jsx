@@ -18,7 +18,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchParams = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/admin/settings', {
+        const response = await axios.get('/api/admin/settings', {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
