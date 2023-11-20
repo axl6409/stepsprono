@@ -30,13 +30,11 @@ Bienvenue dans Steps Prono, une application de pronostics sportifs entre potes. 
 ## Comment Commencer
 
 1. **Clonage du Dépôt** : Clonez ce dépôt sur votre machine locale en utilisant la commande suivante : ``git clone https://github.com/votreutilisateur/votre-repo.git``
+Puis exécuter ``npm install`` dans à la racine et dans le dossier client.
 
-2. **Installation des Dépendances** : Accédez au répertoire du projet et installez les dépendances en exécutant :
-   ``npm init``
+2. **Configuration de la Base de Données** : Configurez la base de données MySQL avec les informations de connexion appropriées.
 
-4. **Configuration de la Base de Données** : Configurez la base de données MySQL avec les informations de connexion appropriées.
-
-5. **Lancement de l'Application** :
+3. **Lancement de l'Application** :
    Lancez la commande suivante dans le dossier ``server`` :
    ``npm start``
 
