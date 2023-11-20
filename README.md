@@ -41,15 +41,6 @@ Puis exécuter ``npm install`` dans à la racine et dans le dossier client.
 Et lancez la commande suivante dans le dossier ``client`` :
 ``npm run dev``
 
-## Contribution
+## Contributions
 
 C'est un projet et challenge personnel pour le moment, je n'accueil pas de contributions.
-
-## Auteur
-
-MrR0b0t...
-
-## Licence
-
-Ce projet est sous licence.
-![GNU GPL-3.0](https://www.gnu.org/graphics/gplv3-88x31.png)
