@@ -8,6 +8,7 @@ import axios from "axios";
 const SettingFormText = ({ setting, openModal, token, }) => {
   const editorRef = useRef(setting.options['Value'])
   const apiKey = import.meta.env.VITE_TINYMCE_API_KEY;
+  console.log(apiKey)
 
   const handleEditorChange = (content) => {
     editorRef.current = content;

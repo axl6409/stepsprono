@@ -95,6 +95,14 @@ async function updateMatches() {
   }
 }
 
+async function updateScores() {
+  try {
+
+  } catch (error) {
+    console.log('Erreur lors de la mise à jour des scores des utilisateurs:', error);
+  }
+}
+
 const runCronJob = () => {
   cron.schedule('31 00 * * *', updateTeams)
   cron.schedule('32 00 * * *', updateMatches)

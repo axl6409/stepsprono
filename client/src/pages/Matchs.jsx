@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
 import {UserContext} from "../contexts/UserContext.jsx";
 import Weekend from "../components/matchs/Weekend.jsx";
-import BackButton from "../components/nav/BackButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import Passed from "../components/matchs/Passed.jsx";
@@ -20,7 +19,7 @@ const Matchs = () => {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center">
+    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden">
       <Link
         to="/dashboard"
         className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"

@@ -45,7 +45,6 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           'Content-Type': 'application/json',
         },
       });
-      console.log(response)
       if (response.status === 200) {
         setErrorMessage('Prono enregistré avec succès:');
         setTimeout(function () {
