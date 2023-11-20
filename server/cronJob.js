@@ -8,7 +8,11 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
-async function downloadImage(url, teamId) {
+function calculatePoints(wins, draws, loses) {
+  return (wins * 3) + draws;
+}
+
+async function downloadImage(url, teamId, imageType) {
   try {
     const response = await axios({
       url,
@@ -16,18 +20,20 @@ async function downloadImage(url, teamId) {
       responseType: 'stream'
     });
 
+    const extension = url.split('.').pop();
+    const fileName = `${imageType}_${teamId}.${extension}`;
     const dir = path.join(__dirname, `../client/src/assets/teams/${teamId}`);
     if (!fs.existsSync(dir)){
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    const pathToFile = path.join(dir, 'logo.jpg'); // Changez le nom de fichier selon vos besoins
+    const pathToFile = path.join(dir, fileName);
     const writer = fs.createWriteStream(pathToFile);
 
     response.data.pipe(writer);
 
     return new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
+      writer.on('finish', () => resolve(pathToFile));
       writer.on('error', reject);
     });
   } catch (error) {
@@ -37,22 +43,75 @@ async function downloadImage(url, teamId) {
 
 async function updateTeams() {
   try {
-    const count = await Team.count();
-    if (count === 0) {
-      const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/teams', {
-        headers: { 'X-Auth-Token': apiKey }
-      })
-      const teams = response.data.teams;
-      for (const team of teams) {
-        await Team.create({
-          id: team.id,
-          name: team.name,
-          shortName: team.shortName,
-          tla: team.tla,
-          logoUrl: team.crest,
-          competitionId: 2015,
-        })
+    const teamInfosOptions = {
+      method: 'GET',
+      url: apiBaseUrl + 'teams',
+      params: {
+        league: '61',
+        season: '2023'
+      },
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': apiHost
       }
+    }
+    const teamResponse = await axios.request(teamInfosOptions);
+    const teams = teamResponse.data.response;
+
+    for (const team of teams) {
+      const teamStatsOptions = {
+        method: 'GET',
+        url: apiBaseUrl + 'teams/statistics',
+        params: {
+          league: '61',
+          season: '2023',
+          team: team.team.id
+        },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
+      }
+      const statsResponse = await axios.request(teamStatsOptions);
+      const stats = statsResponse.data.response;
+
+      let logoUrl, venueImageUrl;
+      if (team.team.logo) {
+        logoUrl = await downloadImage(team.team.logo, team.team.id, 'logo');
+      }
+      if (team.venue.image) {
+        venueImageUrl = await downloadImage(team.venue.image, team.team.id, 'venue');
+      }
+
+      await Team.upsert({
+        id: team.team.id,
+        name: team.team.name,
+        code: team.team.code,
+        logoUrl: logoUrl,
+        venueName: team.venue.name,
+        venueAddress: team.venue.address,
+        venueCity: team.venue.city,
+        venueCapacity: team.venue.capacity,
+        venueImage: venueImageUrl,
+        competitionId: stats.league.id,
+        playedTotal: stats.fixtures.played.total,
+        playedHome: stats.fixtures.played.home,
+        playedAway: stats.fixtures.played.away,
+        winTotal: stats.fixtures.wins.total,
+        winHome: stats.fixtures.wins.home,
+        winAway: stats.fixtures.wins.away,
+        drawTotal: stats.fixtures.draws.total,
+        drawHome: stats.fixtures.draws.home,
+        drawAway: stats.fixtures.draws.away,
+        losesTotal: stats.fixtures.loses.total,
+        losesHome: stats.fixtures.loses.home,
+        losesAway: stats.fixtures.loses.away,
+        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
+        form: stats.fixtures.form,
+        goalsFor: stats.goals.for.total.total,
+        goalsAgainst: stats.goals.against.total.total,
+        goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
+      });
     }
   } catch (error) {
     console.log('Erreur lors de la mise à jour des données:', error);
@@ -105,10 +164,11 @@ async function updateMatches() {
     const bar = new ProgressBar(':bar :percent', { total: matches.length });
     for (const match of matches) {
       let winner = null
-      for (team of match.teams) {
-        if (team.winner === true) {
-          winner = team.id
-        }
+      if (match.teams.home.winner === true) {
+        winner = match.teams.home.id
+      }
+      if (match.teams.away.winner === true) {
+        winner = match.teams.away.id
       }
       bar.tick();
 
@@ -119,7 +179,7 @@ async function updateMatches() {
       await Match.upsert({
         id: match.fixture.id,
         utcDate: match.fixture.date,
-        status: match.status.short,
+        status: match.fixture.status.short,
         venue: match.venue.name,
         matchday: matchDay,
         stage: stage,
@@ -147,7 +207,7 @@ async function updateMatches() {
 const runCronJob = () => {
   cron.schedule('31 00 * * *', updateTeams)
   cron.schedule('32 00 * * *', updateMatches)
-  cron.schedule('33 00 * * *', updateTeamsRanking)
+  // cron.schedule('33 00 * * *', updateTeamsRanking)
 }
 
-module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking };
+module.exports = { runCronJob, updateTeams, updateMatches };

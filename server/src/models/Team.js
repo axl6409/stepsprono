@@ -7,9 +7,34 @@ const Team = sequelize.define('Team', {
     allowNull: false,
     unique: true,
   },
+  code: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: false,
+  },
   logoUrl: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  venueName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  venueAddress: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  venueCity: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  venueCapacity: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  venueImage: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   competitionId: {
     type: DataTypes.INTEGER,
@@ -19,19 +44,51 @@ const Team = sequelize.define('Team', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  playedGames: {
+  playedTotal: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  won: {
+  playedHome: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  draw: {
+  playedAway: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  lost: {
+  winTotal: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  winHome: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  winAway: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  drawTotal: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  drawHome: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  drawAway: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  losesTotal: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  losesHome: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  losesAway: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
