@@ -7,15 +7,6 @@ const Team = sequelize.define('Team', {
     allowNull: false,
     unique: true,
   },
-  shortName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  tla: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   logoUrl: {
     type: DataTypes.STRING,
     allowNull: false,

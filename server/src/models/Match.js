@@ -10,6 +10,10 @@ const Match = sequelize.define('Match', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  venue: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   matchday: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -26,20 +30,24 @@ const Match = sequelize.define('Match', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  areaId: {
+  league: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  competitionId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  seasonId: {
+  season: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
   winner: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  goalsHome: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  goalsAway: {
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   scoreFullTimeHome: {
@@ -55,6 +63,18 @@ const Match = sequelize.define('Match', {
     allowNull: true,
   },
   scoreHalfTimeAway: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  scoreExtraTimeHome: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  scoreExtraTimeAway: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  scorePenaltyHome: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
