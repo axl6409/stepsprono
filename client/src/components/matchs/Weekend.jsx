@@ -131,11 +131,11 @@ const Weekend = ({token, user}) => {
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.HomeTeam.shortName}</p>
+                  <p>{match.HomeTeam.name}</p>
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.AwayTeam.shortName}</p>
+                  <p>{match.AwayTeam.name}</p>
                 </div>
                 {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
                   <button

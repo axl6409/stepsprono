@@ -98,12 +98,12 @@ const Passed = ({token, user}) => {
                 <div className="flex flex-row justify-between">
                   <div className="w-2/4 flex flex-col justify-center">
                     <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                    <p className="font-sans font-bold text-sm">{match.HomeTeam.shortName}</p>
+                    <p className="font-sans font-bold text-sm">{match.HomeTeam.name}</p>
                     <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.scoreFullTimeHome}</p>
                   </div>
                   <div className="w-2/4 flex flex-col justify-center">
                     <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                    <p className="font-sans font-bold text-sm">{match.AwayTeam.shortName}</p>
+                    <p className="font-sans font-bold text-sm">{match.AwayTeam.name}</p>
                     <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.scoreFullTimeAway}</p>
                   </div>
                 </div>

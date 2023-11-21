@@ -120,24 +120,26 @@ async function updateTeams() {
 
 async function updateTeamsRanking() {
   try {
-    const response = await axios.get('https://api.football-data.org/v4/competitions/FL1/standings?season=2023', {
-      headers: { 'X-Auth-Token': apiKey }
-    })
-    const ranking = response.data.standings[0].table;
-    for (const teamInfo of ranking) {
+    const options = {
+      method: 'GET',
+      url: apiBaseUrl + 'standings',
+      params: {
+        season: '2023',
+        league: '61'
+      },
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': apiHost
+      }
+    };
+    const response = await axios.request(options);
+    const teams = response.data.response[0].league.standings[0]
+    console.log(teams)
+    for (const team of teams) {
       await Team.update({
-        position: teamInfo.position,
-        playedGames: teamInfo.playedGames,
-        won: teamInfo.won,
-        draw: teamInfo.draw,
-        lost: teamInfo.lost,
-        form: teamInfo.form,
-        points: teamInfo.points,
-        goalsFor: teamInfo.goalsFor,
-        goalsAgainst: teamInfo.goalsAgainst,
-        goalDifference: teamInfo.goalDifference
+        position: team.rank,
       }, {
-        where: { id: teamInfo.team.id }
+        where: { id: team.team.id }
       });
     }
   } catch (error) {
@@ -180,7 +182,7 @@ async function updateMatches() {
         id: match.fixture.id,
         utcDate: match.fixture.date,
         status: match.fixture.status.short,
-        venue: match.venue.name,
+        venue: match.fixture.venue.name,
         matchday: matchDay,
         stage: stage,
         homeTeamId: match.teams.home.id,
@@ -210,4 +212,4 @@ const runCronJob = () => {
   // cron.schedule('33 00 * * *', updateTeamsRanking)
 }
 
-module.exports = { runCronJob, updateTeams, updateMatches };
+module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking };

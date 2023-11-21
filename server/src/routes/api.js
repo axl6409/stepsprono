@@ -181,7 +181,7 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
       where: {
         matchday: matchday,
         status: {
-          [Op.or]: ["FINISHED", "CANCELED"]
+          [Op.or]: ["FT", "AET", "PEN"]
         },
       },
       include: [
