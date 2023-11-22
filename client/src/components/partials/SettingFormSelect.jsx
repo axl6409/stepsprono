@@ -7,10 +7,6 @@ import axios from "axios";
 const SettingFormSelect = ({ setting, openModal, token }) => {
   const [selectedOption, setSelectedOption] = useState(setting.activeOption);
 
-  useEffect(() => {
-    console.log(selectedOption)
-  }, [selectedOption])
-
   const handleChange = (settingName, selectedValue) => {
     setSelectedOption(selectedValue)
   };

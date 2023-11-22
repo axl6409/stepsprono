@@ -70,14 +70,6 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       {errorMessage && (
         <div className="modal-error relative bg-white w-[90%] mx-auto p-4 pr-12 mb-8 border-2 border-black shadow-flat-black">
           <p className="font-sans uppercase font-bold text-xs">{errorMessage}</p>
-          <button
-            onClick={closeInfoModal}
-            className="absolute top-4 right-2 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-flat-red before:border-black before:border-2 group"
-          >
-            <span className="relative z-[2] w-full flex flex-col justify-center border-2 border-black text-black px-1 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-               <FontAwesomeIcon icon={faXmark} className="h-[20px]"/>
-            </span>
-          </button>
         </div>
       )}
       <button

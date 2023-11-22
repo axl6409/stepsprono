@@ -91,7 +91,7 @@ const Passed = ({token, user}) => {
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
             return (
-              <SwiperSlide className="flex flex-col justify-center relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
+              <SwiperSlide className="flex flex-col justify-center relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
                 <div className="w-full text-center flex flex-col justify-center px-6 py-2 h-fit">
                   <p className="name font-sans text-base font-bold capitalize">{matchDate.format('DD MMMM')}</p>
                 </div>

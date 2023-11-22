@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../../database')
 
-const UserRole = sequelize.define('UserRole', {
+const UserRole = sequelize.define('User_Role', {
   userId: {
     type: DataTypes.INTEGER,
     primaryKey: true

@@ -2,17 +2,36 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCheck, faCircleQuestion, faXmark} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
 
-const InformationModal = ({ message, closeModal }) => {
+const InformationModal = ({message, closeModal }) => {
 
   const [isExiting, setIsExiting] = useState(false);
 
   const handleClose = () => {
-    // Commencer l'animation de sortie
     setIsExiting(true);
-    // Attendre que l'animation se termine avant de fermer réellement la modale
     setTimeout(() => {
       closeModal();
-    }, 500); // La durée doit correspondre à celle de votre animation CSS
+    }, 500);
+  };
+
+  const renderContent = () => {
+    if (typeof message === 'string') {
+      return <div dangerouslySetInnerHTML={{ __html: message }}></div>;
+    }
+    if (typeof message === 'object' && message !== null) {
+      return (
+        <ul>
+          {Object.entries(message).map(([key, value], index) => (
+            <li key={index}>
+              <span>{key}</span>
+              <span>{value.long}</span>
+              <span>{value.type}</span>
+              <span>{value.description}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    return <div>Contenu non valide</div>;
   };
 
   return (
@@ -27,7 +46,9 @@ const InformationModal = ({ message, closeModal }) => {
       </button>
       <div className="modal-content block w-[95%] mx-auto bg-white">
         <div className="py-4 px-6 mx-auto border-2 border-black w-full shadow-flat-black">
-          <div className="font-sans text-left font-l font-medium leading-7 informations-text-styles" dangerouslySetInnerHTML={{ __html: message }}></div>
+          <div className="font-sans text-left font-l font-medium leading-7 informations-text-styles">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>

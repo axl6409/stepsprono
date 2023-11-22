@@ -56,25 +56,25 @@ const Weekend = ({token, user}) => {
       }
     }
     fetchMatchs()
-
-    const fetchBets = async (sortedMatchs) => {
-      const matchIds = sortedMatchs.map(match => match.id);
-      try {
-        const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
-          matchIds: matchIds
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        setBets(response.data.data)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs :', error);
-        setError(error);
-        setLoading(false);
-      }
-    }
   }, [token])
+
+  const fetchBets = async (sortedMatchs) => {
+    const matchIds = sortedMatchs.map(match => match.id);
+    try {
+      const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+        matchIds: matchIds
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setBets(response.data.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des matchs :', error);
+      setError(error);
+      setLoading(false);
+    }
+  }
 
   const isBetPlaced = (matchId) => {
     return bets.some(bet => bet.matchId === matchId);
@@ -82,6 +82,7 @@ const Weekend = ({token, user}) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    fetchBets(matchs)
   };
 
   if (loading) return <p>Chargement...</p>;

@@ -44,7 +44,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'admin' } });
     await Role.findOrCreate({ where: { name: 'manager' } });
     await Role.findOrCreate({ where: { name: 'treasurer' } });
-    await Role.findOrCreate({  where: { name: 'user' } });
+    await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
     // await updateTeams()
     // await updateMatches()
