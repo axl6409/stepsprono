@@ -6,7 +6,7 @@ const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
-const { runCronJob, updateTeams, updateMatches, updateTeamsRanking} = require("./server/cronJob");
+const { runCronJob, updateTeams, updateMatches, updateTeamsRanking, updateMatchStatusAndPredictions} = require("./server/cronJob");
 const path = require("path");
 
 require('dotenv').config();
@@ -51,6 +51,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // await updateTeamsRanking()
     // await updateTeamsRanking()
     // runCronJob();
+    await updateMatchStatusAndPredictions(1044984)
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }
