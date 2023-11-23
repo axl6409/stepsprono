@@ -22,14 +22,14 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3001/api/admin/user/${id}`, {
+        const response = await axios.get(`/api/admin/user/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const correctedAvatarUrl = response.data.img
         if (response.data.img) {
           const correctedAvatarUrl = response.data.img.replace(/\\/g, '/');
         }
-        setUser({ ...response.data, avatarUrl: `http://127.0.0.1:5173/${correctedAvatarUrl}`, password: '', confirmPassword: '' });
+        setUser({ ...response.data, avatarUrl: `/${correctedAvatarUrl}`, password: '', confirmPassword: '' });
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
       }
@@ -61,7 +61,7 @@ const EditUser = () => {
     }
 
     try {
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/user/update/${id}`, formData, {
+      const response = await axios.put(`/api/admin/user/update/${id}`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

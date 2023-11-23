@@ -5,7 +5,7 @@ const cors = require('cors')
 const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
-const {Role} = require("./server/src/models");
+const {Role, Area, Competition, Season, Settings} = require("./server/src/models");
 const { runCronJob, updateTeams, updateMatches, updateTeamsRanking } = require("./server/cronJob");
 const path = require("path");
 
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
-  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001'],
+  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001', 'https://steps-prono-03d6d44a1031.herokuapp.com/'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
@@ -33,8 +33,12 @@ app.use(cors(corsOptions));
 // Routes API
 app.use('/api', apiRoutes);
 
+app.use(express.static(path.join(__dirname, 'client/dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+});
 
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`)
   try {
     await models.sequelize.authenticate()
@@ -46,9 +50,35 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
+<<<<<<< HEAD
     // await updateTeams();
     // await updateMatches();
     // await updateTeamsRanking()
+=======
+    // await Settings.upsert({
+    //   where: {
+    //     key: 'matchMode',
+    //     displayName: 'Mode de match',
+    //     type: 'select',
+    //     description: '<p>Quel mode de pari utiliser pour les matchs ?</p><ul><li><p><span>Mode par défaut : </span><span>Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur</span></li><li><p><span>Mode Full : </span><span>Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur</span></li><li><p><span>Mode Select : </span><span>Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur</span></li></ul>',
+    //     options: '{"Full": {"title": "Full", "value": "full", "description": "Modèle de paris ou tous les matchs du weekend incluent les scores et le butteur"}, "Default": {"title": "Défaut", "value": "default", "description": "Modèle de paris pour les matchs par défaut, seul le dernier match du weekend inclus les scores et le butteur"}, "Selected": {"title": "Select", "value": "select", "Description": "Modèle de paris ou seul quelques matchs présélectionnés du weekend incluent les scores et le butteur"}}',
+    //     activeOption: 'Default'
+    //   }
+    // })
+    // await Settings.upsert({
+    //   where: {
+    //     key: 'regulation',
+    //     displayName: 'Règlement',
+    //     type: 'text',
+    //     description: '<p>Règlement intérieur des steps prono</p>',
+    //     options: '{"Value": ""}',
+    //     activeOption: 'Default'
+    //   }
+    // })
+    await updateTeams();
+    await updateMatches();
+    await updateTeamsRanking()
+>>>>>>> origin/staging
     runCronJob();
   } catch (error) {
     console.log('Unable to connect to the database: ', error)

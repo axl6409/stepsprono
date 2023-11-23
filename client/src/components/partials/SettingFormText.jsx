@@ -30,7 +30,7 @@ const SettingFormText = ({ setting, openModal, token, }) => {
 
   const updateSetting = async (settingId, content) => {
     try{
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: content }, {
+      const response = await axios.put(`/api/admin/setting/update/${settingId}`, { newValue: content }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

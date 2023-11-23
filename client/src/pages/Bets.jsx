@@ -16,7 +16,7 @@ const Bets = () => {
   useEffect(() => {
     const fetchMatch = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/match/${matchId}', {
+        const response = await axios.get('/api/match/${matchId}', {
           headers: {
             'Authorization': `Bearer ${token}`,
           }

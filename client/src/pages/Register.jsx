@@ -27,7 +27,7 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/register', {
+      const response = await axios.post('/api/register', {
         username: formData.username,
         email: formData.email,
         password: formData.password,

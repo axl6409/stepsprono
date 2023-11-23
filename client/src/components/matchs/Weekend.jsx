@@ -28,16 +28,16 @@ const Weekend = ({token, user}) => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const now = moment();
-  const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
+  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
+  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
 
   useEffect(() => {
     const fetchMatchs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/matchs/next-weekend', {
+        const response = await axios.get('/api/matchs/next-weekend', {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -60,7 +60,7 @@ const Weekend = ({token, user}) => {
     const fetchBets = async (sortedMatchs) => {
       const matchIds = sortedMatchs.map(match => match.id);
       try {
-        const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+        const response = await axios.post(`/api/bets/user/${user.id}`, {
           matchIds: matchIds
         }, {
           headers: {
@@ -77,6 +77,8 @@ const Weekend = ({token, user}) => {
   }, [token])
 
   const isBetPlaced = (matchId) => {
+    console.log(bets)
+    console.log(matchId)
     return bets.some(bet => bet.matchId === matchId);
   };
 
@@ -111,7 +113,9 @@ const Weekend = ({token, user}) => {
         >
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
-            const isMatchInFuture = matchDate.isAfter(now);
+            const isMatchInFuture = matchDate.isAfter(simulatedNow);
+            const hasBet = isBetPlaced(match.id)
+            const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
@@ -137,23 +141,31 @@ const Weekend = ({token, user}) => {
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
                   <p>{match.AwayTeam.shortName}</p>
                 </div>
-                {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
+                {(!hasBet || bets.lenght === 0) && isMatchInFuture && isBeforeNextFriday ? (
                   <button
                     className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
                   >
-                <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                  Faire un prono
-                  <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
-                </span>
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                      Faire un prono
+                      <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
+                    </span>
                   </button>
+                ) : !hasBet && isAfterFridayNoon ? (
+                  <div
+                    className="relative mt-8 mx-auto block h-fit"
+                  >
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                      Trop tard !
+                    </span>
+                  </div>
                 ) : (
                   <div
                     className="relative mt-8 mx-auto block h-fit"
                   >
-                <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
-                  Prono reçu
-                </span>
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                      Prono reçu
+                    </span>
                   </div>
                 )}
               </SwiperSlide>

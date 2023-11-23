@@ -32,7 +32,7 @@ const Teams = () => {
 
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/teams', {
+        const response = await axios.get('/api/teams', {
           params: { page: currentPage, limit: itemsPerPage, sortBy: 'position', order: 'asc' },
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -127,7 +127,7 @@ const Teams = () => {
                 <div className="my-4">
                   <p className="font-sans text-xs font-bold text-center uppercase mb-2">5 derniers matchs</p>
                   <ul className="flex flex-row justify-center">
-                    {team.form.split(',').map((result, index) => (
+                    {team.form && team.form.split(',').map((result, index) => (
                       <li className="mx-2 text-lg rounded-full bg-black h-fit" key={index}>{getResultIcon(result)}</li>
                     ))}
                   </ul>

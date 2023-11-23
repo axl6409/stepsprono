@@ -16,7 +16,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:3001/api/admin/users', {
+      const response = await axios.get('/api/admin/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -41,7 +41,7 @@ const AdminUsers = () => {
     setModalAnimation('modal-exit');
     setTimeout(async () => {
       try {
-        await axios.delete(`http://127.0.0.1:3001/api/admin/user/delete/${userIdToDelete}`, {
+        await axios.delete(`/api/admin/user/delete/${userIdToDelete}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setShowConfirmationModal(false)

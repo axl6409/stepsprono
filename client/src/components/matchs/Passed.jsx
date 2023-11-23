@@ -20,7 +20,7 @@ const Passed = ({token, user}) => {
   useEffect(() => {
     const fetchMatchdays = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3001/api/matchs/days/passed`, {
+        const response = await axios.get(`/api/matchs/days/passed`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -42,7 +42,7 @@ const Passed = ({token, user}) => {
     if (selectedMatchday) {
       const fetchMatchs = async () => {
         try {
-          const response = await axios.get(`http://127.0.0.1:3001/api/matchs/day/${selectedMatchday}`, {
+          const response = await axios.get(`/api/matchs/day/${selectedMatchday}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
