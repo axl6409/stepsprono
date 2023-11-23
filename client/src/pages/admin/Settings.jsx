@@ -45,12 +45,26 @@ const Settings = () => {
     fetchParams();
   }, [token]);
 
+  const refreshData = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:3001/api/admin/settings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setSettings(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des paramètres :', error);
+    }
+  };
+
   const handleSelectChange = (settingName, selectedValue) => {
     setSelectedOptions(prev => ({ ...prev, [settingName]: selectedValue }));
   };
 
-  const openModal = (description) => {
+  const openModal = (id, description) => {
     setModalMessage(description);
+    setModalId(id);
     setShowInfoModal(true);
   };
 
@@ -73,6 +87,7 @@ const Settings = () => {
           key={setting.id}
           setting={setting}
           openModal={openModal}
+          onRefresh={refreshData}
         />
       ))}
       {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}

@@ -181,7 +181,7 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
       where: {
         matchday: matchday,
         status: {
-          [Op.or]: ["FINISHED", "CANCELED"]
+          [Op.or]: ["FT", "AET", "PEN"]
         },
       },
       include: [
@@ -467,6 +467,15 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
+    if (req.body.winnerId === null) {
+      if (req.body.homeScore !== req.body.awayScore) {
+        return res.status(401).json({ error: 'Le score n\'est pas valide, un match null doit avoir un score similaire pour les deux équipes' });
+      }
+    } else {
+      if (req.body.homeScore === req.body.awayScore) {
+        return res.status(401).json({ error: 'Le score n\'est pas valide, un match non null ne peux pas avoir un score similaire pour les deux équipes' });
+      }
+    }
     const bet = await Bets.create(req.body)
     res.status(200).json(bet);
   } catch (error) {
@@ -479,8 +488,8 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   try {
     const bets = await Bets.findAll({
       where: {
-        UserId: req.params.id,
-        MatchId: {
+        userId: req.params.id,
+        matchId: {
           [Op.in]: matchIds
         }
       },
@@ -600,7 +609,6 @@ router.put('/admin/setting/update/:id', authenticateJWT, async (req, res) => {
       newOptions['Value'] = req.body.newValue
       setting.options = newOptions
     }
-
     await setting.save();
     res.status(200).json(setting);
   } catch (error) {

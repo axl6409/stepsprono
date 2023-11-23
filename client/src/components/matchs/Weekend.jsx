@@ -56,25 +56,25 @@ const Weekend = ({token, user}) => {
       }
     }
     fetchMatchs()
-
-    const fetchBets = async (sortedMatchs) => {
-      const matchIds = sortedMatchs.map(match => match.id);
-      try {
-        const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
-          matchIds: matchIds
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        setBets(response.data.data)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs :', error);
-        setError(error);
-        setLoading(false);
-      }
-    }
   }, [token])
+
+  const fetchBets = async (sortedMatchs) => {
+    const matchIds = sortedMatchs.map(match => match.id);
+    try {
+      const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+        matchIds: matchIds
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setBets(response.data.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des matchs :', error);
+      setError(error);
+      setLoading(false);
+    }
+  }
 
   const isBetPlaced = (matchId) => {
     return bets.some(bet => bet.matchId === matchId);
@@ -82,6 +82,7 @@ const Weekend = ({token, user}) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    fetchBets(matchs)
   };
 
   if (loading) return <p>Chargement...</p>;
@@ -131,11 +132,11 @@ const Weekend = ({token, user}) => {
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.HomeTeam.shortName}</p>
+                  <p>{match.HomeTeam.name}</p>
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.AwayTeam.shortName}</p>
+                  <p>{match.AwayTeam.name}</p>
                 </div>
                 {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
                   <button
