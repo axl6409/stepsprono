@@ -488,8 +488,8 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   try {
     const bets = await Bets.findAll({
       where: {
-        UserId: req.params.id,
-        MatchId: {
+        userId: req.params.id,
+        matchId: {
           [Op.in]: matchIds
         }
       },
