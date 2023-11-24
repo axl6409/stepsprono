@@ -160,7 +160,6 @@ async function updateTeamsRanking() {
     };
     const response = await axios.request(options);
     const teams = response.data.response[0].league.standings[0]
-    console.log(teams)
     for (const team of teams) {
       await Team.update({
         position: team.rank,
@@ -261,6 +260,7 @@ async function fetchWeekendMatches() {
       const hour = updateTime.getHours();
       const minute = updateTime.getMinutes();
       const cronTime = `${minute} ${hour} ${day} ${month} *`;
+      console.log(cronTime + ' | ' + match.id)
       cron.schedule(cronTime, () => updateMatchStatusAndPredictions(match.id))
     });
   } catch (error) {
@@ -337,19 +337,21 @@ async function updateMatchStatusAndPredictions(matchId) {
         const bets = await Bets.findAll({ where: { matchId } });
         for (const bet of bets) {
           let points = 0;
-          if (bet.winnerId && bet.winnerId === apiMatchData.winner) {
+          console.log(bet.winnerId === fieldsToUpdate['winner'])
+          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winner']) {
             points += 1;
           }
-          if (bet.homeScore === apiMatchData.scoreFullTimeHome && bet.awayScore === apiMatchData.scoreFullTimeAway) {
+          if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
             points += 3;
           }
           if (bet.playerGoal) {
             for (const event of events) {
-              const similarity = levenshtein(bet.playerGoal.toLowerCase(), event.player.toLowerCase());
-              const maxLength = Math.max(bet.playerGoal.length, event.player.length);
+              const trimmedPlayerName = event.player.substring(2).toLowerCase();
+              const similarity = levenshtein(bet.playerGoal.toLowerCase(), trimmedPlayerName);
+              const maxLength = Math.max(bet.playerGoal.length, trimmedPlayerName.length);
               const similarityPercentage = ((maxLength - similarity) / maxLength) * 100;
-
-              if (similarityPercentage >= 80) {
+              console.log(similarityPercentage)
+              if (similarityPercentage >= 70) {
                 points += 1;
                 break;
               }
@@ -365,10 +367,10 @@ async function updateMatchStatusAndPredictions(matchId) {
 }
 
 const runCronJob = () => {
-  cron.schedule('31 00 * * *', updateTeams)
-  cron.schedule('32 00 * * *', updateMatches)
-  // cron.schedule('33 00 * * *', updateTeamsRanking)
-  cron.schedule('0 8 * * 5', fetchWeekendMatches);
+  cron.schedule('01 00 * * *', updateTeams)
+  cron.schedule('03 00 * * *', updateTeamsRanking)
+  cron.schedule('05 00 * * *', updateMatches)
+  cron.schedule('30 00 * * 1', fetchWeekendMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking, updateMatchStatusAndPredictions };
+module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches };
