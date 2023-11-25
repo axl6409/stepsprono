@@ -1,12 +1,38 @@
 const cron = require('node-cron')
 const axios = require('axios');
-const { Match, Team, Area} = require('./src/models');
+const { Match, Team, Area, Bets} = require('./src/models');
 const ProgressBar = require('progress');
 const fs = require("fs");
 const path = require("path");
+const moment = require("moment-timezone");
+const {Op} = require("sequelize");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
+
+function levenshtein(a, b) {
+  const an = a ? a.length : 0; // Longueur de la chaîne 'a', ou 0 si 'a' est vide
+  const bn = b ? b.length : 0; // Longueur de la chaîne 'b', ou 0 si 'b' est vide
+  if (an === 0) return bn; // Si 'a' est vide, retourne la longueur de 'b'
+  if (bn === 0) return an; // Si 'b' est vide, retourne la longueur de 'a'
+  const matrix = new Array(bn + 1); // Crée une matrice de taille (bn + 1)
+  for (let i = 0; i <= bn; ++i) {
+    let row = matrix[i] = new Array(an + 1); // Initialise chaque ligne de la matrice
+    row[0] = i; // Initialise la première colonne de chaque ligne
+  }
+  const firstRow = matrix[0]; // Référence à la première ligne de la matrice
+  for (let j = 1; j <= an; ++j) {
+    firstRow[j] = j; // Initialise la première ligne de la matrice
+  }
+  for (let i = 1; i <= bn; ++i) {
+    for (let j = 1; j <= an; ++j) {
+      const cost = a.charAt(j - 1) === b.charAt(i - 1) ? 0 : 1; // Coût de substitution, 0 si les caractères sont identiques, sinon 1
+      // Calcule le coût minimum pour chaque cellule de la matrice
+      matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+    }
+  }
+  return matrix[bn][an]; // Retourne le coût de Levenshtein à partir de la dernière cellule de la matrice
+}
 
 function calculatePoints(wins, draws, loses) {
   return (wins * 3) + draws;
@@ -134,7 +160,6 @@ async function updateTeamsRanking() {
     };
     const response = await axios.request(options);
     const teams = response.data.response[0].league.standings[0]
-    console.log(teams)
     for (const team of teams) {
       await Team.update({
         position: team.rank,
@@ -206,18 +231,146 @@ async function updateMatches() {
   }
 }
 
-async function updateScores() {
+async function fetchWeekendMatches() {
   try {
-
+    const today = moment().tz("Europe/Paris");
+    const nextFriday = today.clone().isoWeekday(5)
+    if (today.isoWeekday() > 5) {
+      nextFriday.add(1, 'weeks')
+    }
+    const nextSunday = nextFriday.clone().add(2, 'days')
+    const startDate = nextFriday.format('YYYY-MM-DD 00:00:00')
+    const endDate = nextSunday.format('YYYY-MM-DD 23:59:59')
+    const matches = await Match.findAll({
+      where: {
+        utcDate: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        },
+        status: {
+          [Op.not]: ['PST', 'FT']
+        }
+      }
+    });
+    matches.forEach(match => {
+      const matchTime = new Date(match.utcDate)
+      const updateTime = new Date(matchTime.getTime() + 120 * 60000); // Ajoute 120 minutes
+      const day = updateTime.getDate();
+      const month = updateTime.getMonth() + 1;
+      const hour = updateTime.getHours();
+      const minute = updateTime.getMinutes();
+      const cronTime = `${minute} ${hour} ${day} ${month} *`;
+      console.log(cronTime + ' | ' + match.id)
+      cron.schedule(cronTime, () => updateMatchStatusAndPredictions(match.id))
+    });
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des scores des utilisateurs:', error);
+    console.log('Erreur lors de la récupération des matchs du weekend:', error);
+  }
+}
+
+async function updateMatchStatusAndPredictions(matchId) {
+  try {
+    const options = {
+      method: 'GET',
+      url: `${apiBaseUrl}fixtures/`,
+      params: {
+        id: `${matchId}`
+      },
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': apiHost
+      }
+    };
+    const response = await axios.request(options);
+    const apiMatchData = response.data.response[0];
+    const events = []
+    const dbMatchData = await Match.findByPk(matchId);
+    if (dbMatchData && apiMatchData) {
+      const fieldsToUpdate = {};
+      if (dbMatchData['status'] !== apiMatchData.fixture.status.short) {
+        fieldsToUpdate['status'] = apiMatchData.fixture.status.short
+      }
+      if (apiMatchData.teams.home.winner === true) {
+        fieldsToUpdate['winner'] = apiMatchData.teams.home.id
+      } else if (apiMatchData.teams.away.winner === true) {
+        fieldsToUpdate['winner'] = apiMatchData.teams.away.id
+      } else {
+        fieldsToUpdate['winner'] = null
+      }
+      if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
+        fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
+      }
+      if (dbMatchData['goalsAway'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['goalsAway'] = apiMatchData.score.fulltime.away
+      }
+      if (dbMatchData['scoreFullTimeHome'] !== apiMatchData.score.halftime.home) {
+        fieldsToUpdate['scoreFullTimeHome'] = apiMatchData.score.halftime.home
+      }
+      if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
+      }
+      if (dbMatchData['scoreExtraTimeHome'] !== apiMatchData.score.extratime.home) {
+        fieldsToUpdate['scoreExtraTimeHome'] = apiMatchData.score.extratime.home
+      }
+      if (dbMatchData['scoreExtraTimeAway'] !== apiMatchData.score.extratime.away) {
+        fieldsToUpdate['scoreExtraTimeAway'] = apiMatchData.score.extratime.away
+      }
+      if (dbMatchData['scorePenaltyHome'] !== apiMatchData.score.penalty.home) {
+        fieldsToUpdate['scorePenaltyHome'] = apiMatchData.score.penalty.home
+      }
+
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        fieldsToUpdate['updatedAt'] = new Date();
+        await Match.update(fieldsToUpdate, { where: { id: matchId } });
+      }
+
+      for (const goals of apiMatchData.events) {
+        if (goals.type === 'Goal') {
+          events.push({
+            player: goals.player.name,
+          });
+        }
+      }
+
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        // Récupérer tous les pronostics pour ce match
+        const bets = await Bets.findAll({ where: { matchId } });
+        for (const bet of bets) {
+          let points = 0;
+          console.log(bet.winnerId === fieldsToUpdate['winner'])
+          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winner']) {
+            points += 1;
+          }
+          if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
+            points += 3;
+          }
+          if (bet.playerGoal) {
+            for (const event of events) {
+              const trimmedPlayerName = event.player.substring(2).toLowerCase();
+              const similarity = levenshtein(bet.playerGoal.toLowerCase(), trimmedPlayerName);
+              const maxLength = Math.max(bet.playerGoal.length, trimmedPlayerName.length);
+              const similarityPercentage = ((maxLength - similarity) / maxLength) * 100;
+              console.log(similarityPercentage)
+              if (similarityPercentage >= 70) {
+                points += 1;
+                break;
+              }
+            }
+          }
+          await Bets.update({ points }, { where: { id: bet.id } });
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Erreur lors de la mise à jour du match et des pronostics:', error);
   }
 }
 
 const runCronJob = () => {
-  cron.schedule('31 00 * * *', updateTeams)
-  cron.schedule('32 00 * * *', updateMatches)
-  // cron.schedule('33 00 * * *', updateTeamsRanking)
+  cron.schedule('01 00 * * *', updateTeams)
+  cron.schedule('03 00 * * *', updateTeamsRanking)
+  cron.schedule('05 00 * * *', updateMatches)
+  cron.schedule('30 00 * * 1', fetchWeekendMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateMatches, updateTeamsRanking };
+module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches };

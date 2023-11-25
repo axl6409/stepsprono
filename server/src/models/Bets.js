@@ -15,11 +15,11 @@ const Bets = sequelize.define('Bets', {
     allowNull: true,
   },
   homeScore: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   awayScore: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   playerGoal: {
