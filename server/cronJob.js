@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 const axios = require('axios');
-const { Match, Team, Area, Bets} = require('./src/models');
+const { Match, Team, Area, Bets, Players } = require('./src/models');
 const ProgressBar = require('progress');
 const fs = require("fs");
 const path = require("path");
@@ -38,6 +38,11 @@ function calculatePoints(wins, draws, loses) {
   return (wins * 3) + draws;
 }
 
+function getRelativePath(pathToFile) {
+  const basePath = path.join(__dirname, '../client/src');
+  return pathToFile.replace(basePath, '');
+}
+
 async function downloadImage(url, teamId, imageType) {
   try {
     const response = await axios({
@@ -59,7 +64,7 @@ async function downloadImage(url, teamId, imageType) {
     response.data.pipe(writer);
 
     return new Promise((resolve, reject) => {
-      writer.on('finish', () => resolve(pathToFile));
+      writer.on('finish', () => resolve(getRelativePath(pathToFile)));
       writer.on('error', reject);
     });
   } catch (error) {
@@ -133,7 +138,7 @@ async function updateTeams() {
         losesHome: stats.fixtures.loses.home,
         losesAway: stats.fixtures.loses.away,
         points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
-        form: stats.fixtures.form,
+        form: stats.form,
         goalsFor: stats.goals.for.total.total,
         goalsAgainst: stats.goals.against.total.total,
         goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
@@ -326,6 +331,7 @@ async function updateMatchStatusAndPredictions(matchId) {
 
       for (const goals of apiMatchData.events) {
         if (goals.type === 'Goal') {
+          console.log(goals.player.name)
           events.push({
             player: goals.player.name,
           });
@@ -346,7 +352,9 @@ async function updateMatchStatusAndPredictions(matchId) {
           }
           if (bet.playerGoal) {
             for (const event of events) {
-              const trimmedPlayerName = event.player.substring(2).toLowerCase();
+              const trimmedPlayerName = event.player.split(' ');
+              console.log(trimmedPlayerName)
+              console.log(event.player.toLowerCase())
               const similarity = levenshtein(bet.playerGoal.toLowerCase(), trimmedPlayerName);
               const maxLength = Math.max(bet.playerGoal.length, trimmedPlayerName.length);
               const similarityPercentage = ((maxLength - similarity) / maxLength) * 100;
@@ -366,6 +374,35 @@ async function updateMatchStatusAndPredictions(matchId) {
   }
 }
 
+async function getPlayers(teamId) {
+  try {
+    const options = {
+      method: 'GET',
+      url: `${apiBaseUrl}players/`,
+      params: {
+        team: `${teamId}`,
+        season: '2023',
+      },
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': apiHost
+      }
+    };
+    const response = await axios.request(options);
+    const apiMatchData = response.data.response;
+    for (const player of apiMatchData) {
+      await Players.upsert({
+        id: player.player.id,
+        firstName: player.player.firstname,
+        lastName: player.player.lastname,
+        teamId: player.statistics.team.id,
+      })
+    }
+  } catch (error) {
+    console.log(`Erreur lors de le récupération des joueurs pour l'équipe ${teamId}:`, error);
+  }
+}
+
 const runCronJob = () => {
   cron.schedule('01 00 * * *', updateTeams)
   cron.schedule('03 00 * * *', updateTeamsRanking)
@@ -373,4 +410,4 @@ const runCronJob = () => {
   cron.schedule('30 00 * * 1', fetchWeekendMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches };
+module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, getPlayers };

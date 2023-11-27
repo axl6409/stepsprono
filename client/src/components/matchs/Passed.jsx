@@ -190,7 +190,7 @@ const Passed = ({token, user}) => {
                         ) : null}
                       </div>
                     </div>
-                    {bet.homeScore && bet.awayScore && (
+                    {bet.homeScore !== null && bet.awayScore !== null ? (
                       <div className="flex flex-row justify-between">
                         <div className="w-2/4 flex flex-col justify-center">
                           <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.homeScore}</p>
@@ -199,7 +199,7 @@ const Passed = ({token, user}) => {
                           <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.awayScore}</p>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ) : (
                   <div className="pronostic-info mt-8">

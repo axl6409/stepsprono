@@ -84,28 +84,28 @@ const Teams = () => {
               <div className="flex flex-col p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
                 <div className="flex flex-row">
                   <div className="w-1/5 flex flex-col justify-center">
-                    <img src={team.logoUrl} alt={`${team.shortName} Logo`} className="team-logo w-1/2 mx-auto"/>
+                    <img src={team.logoUrl} alt={`${team.name} Logo`} className="team-logo w-1/2 mx-auto"/>
                   </div>
                   <div className="w-3/5 text-center flex flex-col justify-center px-6 py-2">
-                    <p className="name font-sans text-base font-medium">{team.shortName}</p>
+                    <p className="name font-sans text-base font-medium">{team.name}</p>
                   </div>
                 </div>
                 <ul className="flex flex-row justify-center px-4 h-[50px]">
                   <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">MJ</p>
-                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.playedGames}</p>
+                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.playedTotal}</p>
                   </li>
                   <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">G</p>
-                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.won}</p>
+                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.winTotal}</p>
                   </li>
                   <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">N</p>
-                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.draw}</p>
+                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.drawTotal}</p>
                   </li>
                   <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">L</p>
-                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.lost}</p>
+                    <p className="font-title h-1/2 text-base leading-5 font-bold">{team.losesTotal}</p>
                   </li>
                   <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">Pts</p>
@@ -127,7 +127,7 @@ const Teams = () => {
                 <div className="my-4">
                   <p className="font-sans text-xs font-bold text-center uppercase mb-2">5 derniers matchs</p>
                   <ul className="flex flex-row justify-center">
-                    {team.form.split(',').map((result, index) => (
+                    {team.form.slice(-5).split('').map((result, index) => (
                       <li className="mx-2 text-lg rounded-full bg-black h-fit" key={index}>{getResultIcon(result)}</li>
                     ))}
                   </ul>
