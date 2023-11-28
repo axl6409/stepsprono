@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Teams, Competition, Team, Match, Bets, Settings } = require("../models")
+const {User, Role, Teams, Competition, Team, Match, Bets, Settings, Players} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -322,6 +322,29 @@ router.get('/bets', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
+router.get('/players', authenticateJWT, async (req, res) => {
+  try {
+    const { teamId1, teamId2 } = req.query;
+    let players;
+    if (teamId2) {
+      players = await Players.findAll({
+        where: {
+          teamId: [teamId1, teamId2]
+        }
+      });
+    } else {
+      players = await Players.findAll({
+        where: {
+          teamId: teamId1
+        }
+      });
+    }
+    res.json(players);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des joueurs :', error);
+    res.status(500).send('Erreur interne du serveur');
+  }
+});
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
