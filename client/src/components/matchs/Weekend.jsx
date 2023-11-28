@@ -56,25 +56,25 @@ const Weekend = ({token, user}) => {
       }
     }
     fetchMatchs()
-
-    const fetchBets = async (sortedMatchs) => {
-      const matchIds = sortedMatchs.map(match => match.id);
-      try {
-        const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
-          matchIds: matchIds
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        setBets(response.data.data)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs :', error);
-        setError(error);
-        setLoading(false);
-      }
-    }
   }, [token])
+
+  const fetchBets = async (sortedMatchs) => {
+    const matchIds = sortedMatchs.map(match => match.id);
+    try {
+      const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+        matchIds: matchIds
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setBets(response.data.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des matchs :', error);
+      setError(error);
+      setLoading(false);
+    }
+  }
 
   const isBetPlaced = (matchId) => {
     return bets.some(bet => bet.matchId === matchId);
@@ -82,6 +82,7 @@ const Weekend = ({token, user}) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    fetchBets(matchs)
   };
 
   if (loading) return <p>Chargement...</p>;
@@ -131,29 +132,29 @@ const Weekend = ({token, user}) => {
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.HomeTeam.shortName}</p>
+                  <p>{match.HomeTeam.name}</p>
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">
                   <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.AwayTeam.shortName}</p>
+                  <p>{match.AwayTeam.name}</p>
                 </div>
                 {!isBetPlaced(match.id) && isMatchInFuture && isBeforeNextFriday ? (
                   <button
                     className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                     onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
                   >
-                <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                  Faire un prono
-                  <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
-                </span>
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                      Faire un prono
+                      <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
+                    </span>
                   </button>
                 ) : (
                   <div
                     className="relative mt-8 mx-auto block h-fit"
                   >
-                <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
-                  Prono reçu
-                </span>
+                    <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                      Prono reçu
+                    </span>
                   </div>
                 )}
               </SwiperSlide>

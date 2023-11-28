@@ -3,7 +3,7 @@ import SettingFormSelect from "../partials/SettingFormSelect.jsx";
 import SettingFormText from "../partials/SettingFormText.jsx";
 import {useCookies} from "react-cookie";
 
-const DynamicFormComponent = ({ setting, openModal }) => {
+const DynamicFormComponent = ({ setting, openModal, onRefresh }) => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
 
