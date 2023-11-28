@@ -6,7 +6,7 @@ const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
-const { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, getPlayers } = require("./server/cronJob");
+const { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, updatePlayers } = require("./server/cronJob");
 const path = require("path");
 
 require('dotenv').config();
@@ -46,12 +46,17 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'treasurer' } });
     await Role.findOrCreate({ where: { name: 'user' } });
     await Role.findOrCreate({ where: { name: 'visitor' } });
-    // runCronJob();
+    // runCronJob()
+    // Total => 18 API requests
     // await updateTeams()
-    // await updateTeamsRanking()
+    // Total => 1 API request
     // await updateMatches()
+    // Total => 1 API request
+    // await updateTeamsRanking()
+    // Total => 1 API request
     // await fetchWeekendMatches()
-    await getPlayers(81)
+    // Total => 18 API requests
+    // await updatePlayers()
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

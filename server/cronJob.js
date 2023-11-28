@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 const axios = require('axios');
-const { Match, Team, Area, Bets, Players } = require('./src/models');
+const { Match, Team, Area, Bets, Players} = require('./src/models');
 const ProgressBar = require('progress');
 const fs = require("fs");
 const path = require("path");
@@ -50,19 +50,15 @@ async function downloadImage(url, teamId, imageType) {
       method: 'GET',
       responseType: 'stream'
     });
-
     const extension = url.split('.').pop();
     const fileName = `${imageType}_${teamId}.${extension}`;
     const dir = path.join(__dirname, `../client/src/assets/teams/${teamId}`);
     if (!fs.existsSync(dir)){
       fs.mkdirSync(dir, { recursive: true });
     }
-
     const pathToFile = path.join(dir, fileName);
     const writer = fs.createWriteStream(pathToFile);
-
     response.data.pipe(writer);
-
     return new Promise((resolve, reject) => {
       writer.on('finish', () => resolve(getRelativePath(pathToFile)));
       writer.on('error', reject);
@@ -374,29 +370,33 @@ async function updateMatchStatusAndPredictions(matchId) {
   }
 }
 
-async function getPlayers(teamId) {
+async function updatePlayers() {
   try {
-    const options = {
-      method: 'GET',
-      url: `${apiBaseUrl}players/`,
-      params: {
-        team: `${teamId}`,
-        season: '2023',
-      },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
+    const teams = await Team.findAll()
+    for (const team of teams) {
+      const options = {
+        method: 'GET',
+        url: `${apiBaseUrl}players/`,
+        params: {
+          team: `${team.id}`,
+          season: '2023',
+        },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
+      };
+      const response = await axios.request(options);
+      const apiMatchData = response.data.response;
+      for (const apiPlayer of apiMatchData) {
+        await Players.upsert({
+          id: apiPlayer.player.id,
+          name: apiPlayer.player.name,
+          firstName: apiPlayer.player.firstname,
+          lastName: apiPlayer.player.lastname,
+          teamId: apiPlayer.statistics[0].team.id,
+        })
       }
-    };
-    const response = await axios.request(options);
-    const apiMatchData = response.data.response;
-    for (const player of apiMatchData) {
-      await Players.upsert({
-        id: player.player.id,
-        firstName: player.player.firstname,
-        lastName: player.player.lastname,
-        teamId: player.statistics.team.id,
-      })
     }
   } catch (error) {
     console.log(`Erreur lors de le récupération des joueurs pour l'équipe ${teamId}:`, error);
@@ -405,9 +405,10 @@ async function getPlayers(teamId) {
 
 const runCronJob = () => {
   cron.schedule('01 00 * * *', updateTeams)
-  cron.schedule('03 00 * * *', updateTeamsRanking)
-  cron.schedule('05 00 * * *', updateMatches)
+  cron.schedule('03 00 * * *', updatePlayers)
+  cron.schedule('05 00 * * *', updateTeamsRanking)
+  cron.schedule('07 00 * * *', updateMatches)
   cron.schedule('30 00 * * 1', fetchWeekendMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, getPlayers };
+module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, updatePlayers };

@@ -34,6 +34,7 @@ module.exports = {
   Competition,
   Season,
   Team,
+  Players,
   Match,
   Bets,
   Settings,
