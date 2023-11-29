@@ -404,7 +404,8 @@ async function updatePlayers() {
 }
 
 const runCronJob = () => {
-  cron.schedule('01 00 * * *', updateTeams)
+  cron.schedule('01 00 2 2 *', updateTeams) // Mercato winter
+  cron.schedule('01 00 2 6 *', updateTeams) // Mercato summer
   cron.schedule('03 00 * * *', updatePlayers)
   cron.schedule('05 00 * * *', updateTeamsRanking)
   cron.schedule('07 00 * * *', updateMatches)
