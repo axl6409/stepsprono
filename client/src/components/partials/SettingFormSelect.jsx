@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const SettingFormSelect = ({ setting, openModal, token }) => {
   const [selectedOption, setSelectedOption] = useState(setting.activeOption);
@@ -24,7 +25,7 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
   // Exemple d'une fonction utilitaire
   const updateSetting = async (settingId) => {
     try{
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: selectedOption }, {
+      const response = await axios.put(`${apiUrl}/api/admin/setting/update/${settingId}`, { newValue: selectedOption }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

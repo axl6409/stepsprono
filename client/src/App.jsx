@@ -15,9 +15,8 @@ import Classements from "./pages/Classements.jsx";
 import Bets from "./pages/Bets.jsx";
 import 'moment/dist/locale/fr'
 import moment from "moment";
-import PassedMatchs from "./pages/matchs/PassedMatchs.jsx";
-import UpcomingMatchs from "./pages/matchs/UpcomingMatchs.jsx";
 import Settings from "./pages/admin/Settings.jsx";
+import UserSettings from "./pages/user/UserSettings.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
 import Reglement from "./pages/Reglement.jsx";
 
@@ -36,11 +35,10 @@ const App = () => {
             <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
-            <Route path="/matchs/passed" element={<ProtectedRoute component={PassedMatchs} />} />
-            <Route path="/matchs/upcoming" element={<ProtectedRoute component={UpcomingMatchs} />} />
             <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
+            <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
 export const UserContext = createContext();
@@ -16,7 +17,7 @@ export const UserProvider = ({ children }) => {
       const token = cookies.token || localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.post('http://localhost:3001/api/verifyToken', { token });
+          const response = await axios.post(`${apiUrl}/api/verifyToken`, { token });
           if (response.data.isAuthenticated) {
             setUser(response.data.user);
             setIsAuthenticated(true);

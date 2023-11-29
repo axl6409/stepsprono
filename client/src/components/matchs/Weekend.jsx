@@ -18,6 +18,7 @@ import {
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 import moment from "moment";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Weekend = ({token, user}) => {
   const [matchs, setMatchs] = useState([])
@@ -37,7 +38,7 @@ const Weekend = ({token, user}) => {
     const fetchMatchs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/matchs/next-weekend', {
+        const response = await axios.get(`${apiUrl}/api/matchs/next-weekend`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -61,7 +62,7 @@ const Weekend = ({token, user}) => {
   const fetchBets = async (sortedMatchs) => {
     const matchIds = sortedMatchs.map(match => match.id);
     try {
-      const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+      const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
         matchIds: matchIds
       }, {
         headers: {

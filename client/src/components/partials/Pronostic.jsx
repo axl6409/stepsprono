@@ -1,8 +1,9 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCheck, faPaperPlane, faReceipt, faXmark} from "@fortawesome/free-solid-svg-icons";
 import { useForm } from 'react-hook-form';
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token }) => {
   const { handleSubmit, register, setValue } = useForm();
@@ -18,7 +19,35 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   const [selectedTeam, setSelectedTeam] = useState('');
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
+  const [players, setPlayers] = useState([]);
   const [scorer, setScorer] = useState('');
+
+  useEffect(() => {
+    console.log(players)
+    const fetchPlayers = async () => {
+      try {
+        let url = `${apiUrl}/api/players`;
+        if (selectedTeam === null) {
+          url += `?teamId1=${match.HomeTeam.id}&teamId2=${match.AwayTeam.id}`;
+        } else if (selectedTeam) {
+          url += `?teamId1=${selectedTeam}`;
+        } else {
+          return;
+        }
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setPlayers(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des joueurs :', error);
+      }
+    }
+    if (match) {
+      fetchPlayers();
+    }
+  }, [match, selectedTeam, token])
 
   const onSubmit = async (data) => {
     try {
@@ -32,7 +61,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           return
         }
       }
-      const response = await axios.post('http://127.0.0.1:3001/api/bet/add', {
+      const response = await axios.post(`${apiUrl}/api/bet/add`, {
         userId: userId,
         matchId: match.id,
         winnerId: selectedTeam,
@@ -154,12 +183,15 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                   <div className="flex flex-row justify-evenly my-4">
                     <label className="flex flex-col w-4/5 mx-auto text-center">
                       <span className="font-sans uppercase text-black font-medium text-sm">Buteur:</span>
-                      <input
+                      <select
                         className="border-2 border-black text-sans font-medium text-base text-center shadow-flat-black"
-                        type="text"
                         {...register("scorer")}
                         onChange={(e) => setScorer(e.target.value)}
-                      />
+                      >
+                        {players.map(player => (
+                          <option key={player.id} value={player.id}>{player.name}</option>
+                        ))}
+                      </select>
                     </label>
                   </div>
                 </>

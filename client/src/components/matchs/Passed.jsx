@@ -18,6 +18,7 @@ import {
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 import moment from "moment";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Passed = ({token, user}) => {
   const [matchs, setMatchs] = useState([]);
@@ -30,7 +31,7 @@ const Passed = ({token, user}) => {
   useEffect(() => {
     const fetchMatchdays = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3001/api/matchs/days/passed`, {
+        const response = await axios.get(`${apiUrl}/api/matchs/days/passed`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -53,7 +54,7 @@ const Passed = ({token, user}) => {
   useEffect(() => {
     const fetchMatchs = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3001/api/matchs/day/${selectedMatchday}`, {
+        const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -76,7 +77,7 @@ const Passed = ({token, user}) => {
     const fetchBets = async () => {
       const matchIds = matchs.map(match => match.id);
       try {
-        const response = await axios.post(`http://127.0.0.1:3001/api/bets/user/${user.id}`, {
+        const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
           matchIds: matchIds
         }, {
           headers: {

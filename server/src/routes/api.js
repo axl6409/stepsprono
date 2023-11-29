@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Teams, Competition, Team, Match, Bets, Settings } = require("../models")
+const {User, Role, Teams, Competition, Team, Match, Bets, Settings, Players} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -322,6 +322,31 @@ router.get('/bets', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
+router.get('/players', authenticateJWT, async (req, res) => {
+  try {
+    const teamId1 = req.query.teamId1;
+    const teamId2 = req.query.teamId2;
+    let queryCondition;
+    if (teamId1 && teamId2) {
+      queryCondition = {
+        teamId: [teamId1, teamId2]
+      };
+    } else if (teamId1 || teamId2) {
+      queryCondition = {
+        teamId: teamId1 || teamId2
+      };
+    } else {
+      return res.status(400).send('Aucun identifiant d\'équipe fourni');
+    }
+    const players = await Players.findAll({
+      where: queryCondition
+    });
+    res.json(players);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des joueurs :', error);
+    res.status(500).send('Erreur interne du serveur');
+  }
+});
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {

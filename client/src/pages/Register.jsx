@@ -5,6 +5,7 @@ import {faAt, faKey, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useNavigate} from "react-router-dom";
 import {useCookies} from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Register = () => {
   const [cookies, setCookie] = useCookies(["user"]);
@@ -27,7 +28,7 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/register', {
+      const response = await axios.post(`${apiUrl}/api/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,

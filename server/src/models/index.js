@@ -24,6 +24,7 @@ Match.hasMany(Bets, { foreignKey: 'matchId' })
 Bets.belongsTo(User, { foreignKey: 'userId' })
 Bets.belongsTo(Match, { foreignKey: 'matchId' })
 Bets.belongsTo(Team, { foreignKey: 'winnerId' })
+Bets.belongsTo(Players, { foreignKey: 'playerGoal' })
 
 module.exports = {
   sequelize,
@@ -34,6 +35,7 @@ module.exports = {
   Competition,
   Season,
   Team,
+  Players,
   Match,
   Bets,
   Settings,

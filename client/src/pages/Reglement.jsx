@@ -4,6 +4,7 @@ import axios from 'axios';
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Reglement = () => {
   const token = localStorage.getItem('token') || cookies.token
@@ -12,7 +13,7 @@ const Reglement = () => {
   useEffect(() => {
     const fetchReglement = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/settings/reglement', {
+        const response = await axios.get(`${apiUrl}/api/settings/reglement`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }

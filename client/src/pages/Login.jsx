@@ -5,6 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey} from "@fortawesome/free-solid-svg-icons";
 import { CookiesProvider, useCookies } from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Login = () => {
   const { setIsAuthenticated } = useContext(UserContext);
@@ -26,7 +27,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:3001/api/login', formData);
+      const response = await axios.post(`${apiUrl}/api/login`, formData);
       localStorage.setItem('token', response.data.token);
       setCookie('token', response.data.token, { path: '/' });
       setIsAuthenticated(true);
