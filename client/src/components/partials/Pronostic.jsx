@@ -42,7 +42,6 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
     }
     if (match) {
       fetchPlayers();
-      
     }
   }, [match])
 
