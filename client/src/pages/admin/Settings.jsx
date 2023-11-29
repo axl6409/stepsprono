@@ -6,6 +6,7 @@ import {faCaretLeft, faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from 
 import InformationModal from "../../components/partials/InformationModal.jsx";
 import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
 import {Link} from "react-router-dom";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
@@ -18,7 +19,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchParams = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/admin/settings', {
+        const response = await axios.get(`${apiUrl}/api/admin/settings`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -47,7 +48,7 @@ const Settings = () => {
 
   const refreshData = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:3001/api/admin/settings', {
+      const response = await axios.get(`${apiUrl}/api/admin/settings`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -62,9 +63,8 @@ const Settings = () => {
     setSelectedOptions(prev => ({ ...prev, [settingName]: selectedValue }));
   };
 
-  const openModal = (id, description) => {
+  const openModal = (description) => {
     setModalMessage(description);
-    setModalId(id);
     setShowInfoModal(true);
   };
 

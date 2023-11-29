@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Link} from "react-router-dom";
 import futbol from "/img/futbol-solid.svg";
-import Settings from "../components/user/Settings.jsx";
+import {useCookies} from "react-cookie";
 import axios from "axios";
 
 const Dashboard = () => {
+  const [cookies, setCookie] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token
   const [matchs, setMatchs] = useState([])
 

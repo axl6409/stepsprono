@@ -3,7 +3,6 @@ import {faCaretLeft, faCheck, faCircleQuestion, faXmark} from "@fortawesome/free
 import React, {useState} from "react";
 
 const InformationModal = ({message, closeModal }) => {
-
   const [isExiting, setIsExiting] = useState(false);
 
   const handleClose = () => {

@@ -20,19 +20,23 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //Use cors middleware to handle Cross-Origin Resource Sharing
 const corsOptions = {
-  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3001', 'http://localhost:3001'],
+  origin: [
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3001',
+    'http://localhost:5173',
+    'http://localhost:3001',
+    'http://192.168.128.61:5173',
+    'http://192.168.128.61:3001',
+    'http://192.168.56.1:5173',
+    'http://192.168.56.1:3001'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
 
 // Utiliser CORS pour toutes les routes
 app.use(cors(corsOptions));
-
-// Routes statiques avec CORS
-
 // Routes API
 app.use('/api', apiRoutes);
-
 
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`)

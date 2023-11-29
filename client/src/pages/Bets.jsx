@@ -5,6 +5,7 @@ import {UserContext} from "../contexts/UserContext.jsx";
 import axios from "axios";
 import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Bets = () => {
   const { user } = useContext(UserContext)
@@ -16,7 +17,7 @@ const Bets = () => {
   useEffect(() => {
     const fetchMatch = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/match/${matchId}', {
+        const response = await axios.get(`${apiUrl}/api/match/${matchId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }

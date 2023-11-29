@@ -4,11 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import {Editor} from "@tinymce/tinymce-react";
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const SettingFormText = ({ setting, openModal, token, }) => {
   const editorRef = useRef(setting.options['Value'])
   const apiKey = import.meta.env.VITE_TINYMCE_API_KEY;
-  console.log(apiKey)
 
   const handleEditorChange = (content) => {
     editorRef.current = content;
@@ -19,7 +19,6 @@ const SettingFormText = ({ setting, openModal, token, }) => {
     const content = editorRef.current;
     if (editorRef.current) {
       const content = editorRef.current;
-      console.log(content)
       try {
         await updateSetting(setting.id, content);
       } catch (error) {
@@ -30,7 +29,7 @@ const SettingFormText = ({ setting, openModal, token, }) => {
 
   const updateSetting = async (settingId, content) => {
     try{
-      const response = await axios.put(`http://127.0.0.1:3001/api/admin/setting/update/${settingId}`, { newValue: content }, {
+      const response = await axios.put(`${apiUrl}/api/admin/setting/update/${settingId}`, { newValue: content }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

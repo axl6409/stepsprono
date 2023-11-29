@@ -27,12 +27,13 @@ const Teams = () => {
   const [totalPages, setTotalPages] = useState(0)
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
   useEffect(() => {
 
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:3001/api/teams', {
+        const response = await axios.get(`${apiUrl}/api/teams`, {
           params: { page: currentPage, limit: itemsPerPage, sortBy: 'position', order: 'asc' },
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -51,7 +52,7 @@ const Teams = () => {
     switch (result) {
       case 'W': return <FontAwesomeIcon icon={faCircleCheck} className="text-green-lime-deep block rounded-full shadow-flat-black-adjust" />
       case 'L': return <FontAwesomeIcon icon={faTimesCircle} className="text-flat-red block rounded-full shadow-flat-black-adjust" />
-      case 'D': return <FontAwesomeIcon icon={faMinusCircle} className="text-slate-600 block rounded-full shadow-flat-black-adjust" />
+      case 'D': return <FontAwesomeIcon icon={faMinusCircle} className="text-slate-200 block rounded-full shadow-flat-black-adjust" />
       default: return null;
     }
   };
@@ -81,54 +82,54 @@ const Teams = () => {
               <p className="w-[8%] flex flex-col justify-center">
                 <span className="font-title font-bold text-xl w-full inline-block leading-4 text-center pb-2 pt-1 bg-white border-black border-t-2 border-r-2 border-b-2 shadow-flat-black-adjust rounded-tr-md rounded-br-md -ml-1">{team.position}</span>
               </p>
-              <div className="flex flex-col p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
-                <div className="flex flex-row">
-                  <div className="w-1/5 flex flex-col justify-center">
-                    <img src={team.logoUrl} alt={`${team.name} Logo`} className="team-logo w-1/2 mx-auto"/>
-                  </div>
-                  <div className="w-3/5 text-center flex flex-col justify-center px-6 py-2">
-                    <p className="name font-sans text-base font-medium">{team.name}</p>
+              <div className="flex flex-col relative p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
+                <div className="w-full absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center opacity-50 z-[1]">
+                  <img src={team.logoUrl} alt={`${team.name} Logo`} className="team-logo block w-auto h-3/4 mx-auto"/>
+                </div>
+                <div className="flex flex-row relative z-[5]">
+                  <div className="w-full text-center flex flex-col justify-center px-6 py-2">
+                    <p className="name font-sans text-base font-bold">{team.name}</p>
                   </div>
                 </div>
-                <ul className="flex flex-row justify-center px-4 h-[50px]">
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                <ul className="flex flex-row justify-center px-4 h-[50px] relative z-[5]">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">MJ</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.playedTotal}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">G</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.winTotal}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">N</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.drawTotal}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">L</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.losesTotal}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">Pts</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.points}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">BP</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.goalsFor}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">BC</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.goalsAgainst}</p>
                   </li>
-                  <li className="w-[12%] h-full text-center border border-black mx-0.5 shadow-flat-black-adjust">
+                  <li className="w-[12%] h-full text-center border border-black bg-white mx-0.5 shadow-flat-black-adjust">
                     <p className="text-xs h-1/2 font-bold leading-5 bg-black text-white font-sans border-white border">BD</p>
                     <p className="font-title h-1/2 text-base leading-5 font-bold">{team.goalDifference}</p>
                   </li>
                 </ul>
-                <div className="my-4">
+                <div className="my-4 relative z-[5]">
                   <p className="font-sans text-xs font-bold text-center uppercase mb-2">5 derniers matchs</p>
                   <ul className="flex flex-row justify-center">
                     {team.form.slice(-5).split('').map((result, index) => (
-                      <li className="mx-2 text-lg rounded-full bg-black h-fit" key={index}>{getResultIcon(result)}</li>
+                      <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black" key={index}>{getResultIcon(result)}</li>
                     ))}
                   </ul>
                 </div>

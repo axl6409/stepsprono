@@ -5,6 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
 import ConfirmationModal from "../partials/ConfirmationModal.jsx";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -16,7 +17,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:3001/api/admin/users', {
+      const response = await axios.get(`${apiUrl}/api/admin/users`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -41,7 +42,7 @@ const AdminUsers = () => {
     setModalAnimation('modal-exit');
     setTimeout(async () => {
       try {
-        await axios.delete(`http://127.0.0.1:3001/api/admin/user/delete/${userIdToDelete}`, {
+        await axios.delete(`${apiUrl}/api/admin/user/delete/${userIdToDelete}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setShowConfirmationModal(false)

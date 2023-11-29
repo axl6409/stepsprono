@@ -324,21 +324,23 @@ router.get('/bets', authenticateJWT, async (req, res) => {
 })
 router.get('/players', authenticateJWT, async (req, res) => {
   try {
-    const { teamId1, teamId2 } = req.query;
-    let players;
-    if (teamId2) {
-      players = await Players.findAll({
-        where: {
-          teamId: [teamId1, teamId2]
-        }
-      });
+    const teamId1 = req.query.teamId1;
+    const teamId2 = req.query.teamId2;
+    let queryCondition;
+    if (teamId1 && teamId2) {
+      queryCondition = {
+        teamId: [teamId1, teamId2]
+      };
+    } else if (teamId1 || teamId2) {
+      queryCondition = {
+        teamId: teamId1 || teamId2
+      };
     } else {
-      players = await Players.findAll({
-        where: {
-          teamId: teamId1
-        }
-      });
+      return res.status(400).send('Aucun identifiant d\'équipe fourni');
     }
+    const players = await Players.findAll({
+      where: queryCondition
+    });
     res.json(players);
   } catch (error) {
     console.error('Erreur lors de la récupération des joueurs :', error);
