@@ -94,7 +94,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   };
 
   return (
-    <div className={`modal fixed top-16 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full pt-20 pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
+    <div className={`modal fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full pt-16 pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
       {errorMessage && (
         <div className="modal-error relative bg-white w-[90%] mx-auto p-4 pr-12 mb-8 border-2 border-black shadow-flat-black">
           <p className="font-sans uppercase font-bold text-xs">{errorMessage}</p>
@@ -107,13 +107,13 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           closeInfoModal()
         }}
       >
-        <span className="relative z-[2] w-full flex flex-col justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+        <span className="relative z-[2] w-full flex flex-col justify-center border-2 border-black text-black px-1 py-0.5 rounded-md text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
           <FontAwesomeIcon icon={faXmark} className="h-[30px]"/>
         </span>
       </button>
       <div className="modal-content my-auto block w-[95%] mx-auto bg-white">
-        <div className="py-4 px-6 mx-auto border-2 border-black w-full shadow-flat-black">
-          <p className="text-sans uppercase text-black font-bold text-l mb-4">Sélectionner une équipe</p>
+        <div className="py-4 px-2 mx-auto border-2 border-black w-full shadow-flat-black">
+          <p className="text-sans uppercase text-black font-bold text-md mb-4">Sélectionner une équipe</p>
           {match && (
             <form
               className="prono-form flex flex-col justify-center w-full h-auto"

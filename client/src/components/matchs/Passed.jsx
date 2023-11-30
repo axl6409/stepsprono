@@ -180,12 +180,17 @@ const Passed = ({token, user}) => {
                   <div className="pronostic-info mt-4">
                     <p className="name font-sans text-base font-bold capitalize">Pronostic</p>
                     <div className="flex flex-row justify-between">
-                      <div className="w-2/4 flex flex-col justify-center">
+                      <div className="w-1/3 flex flex-col justify-center">
                         {bet.winnerId === match.HomeTeam.id ? (
                           <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
                         ) : null}
                       </div>
-                      <div className="w-2/4 flex flex-col justify-center">
+                      <div className="w-1/3 flex flex-col justify-center">
+                        {bet.winnerId === null ? (
+                          <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
+                        ) : null}
+                      </div>
+                      <div className="w-1/3 flex flex-col justify-center">
                         {bet.winnerId === match.AwayTeam.id ? (
                           <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
                         ) : null}
