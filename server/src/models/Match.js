@@ -78,6 +78,10 @@ const Match = sequelize.define('Match', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  scorers: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  }
 })
 
 module.exports = Match

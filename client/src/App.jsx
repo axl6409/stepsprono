@@ -27,7 +27,7 @@ const App = () => {
     <UserProvider>
       <Router>
         <Navbar />
-        <div className="container mx-auto pt-16">
+        <div className="container mx-auto pb-16">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
