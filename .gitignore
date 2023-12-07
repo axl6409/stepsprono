@@ -11,6 +11,7 @@ client/src/assets/teams
 client/src/assets/uploads
 
 .idea
+.fleet
 
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
