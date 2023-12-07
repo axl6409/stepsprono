@@ -218,29 +218,17 @@ router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
   }
 });
-router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
+router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
   try {
-    const today = moment().tz("Europe/Paris").format('YYYY-MM-DD HH:mm:ss');
-    const nextMatch = await Match.findOne({
-      where: {
-        utcDate: {
-          [Op.gte]: today
-        },
-        status: {
-          [Op.not]: 'SCHEDULED'
-        }
-      },
-      order: [
-        ['utcDate', 'ASC']
-      ]
-    });
-    if (!nextMatch) {
-      return res.status(404).json({ message: 'Aucun match trouvé' });
-    }
-    const matchday = nextMatch.matchday;
+    const startOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+
     const matchs = await Match.findAndCountAll({
       where: {
-        matchday: matchday,
+        utcDate: {
+          [Op.gte]: startOfNextWeek,
+          [Op.lte]: endOfNextWeek
+        },
         status: {
           [Op.not]: 'SCHEDULED'
         }
@@ -248,17 +236,25 @@ router.get('/matchs/next-weekend', authenticateJWT, async (req, res) => {
       include: [
         { model: Team, as: 'HomeTeam' },
         { model: Team, as: 'AwayTeam' }
+      ],
+      order: [
+        ['utcDate', 'ASC']
       ]
     });
+
+    if (matchs.count === 0) {
+      return res.status(404).json({ message: 'Aucun match trouvé pour la semaine prochaine' });
+    }
+
     res.json({
       data: matchs.rows,
       totalCount: matchs.count,
-      today: today,
-      nextMatchday: matchday
+      startOfNextWeek: startOfNextWeek,
+      endOfNextWeek: endOfNextWeek
     });
   } catch (error) {
     console.error("Erreur :", error);
-    res.status(500).json({ message: 'Route protégée', error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 });
 router.get('/matchs/by-week', authenticateJWT, async (req, res) => {

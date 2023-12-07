@@ -86,6 +86,8 @@ async function updateTeams() {
     const teams = teamResponse.data.response;
 
     for (const team of teams) {
+      const existingTeam = await Team.findByPk(team.team.id);
+
       const teamStatsOptions = {
         method: 'GET',
         url: apiBaseUrl + 'teams/statistics',
@@ -102,11 +104,12 @@ async function updateTeams() {
       const statsResponse = await axios.request(teamStatsOptions);
       const stats = statsResponse.data.response;
 
-      let logoUrl, venueImageUrl;
-      if (team.team.logo) {
+      let logoUrl = existingTeam?.logoUrl;
+      let venueImageUrl = existingTeam?.venueImage;
+      if (!logoUrl && team.team.logo) {
         logoUrl = await downloadImage(team.team.logo, team.team.id, 'logo');
       }
-      if (team.venue.image) {
+      if (!venueImageUrl && team.venue.image) {
         venueImageUrl = await downloadImage(team.venue.image, team.team.id, 'venue');
       }
 
@@ -114,12 +117,12 @@ async function updateTeams() {
         id: team.team.id,
         name: team.team.name,
         code: team.team.code,
-        logoUrl: logoUrl,
+        logoUrl: logoUrl || existingTeam?.logoUrl,
         venueName: team.venue.name,
         venueAddress: team.venue.address,
         venueCity: team.venue.city,
         venueCapacity: team.venue.capacity,
-        venueImage: venueImageUrl,
+        venueImage: venueImageUrl || existingTeam?.venueImage,
         competitionId: stats.league.id,
         playedTotal: stats.fixtures.played.total,
         playedHome: stats.fixtures.played.home,
@@ -234,13 +237,12 @@ async function updateMatches() {
 async function fetchWeekendMatches() {
   try {
     const today = moment().tz("Europe/Paris");
-    const nextFriday = today.clone().isoWeekday(5)
-    if (today.isoWeekday() > 5) {
-      nextFriday.add(1, 'weeks')
-    }
-    const nextSunday = nextFriday.clone().add(2, 'days')
-    const startDate = nextFriday.format('YYYY-MM-DD 00:00:00')
-    const endDate = nextSunday.format('YYYY-MM-DD 23:59:59')
+    const nextMonday = today.clone().isoWeekday(8);
+    const nextSunday = nextMonday.clone().add(6, 'days');
+
+    const startDate = nextMonday.format('YYYY-MM-DD 00:00:00');
+    const endDate = nextSunday.format('YYYY-MM-DD 23:59:59');
+
     const matches = await Match.findAll({
       where: {
         utcDate: {
