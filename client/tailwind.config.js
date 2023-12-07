@@ -15,7 +15,9 @@ export default {
         'flat-blue': '#3300FF',
         'flat-purple': '#FF00F5',
         'flat-red': '#FF4911',
-        'light-red': '#FF6B6B'
+        'light-red': '#FF6B6B',
+        'deep-red': '#c40404',
+        'flat-orange': '#E66F15',
       },
       fontFamily: {
         'sans': ['Montserrat'],
@@ -51,6 +53,8 @@ export default {
         'flat-black': '3px 4px 0 rgba(0,0,0,1);',
         'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1);',
         'flat-black-adjust-50': '2px 2px 0 rgba(0,0,0,0.5);',
+        'flat-purple': '3px 4px 0 rgba(255,0,245,1);',
+        'flat-purple-adjust': '2px 2px 0 rgba(255,0,245,1);',
         'inner-black-light': 'inset 0px 5px 5px 5px rgba(0,0,0,0.5);',
       },
       translate: {

@@ -58,6 +58,9 @@ body {
 .stroke-black {
     -webkit-text-stroke: 1px #000000;
 }
+.text-shadow-black {
+    text-shadow: 1px 2px 0 rgba(0,0,0,1);
+}
 
 /* Swiper */
 .swiper-wrapper {

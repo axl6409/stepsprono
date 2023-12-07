@@ -19,10 +19,10 @@ const StatusModal = ({message, status, closeModal }) => {
   };
 
   return (
-    <div className={`modal ${isExiting ? 'modal-exit' : 'modal-enter'} fixed z-[20] right-0 left-0 top-10 w-full flex flex-col justify-center py-8`}>
+    <div className={`modal ${isExiting ? 'modal-exit' : 'modal-enter'} fixed z-[20] right-0 left-0 top-4 w-full flex flex-col justify-center py-4`}>
       <div className="modal-content block w-[95%] mx-auto bg-white">
         <div className="relative flex flex-row justify-between py-2 pr-2 pl-10 mx-auto border-2 border-black w-full shadow-flat-black">
-          <div className="absolute top-0 left-0 bottom-0 flex flex-col justify-center p-4 bg-green-lime border-r-2 border-black">
+          <div className={`absolute top-0 left-0 bottom-0 flex flex-col justify-center p-4 ${status === true ? 'bg-green-lime' : 'bg-deep-red'} border-r-2 border-black`}>
             {status === true ? (
               <FontAwesomeIcon icon={faCheck} />
             ) : (

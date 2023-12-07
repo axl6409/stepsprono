@@ -31,7 +31,7 @@ const UserMenu = () => {
         <div className="container mx-auto flex justify-between items-center">
           {isAuthenticated && user ? (
             <Link
-              className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
               to="/dashboard">
               <span
                 className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
@@ -41,7 +41,7 @@ const UserMenu = () => {
             </Link>
           ) : (
             <Link
-              className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
               to="/">
               <span
                 className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0"
@@ -51,27 +51,30 @@ const UserMenu = () => {
             </Link>
           )}
           {isAuthenticated && user ? (
-            <button
-              className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              onClick={() => setIsOpen(!isOpen)}>
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
-                style={{ backgroundImage: `url(${cleanImageUrl})` }}
-              >
-              </span>
-            </button>
+            <>
+              <p className="font-sans font-medium text-sm bg-white px-2 py-1 text-black border-2 border-black shadow-flat-black-adjust">{user.username}</p>
+              <button
+                className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                onClick={() => setIsOpen(!isOpen)}>
+                <span
+                  className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
+                  style={{ backgroundImage: `url(${cleanImageUrl})` }}
+                >
+                </span>
+              </button>
+            </>
           ) : (
             <button
               className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
               onClick={() => setIsOpen(!isOpen)}
             >
-            <span
-              className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-              {isOpen ? <FontAwesomeIcon icon={faXmark} className="h-[25px]" /> : <FontAwesomeIcon icon={faBars} className="h-[25px]" />}
-            </span>
+              <span
+                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                {isOpen ? <FontAwesomeIcon icon={faXmark} className="h-[25px]" /> : <FontAwesomeIcon icon={faBars} className="h-[25px]" />}
+              </span>
             </button>
           )}
-          <div className={`${isOpen ? 'right-0' : 'right-[-70%]'} flex flex-col justify-between border-l-2 border-black fixed z-[5] top-0 bottom-0 w-[70%] bg-white p-8 pb-16 transition-all duration-200 shadow-menu`}>
+          <div className={`${isOpen ? 'top-0' : 'top-[100%]'} flex flex-col justify-between border-4 border-black fixed z-[70] left-0 bottom-0 right-0 w-[100%] bg-white p-8 pb-16 transition-all duration-200 shadow-menu`}>
             {isAuthenticated ? (
               <>
                 <div className="flex flex-row justify-between">
@@ -136,7 +139,7 @@ const UserMenu = () => {
               </>
             ) : (
               <>
-                <div className="h-full flex flex-col justify-center">
+                <div className="flex flex-col justify-center">
                   <Link
                     to="/login"
                     className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"

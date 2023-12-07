@@ -343,6 +343,37 @@ router.get('/players', authenticateJWT, async (req, res) => {
     res.status(500).send('Erreur interne du serveur');
   }
 });
+router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
+  try {
+    const currentDate = new Date()
+    const startOfWeek = currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1)
+    const endOfWeek = startOfWeek + 6
+
+    const startDate = new Date(currentDate.setDate(startOfWeek));
+    const endDate = new Date(currentDate.setDate(endOfWeek));
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    const bets = await Bets.findAll({
+      include: [{
+        model: Match,
+        where: {
+          utcDate: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        }
+      }],
+      where: {
+        userId: req.params.id
+      }
+    });
+    res.json(bets);
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
@@ -637,5 +668,24 @@ router.put('/admin/setting/update/:id', authenticateJWT, async (req, res) => {
   }
 });
 
+// Define PATCH routes
+router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id)
+    if (!user) return res.status(404).json({error: 'Utilisateur non trouvé' })
+
+    const userStatus = user.status
+    if (userStatus === 'pending') {
+      res.status(403).json({ error: 'La demande est déjà en attente de validation'})
+    }
+    if (userStatus === 'refused') {
+      res.status(401).json({ error: 'La demande à déjà été refusée'})
+    }
+    await user.update({ status: 'pending' })
+    res.status(200).json({ message: 'La demande à été soumise avec succès' })
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de soumettre la requête ' + error })
+  }
+})
 
 module.exports = router;
