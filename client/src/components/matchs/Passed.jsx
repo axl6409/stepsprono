@@ -27,6 +27,7 @@ const Passed = ({token, user}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bets, setBets] = useState([]);
+  const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
     const fetchMatchdays = async () => {
@@ -153,14 +154,16 @@ const Passed = ({token, user}) => {
             const bet = getBetForMatch(match.id);
 
             return (
-              <SwiperSlide className="flex flex-col justify-start relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[350px]" key={match.id} data-match-id={match.id}>
-                {isBetPlaced(match.id) ? (
-                  isBetWin(match.id) ? (
-                    <FontAwesomeIcon icon={faThumbsUp} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block"/>
-                  ) : (
-                    <FontAwesomeIcon icon={faThumbsDown} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>
-                  )
-                ) : null}
+              <SwiperSlide className={`flex flex-col justify-start relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black ${isVisitor ? 'min-h-fit pb-4' : 'min-h-[350px]'} min-h-[350px]`} key={match.id} data-match-id={match.id}>
+                {!isVisitor && (
+                  isBetPlaced(match.id) ? (
+                    isBetWin(match.id) ? (
+                      <FontAwesomeIcon icon={faThumbsUp} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block"/>
+                    ) : (
+                      <FontAwesomeIcon icon={faThumbsDown} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>
+                    )
+                  ) : null
+                )}
                 <div className="w-full text-center flex flex-col justify-center px-6 py-2 h-fit">
                   <p className="name font-sans text-base font-bold capitalize">{matchDate.format('DD MMMM')}</p>
                 </div>
@@ -176,41 +179,43 @@ const Passed = ({token, user}) => {
                     <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.scoreFullTimeAway}</p>
                   </div>
                 </div>
-                {bet ? (
-                  <div className="pronostic-info mt-4">
-                    <p className="name font-sans text-base font-bold capitalize">Pronostic</p>
-                    <div className="flex flex-row justify-between">
-                      <div className="w-1/3 flex flex-col justify-center">
-                        {bet.winnerId === match.HomeTeam.id ? (
-                          <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                        ) : null}
-                      </div>
-                      <div className="w-1/3 flex flex-col justify-center">
-                        {bet.winnerId === null ? (
-                          <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                        ) : null}
-                      </div>
-                      <div className="w-1/3 flex flex-col justify-center">
-                        {bet.winnerId === match.AwayTeam.id ? (
-                          <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                        ) : null}
-                      </div>
-                    </div>
-                    {bet.homeScore !== null && bet.awayScore !== null ? (
+                {!isVisitor && (
+                  bet ? (
+                    <div className="pronostic-info mt-4">
+                      <p className="name font-sans text-base font-bold capitalize">Pronostic</p>
                       <div className="flex flex-row justify-between">
-                        <div className="w-2/4 flex flex-col justify-center">
-                          <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.homeScore}</p>
+                        <div className="w-1/3 flex flex-col justify-center">
+                          {bet.winnerId === match.HomeTeam.id ? (
+                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
+                          ) : null}
                         </div>
-                        <div className="w-2/4 flex flex-col justify-center">
-                          <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.awayScore}</p>
+                        <div className="w-1/3 flex flex-col justify-center">
+                          {bet.winnerId === null ? (
+                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
+                          ) : null}
+                        </div>
+                        <div className="w-1/3 flex flex-col justify-center">
+                          {bet.winnerId === match.AwayTeam.id ? (
+                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
+                          ) : null}
                         </div>
                       </div>
+                      {bet.homeScore !== null && bet.awayScore !== null ? (
+                        <div className="flex flex-row justify-between">
+                          <div className="w-2/4 flex flex-col justify-center">
+                            <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.homeScore}</p>
+                          </div>
+                          <div className="w-2/4 flex flex-col justify-center">
+                            <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.awayScore}</p>
+                          </div>
+                        </div>
                     ) : null}
                   </div>
-                ) : (
-                  <div className="pronostic-info mt-8">
-                    <p className="name font-sans text-base font-bold capitalize">Aucun Pronostic</p>
-                  </div>
+                  ) : (
+                    <div className="pronostic-info mt-8">
+                      <p className="name font-sans text-base font-bold capitalize">Aucun Pronostic</p>
+                    </div>
+                  )
                 )}
               </SwiperSlide>
             );

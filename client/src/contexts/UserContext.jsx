@@ -34,6 +34,10 @@ export const UserProvider = ({ children }) => {
     loadToken()
   }, [cookies]);
 
+  const updateUserStatus = (newStatus) => {
+    setUser(current => ({ ...current, status: newStatus }));
+  };
+
   const logout = () => {
     localStorage.removeItem('token')
     clearCookie('token')
@@ -47,7 +51,7 @@ export const UserProvider = ({ children }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, setIsAuthenticated, logout }}>
+    <UserContext.Provider value={{ user, setUser, isAuthenticated, setIsAuthenticated, updateUserStatus, logout }}>
       {children}
     </UserContext.Provider>
   );
