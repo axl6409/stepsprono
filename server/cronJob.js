@@ -237,11 +237,18 @@ async function updateMatches() {
 async function fetchWeekendMatches() {
   try {
     const today = moment().tz("Europe/Paris");
-    const nextMonday = today.clone().isoWeekday(8);
-    const nextSunday = nextMonday.clone().add(6, 'days');
+    console.log(today.format("DD/MM/YYYY"));
 
-    const startDate = nextMonday.format('YYYY-MM-DD 00:00:00');
-    const endDate = nextSunday.format('YYYY-MM-DD 23:59:59');
+    const thisSaturday = today.clone().isoWeekday(6)
+    const thisSunday = today.clone().add(1, 'days')
+
+    // if (today.isoWeekday() > 5) {
+    //   thisSaturday.add(7, 'days');
+    //   thisSunday.add(7, 'days');
+    // }
+
+    const startDate = today.format('YYYY-MM-DD 00:00:00');
+    const endDate = thisSunday.format('YYYY-MM-DD 23:59:59');
 
     const matches = await Match.findAll({
       where: {
@@ -256,7 +263,7 @@ async function fetchWeekendMatches() {
     });
     matches.forEach(match => {
       const matchTime = new Date(match.utcDate)
-      const updateTime = new Date(matchTime.getTime() + 120 * 60000); // Ajoute 120 minutes
+      const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
       const day = updateTime.getDate();
       const month = updateTime.getMonth() + 1;
       const hour = updateTime.getHours();
@@ -270,106 +277,104 @@ async function fetchWeekendMatches() {
   }
 }
 
-async function updateMatchStatusAndPredictions(matchIds) {
+async function updateMatchStatusAndPredictions(matchId) {
   try {
-    for (const matchId of matchIds) {
-      const options = {
-        method: 'GET',
-        url: `${apiBaseUrl}fixtures/`,
-        params: {
-          id: `${matchId}`
-        },
-        headers: {
-          'X-RapidAPI-Key': apiKey,
-          'X-RapidAPI-Host': apiHost
-        }
-      };
-      const response = await axios.request(options);
-      const apiMatchData = response.data.response[0];
-      const events = []
-      const scorers = apiMatchData.events
-        .filter(event => event.type === 'Goal')
-        .map(goalEvent => ({
-          playerId: goalEvent.player.id,
-          playerName: goalEvent.player.name
-        }));
-      const scorersJson = JSON.stringify(scorers);
-      const dbMatchData = await Match.findByPk(matchId);
-      if (dbMatchData && apiMatchData) {
-        const fieldsToUpdate = {};
-        if (dbMatchData['status'] !== apiMatchData.fixture.status.short) {
-          fieldsToUpdate['status'] = apiMatchData.fixture.status.short
-        }
-        if (apiMatchData.teams.home.winner === true) {
-          fieldsToUpdate['winner'] = apiMatchData.teams.home.id
-        } else if (apiMatchData.teams.away.winner === true) {
-          fieldsToUpdate['winner'] = apiMatchData.teams.away.id
-        } else {
-          fieldsToUpdate['winner'] = null
-        }
-        if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
-          fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
-        }
-        if (dbMatchData['goalsAway'] !== apiMatchData.score.fulltime.away) {
-          fieldsToUpdate['goalsAway'] = apiMatchData.score.fulltime.away
-        }
-        if (dbMatchData['scoreFullTimeHome'] !== apiMatchData.score.halftime.home) {
-          fieldsToUpdate['scoreFullTimeHome'] = apiMatchData.score.halftime.home
-        }
-        if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
-          fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
-        }
-        if (dbMatchData['scoreExtraTimeHome'] !== apiMatchData.score.extratime.home) {
-          fieldsToUpdate['scoreExtraTimeHome'] = apiMatchData.score.extratime.home
-        }
-        if (dbMatchData['scoreExtraTimeAway'] !== apiMatchData.score.extratime.away) {
-          fieldsToUpdate['scoreExtraTimeAway'] = apiMatchData.score.extratime.away
-        }
-        if (dbMatchData['scorePenaltyHome'] !== apiMatchData.score.penalty.home) {
-          fieldsToUpdate['scorePenaltyHome'] = apiMatchData.score.penalty.home
-        }
-        if (dbMatchData['scorers'] !== scorersJson) {
-          fieldsToUpdate['scorers'] = scorersJson;
-        }
+    const options = {
+      method: 'GET',
+      url: `${apiBaseUrl}fixtures/`,
+      params: {
+        id: `${matchId}`
+      },
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': apiHost
+      }
+    };
+    const response = await axios.request(options);
+    const apiMatchData = response.data.response[0];
+    const events = []
+    const scorers = apiMatchData.events
+      .filter(event => event.type === 'Goal')
+      .map(goalEvent => ({
+        playerId: goalEvent.player.id,
+        playerName: goalEvent.player.name
+      }));
+    const scorersJson = JSON.stringify(scorers);
+    const dbMatchData = await Match.findByPk(matchId);
+    if (dbMatchData && apiMatchData) {
+      const fieldsToUpdate = {};
+      if (dbMatchData['status'] !== apiMatchData.fixture.status.short) {
+        fieldsToUpdate['status'] = apiMatchData.fixture.status.short
+      }
+      if (apiMatchData.teams.home.winner === true) {
+        fieldsToUpdate['winner'] = apiMatchData.teams.home.id
+      } else if (apiMatchData.teams.away.winner === true) {
+        fieldsToUpdate['winner'] = apiMatchData.teams.away.id
+      } else {
+        fieldsToUpdate['winner'] = null
+      }
+      if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
+        fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
+      }
+      if (dbMatchData['goalsAway'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['goalsAway'] = apiMatchData.score.fulltime.away
+      }
+      if (dbMatchData['scoreFullTimeHome'] !== apiMatchData.score.halftime.home) {
+        fieldsToUpdate['scoreFullTimeHome'] = apiMatchData.score.halftime.home
+      }
+      if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
+      }
+      if (dbMatchData['scoreExtraTimeHome'] !== apiMatchData.score.extratime.home) {
+        fieldsToUpdate['scoreExtraTimeHome'] = apiMatchData.score.extratime.home
+      }
+      if (dbMatchData['scoreExtraTimeAway'] !== apiMatchData.score.extratime.away) {
+        fieldsToUpdate['scoreExtraTimeAway'] = apiMatchData.score.extratime.away
+      }
+      if (dbMatchData['scorePenaltyHome'] !== apiMatchData.score.penalty.home) {
+        fieldsToUpdate['scorePenaltyHome'] = apiMatchData.score.penalty.home
+      }
+      if (dbMatchData['scorers'] !== scorersJson) {
+        fieldsToUpdate['scorers'] = scorersJson;
+      }
 
-        if (Object.keys(fieldsToUpdate).length > 0) {
-          fieldsToUpdate['updatedAt'] = new Date();
-          await Match.update(fieldsToUpdate, {where: {id: matchId}});
-        }
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        fieldsToUpdate['updatedAt'] = new Date();
+        await Match.update(fieldsToUpdate, {where: {id: matchId}});
+      }
 
-        for (const goals of apiMatchData.events) {
-          if (goals.type === 'Goal') {
-            events.push({
-              id: goals.player.id,
-            });
+      for (const goals of apiMatchData.events) {
+        if (goals.type === 'Goal') {
+          events.push({
+            id: goals.player.id,
+          });
+        }
+      }
+
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        // Récupérer tous les pronostics pour ce match
+        const bets = await Bets.findAll({where: {matchId}});
+        for (const bet of bets) {
+          let points = 0;
+          console.log(bet.winnerId === fieldsToUpdate['winner'])
+          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winner']) {
+            points += 1;
           }
-        }
-
-        if (Object.keys(fieldsToUpdate).length > 0) {
-          // Récupérer tous les pronostics pour ce match
-          const bets = await Bets.findAll({where: {matchId}});
-          for (const bet of bets) {
-            let points = 0;
-            console.log(bet.winnerId === fieldsToUpdate['winner'])
-            if (bet.winnerId && bet.winnerId === fieldsToUpdate['winner']) {
-              points += 1;
-            }
-            if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
-              points += 3;
-            }
-            if (bet.playerGoal) {
-              if (dbMatchData.scorers && dbMatchData.scorers !== '[]') {
-                const matchScorers = JSON.parse(dbMatchData.scorers);
-                if (matchScorers.length > 0) {
-                  const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
-                  if (scorerFound) {
-                    points += 1;
-                  }
+          if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
+            points += 3;
+          }
+          if (bet.playerGoal) {
+            if (dbMatchData.scorers && dbMatchData.scorers !== '[]') {
+              const matchScorers = JSON.parse(dbMatchData.scorers);
+              if (matchScorers.length > 0) {
+                const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
+                if (scorerFound) {
+                  points += 1;
                 }
               }
             }
-            await Bets.update({points}, {where: {id: bet.id}});
           }
+          await Bets.update({points}, {where: {id: bet.id}});
         }
       }
     }
@@ -378,33 +383,48 @@ async function updateMatchStatusAndPredictions(matchIds) {
   }
 }
 
-async function updatePlayers() {
+async function updatePlayers(teamId) {
   try {
-    const teams = await Team.findAll()
-    for (const team of teams) {
-      const options = {
-        method: 'GET',
-        url: `${apiBaseUrl}players/`,
-        params: {
-          team: `${team.id}`,
-          season: '2023',
-        },
-        headers: {
-          'X-RapidAPI-Key': apiKey,
-          'X-RapidAPI-Host': apiHost
-        }
-      };
-      const response = await axios.request(options);
-      const apiMatchData = response.data.response;
-      for (const apiPlayer of apiMatchData) {
-        await Players.upsert({
-          id: apiPlayer.player.id,
-          name: apiPlayer.player.name,
-          firstName: apiPlayer.player.firstname,
-          lastName: apiPlayer.player.lastname,
-          teamId: apiPlayer.statistics[0].team.id,
-        })
+    let teams = [];
+    if (teamId) {
+      const team = await Team.findByPk(teamId)
+      if (team) {
+        teams = [team]
       }
+    } else {
+      teams = await Team.findAll()
+    }
+    for (const team of teams) {
+      let currentPage = 1;
+      let totalPages = 0;
+      do {
+        const options = {
+          method: 'GET',
+          url: `${apiBaseUrl}players/`,
+          params: {
+            team: `${team.id}`,
+            season: '2023',
+            page: currentPage
+          },
+          headers: {
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': apiHost
+          }
+        };
+        const response = await axios.request(options);
+        const apiMatchData = response.data.response;
+        for (const apiPlayer of apiMatchData) {
+          await Players.upsert({
+            id: apiPlayer.player.id,
+            name: apiPlayer.player.name,
+            firstName: apiPlayer.player.firstname,
+            lastName: apiPlayer.player.lastname,
+            teamId: apiPlayer.statistics[0].team.id,
+          })
+        }
+        totalPages = response.data.paging.total;
+        currentPage++;
+      } while (currentPage <= totalPages);
     }
   } catch (error) {
     console.log(`Erreur lors de le récupération des joueurs pour l'équipe ${teamId}:`, error);

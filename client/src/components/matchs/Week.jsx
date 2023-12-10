@@ -20,7 +20,7 @@ import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 import moment from "moment";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Weekend = ({token, user}) => {
+const Week = ({token, user}) => {
   const [matchs, setMatchs] = useState([])
   const [bets, setBets] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -29,17 +29,17 @@ const Weekend = ({token, user}) => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const now = moment();
-  const simulatedNow = moment().day(7).hour(10).minute(0).second(0);
+  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
+  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
     const fetchMatchs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}/api/matchs/next-week`, {
+        const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -114,14 +114,14 @@ const Weekend = ({token, user}) => {
         >
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
-            const isMatchInFuture = matchDate.isAfter(now);
+            const isMatchInFuture = matchDate.isAfter(simulatedNow);
             const hasBet = isBetPlaced(match.id)
             const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
 
             return (
-              <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id}>
+              <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
                 {!isVisitor && (
-                  isBetPlaced(match.id) ? (
+                  hasBet ? (
                     <FontAwesomeIcon icon={faCircleCheck} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block rounded-full shadow-flat-black-adjust-50"/>
                   ) : (
                     <FontAwesomeIcon icon={faTriangleExclamation} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>
@@ -145,7 +145,7 @@ const Weekend = ({token, user}) => {
                   <p>{match.AwayTeam.name}</p>
                 </div>
                 {!isVisitor && (
-                  (!hasBet || bets.lenght === 0) && isMatchInFuture && isBeforeNextFriday ? (
+                  !hasBet && (isMatchInFuture || isBeforeNextFriday) ? (
                     <button
                       className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                       onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
@@ -191,4 +191,4 @@ const Weekend = ({token, user}) => {
   )
 }
 
-export default Weekend
+export default Week

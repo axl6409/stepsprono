@@ -58,14 +58,14 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {matchs.map((bet, index) => (
-                <tr key={index}>
-                  <td>{`${bet.match.homeTeamName} - ${bet.match.awayTeamName}`}</td>
-                  <td>{bet.winnerName}</td>
-                  <td>{`${bet.homeScore} - ${bet.awayScore}`}</td>
-                  <td>{bet.match.status}</td>
-                </tr>
-              ))}
+              {/*{matchs.map((bet, index) => (*/}
+              {/*  // <tr key={index}>*/}
+              {/*  //   /!*<td>{`${bet.match.homeTeamName} - ${bet.match.awayTeamName}`}</td>*!/*/}
+              {/*  //   <td>{bet.winnerName}</td>*/}
+              {/*  //   <td>{`${bet.homeScore} - ${bet.awayScore}`}</td>*/}
+              {/*  //   <td>{bet.match.status}</td>*/}
+              {/*  // </tr>*/}
+              {/*))}*/}
             </tbody>
           </table>
         </div>

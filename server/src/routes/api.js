@@ -257,6 +257,46 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 });
+router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
+  try {
+    const startOfCurrentWeek = moment().tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfCurrentWeek = moment().tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utcDate: {
+          [Op.gte]: startOfCurrentWeek,
+          [Op.lte]: endOfCurrentWeek
+        },
+        status: {
+          [Op.not]: 'TBD'
+        }
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ],
+      order: [
+        ['utcDate', 'ASC']
+      ]
+    });
+
+    if (matchs.count === 0) {
+      return res.status(404).json({ message: 'Aucun match trouvé pour cette semaine' });
+    }
+
+    res.json({
+      data: matchs.rows,
+      totalCount: matchs.count,
+      startOfNextWeek: startOfCurrentWeek,
+      endOfNextWeek: endOfCurrentWeek
+    });
+  } catch (error) {
+    console.error("Erreur :", error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
+  }
+});
+
 router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -516,16 +556,21 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
         matchId: matchId
       }
     })
+    console.log(req.body)
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
     if (req.body.winnerId === null) {
-      if (req.body.homeScore !== req.body.awayScore) {
-        return res.status(401).json({ error: 'Le score n\'est pas valide, un match null doit avoir un score similaire pour les deux équipes' });
+      if (req.body.homeScore || req.body.awayScore) {
+        if (req.body.homeScore !== req.body.awayScore) {
+          return res.status(401).json({error: 'Le score n\'est pas valide, un match null doit avoir un score similaire pour les deux équipes'});
+        }
       }
     } else {
-      if (req.body.homeScore === req.body.awayScore) {
-        return res.status(401).json({ error: 'Le score n\'est pas valide, un match non null ne peux pas avoir un score similaire pour les deux équipes' });
+      if (req.body.homeScore || req.body.awayScore) {
+        if (req.body.homeScore === req.body.awayScore) {
+          return res.status(401).json({ error: 'Le score n\'est pas valide, un match non null ne peux pas avoir un score similaire pour les deux équipes' });
+        }
       }
     }
     const bet = await Bets.create(req.body)
