@@ -296,7 +296,6 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 });
-
 router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -331,6 +330,28 @@ router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
+router.get('/matchs/week/:weekNumber', authenticateJWT, async (req, res) => {
+  try {
+    const weekNumber = req.params.weekNumber;
+    const matchs = await Match.findAndCountAll({
+      where: {
+        week: weekNumber
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ],
+      order: [
+        ['utcDate', 'ASC']
+      ]
+    });
+    res.json({
+      data: matchs.rows
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -385,11 +406,11 @@ router.get('/players', authenticateJWT, async (req, res) => {
 });
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('isoWeek')
-    const endOfWeek = moment().endOf('isoWeek')
+    const startOfWeek = moment().startOf('isoWeek');
+    const endOfWeek = moment().endOf('isoWeek');
 
-    const startDate = startOfWeek.toDate()
-    const endDate = endOfWeek.toDate()
+    const startDate = startOfWeek.toDate();
+    const endDate = endOfWeek.toDate();
 
     const bets = await Bets.findAll({
       include: [{
@@ -399,7 +420,17 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
             [Op.gte]: startDate,
             [Op.lte]: endDate
           }
-        }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
       }],
       where: {
         userId: req.params.id
@@ -414,7 +445,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
-})
+});
 
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
