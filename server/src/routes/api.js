@@ -385,15 +385,11 @@ router.get('/players', authenticateJWT, async (req, res) => {
 });
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    const currentDate = new Date()
-    const startOfWeek = currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1)
-    const endOfWeek = startOfWeek + 6
+    const startOfWeek = moment().startOf('isoWeek')
+    const endOfWeek = moment().endOf('isoWeek')
 
-    const startDate = new Date(currentDate.setDate(startOfWeek));
-    const endDate = new Date(currentDate.setDate(endOfWeek));
-
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
+    const startDate = startOfWeek.toDate()
+    const endDate = endOfWeek.toDate()
 
     const bets = await Bets.findAll({
       include: [{
@@ -409,7 +405,12 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
         userId: req.params.id
       }
     });
-    res.json(bets);
+
+    if (bets.length === 0) {
+      res.json({ message: 'Aucun pari pour la semaine en cours' })
+    } else {
+      res.json(bets)
+    }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
@@ -506,43 +507,6 @@ router.post('/login', async (req, res) => {
     res.status(200).json({ message: 'Connexion réussie', user, token });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
-  }
-})
-router.post('/admin/teams/add', async (req, res) => {
-  try {
-    const existingTeam = await Team.findOne({ where: { slug: req.body.slug } });
-    if (existingTeam) {
-      return res.status(400).json({ error: 'Une équipe avec ce nom existe déjà' })
-    }
-    const team = await Team.create(req.body)
-    res.status(201).json(team)
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de créer l’équipe', message: error })
-  }
-})
-router.post('/admin/matchs/add', async (req, res) => {
-  try {
-    const date = req.body.date
-    const homeTeam = parseInt(req.body.homeTeam, 10)
-    const awayTeam = parseInt(req.body.awayTeam, 10)
-    const existingMatch = await Match.findOne({
-      where: {
-        date: date,
-        homeTeamId: homeTeam,
-        awayTeamId: awayTeam
-      }
-    })
-    if (existingMatch) {
-      return res.status(400).json({ error: 'Un match similaire existe déjà pour cette date et ces équipes' });
-    }
-    const match = await Match.create({
-      ...req.body,
-      homeTeamId: homeTeam,
-      awayTeamId: awayTeam
-    });
-    res.status(201).json(match);
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de créer le match', message: error, datas: req.body });
   }
 })
 router.post('/bet/add', authenticateJWT, async (req, res) => {

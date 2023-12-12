@@ -234,21 +234,13 @@ async function updateMatches() {
   }
 }
 
-async function fetchWeekendMatches() {
+async function fetchWeekMatches() {
   try {
-    const today = moment().tz("Europe/Paris");
-    console.log(today.format("DD/MM/YYYY"));
+    const startOfWeek = moment().startOf('isoWeek').tz("Europe/Paris");
+    const endOfWeek = moment().endOf('isoWeek').tz("Europe/Paris");
 
-    const thisSaturday = today.clone().isoWeekday(6)
-    const thisSunday = today.clone().add(1, 'days')
-
-    // if (today.isoWeekday() > 5) {
-    //   thisSaturday.add(7, 'days');
-    //   thisSunday.add(7, 'days');
-    // }
-
-    const startDate = today.format('YYYY-MM-DD 00:00:00');
-    const endDate = thisSunday.format('YYYY-MM-DD 23:59:59');
+    const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
+    const endDate = endOfWeek.format('YYYY-MM-DD 23:59:59');
 
     const matches = await Match.findAll({
       where: {
@@ -451,6 +443,7 @@ async function checkupBets() {
           points += 1;
         }
       }
+      await Bets.update({points}, {where: {id: bet.id}});
     }
   } catch (error) {
     console.log('Erreur lors de la mise à jour des paris:', error);
@@ -463,7 +456,7 @@ const runCronJob = () => {
   cron.schedule('03 00 * * *', updatePlayers)
   cron.schedule('05 00 * * *', updateTeamsRanking)
   cron.schedule('07 00 * * *', updateMatches)
-  cron.schedule('30 00 * * 1', fetchWeekendMatches)
+  cron.schedule('30 00 * * 1', fetchWeekMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };
+module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };

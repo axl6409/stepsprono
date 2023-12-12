@@ -6,7 +6,7 @@ const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
-const { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekendMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
+const { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
 const path = require("path");
 
 require('dotenv').config();
@@ -60,7 +60,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 1 API request
     // await updateTeamsRanking()
     // Total => 1 API request
-    await fetchWeekendMatches()
+    // await fetchWeekMatches()
     // Total => 18 API requests
     // await updatePlayers()
     // Total => 1 API requests by matchId

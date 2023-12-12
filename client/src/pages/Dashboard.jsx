@@ -21,7 +21,7 @@ const Dashboard = () => {
           }
         });
         setMatchs(response.data);
-        console.log(response.data)
+        console.log(matchs)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -48,6 +48,7 @@ const Dashboard = () => {
       <div>
         <p>Pronostics</p>
         <div>
+          {matchs && matchs.length > 0 ? (
           <table>
             <thead>
               <tr>
@@ -55,19 +56,24 @@ const Dashboard = () => {
                 <th scope="col">Gagnant</th>
                 <th scope="col">Score</th>
                 <th scope="col">Status</th>
+                <th scope="col">Points</th>
               </tr>
             </thead>
             <tbody>
-              {/*{matchs.map((bet, index) => (*/}
-              {/*  // <tr key={index}>*/}
-              {/*  //   /!*<td>{`${bet.match.homeTeamName} - ${bet.match.awayTeamName}`}</td>*!/*/}
-              {/*  //   <td>{bet.winnerName}</td>*/}
-              {/*  //   <td>{`${bet.homeScore} - ${bet.awayScore}`}</td>*/}
-              {/*  //   <td>{bet.match.status}</td>*/}
-              {/*  // </tr>*/}
-              {/*))}*/}
+              {matchs.map((bet, index) => (
+                <tr key={index}>
+                  <td>{`${bet.homeTeamName} - ${bet.awayTeamName}`}</td>
+                  <td>{bet.winnerName}</td>
+                  <td>{`${bet.homeScore} - ${bet.awayScore}`}</td>
+                  <td>{bet.status}</td>
+                  <td>{bet.points}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
+          ) : (
+            <p>Aucun pari pour la semaine en cours</p>
+          )}
         </div>
       </div>
     </div>
