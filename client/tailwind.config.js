@@ -24,6 +24,7 @@ export default {
         'title': ['Darker Grotesque'],
       },
       fontSize: {
+        xxs: '0.7rem', // 12px
         xs: '0.85rem', // 13.6px
         sm: '1rem', // 16px
         base: '1.2rem', // 18px

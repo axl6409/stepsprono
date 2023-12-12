@@ -23,7 +23,6 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   const [scorer, setScorer] = useState('');
 
   useEffect(() => {
-    console.log(players)
     const fetchPlayers = async () => {
       try {
         let url = `${apiUrl}/api/players`;

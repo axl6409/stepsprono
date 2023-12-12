@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
 import {UserContext} from "../contexts/UserContext.jsx";
-import Weekend from "../components/matchs/Weekend.jsx";
+import Week from "../components/matchs/Week.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import Passed from "../components/matchs/Passed.jsx";
@@ -34,7 +34,7 @@ const Matchs = () => {
       </h1>
       <div className="px-4 relative">
         <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Ce Weekend</h2>
-        <Weekend token={token} user={user}/>
+        <Week token={token} user={user}/>
       </div>
       <div className="px-4 relative my-8">
         <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Passés</h2>

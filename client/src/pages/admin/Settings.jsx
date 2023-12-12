@@ -90,6 +90,7 @@ const Settings = () => {
           onRefresh={refreshData}
         />
       ))}
+
       {showInfoModal && <InformationModal message={modalMessage} closeModal={closeModal} />}
     </div>
   );
