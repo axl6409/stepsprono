@@ -8,6 +8,7 @@ import axios from "axios";
 import moment from "moment";
 import ConfirmationModal from "../../partials/ConfirmationModal.jsx";
 import StatusModal from "../../partials/modals/StatusModal.jsx";
+import {AppContext} from "../../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminTeams = () => {
@@ -18,6 +19,7 @@ const AdminTeams = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
+  const { fetchAPICalls } = useContext(AppContext);
 
   if (!user || user.role !== 'admin' && user.role !== 'manager') {
     return <Navigate to={'/'} replace />
@@ -35,7 +37,6 @@ const AdminTeams = () => {
       console.error('Erreur lors de la récupération des matchs :', error);
     }
   };
-
   useEffect(() => {
     fetchTeams()
   }, []);
@@ -50,6 +51,7 @@ const AdminTeams = () => {
         setUpdateStatus(true);
         setUpdateMessage('Équipe mise à jour !');
         setIsModalOpen(true)
+        fetchAPICalls()
         setTimeout(function () {
           closeModal()
         }, 1500)
@@ -57,11 +59,40 @@ const AdminTeams = () => {
         setUpdateStatus(false);
         setUpdateMessage('Erreur lors de la mise à jour de l\'équipe : ' + response.data.message);
         setIsModalOpen(true)
+        fetchAPICalls()
       }
     } catch (error) {
       setUpdateStatus(false);
       console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour de l\'équipe : ' + error.response.data.message);
+      setIsModalOpen(true)
+    }
+  };
+
+  const handleUpdateAll = async () => {
+    try {
+      const response = await axios.patch(`${apiUrl}/api/admin/teams/update-ranking/all`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        await fetchTeams()
+        setUpdateStatus(true);
+        setUpdateMessage('Équipes mises à jour !');
+        setIsModalOpen(true)
+        fetchAPICalls()
+        setTimeout(function () {
+          closeModal()
+        }, 1500)
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors de la mise à jour des équipes : ' + response.data.message);
+        setIsModalOpen(true)
+        fetchAPICalls()
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      console.log(error)
+      setUpdateMessage('Erreur lors de la mise à jour des équipes : ' + error.response.data.message);
       setIsModalOpen(true)
     }
   };
@@ -89,25 +120,36 @@ const AdminTeams = () => {
         <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] text-center transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Données des équipes</span>
         <span className="absolute left-0 bottom-0 text-green-lime z-[-2] text-center transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Données des équipes</span>
       </h1>
-      <div className="py-3.5 px-2 bg-black relative">
+      <div className="pb-3.5 pt-6 px-2 bg-black relative">
         <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Équipes à mettre à jour</p>
+        <div className="w-fit absolute -top-5 right-2.5 rounded-full">
+          <button
+            onClick={() => handleUpdateAll() }
+            className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+          >
+            <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <FontAwesomeIcon icon={faCloudArrowDown} />
+            </span>
+          </button>
+        </div>
+
         <ul className="flex flex-col justify-start">
           {teams.length ? (
             teams.map(team => {
               return (
-                <li className="relative flex flex-col justify-between border-2 border-black bg-white rounded-xl py-1 px-4 pt-4 h-fit shadow-flat-black my-4 shadow-flat-purple" key={team.id}>
+                <li className="relative flex flex-col justify-between border-2 border-black bg-white rounded-xl py-4 px-4 h-fit shadow-flat-black my-2 shadow-flat-purple" key={team.id}>
                   <div className="flex flex-row justify-between">
                     <img className="inline-block h-8 w-auto my-auto" src={team.logoUrl} alt={team.name} />
-                    <p>{team.name}</p>
-                  </div>
-                  <button
-                    onClick={() => handleUpdateTeam(team.id)}
-                    className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                  >
+                    <p className="inline-block font-sans text-sm font-medium leading-5 my-auto">{team.name}</p>
+                    <button
+                      onClick={() => handleUpdateTeam(team.id)}
+                      className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                    >
                     <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
                       <FontAwesomeIcon icon={faCloudArrowDown} />
                     </span>
-                  </button>
+                    </button>
+                  </div>
                 </li>
               )
             })

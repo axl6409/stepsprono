@@ -773,7 +773,7 @@ router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) =>
 router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
   try {
     await updateTeamsRanking()
-    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+    res.status(200).json({ message: 'Équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

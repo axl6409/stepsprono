@@ -14,13 +14,11 @@ export const AppProvider = ({ children }) => {
   const token = localStorage.getItem('token') || cookies.token
   const [apiCalls, setApiCalls] = useState({});
 
-  useEffect(() => {
-    if (user.role === 'admin') {
+  if (user.role === 'admin') {
       useEffect(() => {
         fetchAPICalls();
       }, [])
-    }
-  }, [cookies, user]);
+  }
 
   const fetchAPICalls = async () => {
     try {
