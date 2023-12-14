@@ -9,6 +9,7 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 
 const Admin = () => {
   const { user } = useContext(UserContext)
+  const { userRequests } = useContext(AppContext)
   const [cookies] = useCookies(['token']);
   const navigate = useNavigate();
   const { isDebuggerActive, toggleDebugger } = useContext(AppContext);
@@ -16,6 +17,9 @@ const Admin = () => {
   if (!user || user.role !== 'admin') {
     return <Navigate to={'/'} replace />
   }
+
+  useEffect(() => {
+  },[userRequests])
 
   return (
     <div className="inline-block w-full h-auto">
@@ -49,7 +53,10 @@ const Admin = () => {
           to="/admin/users"
           className="w-3/4 block mx-auto relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
         >
-          <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Utilisateurs</span>
+          <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition duration-300 -translate-y-2.5 group-hover:-translate-y-0">Utilisateurs</span>
+          {userRequests && userRequests.length > 0 && (
+            <div className="absolute z-[3] right-0 -top-2 translate-x-1 translate-y-1 w-4 h-4 border-2 border-black rounded-full bg-flat-red transition duration-300 group-hover:translate-y-2.5"></div>
+          )}
         </Link>
         <Link
           to="/admin/settings"

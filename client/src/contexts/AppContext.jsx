@@ -13,12 +13,14 @@ export const AppProvider = ({ children }) => {
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [apiCalls, setApiCalls] = useState({});
-  const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug === 'true');
+  const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug || false);
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
+  const [userRequests, setUserRequests] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
+      fetchUsersRequests()
     }
   }, [user, isAuthenticated]);
 
@@ -39,6 +41,19 @@ export const AppProvider = ({ children }) => {
     }
   }
 
+  const fetchUsersRequests = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/admin/users/requests`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setUserRequests(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const toggleDebugger = () => {
     setIsDebuggerActive(!isDebuggerActive);
   };
@@ -48,7 +63,7 @@ export const AppProvider = ({ children }) => {
   };
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests }}>
       {children}
     </AppContext.Provider>
   );

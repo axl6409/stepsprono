@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
 import ConfirmationModal from "../partials/ConfirmationModal.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const { userRequests } = useContext(AppContext)
   const [cookies] = useCookies(['token']);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState(null);
   const [modalAnimation, setModalAnimation] = useState('');
   const token = localStorage.getItem('token') || cookies.token
+  const [requests, setRequests] = useState([]);
 
   const fetchUsers = async () => {
     try {
@@ -30,7 +33,13 @@ const AdminUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [userRequests]);
+
+  useEffect(() => {
+    if (userRequests && userRequests.length > 0) {
+      setRequests(userRequests);
+    }
+  }, [userRequests])
 
   const handleDeleteUser = (userId) => {
     setShowConfirmationModal(true)
@@ -59,12 +68,21 @@ const AdminUsers = () => {
     setTimeout(() => setShowConfirmationModal(false), 500);
   };
 
+  const getRequestForUser = (userId) => {
+    return requests.find(request => request.id === userId);
+  };
+
   return (
     <div className="py-3.5 px-6 pr-0 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
       <ul className="flex flex-col justify-start">
-        {users.map(user => (
+        {users.map(user => {
+          const request = getRequestForUser(user.id)
+
+          return (
           <li className="flex flex-row justify-between" key={user.id}>
-            <p className="username font-title font-bold text-xl leading-6 border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">{user.username}</p>
+            <p className="username relative font-title font-bold text-xl leading-6 border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">
+              {user.username}
+            </p>
             <div className="flex flex-row">
                 <Link to={`/admin/users/edit/${user.id}`}
                   className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
@@ -83,7 +101,8 @@ const AdminUsers = () => {
                 </button>
             </div>
           </li>
-        ))}
+          )}
+        )}
       </ul>
       {showConfirmationModal && (
         <div className={`modal ${modalAnimation} fixed z-[30] top-32 left-0 right-0`}>

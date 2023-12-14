@@ -14,6 +14,7 @@ export default {
         'electric-blue': '#7DF9FF',
         'flat-blue': '#3300FF',
         'flat-purple': '#FF00F5',
+        'deep-purple': '#b40cd6',
         'flat-red': '#FF4911',
         'light-red': '#FF6B6B',
         'deep-red': '#c40404',
