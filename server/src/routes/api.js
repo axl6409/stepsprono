@@ -83,7 +83,15 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
 });
 router.get('/admin/user/:id', authenticateJWT, async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id, {
+      include: [{
+        model: Role,
+        as: 'Roles'
+      }]
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message })
@@ -125,6 +133,15 @@ router.get('/admin/users/requests', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     const users = await User.findAll({ where: { status: 'pending' } });
     res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+router.get('/admin/roles', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const roles = await Role.findAll();
+    res.json(roles);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -706,9 +723,10 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password } = req.body
+    const { username, email, password, role } = req.body
     if (username) user.username = username
     if (email) user.email = email
+    if (role) user.role = role
     if (password) user.password = await bcrypt.hash(password, 10)
     if (req.file) {
       const imagePath = req.file.path;
