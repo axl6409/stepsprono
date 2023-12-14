@@ -723,10 +723,9 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password, role } = req.body
+    const { username, email, password, roleName } = req.body
     if (username) user.username = username
     if (email) user.email = email
-    if (role) user.role = role
     if (password) user.password = await bcrypt.hash(password, 10)
     if (req.file) {
       const imagePath = req.file.path;
@@ -746,6 +745,13 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
 
       const relativePath = req.file.path.split('client')[1]
       user.img = relativePath
+    }
+    if (roleName) {
+      const role = await Role.findOne({ where: { name: roleName } });
+      if (role) {
+        await user.setRoles([role])
+        user.status = 'approved'
+      }
     }
 
     await user.save()

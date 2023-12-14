@@ -47,12 +47,16 @@ export const AppProvider = ({ children }) => {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
-      });
-      setUserRequests(response.data);
+      })
+      setUserRequests(response.data)
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
   }
+
+  const refreshUserRequests = async () => {
+    await fetchUsersRequests();
+  };
 
   const toggleDebugger = () => {
     setIsDebuggerActive(!isDebuggerActive);
@@ -63,7 +67,7 @@ export const AppProvider = ({ children }) => {
   };
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests }}>
       {children}
     </AppContext.Provider>
   );

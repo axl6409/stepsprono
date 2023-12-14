@@ -7,6 +7,7 @@ import {Link, useParams} from "react-router-dom";
 import BackButton from "../nav/BackButton.jsx";
 import StatusModal from "../partials/modals/StatusModal.jsx";
 import {UserContext} from "../../contexts/UserContext.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const EditUser = () => {
@@ -28,6 +29,7 @@ const EditUser = () => {
   const [updateMessage, setUpdateMessage] = useState('');
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(userEdited.role);
+  const { refreshUserRequests } = useContext(AppContext);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -74,7 +76,7 @@ const EditUser = () => {
     const formData = new FormData();
     formData.append('username', userEdited.username);
     formData.append('email', userEdited.email);
-    formData.append('role', selectedRole);
+    formData.append('roleName', selectedRole);
     if (showPasswordFields) {
       formData.append('password', userEdited.password);
       formData.append('confirmPassword', userEdited.confirmPassword);
@@ -95,8 +97,10 @@ const EditUser = () => {
         setUpdateStatus(true);
         setUpdateMessage('Utilisateur modifié avec succès');
         setIsModalOpen(true)
+        refreshUserRequests()
         setTimeout(function () {
           closeModal()
+          history.back()
         }, 1500)
       } else {
         setUpdateStatus(false);

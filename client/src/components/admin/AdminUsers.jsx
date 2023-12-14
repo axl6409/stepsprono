@@ -3,7 +3,7 @@ import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import ConfirmationModal from "../partials/ConfirmationModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
@@ -32,8 +32,8 @@ const AdminUsers = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, [userRequests]);
+    fetchUsers()
+  }, []);
 
   useEffect(() => {
     if (userRequests && userRequests.length > 0) {

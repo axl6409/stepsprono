@@ -29,7 +29,9 @@ const Dashboard = () => {
 
       <div>
         {isAuthenticated && user && user.role !== 'visitor' ? (
-          <CurrentBets user={user} token={token} />
+          <>
+            <CurrentBets user={user} token={token} />
+          </>
         ) : (
           <>
             <div className="">
