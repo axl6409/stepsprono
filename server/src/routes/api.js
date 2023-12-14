@@ -13,6 +13,7 @@ const {mkdirSync} = require("fs");
 require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
+const { getCronTasks } = require("../../cronJob");
 const {updateMatchStatusAndPredictions} = require("../controllers/matchController");
 const {updateTeamsRanking} = require("../controllers/teamController");
 const {getAPICallsCount} = require("../controllers/appController");
@@ -472,6 +473,14 @@ router.get('/app/api/calls', authenticateJWT, async (req, res) => {
   try {
     const calls = await getAPICallsCount();
     res.status(200).json({ calls });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {
+  try {
+    const cronJobs = await getCronTasks();
+    res.status(200).json({ cronJobs });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

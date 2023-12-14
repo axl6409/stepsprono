@@ -18,9 +18,14 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal } = useContext(AppContext);
+  const [cookies] = useCookies(['token']);
+  const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
-  const [isDebuggerOpen, setIsDebuggerOpen] = useState(true);
+  const [debugEnabled, setDebugEnabled] = useState(false);
+
+  const [cronTasks, setCronTasks] = useState([]);
   let cleanImageUrl = '/src/assets/react.svg'
 
   if (isAuthenticated && user) {
@@ -32,14 +37,31 @@ const UserMenu = () => {
   }
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const debugCookie = cookies.debug === 'true';
+    setDebugEnabled(debugCookie);
+  }, [])
+
+  useEffect(() => {
+    const fetchCronJobs = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/app/cron-jobs/scheduled`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setCronTasks(response.data.cronJobs);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des tâches cron', error);
+      }
+    }
+    if (isAuthenticated && user && user.role === 'admin') {
+      fetchCronJobs()
+    }
+  }, [user, isAuthenticated]);
+
   const handleLogout = () => {
     logout();
     setIsOpen(false);
     navigate('/');
-  };
-
-  const toggleDebugger = () => {
-    setIsDebuggerOpen(!isDebuggerOpen);
   };
 
   return (
@@ -179,16 +201,16 @@ const UserMenu = () => {
         </div>
       </nav>
     </header>
-    {user.role === 'admin' && (
-      <div className={`debugger fixed z-[80] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
+    {isAuthenticated && user && user.role === 'admin' && isDebuggerActive && (
+      <div className={`debugger fixed z-[80] max-w-[94%] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
         <button
-          className={`absolute z-[2] block h-5 top-0 -left-4 bg-black w-4 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'} focus:outline-none`}
-          onClick={toggleDebugger}
+          className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black focus:outline-none`}
+          onClick={toggleDebuggerModal}
         >
-          <FontAwesomeIcon icon={faChevronLeft} className="text-green-lime-deep text-xs inline-block align-[0]" />
+          <FontAwesomeIcon icon={faChevronLeft} className={`text-green-lime-deep text-xs inline-block align-[0] transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'}`} />
         </button>
         <div className="bg-black px-2 py-2 relative z-[2] flex flex-col">
-          <div className="flex flex-row">
+          <div className="flex flex-row mb-2">
             <button
               onClick={() => fetchAPICalls() }
               className="relative block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
@@ -207,6 +229,15 @@ const UserMenu = () => {
               <span className="inline-block">/</span>
               <span className="inline-block">{apiCalls.limit_day}</span>
             </p>
+          </div>
+          <div className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
+            <ul className="flex flex-col w-max">
+              {cronTasks && cronTasks.length > 0 ? (
+                cronTasks.map((task, index) => <li key={index}><p className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p></li>)
+              ) : (
+                <p>Aucune tâche programmée</p>
+              )}
+            </ul>
           </div>
         </div>
       </div>

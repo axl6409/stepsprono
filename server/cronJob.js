@@ -29,13 +29,24 @@ function levenshtein(a, b) {
   return matrix[bn][an]; // Retourne le coût de Levenshtein à partir de la dernière cellule de la matrice
 }
 
+const getCronTasks = () => {
+  return [
+    { schedule: '01 00 2 2 *', task: 'updateTeams - Mercato winter' },
+    { schedule: '01 00 2 6 *', task: 'updateTeams - Mercato summer' },
+    { schedule: '03 00 * * *', task: 'updatePlayers - Every day at 00h03' },
+    { schedule: '05 00 * * *', task: 'updateTeamsRanking - Every day at 00h05' },
+    { schedule: '07 00 * * *', task: 'updateMatches - Every day at 00h07' },
+    { schedule: '30 00 * * 1', task: 'fetchWeekMatches - Every Mondays at 00h30' },
+  ];
+};
+
 const runCronJob = () => {
-  cron.schedule('01 00 2 2 *', updateTeams) // Mercato winter
-  cron.schedule('01 00 2 6 *', updateTeams) // Mercato summer
+  cron.schedule('01 00 2 2 *', updateTeams)
+  cron.schedule('01 00 2 6 *', updateTeams)
   cron.schedule('03 00 * * *', updatePlayers)
   cron.schedule('05 00 * * *', updateTeamsRanking)
   cron.schedule('07 00 * * *', updateMatches)
   cron.schedule('30 00 * * 1', fetchWeekMatches)
 }
 
-module.exports = { runCronJob, updateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };
+module.exports = { runCronJob, getCronTasks, updateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };

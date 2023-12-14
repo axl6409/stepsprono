@@ -9,16 +9,22 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useContext(UserContext);
-  const [cookies, removeCookie, clearCookie] = useCookies(['token']);
+  const { user, isAuthenticated } = useContext(UserContext);
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [apiCalls, setApiCalls] = useState({});
+  const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug === 'true');
+  const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
 
-  if (user.role === 'admin') {
-      useEffect(() => {
-        fetchAPICalls();
-      }, [])
-  }
+  useEffect(() => {
+    if (isAuthenticated && user && user.role === 'admin') {
+      fetchAPICalls();
+    }
+  }, [user, isAuthenticated]);
+
+  useEffect(() => {
+    setCookie('debug', isDebuggerActive, { path: '/' });
+  }, [isDebuggerActive, setCookie]);
 
   const fetchAPICalls = async () => {
     try {
@@ -27,15 +33,22 @@ export const AppProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
         }
       });
-      const data = await response;
-      setApiCalls(data.data.calls.response.requests);
+      setApiCalls(response.data.calls.response.requests);
     } catch (error) {
       console.error(error);
     }
   }
 
+  const toggleDebugger = () => {
+    setIsDebuggerActive(!isDebuggerActive);
+  };
+
+  const toggleDebuggerModal = () => {
+    setIsDebuggerOpen(!isDebuggerOpen);
+  };
+
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal }}>
       {children}
     </AppContext.Provider>
   );
