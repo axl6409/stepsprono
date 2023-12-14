@@ -19,6 +19,9 @@ import Settings from "./pages/admin/Settings.jsx";
 import UserSettings from "./pages/user/UserSettings.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
 import Reglement from "./pages/Reglement.jsx";
+import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
+import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
+import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
 
 const App = () => {
   moment.updateLocale('fr', {})
@@ -43,7 +46,9 @@ const App = () => {
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
-            <Route path="/admin/teams" element={<ProtectedRoute component={Teams} />} />
+            <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
+            <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
+            <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
           </Routes>
         </div>
       </Router>

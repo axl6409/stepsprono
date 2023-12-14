@@ -66,7 +66,16 @@ async function updateMatches() {
   }
 }
 
-async function updateMatchStatusAndPredictions(matchId) {
+async function updateMatchStatusAndPredictions(matchIds) {
+  if (!Array.isArray(matchIds)) {
+    matchIds = [matchIds];
+  }
+  for (const matchId of matchIds) {
+    await updateSingleMatch(matchId);
+  }
+}
+
+async function updateSingleMatch(matchId) {
   try {
     const options = {
       method: 'GET',

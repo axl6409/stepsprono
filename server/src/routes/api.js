@@ -13,6 +13,9 @@ const {mkdirSync} = require("fs");
 require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
+const {updateMatchStatusAndPredictions} = require("../controllers/matchController");
+const {updateTeamsRanking} = require("../controllers/teamController");
+const {getAPICallsCount} = require("../controllers/appController");
 
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
@@ -95,6 +98,25 @@ router.get('/admin/settings', authenticateJWT, async (req, res) => {
     res.json(settings);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+router.get('/admin/matchs/to-update', authenticateJWT, async (req, res) => {
+  try {
+    const matchs = await Match.findAndCountAll({
+      where: {
+        scorers: null,
+        status: "FT",
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    res.json({
+      data: matchs.rows,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
 router.get('/settings/reglement', authenticateJWT, async (req, res) => {
@@ -446,7 +468,14 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 });
-
+router.get('/app/api/calls', authenticateJWT, async (req, res) => {
+  try {
+    const calls = await getAPICallsCount();
+    res.status(200).json({ calls });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
@@ -727,5 +756,41 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de soumettre la requête ' + error })
   }
 })
+router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) => {
+  try {
+    const matchId = req.params.id
+    if (isNaN(matchId)) {
+      return res.status(400).json({ message: 'Identifiant de match non valide' });
+    }
+    const match = await Match.findByPk(matchId)
+    if (!match) return res.status(404).json({error: 'Match non trouvé' })
+    await updateMatchStatusAndPredictions(match.id)
+    res.status(200).json({ message: 'Match mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
+  try {
+    await updateTeamsRanking()
+    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
+  try {
+    const teamId = req.params.id
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await updateTeamsRanking(team.id)
+    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
 
 module.exports = router;

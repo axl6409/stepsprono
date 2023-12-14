@@ -33,7 +33,7 @@ const Matchs = () => {
         <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Matchs</span>
       </h1>
       <div className="px-4 relative">
-        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Ce Weekend</h2>
+        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Cette semaine</h2>
         <Week token={token} user={user}/>
       </div>
       <div className="px-4 relative my-8">

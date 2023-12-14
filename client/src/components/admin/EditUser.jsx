@@ -66,7 +66,7 @@ const EditUser = () => {
     }
 
     try {
-      const response = await axios.put(`${apiUrl}/api/admin/user/update/${id}`, formData, {
+      const response = await axios.patch(`${apiUrl}/api/admin/user/update/${id}`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

@@ -54,8 +54,11 @@ export default {
         'flat-black': '3px 4px 0 rgba(0,0,0,1);',
         'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1);',
         'flat-black-adjust-50': '2px 2px 0 rgba(0,0,0,0.5);',
+        'flat-black-middle': '0px 4px 0 4px rgba(0,0,0,1);',
         'flat-purple': '3px 4px 0 rgba(255,0,245,1);',
         'flat-purple-adjust': '2px 2px 0 rgba(255,0,245,1);',
+        'flat-lime': '3px 4px 0 rgba(0,255,0,1);',
+        'flat-lime-adjust': '2px 2px 0 rgba(0,255,0,1);',
         'inner-black-light': 'inset 0px 5px 5px 5px rgba(0,0,0,0.5);',
       },
       translate: {

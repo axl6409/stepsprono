@@ -86,7 +86,7 @@ async function updateTeams() {
   }
 }
 
-async function updateTeamsRanking() {
+async function updateTeamsRanking(teamId = null) {
   try {
     const options = {
       method: 'GET',
@@ -101,13 +101,25 @@ async function updateTeamsRanking() {
       }
     };
     const response = await axios.request(options);
-    const teams = response.data.response[0].league.standings[0]
-    for (const team of teams) {
-      await Team.update({
-        position: team.rank,
-      }, {
-        where: { id: team.team.id }
-      });
+    const teams = response.data.response[0].league.standings[0];
+
+    if (teamId) {
+      const teamToUpdate = teams.find(team => team.team.id === teamId);
+      if (teamToUpdate) {
+        await Team.update({
+          position: teamToUpdate.rank,
+        }, {
+          where: { id: teamId }
+        });
+      }
+    } else {
+      for (const team of teams) {
+        await Team.update({
+          position: team.rank,
+        }, {
+          where: { id: team.team.id }
+        });
+      }
     }
   } catch (error) {
     console.log('Erreur lors de la mise à jour des données:', error);
