@@ -9,11 +9,8 @@ import {useCookies} from "react-cookie";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
-  const [cookies] = useCookies(['token']);
-  const token = localStorage.getItem('token') || cookies.token
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useContext(UserContext);
-  const [apiCalls, setApiCalls] = useState({});
   let cleanImageUrl = '/src/assets/react.svg'
 
   if (isAuthenticated && user) {
@@ -25,25 +22,7 @@ const UserMenu = () => {
   }
   const navigate = useNavigate();
 
-  const fetchAPICalls = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/app/api/calls`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      const data = await response;
-      setApiCalls(data.data.calls.response.requests);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
-  if (user.role === 'admin') {
-    useEffect(() => {
-      fetchAPICalls();
-    }, [])
-  }
 
   const handleLogout = () => {
     logout();
