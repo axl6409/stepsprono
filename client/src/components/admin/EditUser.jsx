@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -6,10 +6,13 @@ import {faCaretLeft, faCircleXmark, faPen} from "@fortawesome/free-solid-svg-ico
 import {Link, useParams} from "react-router-dom";
 import BackButton from "../nav/BackButton.jsx";
 import StatusModal from "../partials/modals/StatusModal.jsx";
+import {UserContext} from "../../contexts/UserContext.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const EditUser = () => {
-  const [user, setUser] = useState({
+  const { user } = useContext(UserContext)
+  const [userEdited, setUserEdited] = useState({
     username: '',
     email: '',
     password: '',
@@ -24,6 +27,9 @@ const EditUser = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(userEdited.role);
+  const { refreshUserRequests } = useContext(AppContext);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -31,38 +37,52 @@ const EditUser = () => {
         const response = await axios.get(`${apiUrl}/api/admin/user/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const correctedAvatarUrl = response.data.img
-        if (response.data.img) {
-          const correctedAvatarUrl = response.data.img.replace(/\\/g, '/');
-        }
-        setUser({ ...response.data, avatarUrl: `${correctedAvatarUrl}`, password: '', confirmPassword: '' });
+        const userData = response.data;
+        const correctedAvatarUrl = userData.img ? userData.img.replace(/\\/g, '/') : '';
+        setUserEdited({ ...userData, avatarUrl: correctedAvatarUrl, password: '', confirmPassword: '' });
+        setSelectedRole(userData.Roles[0].name);
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
       }
     };
-
     fetchUser();
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/admin/roles`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setRoles(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la sélection des roles', error);
+      }
+    }
+    fetchRoles()
   }, [id, token]);
 
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.id]: e.target.value });
+    if (e.target.id === 'role') {
+      setSelectedRole(e.target.value);
+    } else {
+      setUserEdited({ ...userEdited, [e.target.id]: e.target.value });
+    }
   };
 
   const handleFileChange = (e) => {
-    setUser({ ...user, avatar: e.target.files[0] });
+    setUserEdited({ ...userEdited, avatar: e.target.files[0] });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('username', user.username);
-    formData.append('email', user.email);
+    formData.append('username', userEdited.username);
+    formData.append('email', userEdited.email);
+    formData.append('roleName', selectedRole);
     if (showPasswordFields) {
-      formData.append('password', user.password);
-      formData.append('confirmPassword', user.confirmPassword);
+      formData.append('password', userEdited.password);
+      formData.append('confirmPassword', userEdited.confirmPassword);
     }
-    if (user.avatar) {
-      formData.append('avatar', user.avatar);
+    if (userEdited.avatar) {
+      formData.append('avatar', userEdited.avatar);
     }
 
     try {
@@ -77,8 +97,10 @@ const EditUser = () => {
         setUpdateStatus(true);
         setUpdateMessage('Utilisateur modifié avec succès');
         setIsModalOpen(true)
+        refreshUserRequests()
         setTimeout(function () {
           closeModal()
+          history.back()
         }, 1500)
       } else {
         setUpdateStatus(false);
@@ -105,19 +127,37 @@ const EditUser = () => {
       )}
       <BackButton/>
       <p className="font-sans font-bold text-md uppercase text-center">Modification du compte</p>
-      <h1 className="text-3xl font-black mb-8 uppercase relative w-fit mx-auto">{user.username}
-        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">{user.username}</span>
-        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">{user.username}</span>
+      <h1 className="text-3xl font-black mb-8 uppercase relative w-fit mx-auto">{userEdited.username}
+        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">{userEdited.username}</span>
+        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">{userEdited.username}</span>
       </h1>
       <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-8 border-2 border-black shadow-flat-black">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col my-4">
             <label htmlFor="username" className="font-title font-bold text-xl">Nom d'utilisateur</label>
-            <input type="text" id="username" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={user.username} onChange={handleChange} />
+            <input type="text" id="username" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={userEdited.username} onChange={handleChange} />
           </div>
           <div className="flex flex-col my-4">
             <label htmlFor="email" className="font-title font-bold text-xl">Email</label>
-            <input type="email" id="email" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={user.email} onChange={handleChange} />
+            <input type="email" id="email" className="border-2 border-black shadow-flat-black px-4 py-1 text-sm" value={userEdited.email} onChange={handleChange} />
+          </div>
+          <div className="flex flex-col my-4">
+            <label htmlFor="role">Rôle</label>
+            <select
+              name="role"
+              id="role"
+              className="w-full py-2 px-4 font-sans text-sm uppercase border-2 border-black shadow-flat-black"
+              onChange={handleChange}
+              value={selectedRole}
+            >
+              {roles.map((role) => {
+                if (userEdited.role === role.name) {
+                  return <option key={role.id} value={role.name}>{role.name}</option>
+                } else if (role.name !== 'admin') {
+                  return <option key={role.id} value={role.name}>{role.name}</option>
+                }
+              })}
+            </select>
           </div>
           <button
             type="button"
@@ -142,7 +182,7 @@ const EditUser = () => {
             <input type="file" id="avatar"
                className="block w-full font-sans text-sm text-black cursor-pointer file:me-4 file:py-2 file:px-4 file:cursor-pointer file:border-2 file:border-solid file:border-black file:text-sm file:font-bold file:bg-black file:text-white hover:file:bg-white hover:file:text-black file:disabled:opacity-50 file:disabled:pointer-events-none"
                onChange={handleFileChange} />
-            {user.avatarUrl && <div className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black"><img src={user.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto" /></div>}
+            {userEdited.avatarUrl && <div className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black"><img src={userEdited.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto" /></div>}
           </div>
           <button
             type="submit"

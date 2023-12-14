@@ -5,6 +5,7 @@
 /* Pour Chrome, Safari */
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
     box-shadow: none;
 }
 

@@ -130,10 +130,10 @@ const Week = ({token, user}) => {
                 <div className="w-full text-center flex flex-col justify-center px-6 py-2">
                   <p className="name font-sans text-base font-bold capitalize">{matchDate.format('DD MMMM')}
                     <span className="flex flex-row justify-center">
-                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('HH')}</span>
-                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('mm')}</span>
-                    <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('ss')}</span>
-                  </span>
+                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('HH')}</span>
+                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('mm')}</span>
+                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('ss')}</span>
+                    </span>
                   </p>
                 </div>
                 <div className="w-2/4 flex flex-col justify-center">

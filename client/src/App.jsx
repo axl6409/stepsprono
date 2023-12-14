@@ -19,34 +19,42 @@ import Settings from "./pages/admin/Settings.jsx";
 import UserSettings from "./pages/user/UserSettings.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
 import Reglement from "./pages/Reglement.jsx";
+import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
+import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
+import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
+import {AppProvider} from "./contexts/AppContext.jsx";
 
 const App = () => {
   moment.updateLocale('fr', {})
 
   return (
     <UserProvider>
-      <Router>
-        <Navbar />
-        <div className="container mx-auto pb-16">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
-            <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
-            <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
-            <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
-            <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
-            <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
-            <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
-            <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
-            <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
-            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
-            <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
-            <Route path="/admin/teams" element={<ProtectedRoute component={Teams} />} />
-          </Routes>
-        </div>
-      </Router>
+      <AppProvider>
+        <Router>
+          <Navbar />
+          <div className="container mx-auto pb-20">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+              <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
+              <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+              <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
+              <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
+              <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
+              <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
+              <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
+              <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
+              <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
+              <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
+              <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
+              <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
+              <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
+            </Routes>
+          </div>
+        </Router>
+      </AppProvider>
     </UserProvider>
   )
 }
