@@ -4,6 +4,7 @@ import logo from '/img/steps-prono-logo.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBars, faCircleUser, faRightFromBracket, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../../contexts/UserContext.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 import axios from "axios";
 import {useCookies} from "react-cookie";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
@@ -11,6 +12,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useContext(UserContext);
+  const { apiCalls } = useContext(AppContext);
   let cleanImageUrl = '/src/assets/react.svg'
 
   if (isAuthenticated && user) {
@@ -21,8 +23,6 @@ const UserMenu = () => {
     cleanImageUrl = profilImg.replace(/\\/g, '/').replace(/^\.\.\//, '').replace(/ /g, '%20');
   }
   const navigate = useNavigate();
-
-
 
   const handleLogout = () => {
     logout();

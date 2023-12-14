@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, {createContext, useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
+import {UserContext} from "./UserContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
@@ -8,6 +9,7 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useContext(UserContext);
   const [cookies, removeCookie, clearCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [apiCalls, setApiCalls] = useState({});
@@ -18,7 +20,7 @@ export const AppProvider = ({ children }) => {
         fetchAPICalls();
       }, [])
     }
-  }, [cookies]);
+  }, [cookies, user]);
 
   const fetchAPICalls = async () => {
     try {
@@ -35,7 +37,7 @@ export const AppProvider = ({ children }) => {
   }
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls }}>
       {children}
     </AppContext.Provider>
   );
