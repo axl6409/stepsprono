@@ -12,18 +12,21 @@ export const AppProvider = ({ children }) => {
   const { user, isAuthenticated } = useContext(UserContext);
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
-  const [apiCalls, setApiCalls] = useState({});
+  const [apiCalls, setApiCalls] = useState({ current: 0, limit_day: 0, error: false, error_message: '' });
   const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug || false);
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
   const [isCountDownOpen, setIsCountDownOpen] = useState(false);
   const [userRequests, setUserRequests] = useState([]);
+  const [matchsCronTasks, setMatchsCronTasks] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
       fetchUsersRequests()
+      fetchMatchsCronJobs();
     }
   }, [user, isAuthenticated]);
+
   useEffect(() => {
     setCookie('debug', isDebuggerActive, { path: '/' });
   }, [isDebuggerActive, setCookie]);
@@ -35,9 +38,24 @@ export const AppProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
         }
       });
-      setApiCalls(response.data.calls.response.requests);
+      if (response.data && response.data.calls && response.data.calls.response && response.data.calls.response.requests) {
+        setApiCalls({
+          current: response.data.calls.response.requests.current,
+          limit_day: response.data.calls.response.requests.limit_day,
+          error: false,
+          error_message: '',
+        });
+      } else {
+        setApiCalls({
+          error: true,
+          error_message: response.data.calls.errors.rateLimit,
+        });
+      }
     } catch (error) {
-      console.error(error);
+      setApiCalls({
+        error: true,
+        error_message: error,
+      })
     }
   }
   const fetchUsersRequests = async () => {
@@ -64,9 +82,19 @@ export const AppProvider = ({ children }) => {
   const toggleCountDownModal = () => {
     setIsCountDownOpen(!isCountDownOpen)
   }
+  const fetchMatchsCronJobs = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/admin/matchs/cron-tasks`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setMatchsCronTasks(response.data.tasks);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des tâches cron', error);
+    }
+  }
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownOpen, toggleCountDownModal }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs }}>
       {children}
     </AppContext.Provider>
   );

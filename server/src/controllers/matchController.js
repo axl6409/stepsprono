@@ -7,6 +7,7 @@ const cron = require("node-cron");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
+let cronTasks = [];
 
 async function updateMatches() {
   try {
@@ -209,16 +210,25 @@ async function fetchWeekMatches() {
       const minute = updateTime.getMinutes();
       const cronTime = `${minute} ${hour} ${day} ${month} *`;
       console.log(cronTime + ' | ' + match.id)
+      cronTasks.push({
+        cronTime: cronTime,
+        id: match.id
+      })
       cron.schedule(cronTime, () => updateMatchStatusAndPredictions(match.id))
     });
+    return cronTasks
   } catch (error) {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);
   }
 }
 
+function getMatchsCronTasks() {
+  return cronTasks
+}
 
 module.exports = {
   updateMatches,
   updateMatchStatusAndPredictions,
   fetchWeekMatches,
+  getMatchsCronTasks,
 };

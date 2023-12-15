@@ -8,10 +8,12 @@ import axios from "axios";
 import moment from "moment";
 import ConfirmationModal from "../../partials/ConfirmationModal.jsx";
 import StatusModal from "../../partials/modals/StatusModal.jsx";
+import {AppContext} from "../../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminMatchs = () => {
   const { user } = useContext(UserContext)
+  const { fetchMatchsCronJobs } = useContext(AppContext)
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [matchs, setMatchs] = useState([]);
@@ -55,7 +57,6 @@ const AdminMatchs = () => {
         }, 1500)
       } else {
         setUpdateStatus(false);
-
         setUpdateMessage('Erreur lors de la mise à jour du match : ' + response.data.message);
         setIsModalOpen(true)
       }
@@ -66,6 +67,33 @@ const AdminMatchs = () => {
       setIsModalOpen(true)
     }
   };
+
+  const handleProgramMatchsTasks = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/admin/matchs/program-tasks`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        await fetchMatchs()
+        setUpdateStatus(true);
+        setUpdateMessage('Programmation des matchs effectuée avec succès');
+        setIsModalOpen(true)
+        fetchMatchsCronJobs()
+        setTimeout(function () {
+          closeModal()
+        }, 1500)
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors de la programmation des match : ' + response.data.message);
+        setIsModalOpen(true)
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      console.log(error)
+      setUpdateMessage('Erreur lors de la programmation des match : ' + error.response.data.message);
+      setIsModalOpen(true)
+    }
+  }
 
   const handleUpdateAll = async () => {
     try {

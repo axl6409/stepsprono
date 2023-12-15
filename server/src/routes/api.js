@@ -14,7 +14,7 @@ require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
-const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches} = require("../controllers/matchController");
+const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
 const {updateTeamsRanking} = require("../controllers/teamController");
 const {getAPICallsCount} = require("../controllers/appController");
 
@@ -151,6 +151,15 @@ router.get('/admin/matchs/program-tasks', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
     await fetchWeekMatches();
     res.status(200).json({ message: 'Programmation des matchs effectuée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });
+  }
+})
+router.get('/admin/matchs/cron-tasks', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    const cronTasks = await getMatchsCronTasks();
+    res.status(200).json({ tasks: cronTasks });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });
   }
@@ -839,6 +848,20 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
   }
 });
 router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
+  try {
+    const teamId = req.params.id
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await updateTeamsRanking(team.id)
+    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
   try {
     const teamId = req.params.id
     if (isNaN(teamId)) {

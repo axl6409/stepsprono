@@ -18,14 +18,13 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownOpen, toggleCountDownModal } = useContext(AppContext);
+  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
   const [countdown, setCountdown] = useState('');
-
   const [cronTasks, setCronTasks] = useState([]);
   let cleanImageUrl = '/src/assets/react.svg'
 
@@ -80,8 +79,10 @@ const UserMenu = () => {
         console.error('Erreur lors de la récupération des tâches cron', error);
       }
     }
+
     if (isAuthenticated && user && user.role === 'admin') {
       fetchCronJobs()
+      fetchMatchsCronJobs()
     }
   }, [user, isAuthenticated]);
 
@@ -247,15 +248,21 @@ const UserMenu = () => {
               <FontAwesomeIcon icon={faArrowsRotate}/>
             </span>
             </button>
-            <p className="font-title font-bold text-green-lime-deep leading-4 my-auto">
+            <p className="font-title font-bold text-green-lime-deep leading-4 my-auto w-[200px]">
               <span className="inline-block mr-0.5">API Calls : </span>
-              <span className={`inline-block font-bold ${
-                apiCalls.current >= (3 / 4 * apiCalls.limit_day) ? 'text-red-600' :
-                  apiCalls.current >= (1 / 3 * apiCalls.limit_day) ? 'text-orange-500' :
-                    'text-green-lime-deep'
-              }`}>{apiCalls.current}</span>
-              <span className="inline-block">/</span>
-              <span className="inline-block">{apiCalls.limit_day}</span>
+              {apiCalls.current !== undefined ? (
+                <>
+                  <span className={`inline-block font-bold ${
+                    apiCalls.current >= (3 / 4 * apiCalls.limit_day) ? 'text-red-600' :
+                      apiCalls.current >= (1 / 3 * apiCalls.limit_day) ? 'text-orange-500' :
+                        'text-green-lime-deep'
+                  }`}>{apiCalls.current}</span>
+                  <span className="inline-block">/</span>
+                  <span className="inline-block">{apiCalls.limit_day}</span>
+                </>
+              ) : (
+                <span className="inline-block">{apiCalls.error_message}</span>
+              )}
             </p>
           </div>
           <div>
@@ -278,9 +285,9 @@ const UserMenu = () => {
             <div
               className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
               <ul className="flex flex-col w-max">
-                {cronTasks && cronTasks.length > 0 ? (
-                  cronTasks.map((task, index) => <li key={index}><p
-                    className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p>
+                {matchsCronTasks && matchsCronTasks.length > 0 ? (
+                  matchsCronTasks.map((task, index) => <li key={index}><p
+                    className="font-sans text-xxs text-green-lime-deep font-light">{task.id} - {task.cronTime}</p>
                   </li>)
                 ) : (
                   <p>Aucune tâche programmée</p>
@@ -291,9 +298,8 @@ const UserMenu = () => {
         </div>
       </div>
     )}
-      {isAuthenticated && user && user.role !== 'visitor' && (
-        <div
-          className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+    {isAuthenticated && user && user.role !== 'visitor' && (
+      <div className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
           {!countdown.expired && (
             <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
           )}
