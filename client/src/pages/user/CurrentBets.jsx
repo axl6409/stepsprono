@@ -72,7 +72,7 @@ const CurrentBets = ({ user, token }) => {
                   <div key={index}
                        className="flex flex-row py-1 px-0.5 border-b last-of-type:border-0 border-black odd:bg-white even:bg-sky-50">
                     <div className="w-[5%] p-1">
-                      <p className="font-title text-base font-bold inline-block align-sub">{index}</p>
+                      <p className="font-title text-base font-bold inline-block align-sub">{index + 1}</p>
                     </div>
                     <div className="w-[25%] p-1">
                       <div className="flex flex-row justify-between">

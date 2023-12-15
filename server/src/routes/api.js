@@ -14,7 +14,7 @@ require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
-const {updateMatchStatusAndPredictions, updateMatches} = require("../controllers/matchController");
+const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches} = require("../controllers/matchController");
 const {updateTeamsRanking} = require("../controllers/teamController");
 const {getAPICallsCount} = require("../controllers/appController");
 
@@ -144,6 +144,15 @@ router.get('/admin/roles', authenticateJWT, async (req, res) => {
     res.json(roles);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+})
+router.get('/admin/matchs/program-tasks', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    await fetchWeekMatches();
+    res.status(200).json({ message: 'Programmation des matchs effectuée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });
   }
 })
 router.get('/settings/reglement', authenticateJWT, async (req, res) => {

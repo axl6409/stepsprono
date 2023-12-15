@@ -239,45 +239,69 @@ const UserMenu = () => {
         <div className="bg-black px-2 py-2 relative z-[2] flex flex-col">
           <div className="flex flex-row mb-2">
             <button
-              onClick={() => fetchAPICalls() }
+              onClick={() => fetchAPICalls()}
               className="relative block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
             >
-            <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-0.5 py-0.5 rounded text-center text-xs font-sans uppercase font-bold shadow-md bg-white transition translate-y-[-3px] translate-x-[-3px] group-hover:-translate-y-0 group-hover:-translate-x-0">
-              <FontAwesomeIcon icon={faArrowsRotate} />
+            <span
+              className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-0.5 py-0.5 rounded text-center text-xs font-sans uppercase font-bold shadow-md bg-white transition translate-y-[-3px] translate-x-[-3px] group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <FontAwesomeIcon icon={faArrowsRotate}/>
             </span>
             </button>
             <p className="font-title font-bold text-green-lime-deep leading-4 my-auto">
               <span className="inline-block mr-0.5">API Calls : </span>
               <span className={`inline-block font-bold ${
-                apiCalls.current >= (3/4 * apiCalls.limit_day) ? 'text-red-600' :
-                  apiCalls.current >= (1/3 * apiCalls.limit_day) ? 'text-orange-500' :
+                apiCalls.current >= (3 / 4 * apiCalls.limit_day) ? 'text-red-600' :
+                  apiCalls.current >= (1 / 3 * apiCalls.limit_day) ? 'text-orange-500' :
                     'text-green-lime-deep'
               }`}>{apiCalls.current}</span>
               <span className="inline-block">/</span>
               <span className="inline-block">{apiCalls.limit_day}</span>
             </p>
           </div>
-          <div className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
-            <ul className="flex flex-col w-max">
-              {cronTasks && cronTasks.length > 0 ? (
-                cronTasks.map((task, index) => <li key={index}><p className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p></li>)
-              ) : (
-                <p>Aucune tâche programmée</p>
-              )}
-            </ul>
+          <div>
+            <p className="font-title font-bold text-green-lime-deep">Cron Tasks</p>
+            <div
+              className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
+              <ul className="flex flex-col w-max">
+                {cronTasks && cronTasks.length > 0 ? (
+                  cronTasks.map((task, index) => <li key={index}><p
+                    className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p>
+                  </li>)
+                ) : (
+                  <p>Aucune tâche programmée</p>
+                )}
+              </ul>
+            </div>
+          </div>
+          <div>
+            <p className="font-title font-bold text-green-lime-deep">Next Matchs Updates</p>
+            <div
+              className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
+              <ul className="flex flex-col w-max">
+                {cronTasks && cronTasks.length > 0 ? (
+                  cronTasks.map((task, index) => <li key={index}><p
+                    className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p>
+                  </li>)
+                ) : (
+                  <p>Aucune tâche programmée</p>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     )}
-    {isAuthenticated && user && user.role !== 'visitor' && (
-      <div className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
-        {!countdown.expired && (
-          <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
-        )}
-        <p className="font-sans text-sm text-white text-center">
-          {!countdown.expired ? (
-            <>
-              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+      {isAuthenticated && user && user.role !== 'visitor' && (
+        <div
+          className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+          {!countdown.expired && (
+            <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
+          )}
+          <p className="font-sans text-sm text-white text-center">
+            {!countdown.expired ? (
+              <>
+                <span
+                  className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
               <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
               <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
             </>
