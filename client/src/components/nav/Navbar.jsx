@@ -270,8 +270,10 @@ const UserMenu = () => {
       </div>
     )}
     {isAuthenticated && user && user.role !== 'visitor' && (
-      <div className={`fixed z-[70] top-20 left-0 px-2 py-1 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
-        <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
+      <div className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+        {!countdown.expired && (
+          <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
+        )}
         <p className="font-sans text-sm text-white text-center">
           {!countdown.expired ? (
             <>
@@ -280,7 +282,7 @@ const UserMenu = () => {
               <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
             </>
           ) : (
-            <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">{countdown}</span>
+            <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
           )}
         </p>
         <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>

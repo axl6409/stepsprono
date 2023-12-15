@@ -32,7 +32,7 @@ const Week = ({token, user}) => {
   const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
+  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
@@ -114,9 +114,9 @@ const Week = ({token, user}) => {
         >
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
-            const isMatchInFuture = matchDate.isAfter(simulatedNow);
+            const isMatchInFuture = matchDate.isAfter(now);
             const hasBet = isBetPlaced(match.id)
-            const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
+            const isAfterFridayNoon = now.isAfter(nextFridayAtNoon)
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
@@ -145,7 +145,7 @@ const Week = ({token, user}) => {
                   <p>{match.AwayTeam.name}</p>
                 </div>
                 {!isVisitor && (
-                  !hasBet && (isMatchInFuture || isBeforeNextFriday) ? (
+                  !hasBet && (isMatchInFuture || isBeforeNextFriday) && !isAfterFridayNoon ? (
                     <button
                       className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
                       onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
@@ -159,7 +159,7 @@ const Week = ({token, user}) => {
                     <div
                       className="relative mt-8 mx-auto block h-fit"
                     >
-                      <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
+                      <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-deep-red">
                         Trop tard !
                       </span>
                     </div>
