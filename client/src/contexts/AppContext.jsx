@@ -15,6 +15,7 @@ export const AppProvider = ({ children }) => {
   const [apiCalls, setApiCalls] = useState({});
   const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug || false);
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
+  const [isCountDownOpen, setIsCountDownOpen] = useState(false);
   const [userRequests, setUserRequests] = useState([]);
 
   useEffect(() => {
@@ -23,7 +24,6 @@ export const AppProvider = ({ children }) => {
       fetchUsersRequests()
     }
   }, [user, isAuthenticated]);
-
   useEffect(() => {
     setCookie('debug', isDebuggerActive, { path: '/' });
   }, [isDebuggerActive, setCookie]);
@@ -40,7 +40,6 @@ export const AppProvider = ({ children }) => {
       console.error(error);
     }
   }
-
   const fetchUsersRequests = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/admin/users/requests`, {
@@ -53,21 +52,21 @@ export const AppProvider = ({ children }) => {
       console.error(error)
     }
   }
-
   const refreshUserRequests = async () => {
     await fetchUsersRequests();
   };
-
   const toggleDebugger = () => {
     setIsDebuggerActive(!isDebuggerActive);
   };
-
   const toggleDebuggerModal = () => {
     setIsDebuggerOpen(!isDebuggerOpen);
   };
+  const toggleCountDownModal = () => {
+    setIsCountDownOpen(!isCountDownOpen)
+  }
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownOpen, toggleCountDownModal }}>
       {children}
     </AppContext.Provider>
   );

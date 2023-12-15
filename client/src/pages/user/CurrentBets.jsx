@@ -35,17 +35,21 @@ const CurrentBets = ({ user, token }) => {
   return (
     <div>
       <div className="flex flex-row">
-        <div className="flex flex-col w-fit px-4 py-2 bg-electric-blue border-2 border-black shadow-flat-black">
+        <div className="flex flex-col w-fit px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
           <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la semaine</p>
-          <p className="font-title text-xl font-bold leading-5">{weekPoints}</p>
+          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
+            <p className="font-title text-xl font-bold leading-5">
+              {weekPoints}
+            </p>
+          </div>
         </div>
       </div>
-      <div>
-        <p className="font-sans text-l font-bold my-4 leading-5">Pronostics <br/>de la semaine</p>
+      <div className="relative px-2 pt-8 pb-16 mt-8 bg-flat-yellow border-t-2 border-b-2 border-black rounded-[30px] before:content-[''] before:absolute before:z-[-1] before:-top-1 before:left-0 before:-right-0.5 before:-bottom-1 before:bg-black before:rounded-[30px]">
+        <p className="font-sans text-l font-bold mb-4 leading-5">Pronostics <br/>de la semaine</p>
         <div className="w-full">
           {matchs && matchs.length > 0 ? (
             <div className="flex flex-col w-full">
-              <div className="relative flex flex-row border-2 border-black rounded-xs shadow-flat-black-adjust">
+              <div className="relative flex flex-row border-2 border-black rounded-xs shadow-flat-black-adjust bg-white">
                 <div className="w-[5%]"></div>
                 <div scope="col" className="py-0.5 px-1 w-[25%]">
                   <p className="font-sans text-xxs font-bold">Match</p>
@@ -66,7 +70,7 @@ const CurrentBets = ({ user, token }) => {
               <div className={`flex flex-col mt-2 border-2 border-black rounded-xs shadow-flat-black-adjust`}>
                 {matchs.map((bet, index) => (
                   <div key={index}
-                       className="flex flex-row py-1 mx-0.5 border-b last-of-type:border-0 border-black even:bg-sky-50">
+                       className="flex flex-row py-1 px-0.5 border-b last-of-type:border-0 border-black odd:bg-white even:bg-sky-50">
                     <div className="w-[5%] p-1">
                       <p className="font-title text-base font-bold inline-block align-sub">{index}</p>
                     </div>
