@@ -15,7 +15,7 @@ const Dashboard = () => {
   const token = localStorage.getItem('token') || cookies.token
 
   return (
-    <div className="text-center relative py-10 px-2 flex flex-col justify-center">
+    <div className="text-center relative py-10 flex flex-col justify-center">
       <span className="absolute top-10 left-4 text-xl text-black">
         <img className="w-[30px]" src={futbol} alt="football icon"/>
       </span>

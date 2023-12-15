@@ -7,7 +7,7 @@ import {
   faBars, faChevronLeft,
   faCircleUser,
   faCloudArrowDown,
-  faRightFromBracket,
+  faRightFromBracket, faStopwatch,
   faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../../contexts/UserContext.jsx";
@@ -18,12 +18,13 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal } = useContext(AppContext);
+  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownOpen, toggleCountDownModal } = useContext(AppContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
+  const [countdown, setCountdown] = useState('');
 
   const [cronTasks, setCronTasks] = useState([]);
   let cleanImageUrl = '/src/assets/react.svg'
@@ -40,6 +41,32 @@ const UserMenu = () => {
   useEffect(() => {
     const debugCookie = cookies.debug === 'true';
     setDebugEnabled(debugCookie);
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const nextFriday = new Date();
+
+      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7);
+      nextFriday.setHours(12, 0, 0, 0);
+
+      const timeLeft = nextFriday - now;
+
+      if (timeLeft > 0) {
+        const totalSeconds = Math.floor(timeLeft / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        const formattedTime = {hours: hours, minutes: minutes, seconds: seconds, expired: false};
+        setCountdown(formattedTime);
+      } else {
+        setCountdown({ expired: true });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [])
 
   useEffect(() => {
@@ -204,7 +231,7 @@ const UserMenu = () => {
     {isAuthenticated && user && user.role === 'admin' && isDebuggerActive && (
       <div className={`debugger fixed z-[80] max-w-[94%] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
         <button
-          className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black focus:outline-none`}
+          className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black text-left pl-1 focus:outline-none`}
           onClick={toggleDebuggerModal}
         >
           <FontAwesomeIcon icon={faChevronLeft} className={`text-green-lime-deep text-xs inline-block align-[0] transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'}`} />
@@ -240,6 +267,25 @@ const UserMenu = () => {
             </ul>
           </div>
         </div>
+      </div>
+    )}
+    {isAuthenticated && user && user.role !== 'visitor' && (
+      <div className={`fixed z-[70] top-20 left-0 px-2 py-1 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+        <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
+        <p className="font-sans text-sm text-white text-center">
+          {!countdown.expired ? (
+            <>
+              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
+              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
+            </>
+          ) : (
+            <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">{countdown}</span>
+          )}
+        </p>
+        <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
+          <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white" />
+        </button>
       </div>
     )}
     </>
