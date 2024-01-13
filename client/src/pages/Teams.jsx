@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import {UserContext} from "../contexts/UserContext.jsx"
 import {Link, useNavigate} from "react-router-dom"
-import ConfirmationModal from "../components/partials/ConfirmationModal.jsx"
+import ConfirmationModal from "../components/partials/modals/ConfirmationModal.jsx"
 import Pagination from "../components/partials/Pagination.jsx";
 
 const Teams = () => {

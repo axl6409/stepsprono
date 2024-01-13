@@ -4,7 +4,7 @@ import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {Link, useLocation} from "react-router-dom";
-import ConfirmationModal from "../partials/ConfirmationModal.jsx";
+import ConfirmationModal from "../partials/modals/ConfirmationModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import Loader from "../partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

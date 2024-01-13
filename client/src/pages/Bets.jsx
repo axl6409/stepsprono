@@ -3,7 +3,7 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {UserContext} from "../contexts/UserContext.jsx";
 import axios from "axios";
-import ConfirmationModal from "../components/partials/ConfirmationModal.jsx";
+import ConfirmationModal from "../components/partials/modals/ConfirmationModal.jsx";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 

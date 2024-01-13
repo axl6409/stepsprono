@@ -6,7 +6,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCloudArrowDown, faPen} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import moment from "moment";
-import ConfirmationModal from "../../partials/ConfirmationModal.jsx";
+import ConfirmationModal from "../../partials/modals/ConfirmationModal.jsx";
 import StatusModal from "../../partials/modals/StatusModal.jsx";
 import {AppContext} from "../../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

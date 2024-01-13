@@ -3,7 +3,7 @@ import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
-import InformationModal from "../../components/partials/InformationModal.jsx";
+import InformationModal from "../../components/partials/modals/InformationModal.jsx";
 import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
 import {Link} from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

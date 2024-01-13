@@ -129,7 +129,10 @@ body {
 }
 
 /* Réglement */
-.reglement-container h1, h2, h3, h4 {
+.reglement-container h1,
+.reglement-container h2,
+.reglement-container h3,
+.reglement-container h4 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
     margin: 1rem 0;
@@ -216,4 +219,14 @@ body {
         transform: scaleX(.2);
         opacity: .4;
     }
+}
+
+/* For Animations */
+.title-animated {
+    font-size: 120px;
+    line-height: 100px;
+}
+.title-animated span {
+    line-height: 100px;
+    opacity: 1;
 }

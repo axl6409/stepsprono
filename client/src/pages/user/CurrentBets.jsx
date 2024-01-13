@@ -34,7 +34,7 @@ const CurrentBets = ({ user, token }) => {
     if (user && token) {
       fetchBets();
     }
-  }, [user, token]);
+  }, []);
 
   return (
     <div>
@@ -62,7 +62,7 @@ const CurrentBets = ({ user, token }) => {
                   <p className="font-sans text-xxs font-bold">Gagnant</p>
                 </div>
                 <div scope="col" className="py-0.5 px-1 w-[20%]">
-                  <p className="font-sans text-xxs font-bold">Score</p>
+                  <p className="font-sans text-xxs font-bold leading-4">Score / Butteur</p>
                 </div>
                 <div scope="col" className="py-0.5 px-1 w-[15%]">
                   <p className="font-sans text-xxs font-bold">Status</p>
@@ -100,7 +100,9 @@ const CurrentBets = ({ user, token }) => {
                     </div>
                     <div className="w-[20%] p-1">
                       {bet.homeScore !== null && bet.awayScore !== null ? (
-                        <p className="font-title text-base font-bold">{`${bet.homeScore} - ${bet.awayScore}`}</p>
+                        <>
+                          <p className="font-title text-base font-bold">{`${bet.homeScore} - ${bet.awayScore}`}</p>
+                        </>
                       ) : (
                         <p></p>
                       )}
