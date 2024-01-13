@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
+import bets from "../Bets.jsx";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ user, token }) => {
   const [matchs, setMatchs] = useState([]);
@@ -10,13 +12,15 @@ const CurrentBets = ({ user, token }) => {
   useEffect(() => {
     const fetchBets = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
         const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/last`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         const fetchedMatchs = response.data;
+        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+          return;
+        }
         const totalPoints = fetchedMatchs.reduce((sum, match) => {
           return sum + (match.points >= 0 ? match.points : 0);
         }, 0)
@@ -87,13 +91,15 @@ const CurrentBets = ({ user, token }) => {
                       <div className="flex flex-row justify-center">
                         {bet.winnerId === bet.Match.HomeTeam.id ? (
                           <img className="h-auto w-8" src={bet.Match.HomeTeam.logoUrl} alt={bet.Match.HomeTeam.name}/>
-                        ) : (
+                        ) : bet.winnerId === bet.Match.AwayTeam.id ? (
                           <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl} alt={bet.Match.AwayTeam.name}/>
+                        ) : (
+                          <p className="font-title text-base font-bold">NULL</p>
                         )}
                       </div>
                     </div>
                     <div className="w-[20%] p-1">
-                      {bet.homeScore && bet.awayScore ? (
+                      {bet.homeScore !== null && bet.awayScore !== null ? (
                         <p className="font-title text-base font-bold">{`${bet.homeScore} - ${bet.awayScore}`}</p>
                       ) : (
                         <p></p>

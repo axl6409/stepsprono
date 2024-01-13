@@ -18,6 +18,7 @@ import {
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 import moment from "moment";
+import Loader from "../partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
@@ -25,7 +26,7 @@ const Week = ({token, user}) => {
   const [bets, setBets] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [lastMatch, setLastMatch] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const now = moment();
@@ -37,7 +38,7 @@ const Week = ({token, user}) => {
 
   useEffect(() => {
     const fetchMatchs = async () => {
-      setLoading(true);
+      setIsLoading(true)
       try {
         const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
           headers: {
@@ -49,12 +50,12 @@ const Week = ({token, user}) => {
         })
         setMatchs(sortedMatchs)
         setLastMatch(sortedMatchs[sortedMatchs.length - 1])
-        setLoading(false)
+        setIsLoading(false)
         fetchBets(sortedMatchs)
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
         setError(error);
-        setLoading(false);
+        setIsLoading(false);
       }
     }
     fetchMatchs()
@@ -74,7 +75,7 @@ const Week = ({token, user}) => {
     } catch (error) {
       console.error('Erreur lors de la récupération des matchs :', error);
       setError(error);
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -87,10 +88,12 @@ const Week = ({token, user}) => {
     fetchBets(matchs)
   };
 
-  if (loading) return <p>Chargement...</p>;
   if (error) return <p>Erreur : {error.message}</p>;
 
   return (
+    isLoading ? (
+      <Loader />
+    ) : (
     <div className="relative pt-12 border-2 border-black py-8 px-2 bg-flat-yellow shadow-flat-black">
       <div>
         <Swiper
@@ -188,6 +191,7 @@ const Week = ({token, user}) => {
       <Pronostic match={selectedMatch} userId={user.id} lastMatch={lastMatch} closeModal={closeModal} isModalOpen={isModalOpen} token={token} />
 
     </div>
+    )
   )
 }
 

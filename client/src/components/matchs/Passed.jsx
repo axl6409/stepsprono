@@ -18,13 +18,14 @@ import {
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCube, Navigation, Pagination} from 'swiper/modules';
 import moment from "moment";
+import Loader from "../partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Passed = ({token, user}) => {
   const [matchs, setMatchs] = useState([]);
   const [matchdays, setMatchdays] = useState([]);
   const [selectedMatchday, setSelectedMatchday] = useState();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bets, setBets] = useState([]);
   const isVisitor = user.role === 'visitor';
@@ -39,14 +40,14 @@ const Passed = ({token, user}) => {
         });
         const days = response.data;
         setMatchdays(days);
-        setLoading(false);
+        setIsLoading(false);
         if (days.length > 0) {
           setSelectedMatchday(days[0])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des équipes :', error);
         setError(error);
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     fetchMatchdays();
@@ -64,11 +65,11 @@ const Passed = ({token, user}) => {
           return new Date(a.utcDate) - new Date(b.utcDate);
         })
         setMatchs(sortedMatchs);
-        setLoading(false);
+        setIsLoading(false);
       } catch (error) {
         console.error('Erreur lors de la récupération des équipes :', error);
         setError(error);
-        setLoading(false);
+        setIsLoading(false);
       }
     }
     fetchMatchs()
@@ -86,11 +87,11 @@ const Passed = ({token, user}) => {
           }
         });
         setBets(response.data.data)
-        setLoading(false);
+        setIsLoading(false);
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
         setError(error);
-        setLoading(false);
+        setIsLoading(false);
       }
     }
     fetchBets()
@@ -117,10 +118,12 @@ const Passed = ({token, user}) => {
     return bets.find(bet => bet.matchId === matchId);
   };
 
-  if (loading) return <p>Chargement...</p>;
   if (error) return <p>Erreur : {error.message}</p>;
 
   return (
+    isLoading ? (
+      <Loader />
+    ) : (
     <div className="relative pt-12 border-2 border-black py-8 px-2 bg-flat-yellow shadow-flat-black">
       <form className=" absolute top-[-4px] right-2 mt-0 z-[5]">
         <select onChange={handleMatchdayChange} value={selectedMatchday} className="border-2 border-black rounded-br-md rounded-bl-md px-2 py-1 shadow-flat-black-adjust font-bold">
@@ -229,6 +232,7 @@ const Passed = ({token, user}) => {
         </Swiper>
       </div>
     </div>
+    )
   )
 }
 

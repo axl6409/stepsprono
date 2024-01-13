@@ -16,7 +16,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
     awayScore: '',
     playerGoal: ''
   })
-  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
   const [players, setPlayers] = useState([]);
@@ -47,6 +47,10 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       fetchPlayers();
     }
   }, [match, selectedTeam, token])
+
+  // useEffect(() => {
+  //   setValue("team", selectedTeam);
+  // }, [selectedTeam, setValue]);
 
   const onSubmit = async (data) => {
     try {
@@ -79,6 +83,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           closeModal()
           setErrorMessage('')
           setSelectedTeam('')
+          setSelectedTeam(null)
         }, 1000)
       } else {
         setErrorMessage(response.error || 'Erreur lors de l\'enregistrement du prono');

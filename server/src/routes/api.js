@@ -74,8 +74,22 @@ router.get('/dashboard', authenticateJWT, (req, res) => {
 });
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const users = await User.findAll({ include: Role });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    let queryOptions = {
+      include: [{
+        model: Role,
+        through: { attributes: [] },
+        where: {}
+      }]
+    };
+    const roles = req.query.roles;
+    console.log(roles);
+    if (roles && roles.length > 0) {
+      queryOptions.include[0].where.name = roles;
+    }
+    const users = await User.findAll(queryOptions);
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });

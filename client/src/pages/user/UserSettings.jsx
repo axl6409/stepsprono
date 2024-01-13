@@ -11,9 +11,11 @@ import {
 import {Link} from "react-router-dom";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx"
 import BackButton from "../../components/nav/BackButton.jsx"
+import {useCookies} from "react-cookie";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserSettings = () => {
+  const [cookies, setCookie] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token
   const { user, updateUserStatus } = useContext(UserContext);
   const isVisitor = user.role === 'visitor';
