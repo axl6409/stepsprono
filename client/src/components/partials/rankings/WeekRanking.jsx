@@ -30,7 +30,7 @@ const WeekRanking = ({users, token}) => {
         const points = await fetchUserBets(user.id);
         return { ...user, weekPoints: points };
       }));
-
+      usersWithPoints.sort((a, b) => b.weekPoints - a.weekPoints);
       setUpdatedUsers(usersWithPoints);
       setIsLoading(false);
     }
@@ -62,21 +62,25 @@ const WeekRanking = ({users, token}) => {
         <ul>
           {updatedUsers.map(user => {
             return (
-              <li className="flex flex-row justify-between" key={user.id}>
+              <li className="flex flex-row relative justify-between my-2 border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black" key={user.id}>
                 <Link to={`/dashboard/${user.id}`}
-                      className="username relative font-title font-bold text-xl leading-6 my-auto border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">
-                  {user.username}
+                      className="w-fit h-fit block relative my-2 before:content-[''] before:inline-block before:absolute before:z-[1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group">
+                  <span
+                    className="relative z-[2] w-full block border-2 border-black text-black px-4 py-1 rounded-full text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">
+                    {user.username}
+                  </span>
                 </Link>
-                <p>
-                  Points de la semaine: {user.weekPoints}
+                <p className="font-title text-black uppercase text-l font-bold leading-4 h-fit my-auto">
+                  <span className="inline-block mr-2">Points</span>
+                  <span className="inline-block bg-black text-white p-2 ">{user.weekPoints}</span>
                 </p>
               </li>
-            )
-            }
+          )
+          }
           )}
-        </ul>
-      </div>
-    </div>
+          </ul>
+          </div>
+          </div>
   )
 }
 

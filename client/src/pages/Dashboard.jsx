@@ -44,16 +44,10 @@ const Dashboard = () => {
   }, [userId, user, token]);
 
   useEffect(() => {
-    const handleLoad = () => {
-      const timer = setTimeout(() => {
-        setAnimateTitle(true);
-      }, 100);
-      return () => clearTimeout(timer);
-    };
-    window.addEventListener('load', handleLoad);
-    return () => {
-      window.removeEventListener('load', handleLoad);
-    };
+    const timer = setTimeout(() => {
+      setAnimateTitle(true);
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
@@ -86,7 +80,7 @@ const Dashboard = () => {
         <span
           className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Steps Prono</span>
       </h1>
-      <h2 className={`font-black my-8 mt-0 uppercase transition-all duration-500 ease-in-out relative w-fit mx-auto ${animateTitle ? 'title-animated' : 'text-xl3'}`}>{profileUser.username}
+      <h2 className={`font-black my-8 mt-0 uppercase transition-all duration-500 ease-in-out relative w-fit mx-auto ${animateTitle ? 'title-animated' : 'text-base'}`}>{profileUser.username}
         <span
           className="absolute left-0 top-0 right-0 text-flat-purple z-[-1] transition-all opacity-0 duration-400 ease-in-out -translate-x-0.5 translate-y-0.5">{profileUser.username}</span>
         <span

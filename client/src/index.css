@@ -223,10 +223,10 @@ body {
 
 /* For Animations */
 .title-animated {
-    font-size: 120px;
-    line-height: 100px;
+    font-size: 50px;
+    line-height: 50px;
 }
 .title-animated span {
-    line-height: 100px;
+    line-height: 50px;
     opacity: 1;
 }
