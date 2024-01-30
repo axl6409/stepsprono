@@ -75,12 +75,12 @@ const WeekRanking = ({users, token}) => {
                   <span className="inline-block bg-black text-white p-2 ">{user.weekPoints}</span>
                 </p>
               </li>
-          )
+            )
           }
-          )}
-          </ul>
-          </div>
-          </div>
+        )}
+      </ul>
+    </div>
+  </div>
   )
 }
 

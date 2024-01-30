@@ -15,7 +15,7 @@ const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
 const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
-const {updateTeamsRanking} = require("../controllers/teamController");
+const {updateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getAPICallsCount} = require("../controllers/appController");
 
 function generateRandomString(length) {
@@ -74,7 +74,7 @@ router.get('/dashboard', authenticateJWT, (req, res) => {
 });
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'treasurer' && req.user.role !== 'user') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
     let queryOptions = {
