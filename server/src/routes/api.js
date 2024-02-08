@@ -527,6 +527,91 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 });
+router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
+  try {
+    const startOfWeek = moment().startOf('month');
+    const endOfWeek = moment().endOf('month');
+
+    const startDate = startOfWeek.toDate();
+    const endDate = endOfWeek.toDate();
+
+    const bets = await Bets.findAll({
+      include: [{
+        model: Match,
+        where: {
+          utcDate: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      }],
+      where: {
+        userId: req.params.id
+      }
+    });
+
+    if (bets.length === 0) {
+      res.json({ message: 'Aucun pari pour le mois en cours' })
+    } else {
+      res.json(bets)
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+});
+router.get('/user/:id/bets/year', authenticateJWT, async (req, res) => {
+  try {
+    const startOfWeek = moment().startOf('year');
+    const endOfWeek = moment().endOf('year');
+
+    const startDate = startOfWeek.toDate();
+    const endDate = endOfWeek.toDate();
+
+    const bets = await Bets.findAll({
+      include: [{
+        model: Match,
+        where: {
+          utcDate: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      }],
+      where: {
+        userId: req.params.id
+      }
+    });
+
+    if (bets.length === 0) {
+      res.json({ message: 'Aucun pari pour l\'année en cours' })
+    } else {
+      res.json(bets)
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+});
+
 router.get('/app/api/calls', authenticateJWT, async (req, res) => {
   try {
     const calls = await getAPICallsCount();
@@ -857,6 +942,28 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
   try {
     await updateTeamsRanking()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
+  try {
+    await updateTeams()
+    res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
+  try {
+    const teamId = req.params.id
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await updateTeams(team.id)
+    res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

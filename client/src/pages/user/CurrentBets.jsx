@@ -8,9 +8,11 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const CurrentBets = ({ user, token }) => {
   const [matchs, setMatchs] = useState([]);
   const [weekPoints, setWeekPoints] = useState(0);
+  const [monthPoints, setMonthPoints] = useState(0);
+  const [yearPoints, setYearPoints] = useState(0);
 
   useEffect(() => {
-    const fetchBets = async () => {
+    const fetchLastBets = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/last`, {
           headers: {
@@ -30,16 +32,55 @@ const CurrentBets = ({ user, token }) => {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
-
+    const fetchMonthBets = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/month`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const fetchedMatchs = response.data;
+        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+          return;
+        }
+        const totalPoints = fetchedMatchs.reduce((sum, match) => {
+          return sum + (match.points >= 0 ? match.points : 0);
+        }, 0)
+        setMonthPoints(totalPoints)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des paris', error);
+      }
+    };
+    const fetchYearBets = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/year`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const fetchedMatchs = response.data;
+        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+          return;
+        }
+        const totalPoints = fetchedMatchs.reduce((sum, match) => {
+          return sum + (match.points >= 0 ? match.points : 0);
+        }, 0)
+        setYearPoints(totalPoints)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des paris', error);
+      }
+    };
     if (user && token) {
-      fetchBets();
+      fetchLastBets()
+      fetchMonthBets()
+      fetchYearBets()
     }
   }, []);
 
   return (
     <div>
-      <div className="flex flex-row">
-        <div className="flex flex-col w-fit px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
+      <div className="flex flex-row flex-wrap justify-between px-4">
+        <div className="flex flex-col w-2/5 px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
           <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la semaine</p>
           <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
             <p className="font-title text-xl font-bold leading-5">
@@ -47,8 +88,25 @@ const CurrentBets = ({ user, token }) => {
             </p>
           </div>
         </div>
+        <div className="flex flex-col w-2/5 px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
+          <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>du mois</p>
+          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
+            <p className="font-title text-xl font-bold leading-5">
+              {monthPoints}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col w-1/2 mx-auto px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
+          <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la saison</p>
+          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
+            <p className="font-title text-xl font-bold leading-5">
+              {yearPoints}
+            </p>
+          </div>
+        </div>
       </div>
-      <div className="relative px-2 pt-8 pb-16 mt-8 bg-flat-yellow border-t-2 border-b-2 border-black rounded-[30px] before:content-[''] before:absolute before:z-[-1] before:-top-1 before:left-0 before:-right-0.5 before:-bottom-1 before:bg-black before:rounded-[30px]">
+      <div
+        className="relative px-2 pt-8 pb-16 mt-8 bg-flat-yellow border-t-2 border-b-2 border-black rounded-[30px] before:content-[''] before:absolute before:z-[-1] before:-top-1 before:left-0 before:-right-0.5 before:-bottom-1 before:bg-black before:rounded-[30px]">
         <p className="font-sans text-l font-bold mb-4 leading-5">Pronostics <br/>de la semaine</p>
         <div className="w-full">
           {matchs && matchs.length > 0 ? (
