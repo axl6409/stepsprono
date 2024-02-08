@@ -6,22 +6,44 @@ const apiBaseUrl = process.env.FB_API_URL;
 const { downloadImage } = require('../services/imageService');
 const { calculatePoints } = require("../services/betService");
 
-async function updateTeams() {
+async function updateTeams(teamID = null) {
   try {
-    const teamInfosOptions = {
-      method: 'GET',
-      url: apiBaseUrl + 'teams',
-      params: {
-        league: '61',
-        season: '2023'
-      },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
+    let teams = [];
+    if (teamID) {
+      const teamInfosOptions = {
+        method: 'GET',
+        url: apiBaseUrl + 'teams',
+        params: {
+          id: teamID,
+          league: '61',
+          season: '2023'
+        },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
       }
+      const teamResponse = await axios.request(teamInfosOptions);
+      if (teamResponse.data.response && teamResponse.data.response.length > 0) {
+        teams.push(teamResponse.data.response);
+      }
+      teams = teamResponse.data.response;
+    } else {
+      const teamInfosOptions = {
+        method: 'GET',
+        url: apiBaseUrl + 'teams',
+        params: {
+          league: '61',
+          season: '2023'
+        },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
+      }
+      const teamResponse = await axios.request(teamInfosOptions);
+      teams = teamResponse.data.response;
     }
-    const teamResponse = await axios.request(teamInfosOptions);
-    const teams = teamResponse.data.response;
 
     for (const team of teams) {
       const existingTeam = await Team.findByPk(team.team.id);
@@ -50,7 +72,8 @@ async function updateTeams() {
       if (!venueImageUrl && team.venue.image) {
         venueImageUrl = await downloadImage(team.venue.image, team.team.id, 'venue');
       }
-
+      console.log('Team : ', team.team.name);
+      console.log('Stats : ', stats);
       await Team.upsert({
         id: team.team.id,
         name: team.team.name,

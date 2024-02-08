@@ -47,11 +47,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       fetchPlayers();
     }
   }, [match, selectedTeam, token])
-
-  // useEffect(() => {
-  //   setValue("team", selectedTeam);
-  // }, [selectedTeam, setValue]);
-
+  console.log(players)
   const onSubmit = async (data) => {
     try {
       if (match.id === lastMatch.id) {
@@ -64,13 +60,14 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           return
         }
       }
+      const playerGoal = data.scorer === "null" ? null : data.scorer;
       const response = await axios.post(`${apiUrl}/api/bet/add`, {
         userId: userId,
         matchId: match.id,
         winnerId: selectedTeam,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
-        playerGoal: data.scorer
+        playerGoal
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -185,18 +182,21 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                     </label>
                   </div>
                   <div className="flex flex-row justify-evenly my-4">
-                    <label className="flex flex-col w-4/5 mx-auto text-center">
-                      <span className="font-sans uppercase text-black font-medium text-sm">Buteur:</span>
-                      <select
-                        className="border-2 border-black text-sans font-medium text-base text-center shadow-flat-black"
-                        {...register("scorer")}
-                        onChange={(e) => setScorer(e.target.value)}
-                      >
-                        {players.map(player => (
-                          <option key={player.id} value={player.id}>{player.name}</option>
-                        ))}
-                      </select>
-                    </label>
+                    {((homeScore > 0 || awayScore > 0) && players.length > 0) && (
+                      <label className="flex flex-col w-4/5 mx-auto text-center">
+                        <span className="font-sans uppercase text-black font-medium text-sm">Buteur:</span>
+                        <select
+                          className="border-2 border-black text-sans font-medium text-base text-center shadow-flat-black"
+                          {...register("scorer")}
+                          onChange={(e) => setScorer(e.target.value)}
+                        >
+                          <option value={null}>Aucun butteur</option>
+                          {players.map(player => (
+                            <option key={player.id} value={player.id}>{player.name}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
                   </div>
                 </>
               )}
