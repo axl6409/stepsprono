@@ -1,23 +1,26 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../database');
+module.exports = (sequelize, DataTypes) => {
+  const Competition = sequelize.define('Competition', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    country: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    emblem: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  });
 
-const Competition = sequelize.define('Competition', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  country: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  type: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  emblem: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-});
+  Competition.associate = (models) => {
+    Competition.hasMany(models.Season, { foreignKey: 'competitionId' });
+  };
 
-module.exports = Competition;
+  return Competition;
+};

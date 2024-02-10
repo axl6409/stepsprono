@@ -1,42 +1,43 @@
-const sequelize = require('../../database')
-const User = require('./User')
-const Role = require('./Role')
-const UserRole = require('./UserRole')
-const Team = require('./Team')
-const Players = require('./Players')
-const Match = require('./Match')
-const Bets = require('./Bets')
-const Area = require('./Area')
-const Competition = require('./Competition')
-const Season = require('./Season')
-const Settings = require('./Settings')
+'use strict';
 
-User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId' })
-User.hasMany(Bets, { foreignKey: 'userId' })
-Role.belongsToMany(User, { through: UserRole, foreignKey: 'roleId' })
-Team.hasMany(Match, { as: 'homeMatches', foreignKey: 'homeTeamId' })
-Team.hasMany(Match, { as: 'awayMatches', foreignKey: 'awayTeamId' })
-Team.hasMany(Bets, { foreignKey: 'winnerId' })
-Players.belongsTo(Team, { as: 'Team', foreignKey: 'teamId' })
-Match.belongsTo(Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' })
-Match.belongsTo(Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' })
-Match.hasMany(Bets, { foreignKey: 'matchId' })
-Bets.belongsTo(User, { foreignKey: 'userId' })
-Bets.belongsTo(Match, { foreignKey: 'matchId' })
-Bets.belongsTo(Team, { foreignKey: 'winnerId' })
-Bets.belongsTo(Players, { foreignKey: 'playerGoal' })
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const process = require('process');
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+const config = require(__dirname + '/../../config/config.json')[env];
+const db = {};
 
-module.exports = {
-  sequelize,
-  User,
-  Role,
-  UserRole,
-  Area,
-  Competition,
-  Season,
-  Team,
-  Players,
-  Match,
-  Bets,
-  Settings,
-};
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
+}
+
+fs
+  .readdirSync(__dirname)
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
+    );
+  })
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
+
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db;
