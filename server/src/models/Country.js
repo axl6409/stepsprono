@@ -14,5 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  Country.associate = (models) => {
+    Country.hasMany(models.Competition, { foreignKey: 'countryId', as: 'Competitions' });
+  };
+
   return Country;
 };
