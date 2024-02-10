@@ -8,17 +8,17 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      countryId: {
-        type: Sequelize.INTEGER,
+      areaId: {
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-          model: 'Countries',
+          model: 'Areas',
           key: 'id'
         },
         onUpdate: 'CASCADE',

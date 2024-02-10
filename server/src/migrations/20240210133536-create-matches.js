@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       utcDate: {
         type: Sequelize.DATE,
@@ -31,32 +31,40 @@ module.exports = {
         allowNull: false,
       },
       homeTeamId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-          model: 'Teams', // Assurez-vous que cela correspond au nom de votre table d'équipes
+          model: 'Teams',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
       awayTeamId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-          model: 'Teams', // Assurez-vous que cela correspond au nom de votre table d'équipes
+          model: 'Teams',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
       league: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
+        references: {
+          model: 'Competitions',
+          key: 'id',
+        }
       },
       season: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
+        references: {
+          model: 'Seasons',
+          key: 'id',
+        }
       },
       winner: {
         type: Sequelize.STRING,

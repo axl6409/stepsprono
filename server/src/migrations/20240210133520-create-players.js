@@ -8,16 +8,16 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false
       },
       teamId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         references: {
-          model: 'Team',
+          model: 'Teams',
           key: 'id'
         },
         allowNull: false

@@ -4,11 +4,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    countryId: {
+    areaId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Country',
+        model: 'Area',
         key: 'code',
       }
     },
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Competition.associate = (models) => {
-    Competition.belongsTo(models.Country, { foreignKey: 'countryId', as: 'Country' });
+    Competition.belongsTo(models.Area, { foreignKey: 'areaId', as: 'Area' });
     Competition.hasMany(models.Season, { foreignKey: 'competitionId' });
   };
 

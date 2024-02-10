@@ -8,10 +8,10 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Users',
@@ -21,7 +21,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       seasonId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Seasons',
@@ -31,7 +31,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       competitionId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Competitions',
@@ -45,7 +45,7 @@ module.exports = {
         allowNull: false,
       },
       matchId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Matches',
@@ -55,7 +55,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       winnerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: true,
         references: {
           model: 'Teams',
@@ -73,7 +73,7 @@ module.exports = {
         allowNull: true,
       },
       playerGoal: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: true,
         references: {
           model: 'Players',

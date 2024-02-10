@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       year: {
         type: Sequelize.INTEGER,
@@ -23,9 +23,9 @@ module.exports = {
         allowNull: false
       },
       competitionId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         references: {
-          model: 'Competition',
+          model: 'Competitions',
           key: 'id'
         },
         allowNull: false
@@ -33,7 +33,7 @@ module.exports = {
       winnerId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Team',
+          model: 'Teams',
           key: 'id'
         },
         allowNull: true

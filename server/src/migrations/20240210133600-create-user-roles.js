@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('UserRoles', {
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         references: {
           model: 'Users',
@@ -15,7 +15,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       roleId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         references: {
           model: 'Roles',

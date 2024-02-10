@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Country = sequelize.define('Country', {
+  const Area = sequelize.define('Area', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  Country.associate = (models) => {
-    Country.hasMany(models.Competition, { foreignKey: 'countryId', as: 'Competitions' });
+  Area.associate = (models) => {
+    Area.hasMany(models.Competition, { foreignKey: 'areaId', as: 'Competitions' });
   };
 
-  return Country;
+  return Area;
 };
