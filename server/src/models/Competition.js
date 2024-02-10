@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
     country: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: 'Country',
+        key: 'code',
+      }
     },
     type: {
       type: DataTypes.STRING,
@@ -20,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Competition.associate = (models) => {
     Competition.hasMany(models.Season, { foreignKey: 'competitionId' });
+
   };
 
   return Competition;
