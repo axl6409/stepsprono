@@ -6,8 +6,8 @@ const Competition = sequelize.define('Competition', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  code: {
-    type: DataTypes.STRING,
+  country: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   type: {

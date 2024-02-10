@@ -155,7 +155,7 @@ const Passed = ({token, user}) => {
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
             const bet = getBetForMatch(match.id);
-
+            console.log(bet)
             return (
               <SwiperSlide className={`flex flex-col justify-start relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black ${isVisitor ? 'min-h-fit pb-4' : 'min-h-[350px]'} min-h-[350px]`} key={match.id} data-match-id={match.id}>
                 {!isVisitor && (
@@ -174,12 +174,12 @@ const Passed = ({token, user}) => {
                   <div className="w-2/4 flex flex-col justify-center">
                     <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[70px] mx-auto"/>
                     <p className="font-sans font-bold text-sm">{match.HomeTeam.name}</p>
-                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.scoreFullTimeHome}</p>
+                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.goalsHome}</p>
                   </div>
                   <div className="w-2/4 flex flex-col justify-center">
                     <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[70px] mx-auto"/>
                     <p className="font-sans font-bold text-sm">{match.AwayTeam.name}</p>
-                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.scoreFullTimeAway}</p>
+                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.goalsAway}</p>
                   </div>
                 </div>
                 {!isVisitor && (

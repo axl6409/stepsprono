@@ -2,6 +2,10 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../database');
 
 const Season = sequelize.define('Season', {
+  year: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   startDate: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -10,7 +14,11 @@ const Season = sequelize.define('Season', {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  winner: {
+  competitionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  winnerId: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },

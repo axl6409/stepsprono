@@ -47,7 +47,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       fetchPlayers();
     }
   }, [match, selectedTeam, token])
-  console.log(players)
+
   const onSubmit = async (data) => {
     try {
       if (match.id === lastMatch.id) {

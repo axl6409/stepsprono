@@ -6,6 +6,18 @@ const Bets = sequelize.define('Bets', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  seasonId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  competitionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  matchday: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   matchId: {
     type: DataTypes.INTEGER,
     allowNull: false,
