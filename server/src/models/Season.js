@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Season = sequelize.define('Season', {
     year: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     startDate: {

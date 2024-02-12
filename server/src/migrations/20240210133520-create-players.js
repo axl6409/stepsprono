@@ -14,15 +14,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      teamId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Teams',
-          key: 'id'
-        },
-        onDelete: 'RESTRICT',
-        onUpdate: 'RESTRICT',
-        allowNull: false
+      firstName: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      lastName: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      photo: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,

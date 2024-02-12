@@ -6,7 +6,7 @@ const apiBaseUrl = process.env.FB_API_URL;
 const { downloadImage } = require('../services/imageService');
 const { calculatePoints } = require("../services/betService");
 
-async function updateTeams(teamID = null) {
+async function createOrUpdateTeams(teamID = null) {
   try {
     let teams = [];
     if (teamID) {
@@ -72,8 +72,7 @@ async function updateTeams(teamID = null) {
       if (!venueImageUrl && team.venue.image) {
         venueImageUrl = await downloadImage(team.venue.image, team.team.id, 'venue');
       }
-      console.log('Team : ', team.team.name);
-      console.log('Stats : ', stats);
+
       await Team.upsert({
         id: team.team.id,
         name: team.team.name,
@@ -97,8 +96,8 @@ async function updateTeams(teamID = null) {
         losesTotal: stats.fixtures.loses.total,
         losesHome: stats.fixtures.loses.home,
         losesAway: stats.fixtures.loses.away,
-        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
         form: stats.form,
+        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
         goalsFor: stats.goals.for.total.total,
         goalsAgainst: stats.goals.against.total.total,
         goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
@@ -150,6 +149,6 @@ async function updateTeamsRanking(teamId = null) {
 }
 
 module.exports = {
-  updateTeams,
+  createOrUpdateTeams,
   updateTeamsRanking,
 };

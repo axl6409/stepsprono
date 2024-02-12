@@ -23,6 +23,7 @@ import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
 import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
 import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
 import {AppProvider} from "./contexts/AppContext.jsx";
+import AdminCompetitions from "./components/admin/settings/AdminCompetitions.jsx";
 
 const App = () => {
   moment.updateLocale('fr', {})
@@ -51,6 +52,7 @@ const App = () => {
               <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
               <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
               <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
+              <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
             </Routes>
           </div>
         </Router>

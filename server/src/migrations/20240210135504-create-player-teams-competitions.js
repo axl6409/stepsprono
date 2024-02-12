@@ -3,42 +3,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Seasons', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
+    await queryInterface.createTable('PlayerTeamsCompetitions', {
+      playerId: {
+        type: Sequelize.INTEGER,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      year: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      startDate: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      endDate: {
-        type: Sequelize.DATE,
-        allowNull: false
+      teamId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        references: {
+          model: 'Roles',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       competitionId: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         references: {
           model: 'Competitions',
-          key: 'id'
+          key: 'id',
         },
-        onDelete: 'RESTRICT',
-        onUpdate: 'RESTRICT',
-        allowNull: false
-      },
-      winnerId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Teams',
-          key: 'id'
-        },
-        allowNull: true
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
@@ -54,6 +48,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Season');
+    await queryInterface.dropTable('PlayerTeamsCompetitions');
   }
 };
