@@ -26,7 +26,7 @@ function generateRandomString(length) {
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     const dest = path.join('..', '/client/src/assets/uploads/users/', req.params.id);
-    mkdirSync(dest, { recursive: true }); // Crée le dossier s'il n'existe pas
+    mkdirSync(dest, { recursive: true });
     cb(null, dest);
   },
 

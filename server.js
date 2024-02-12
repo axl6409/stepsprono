@@ -58,7 +58,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'visitor' } });
     // runCronJob()
     // Total => 18 * 2 => 36 API requests
-    await createOrUpdateTeams(81)
+    // await createOrUpdateTeams(81)
     // Total => 1 API request
     // await updateMatches()
     // Total => 1 API request
