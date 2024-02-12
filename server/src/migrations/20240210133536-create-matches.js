@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: Sequelize.INTEGER
       },
       utcDate: {
         type: Sequelize.DATE,
@@ -31,44 +31,54 @@ module.exports = {
         allowNull: false,
       },
       homeTeamId: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Teams',
           key: 'id',
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
       awayTeamId: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Teams',
           key: 'id',
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
       league: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Competitions',
           key: 'id',
-        }
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
       season: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Seasons',
           key: 'id',
-        }
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
-      winner: {
-        type: Sequelize.STRING,
+      winnerId: {
+        type: Sequelize.INTEGER,
         allowNull: true,
+        references: {
+          model: 'Teams',
+          key: 'id',
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
       goalsHome: {
         type: Sequelize.INTEGER,

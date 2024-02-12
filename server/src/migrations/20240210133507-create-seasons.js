@@ -3,12 +3,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Season', {
+    await queryInterface.createTable('Seasons', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: Sequelize.INTEGER
       },
       year: {
         type: Sequelize.INTEGER,
@@ -23,11 +23,13 @@ module.exports = {
         allowNull: false
       },
       competitionId: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         references: {
           model: 'Competitions',
           key: 'id'
         },
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT',
         allowNull: false
       },
       winnerId: {

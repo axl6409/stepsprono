@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: Sequelize.INTEGER
       },
       name: {
         type: Sequelize.STRING,
@@ -44,14 +44,14 @@ module.exports = {
         allowNull: true,
       },
       competitionId: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Competitions',
           key: 'id',
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
       },
       position: {
         type: Sequelize.INTEGER,
