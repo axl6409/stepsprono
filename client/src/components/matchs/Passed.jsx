@@ -107,11 +107,11 @@ const Passed = ({token, user}) => {
 
   const isBetWin = (matchId) => {
     const match = matchs.find(match => match.id === matchId);
-    if (!match || match.winner === undefined) {
+    if (!match || match.winnerId === undefined) {
       return false;
     }
     const bet = bets.find(b => b.matchId === matchId);
-    return bet && bet.winnerId === parseInt(match.winner);
+    return bet && bet.winnerId === parseInt(match.winnerId);
   }
 
   const getBetForMatch = (matchId) => {

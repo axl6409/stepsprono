@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    winner: {
+    winnerId: {
       type: DataTypes.STRING,
       allowNull: true,
     },

@@ -7,8 +7,8 @@ async function checkupBets() {
       const match = await Match.findByPk(bet.matchId)
       if (!match) continue;
       let points = 0;
-      console.log(match.winner, bet.winnerId);
-      if (bet.winnerId === match.winner) {
+      console.log(match.winnerId, bet.winnerId);
+      if (bet.winnerId === match.winnerId) {
         points += 1;
       }
       if (match.goalsHome === bet.homeScore && match.goalsAway === bet.awayScore) {

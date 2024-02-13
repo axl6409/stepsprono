@@ -3,7 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 
 function getRelativePath(pathToFile) {
-  const basePath = path.join(__dirname, '../../../client/src');
+  const basePath = path.join(__dirname, '../../../client');
   return pathToFile.replace(basePath, '');
 }
 
