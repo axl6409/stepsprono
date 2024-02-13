@@ -3,7 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 
 function getRelativePath(pathToFile) {
-  const basePath = path.join(__dirname, '../client/src');
+  const basePath = path.join(__dirname, '../../../client/src');
   return pathToFile.replace(basePath, '');
 }
 
@@ -16,7 +16,7 @@ async function downloadImage(url, teamId, imageType) {
     });
     const extension = url.split('.').pop();
     const fileName = `${imageType}_${teamId}.${extension}`;
-    const dir = path.join(__dirname, `../client/src/assets/teams/${teamId}`);
+    const dir = path.join(__dirname, `../../../client/src/assets/teams/${teamId}`);
     if (!fs.existsSync(dir)){
       fs.mkdirSync(dir, { recursive: true });
     }

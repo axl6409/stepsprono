@@ -25,9 +25,14 @@ function generateRandomString(length) {
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    const dest = path.join('..', '/client/src/assets/uploads/users/', req.params.id);
-    mkdirSync(dest, { recursive: true });
-    cb(null, dest);
+    const dest = path.join(__dirname, '../../../client/src/assets/uploads/users/', req.params.id);
+    try {
+      mkdirSync(dest, { recursive: true });
+      console.log(`Dossier créé : ${dest}`);
+      cb(null, dest);
+    } catch (error) {
+      console.error(`Erreur lors de la création du dossier : ${error}`);
+    }
   },
 
   filename: function(req, file, cb) {
