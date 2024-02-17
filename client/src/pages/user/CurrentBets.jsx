@@ -152,7 +152,7 @@ const CurrentBets = ({ user, token }) => {
                         ) : bet.winnerId === bet.Match.AwayTeam.id ? (
                           <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl} alt={bet.Match.AwayTeam.name}/>
                         ) : (
-                          <p className="font-title text-base font-bold">NULL</p>
+                          <p className="font-title text-base font-bold">NUL</p>
                         )}
                       </div>
                     </div>
