@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       }},
     matchday: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     matchId: {
       type: DataTypes.INTEGER,

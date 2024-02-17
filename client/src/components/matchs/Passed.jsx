@@ -155,7 +155,6 @@ const Passed = ({token, user}) => {
           {matchs.map(match => {
             const matchDate = moment(match.utcDate)
             const bet = getBetForMatch(match.id);
-            console.log(bet)
             return (
               <SwiperSlide className={`flex flex-col justify-start relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black ${isVisitor ? 'min-h-fit pb-4' : 'min-h-[350px]'} min-h-[350px]`} key={match.id} data-match-id={match.id}>
                 {!isVisitor && (

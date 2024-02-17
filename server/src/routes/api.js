@@ -460,7 +460,7 @@ router.get('/bets', authenticateJWT, async (req, res) => {
       limit = null;
       offset = null;
     }
-    const bets = await Bets.findAndCountAll({
+    const bets = await Bet.findAndCountAll({
       offset,
       limit,
       include: [
@@ -493,7 +493,7 @@ router.get('/players', authenticateJWT, async (req, res) => {
     } else {
       return res.status(400).send('Aucun identifiant d\'équipe fourni');
     }
-    const players = await Players.findAll({
+    const players = await Player.findAll({
       where: queryCondition
     });
     res.json(players);
@@ -510,7 +510,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -552,7 +552,7 @@ router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -594,7 +594,7 @@ router.get('/user/:id/bets/year', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -743,13 +743,12 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     const date = req.body.date
     const userId = req.body.userId
     const matchId = req.body.matchId
-    const existingBet = await Bets.findOne({
+    const existingBet = await Bet.findOne({
       where: {
         userId: userId,
         matchId: matchId
       }
     })
-    console.log(req.body)
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
@@ -766,7 +765,7 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
         }
       }
     }
-    const bet = await Bets.create(req.body)
+    const bet = await Bet.create(req.body)
     res.status(200).json(bet);
   } catch (error) {
     res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
@@ -776,7 +775,7 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
 
   try {
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       where: {
         userId: req.params.id,
         matchId: {

@@ -1,4 +1,4 @@
-const {Team, Players} = require("../models");
+const {Team, Player} = require("../models");
 const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
@@ -35,12 +35,13 @@ async function updatePlayers(teamId) {
         const response = await axios.request(options);
         const apiMatchData = response.data.response;
         for (const apiPlayer of apiMatchData) {
-          await Players.upsert({
+          await Player.upsert({
             id: apiPlayer.player.id,
             name: apiPlayer.player.name,
-            firstName: apiPlayer.player.firstname,
-            lastName: apiPlayer.player.lastname,
+            firstname: apiPlayer.player.firstname,
+            lastname: apiPlayer.player.lastname,
             teamId: apiPlayer.statistics[0].team.id,
+            photo: apiPlayer.player.photo
           })
         }
         totalPages = response.data.paging.total;
