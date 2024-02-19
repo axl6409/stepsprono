@@ -2,23 +2,20 @@ module.exports = (sequelize, DataTypes) => {
   const PlayerTeamCompetition = sequelize.define('PlayerTeamCompetition', {
     playerId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       references: {
-        model: 'Users',
+        model: 'Players',
         key: 'id',
       }
     },
     teamId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       references: {
-        model: 'Roles',
+        model: 'Teams',
         key: 'id',
       }
     },
     competitionId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       references: {
         model: 'Competitions',
         key: 'id',

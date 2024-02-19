@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       }
     },
+    current: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   });
 
   Season.associate = (models) => {

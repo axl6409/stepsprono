@@ -8,15 +8,19 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       }
     },
-    season: {
+    seasonId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Seasons',
+        key: 'id',
+      }
     },
     competitionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Competition',
+        model: 'Competitions',
         key: 'id',
       }},
     matchday: {
@@ -35,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Team',
+        model: 'Teams',
         key: 'id',
       }
     },
@@ -51,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Player',
+        model: 'Players',
         key: 'id',
       }
     },
@@ -63,7 +67,11 @@ module.exports = (sequelize, DataTypes) => {
 
   Bet.associate = (models) => {
     Bet.belongsTo(models.User, { foreignKey: 'userId' });
+    Bet.belongsTo(models.Competition, { foreignKey: 'competitionId' });
+    Bet.belongsTo(models.Season, { foreignKey: 'seasonId' });
     Bet.belongsTo(models.Match, { foreignKey: 'matchId' });
+    Bet.belongsTo(models.Team, { foreignKey: 'winnerId' });
+    Bet.belongsTo(models.Player, { foreignKey: 'playerGoal' });
   };
 
   return Bet;

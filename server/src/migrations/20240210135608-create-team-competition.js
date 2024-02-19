@@ -4,9 +4,15 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('TeamCompetitions', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
       teamId: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
+        allowNull: false,
         references: {
           model: 'Teams',
           key: 'id',
@@ -16,9 +22,19 @@ module.exports = {
       },
       competitionId: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
+        allowNull: false,
         references: {
           model: 'Competitions',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      seasonId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Seasons',
           key: 'id',
         },
         onDelete: 'CASCADE',

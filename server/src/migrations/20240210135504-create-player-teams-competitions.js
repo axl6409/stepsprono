@@ -3,12 +3,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('PlayerTeamsCompetitions', {
+    await queryInterface.createTable('PlayerTeamCompetitions', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
       playerId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-          model: 'Users',
+          model: 'Players',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -18,7 +24,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-          model: 'Roles',
+          model: 'Teams',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -48,6 +54,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('PlayerTeamsCompetitions');
+    await queryInterface.dropTable('PlayerTeamCompetitions');
   }
 };

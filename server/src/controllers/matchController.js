@@ -4,19 +4,26 @@ const { Match, Bets} = require("../models");
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const cron = require("node-cron");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 let cronTasks = [];
 
-async function updateMatches() {
+async function updateMatches(competitionId = null) {
   try {
+    if (!competitionId) {
+      console.log('Please provide a competition id');
+      return
+    }
+    const seasonId = await getCurrentSeasonId(competitionId)
+    const seasonYear = await getCurrentSeasonYear(competitionId)
     const options = {
       method: 'GET',
       url: apiBaseUrl + 'fixtures',
       params: {
-        league: '61',
-        season: '2023'
+        league: competitionId,
+        season: seasonYear
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
@@ -50,8 +57,8 @@ async function updateMatches() {
         stage: stage,
         homeTeamId: match.teams.home.id,
         awayTeamId: match.teams.away.id,
-        league: match.league.id,
-        season: match.league.season,
+        league: competitionId,
+        season: seasonId,
         winnerId: winner,
         goalsHome: match.goals.home,
         goalsAway: match.goals.away,

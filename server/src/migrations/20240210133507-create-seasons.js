@@ -11,7 +11,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       year: {
-        type: Sequelize.DATE,
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       startDate: {
@@ -39,6 +39,10 @@ module.exports = {
           key: 'id'
         },
         allowNull: true
+      },
+      current: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

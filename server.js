@@ -58,15 +58,15 @@ app.listen(PORT, '0.0.0.0', async () => {
     await Role.findOrCreate({ where: { name: 'visitor' } });
     // runCronJob()
     // Total => 18 * 2 => 36 API requests
-    await createOrUpdateTeams( null, false, false)
+    // await createOrUpdateTeams( 116, 2023, 61, false, true )
     // Total => 1 API request
-    // await updateMatches()
+    // await updateMatches(61)
     // Total => 1 API request
-    // await updateTeamsRanking()
+    // await updateTeamsRanking(null, 61)
     // Total => 1 API request
     // await fetchWeekMatches()
     // Total => 18 API requests
-    // await updatePlayers()
+    // await updatePlayers([82,83,84], 61)
     // Total => 1 API requests by matchId
     // await updateMatchStatusAndPredictions()
     // Total => 0 API request

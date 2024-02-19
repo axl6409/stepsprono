@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
+    seasonId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Season',
+        key: 'id'
+      }
+    },
     position: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -93,6 +101,7 @@ module.exports = (sequelize, DataTypes) => {
   TeamCompetition.associate = (models) => {
     TeamCompetition.belongsTo(models.Team, { foreignKey: 'teamId' });
     TeamCompetition.belongsTo(models.Competition, { foreignKey: 'competitionId' });
+    TeamCompetition.belongsTo(models.Season, { foreignKey: 'seasonId' });
   };
 
   return TeamCompetition;
