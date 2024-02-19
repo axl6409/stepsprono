@@ -8,13 +8,9 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       }
     },
-    seasonId: {
+    season: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Season',
-        key: 'id',
-      }
     },
     competitionId: {
       type: DataTypes.INTEGER,

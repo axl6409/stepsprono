@@ -20,15 +20,9 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      seasonId: {
+      season: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Seasons',
-          key: 'id',
-        },
-        onDelete: 'RESTRICT',
-        onUpdate: 'RESTRICT'
       },
       competitionId: {
         type: Sequelize.INTEGER,
