@@ -1,20 +1,33 @@
-const {Team, Players} = require("../models");
+const {Team, Player, PlayerTeamCompetition} = require("../models");
 const axios = require("axios");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
-async function updatePlayers(teamId) {
+async function updatePlayers(teamId = null, competitionId = null) {
   try {
     let teams = [];
     if (teamId) {
-      const team = await Team.findByPk(teamId)
-      if (team) {
-        teams = [team]
+      if (teamId.length > 1) {
+        for (const id of teamId) {
+          const team = await Team.findByPk(id)
+          if (team) {
+            teams.push(team)
+          }
+        }
+      } else {
+        const team = await Team.findByPk(teamId)
+        if (team) {
+          teams = [team]
+        }
       }
     } else {
       teams = await Team.findAll()
     }
+
+    const seasonYear = await getCurrentSeasonYear(competitionId)
+
     for (const team of teams) {
       let currentPage = 1;
       let totalPages = 0;
@@ -24,7 +37,7 @@ async function updatePlayers(teamId) {
           url: `${apiBaseUrl}players/`,
           params: {
             team: `${team.id}`,
-            season: '2023',
+            season: seasonYear,
             page: currentPage
           },
           headers: {
@@ -35,12 +48,17 @@ async function updatePlayers(teamId) {
         const response = await axios.request(options);
         const apiMatchData = response.data.response;
         for (const apiPlayer of apiMatchData) {
-          await Players.upsert({
+          await Player.upsert({
             id: apiPlayer.player.id,
             name: apiPlayer.player.name,
-            firstName: apiPlayer.player.firstname,
-            lastName: apiPlayer.player.lastname,
-            teamId: apiPlayer.statistics[0].team.id,
+            firstname: apiPlayer.player.firstname,
+            lastname: apiPlayer.player.lastname,
+            photo: apiPlayer.player.photo
+          })
+          await PlayerTeamCompetition.upsert({
+            playerId: apiPlayer.player.id,
+            teamId: team.id,
+            competitionId: competitionId,
           })
         }
         totalPages = response.data.paging.total;

@@ -47,7 +47,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       fetchPlayers();
     }
   }, [match, selectedTeam, token])
-  console.log(players)
+
   const onSubmit = async (data) => {
     try {
       if (match.id === lastMatch.id) {
@@ -63,7 +63,9 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       const playerGoal = data.scorer === "null" ? null : data.scorer;
       const response = await axios.post(`${apiUrl}/api/bet/add`, {
         userId: userId,
+        seasonId: 2023,
         matchId: match.id,
+        competitionId: 61,
         winnerId: selectedTeam,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
@@ -141,7 +143,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                     onChange={() => setSelectedTeam(null)}
                   />
                   <div className="w-full h-full flex flex-col justify-center border-2 border-black bg-white relative z-[2]">
-                    <p className="font-sans uppercase text-black font-medium text-sm">null</p>
+                    <p className="font-sans uppercase text-black font-medium text-sm">nul</p>
                   </div>
                 </label>
                 <label className={`label-element relative w-[80px] h-[80px] cursor-pointer ${selectedTeam === match.AwayTeam.id ? 'checked' : ''}`}>

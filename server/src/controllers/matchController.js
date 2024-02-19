@@ -4,19 +4,26 @@ const { Match, Bets} = require("../models");
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const cron = require("node-cron");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 let cronTasks = [];
 
-async function updateMatches() {
+async function updateMatches(competitionId = null) {
   try {
+    if (!competitionId) {
+      console.log('Please provide a competition id');
+      return
+    }
+    const seasonId = await getCurrentSeasonId(competitionId)
+    const seasonYear = await getCurrentSeasonYear(competitionId)
     const options = {
       method: 'GET',
       url: apiBaseUrl + 'fixtures',
       params: {
-        league: '61',
-        season: '2023'
+        league: competitionId,
+        season: seasonYear
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
@@ -34,11 +41,13 @@ async function updateMatches() {
       if (match.teams.away.winner === true) {
         winner = match.teams.away.id
       }
+
       bar.tick();
 
       let [stage, matchDay] = match.league.round.split(' - ');
       stage = stage.trim();
       matchDay = parseInt(matchDay, 10);
+
       await Match.upsert({
         id: match.fixture.id,
         utcDate: match.fixture.date,
@@ -48,9 +57,9 @@ async function updateMatches() {
         stage: stage,
         homeTeamId: match.teams.home.id,
         awayTeamId: match.teams.away.id,
-        league: match.league.id,
-        season: match.league.season,
-        winner: winner,
+        league: competitionId,
+        season: seasonId,
+        winnerId: winner,
         goalsHome: match.goals.home,
         goalsAway: match.goals.away,
         scoreFullTimeHome: match.score.fulltime.home,
@@ -106,11 +115,11 @@ async function updateSingleMatch(matchId) {
         fieldsToUpdate['status'] = apiMatchData.fixture.status.short
       }
       if (apiMatchData.teams.home.winner === true) {
-        fieldsToUpdate['winner'] = apiMatchData.teams.home.id
+        fieldsToUpdate['winnerId'] = apiMatchData.teams.home.id
       } else if (apiMatchData.teams.away.winner === true) {
-        fieldsToUpdate['winner'] = apiMatchData.teams.away.id
+        fieldsToUpdate['winnerId'] = apiMatchData.teams.away.id
       } else {
-        fieldsToUpdate['winner'] = null
+        fieldsToUpdate['winnerId'] = null
       }
       if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
         fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
@@ -151,12 +160,11 @@ async function updateSingleMatch(matchId) {
       }
 
       if (Object.keys(fieldsToUpdate).length > 0) {
-        // Récupérer tous les pronostics pour ce match
         const bets = await Bets.findAll({where: {matchId}});
         for (const bet of bets) {
           let points = 0;
-          console.log(bet.winnerId === fieldsToUpdate['winner'])
-          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winner']) {
+          console.log(bet.winnerId === fieldsToUpdate['winnerId'])
+          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winnerId']) {
             points += 1;
           }
           if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {

@@ -92,7 +92,6 @@ const EditUser = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
-      const result = await response.data;
       if (response.status === 200) {
         setUpdateStatus(true);
         setUpdateMessage('Utilisateur modifié avec succès');

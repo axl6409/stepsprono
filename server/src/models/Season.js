@@ -1,19 +1,44 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../database');
+module.exports = (sequelize, DataTypes) => {
+  const Season = sequelize.define('Season', {
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    competitionId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Competitions',
+        key: 'id',
+      }
+    },
+    winnerId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Teams',
+        key: 'id',
+      }
+    },
+    current: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
+  });
 
-const Season = sequelize.define('Season', {
-  startDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  endDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  winner: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-});
+  Season.associate = (models) => {
+    Season.belongsTo(models.Competition, { foreignKey: 'competitionId' });
+    Season.belongsTo(models.Team, { foreignKey: 'winnerId' });
+  };
 
-module.exports = Season;
+  return Season;
+};

@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 
-const { updateTeams, updateTeamsRanking } = require('./src/controllers/teamController')
+const { createOrUpdateTeams, updateTeamsRanking } = require('./src/controllers/teamController')
 const { updateMatches, updateMatchStatusAndPredictions, fetchWeekMatches } = require('./src/controllers/matchController')
 const { checkupBets } = require('./src/controllers/betController')
 const { updatePlayers } = require('./src/controllers/playerController')
@@ -41,12 +41,12 @@ const getCronTasks = () => {
 };
 
 const runCronJob = () => {
-  cron.schedule('01 00 2 2 *', updateTeams)
-  cron.schedule('01 00 2 6 *', updateTeams)
+  cron.schedule('01 00 2 2 *', createOrUpdateTeams)
+  cron.schedule('01 00 2 6 *', createOrUpdateTeams)
   cron.schedule('03 00 * * *', updatePlayers)
   cron.schedule('05 00 * * *', updateTeamsRanking)
   cron.schedule('07 00 * * *', updateMatches)
   cron.schedule('30 00 * * 1', fetchWeekMatches)
 }
 
-module.exports = { runCronJob, getCronTasks, updateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };
+module.exports = { runCronJob, getCronTasks, createOrUpdateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };

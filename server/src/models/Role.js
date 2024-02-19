@@ -1,12 +1,15 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../../database')
+module.exports = (sequelize, DataTypes) => {
+  const Role = sequelize.define('Role', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    }
+  });
 
-const Role = sequelize.define('Role', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  }
-})
+  Role.associate = (models) => {
+    Role.belongsToMany(models.User, { through: models.UserRole, foreignKey: 'roleId' });
+  };
 
-module.exports = Role
+  return Role;
+};

@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Teams, Competition, Team, Match, Bets, Settings, Players} = require("../models")
+const {User, Role, Team, Competition, Match, Bet, Setting, Player} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -15,7 +15,8 @@ const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
 const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
-const {updateTeams, updateTeamsRanking} = require("../controllers/teamController");
+const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
+const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
 
 function generateRandomString(length) {
@@ -24,9 +25,14 @@ function generateRandomString(length) {
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    const dest = path.join('..', '/client/src/assets/uploads/users/', req.params.id);
-    mkdirSync(dest, { recursive: true }); // Crée le dossier s'il n'existe pas
-    cb(null, dest);
+    const dest = path.join(__dirname, '../../../client/src/assets/uploads/users/', req.params.id);
+    try {
+      mkdirSync(dest, { recursive: true });
+      console.log(`Dossier créé : ${dest}`);
+      cb(null, dest);
+    } catch (error) {
+      console.error(`Erreur lors de la création du dossier : ${error}`);
+    }
   },
 
   filename: function(req, file, cb) {
@@ -72,6 +78,8 @@ router.get('/competitions', authenticateJWT, async (req, res) => {
 router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'Route protégée' });
 });
+
+// Admin Routes
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'treasurer' && req.user.role !== 'user') {
@@ -117,7 +125,7 @@ router.get('/admin/settings', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    const settings = await Settings.findAll();
+    const settings = await Setting.findAll();
     res.json(settings);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -178,9 +186,18 @@ router.get('/admin/matchs/cron-tasks', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });
   }
 })
+router.get('/admin/competitions/by-country/:code', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    const competitions = await getCompetitionsByCountry(req.params.matchId)
+    res.status(200).json({ competitions: competitions })
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des compétitions', message: error.message })
+  }
+})
 router.get('/settings/reglement', authenticateJWT, async (req, res) => {
   try {
-    const setting = await Settings.findOne({ where: { key: 'regulation' } });
+    const setting = await Setting.findOne({ where: { key: 'regulation' } });
     if (!setting) {
       return res.status(404).json({ message: 'Règlement non trouvé' });
     }
@@ -443,7 +460,7 @@ router.get('/bets', authenticateJWT, async (req, res) => {
       limit = null;
       offset = null;
     }
-    const bets = await Bets.findAndCountAll({
+    const bets = await Bet.findAndCountAll({
       offset,
       limit,
       include: [
@@ -476,7 +493,7 @@ router.get('/players', authenticateJWT, async (req, res) => {
     } else {
       return res.status(400).send('Aucun identifiant d\'équipe fourni');
     }
-    const players = await Players.findAll({
+    const players = await Player.findAll({
       where: queryCondition
     });
     res.json(players);
@@ -493,7 +510,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -535,7 +552,7 @@ router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -577,7 +594,7 @@ router.get('/user/:id/bets/year', authenticateJWT, async (req, res) => {
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       include: [{
         model: Match,
         where: {
@@ -611,7 +628,6 @@ router.get('/user/:id/bets/year', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 });
-
 router.get('/app/api/calls', authenticateJWT, async (req, res) => {
   try {
     const calls = await getAPICallsCount();
@@ -727,13 +743,12 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     const date = req.body.date
     const userId = req.body.userId
     const matchId = req.body.matchId
-    const existingBet = await Bets.findOne({
+    const existingBet = await Bet.findOne({
       where: {
         userId: userId,
         matchId: matchId
       }
     })
-    console.log(req.body)
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
@@ -750,7 +765,7 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
         }
       }
     }
-    const bet = await Bets.create(req.body)
+    const bet = await Bet.create(req.body)
     res.status(200).json(bet);
   } catch (error) {
     res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
@@ -760,7 +775,7 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
 
   try {
-    const bets = await Bets.findAll({
+    const bets = await Bet.findAll({
       where: {
         userId: req.params.id,
         matchId: {
@@ -860,8 +875,7 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
         .resize(450)
         .toFile(`${path.dirname(imagePath)}/${baseName}_450xAuto${path.extname(imagePath)}`);
 
-      const relativePath = req.file.path.split('client')[1]
-      user.img = relativePath
+      user.img = req.file.path.split('client')[1]
     }
     if (roleName) {
       const role = await Role.findOne({ where: { name: roleName } });
@@ -879,7 +893,7 @@ router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), a
 });
 router.put('/admin/setting/update/:id', authenticateJWT, async (req, res) => {
   try {
-    const setting = await Settings.findByPk(req.params.id);
+    const setting = await Setting.findByPk(req.params.id);
     if (!setting) return res.status(404).json({ error: 'Réglage non trouvé' });
 
     const type = setting.type;
@@ -948,7 +962,7 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
   try {
-    await updateTeams()
+    await createOrUpdateTeams()
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -962,7 +976,7 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeams(team.id)
+    await createOrUpdateTeams(team.id)
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });

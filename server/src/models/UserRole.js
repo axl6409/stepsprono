@@ -1,15 +1,22 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../../database')
+module.exports = (sequelize, DataTypes) => {
+  const UserRole = sequelize.define('UserRole', {
+    userId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      }
+    },
+    roleId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      references: {
+        model: 'Roles',
+        key: 'id',
+      }
+    }
+  });
 
-const UserRole = sequelize.define('User_Role', {
-  userId: {
-    type: DataTypes.INTEGER,
-    primaryKey: true
-  },
-  roleId: {
-    type: DataTypes.INTEGER,
-    primaryKey: true
-  }
-})
-
-module.exports = UserRole
+  return UserRole;
+};

@@ -19,7 +19,11 @@ const WeekRanking = ({users, token}) => {
             Authorization: `Bearer ${token}`
           }
         })
-        return response.data.reduce((sum, bet) => sum + (bet.points || 0), 0)
+        const data = response.data
+        if (data.length) {
+          return response.data.reduce((sum, bet) => sum + (bet.points || 0), 0)
+        }
+        return null
       } catch (error) {
         console.error(`Erreur lors de la sélection des paris pour l'utilisateur ${userId}`, error);
         return null
