@@ -505,8 +505,8 @@ router.get('/players', authenticateJWT, async (req, res) => {
     const players = await PlayerTeamCompetition.findAll({
       where: queryCondition,
       include: [
-        {model: Player, as: 'playerId'},
-        {model: Team, as: 'teamId'},
+        { model: Player, as: 'Player' },
+        { model: Team, as: 'Team' },
       ]
     });
     res.json(players);
@@ -764,35 +764,36 @@ router.post('/login', async (req, res) => {
 })
 router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
-    const date = req.body.date
-    const userId = req.body.userId
-    const matchId = req.body.matchId
+    const { userId, matchId, winnerId, homeScore, awayScore } = req.body;
+    const match = await Match.findOne({
+      where: { id: matchId },
+    });
+    if (!match) {
+      return res.status(404).json({ error: 'Match non trouvé' });
+    }
     const existingBet = await Bet.findOne({
       where: {
         userId: userId,
         matchId: matchId
       }
-    })
+    });
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
-    if (req.body.winnerId === null) {
-      if (req.body.homeScore || req.body.awayScore) {
-        if (req.body.homeScore !== req.body.awayScore) {
-          return res.status(401).json({error: 'Le score n\'est pas valide, un match null doit avoir un score similaire pour les deux équipes'});
-        }
+    if (winnerId === null) {
+      if (homeScore !== awayScore) {
+        return res.status(401).json({error: 'Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes'});
       }
     } else {
-      if (req.body.homeScore || req.body.awayScore) {
-        if (req.body.homeScore === req.body.awayScore) {
-          return res.status(401).json({ error: 'Le score n\'est pas valide, un match non null ne peux pas avoir un score similaire pour les deux équipes' });
-        }
+      if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) ||
+        (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+        return res.status(401).json({ error: 'Le score n\'est pas valide par rapport à l\'équipe gagnante sélectionnée' });
       }
     }
-    const bet = await Bet.create(req.body)
+    const bet = await Bet.create(req.body);
     res.status(200).json(bet);
   } catch (error) {
-    res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
+    res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error.message, datas: req.body });
   }
 })
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
