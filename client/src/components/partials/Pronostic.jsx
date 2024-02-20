@@ -21,6 +21,25 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   const [awayScore, setAwayScore] = useState('');
   const [players, setPlayers] = useState([]);
   const [scorer, setScorer] = useState('');
+  const [seasonId, setSeasonId] = useState('');
+
+  useEffect(() => {
+    const fetchSeasonId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/seasons/current/${match.league}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setSeasonId(response.data.currentSeason);
+      } catch (error) {
+        console.error('Erreur lors de la création de la saison :', error);
+      }
+    };
+    if (match) {
+      fetchSeasonId();
+    }
+  }, [match]);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -63,9 +82,10 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
       const playerGoal = data.scorer === "null" ? null : data.scorer;
       const response = await axios.post(`${apiUrl}/api/bet/add`, {
         userId: userId,
-        seasonId: 2023,
+        seasonId: seasonId,
         matchId: match.id,
         competitionId: 61,
+        matchday: match.matchday,
         winnerId: selectedTeam,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
