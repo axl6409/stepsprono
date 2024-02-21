@@ -123,7 +123,7 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   };
 
   return (
-    <div className={`modal fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full pt-4 ${errorMessage || successMessage ? 'pt-4' : 'pt-20'} pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
+    <div className={`modal fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full ${errorMessage || successMessage ? 'pt-4' : 'pt-20'} pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
       {errorMessage && (
         <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-deep-red text-white">
           <p className="font-sans uppercase font-bold text-xxs">{errorMessage}</p>
