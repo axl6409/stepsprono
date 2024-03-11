@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Team, Competition, Match, Bet, Setting, Player} = require("../models")
+const {User, Role, Team, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -18,6 +18,7 @@ const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatc
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
+const {getCurrentSeasonId} = require("../controllers/seasonController");
 
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
@@ -80,9 +81,17 @@ router.get('/dashboard', authenticateJWT, (req, res) => {
 });
 
 // Admin Routes
+router.get('/public/users/all', authenticateJWT, async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'treasurer' && req.user.role !== 'user') {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
     let queryOptions = {
@@ -493,8 +502,12 @@ router.get('/players', authenticateJWT, async (req, res) => {
     } else {
       return res.status(400).send('Aucun identifiant d\'équipe fourni');
     }
-    const players = await Player.findAll({
-      where: queryCondition
+    const players = await PlayerTeamCompetition.findAll({
+      where: queryCondition,
+      include: [
+        { model: Player, as: 'Player' },
+        { model: Team, as: 'Team' },
+      ]
     });
     res.json(players);
   } catch (error) {
@@ -645,6 +658,17 @@ router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {
   }
 })
 
+// Controllers
+router.get('/seasons/current/:competition', async (req, res) => {
+  try {
+    const competition = req.params.competition;
+    const currentSeason = await getCurrentSeasonId(competition);
+    res.status(200).json({ currentSeason });
+  } catch (error) {
+    res.status(500).json({ message: 'Current season can\'t be reached', error: error.message });
+  }
+})
+
 // Define POST routes
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
@@ -740,35 +764,36 @@ router.post('/login', async (req, res) => {
 })
 router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
-    const date = req.body.date
-    const userId = req.body.userId
-    const matchId = req.body.matchId
+    const { userId, matchId, winnerId, homeScore, awayScore } = req.body;
+    const match = await Match.findOne({
+      where: { id: matchId },
+    });
+    if (!match) {
+      return res.status(404).json({ error: 'Match non trouvé' });
+    }
     const existingBet = await Bet.findOne({
       where: {
         userId: userId,
         matchId: matchId
       }
-    })
+    });
     if (existingBet) {
       return res.status(401).json({ error: 'Un prono existe déjà pour ce match et cet utilisateur' });
     }
-    if (req.body.winnerId === null) {
-      if (req.body.homeScore || req.body.awayScore) {
-        if (req.body.homeScore !== req.body.awayScore) {
-          return res.status(401).json({error: 'Le score n\'est pas valide, un match null doit avoir un score similaire pour les deux équipes'});
-        }
+    if (winnerId === null) {
+      if (homeScore !== awayScore) {
+        return res.status(401).json({error: 'Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes'});
       }
     } else {
-      if (req.body.homeScore || req.body.awayScore) {
-        if (req.body.homeScore === req.body.awayScore) {
-          return res.status(401).json({ error: 'Le score n\'est pas valide, un match non null ne peux pas avoir un score similaire pour les deux équipes' });
-        }
+      if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) ||
+        (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+        return res.status(401).json({ error: 'Le score n\'est pas valide par rapport à l\'équipe gagnante sélectionnée' });
       }
     }
-    const bet = await Bet.create(req.body)
+    const bet = await Bet.create(req.body);
     res.status(200).json(bet);
   } catch (error) {
-    res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error, datas: req.body });
+    res.status(400).json({ error: 'Impossible d\'enregistrer le pari', message: error.message, datas: req.body });
   }
 })
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {

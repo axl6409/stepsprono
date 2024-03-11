@@ -8,6 +8,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token }) => {
   const { handleSubmit, register, setValue } = useForm();
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     userId: '',
     matchId: '',
@@ -21,6 +22,25 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
   const [awayScore, setAwayScore] = useState('');
   const [players, setPlayers] = useState([]);
   const [scorer, setScorer] = useState('');
+  const [seasonId, setSeasonId] = useState('');
+
+  useEffect(() => {
+    const fetchSeasonId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/seasons/current/${match.league}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setSeasonId(response.data.currentSeason);
+      } catch (error) {
+        console.error('Erreur lors de la création de la saison :', error);
+      }
+    };
+    if (match) {
+      fetchSeasonId();
+    }
+  }, [match]);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -55,52 +75,63 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
           setErrorMessage('Score obligatoire');
           return
         }
-        if (!data.scorer) {
-          setErrorMessage('Buteur obligatoire');
-          return
-        }
       }
       const playerGoal = data.scorer === "null" ? null : data.scorer;
-      const response = await axios.post(`${apiUrl}/api/bet/add`, {
+      console.log(playerGoal)
+
+      const payload = {
+        ...data,
         userId: userId,
-        seasonId: 2023,
+        seasonId: seasonId,
         matchId: match.id,
-        competitionId: 61,
+        competitionId: match.league,
+        matchday: match.matchday,
         winnerId: selectedTeam,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
-        playerGoal
-      }, {
+        playerGoal: playerGoal
+      };
+
+      const response = await axios.post(`${apiUrl}/api/bet/add`, payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
       if (response.status === 200) {
-        setErrorMessage('Prono enregistré avec succès:');
+        setSuccessMessage('Prono enregistré avec succès:');
         setTimeout(function () {
           closeModal()
+          setSuccessMessage('')
           setErrorMessage('')
           setSelectedTeam('')
           setSelectedTeam(null)
         }, 1000)
       } else {
         setErrorMessage(response.error || 'Erreur lors de l\'enregistrement du prono');
+        setSuccessMessage('')
       }
     } catch (error) {
       setErrorMessage(error.response.data.error || 'Erreur lors de l\'envoi du prono');
+      setSuccessMessage('')
     }
   };
 
   const closeInfoModal = () => {
     setErrorMessage('');
+    setSuccessMessage('')
   };
 
   return (
-    <div className={`modal fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full pt-16 pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
+    <div className={`modal fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll z-[40] w-full ${errorMessage || successMessage ? 'pt-4' : 'pt-20'} pb-8 border-b-2 border-t-2 transition-all duration-300 border-black bg-electric-blue transform ${isModalOpen ? 'translate-y-0' : 'translate-y-[-150%]'}`}>
       {errorMessage && (
-        <div className="modal-error relative bg-white w-[90%] mx-auto p-4 pr-12 mb-8 border-2 border-black shadow-flat-black">
-          <p className="font-sans uppercase font-bold text-xs">{errorMessage}</p>
+        <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-deep-red text-white">
+          <p className="font-sans uppercase font-bold text-xxs">{errorMessage}</p>
+        </div>
+      )}
+      {successMessage && (
+        <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-green-lime-deep text-white">
+          <p className="font-sans uppercase font-bold text-xxs">{successMessage}</p>
         </div>
       )}
       <button
@@ -192,10 +223,12 @@ const Pronostic = ({ match, userId, lastMatch, closeModal, isModalOpen, token })
                           {...register("scorer")}
                           onChange={(e) => setScorer(e.target.value)}
                         >
-                          <option value={null}>Aucun butteur</option>
-                          {players.map(player => (
-                            <option key={player.id} value={player.id}>{player.name}</option>
-                          ))}
+                          <option value={"null"}>Aucun butteur</option>
+                          {players.map(player => {
+                            return (
+                              <option key={player.playerId} value={player.playerId}>{player.Player.name}</option>
+                            );
+                          })}
                         </select>
                       </label>
                     )}

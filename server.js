@@ -51,11 +51,6 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Connection to the database has been established successfully')
     await sequelize.sync({ force: false })
     console.log('Database synchronized.')
-    await Role.findOrCreate({ where: { name: 'admin' } });
-    await Role.findOrCreate({ where: { name: 'manager' } });
-    await Role.findOrCreate({ where: { name: 'treasurer' } });
-    await Role.findOrCreate({ where: { name: 'user' } });
-    await Role.findOrCreate({ where: { name: 'visitor' } });
     // runCronJob()
     // Total => 18 * 2 => 36 API requests
     // await createOrUpdateTeams( 116, 2023, 61, false, true )
@@ -66,7 +61,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 1 API request
     // await fetchWeekMatches()
     // Total => 18 API requests
-    // await updatePlayers([82,83,84], 61)
+    // await updatePlayers([111,112,116], 61)
     // Total => 1 API requests by matchId
     // await updateMatchStatusAndPredictions()
     // Total => 0 API request

@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    teamId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     photo: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -23,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Player.associate = (models) => {
-    Player.belongsTo(models.Team, { foreignKey: 'teamId' });
+    Player.belongsToMany(models.Team, { through: models.PlayerTeamCompetition, foreignKey: 'playerId' });
   };
 
   return Player;

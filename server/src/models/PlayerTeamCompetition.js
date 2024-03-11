@@ -23,5 +23,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
+  PlayerTeamCompetition.associate = (models) => {
+    PlayerTeamCompetition.belongsTo(models.Player, { foreignKey: 'playerId' });
+    PlayerTeamCompetition.belongsTo(models.Team, { foreignKey: 'teamId' });
+    PlayerTeamCompetition.belongsTo(models.Competition, { foreignKey: 'competitionId' });
+  }
+
   return PlayerTeamCompetition;
 };
