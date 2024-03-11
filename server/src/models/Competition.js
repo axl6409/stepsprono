@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'Area',
-        key: 'code',
+        key: 'id',
       }
     },
     type: {
