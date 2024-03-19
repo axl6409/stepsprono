@@ -9,7 +9,7 @@ const CurrentBets = ({ user, token }) => {
   const [matchs, setMatchs] = useState([]);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
-  const [yearPoints, setYearPoints] = useState(0);
+  const [seasonPoints, setSeasonPoints] = useState(0);
 
   useEffect(() => {
     const fetchLastBets = async () => {
@@ -51,21 +51,19 @@ const CurrentBets = ({ user, token }) => {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
-    const fetchYearBets = async () => {
+    const fetchSeasonPoints = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/year`, {
+        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/season`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        const fetchedMatchs = response.data;
-        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+        const seasonPoints = response.data;
+        if (seasonPoints === undefined || seasonPoints === 0) {
           return;
         }
-        const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (match.points >= 0 ? match.points : 0);
-        }, 0)
-        setYearPoints(totalPoints)
+        setSeasonPoints(seasonPoints)
+        console.log(seasonPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -73,10 +71,10 @@ const CurrentBets = ({ user, token }) => {
     if (user && token) {
       fetchLastBets()
       fetchMonthBets()
-      fetchYearBets()
+      fetchSeasonPoints()
     }
-  }, []);
-
+  }, [user, token]);
+  console.log(seasonPoints)
   return (
     <div>
       <div className="flex flex-row flex-wrap justify-between px-4">
@@ -100,7 +98,7 @@ const CurrentBets = ({ user, token }) => {
           <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la saison</p>
           <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
             <p className="font-title text-xl font-bold leading-5">
-              {yearPoints}
+              {seasonPoints}
             </p>
           </div>
         </div>

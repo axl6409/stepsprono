@@ -13,7 +13,7 @@ const Reglement = () => {
   useEffect(() => {
     const fetchReglement = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/settings/reglement`, {
+        const response = await axios.get(`${apiUrl}/api/reglement`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }

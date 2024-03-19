@@ -53,7 +53,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Database synchronized.')
     // runCronJob()
     // Total => 18 * 2 => 36 API requests
-    // await createOrUpdateTeams( 116, 2023, 61, false, true )
+    await createOrUpdateTeams( 79, 2023, 61, false, false )
     // Total => 1 API request
     // await updateMatches(61)
     // Total => 1 API request

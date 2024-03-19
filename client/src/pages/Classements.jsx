@@ -16,7 +16,7 @@ const Classements = () => {
   useEffect(() => {
     const fetchUsers = async (roles) => {
       try {
-        let url = `${apiUrl}/api/public/users/all`;
+        let url = `${apiUrl}/api/users/all`;
         if (roles && roles.length > 0) {
           const rolesQuery = roles.map(role => `roles[]=${encodeURIComponent(role)}`).join('&');
           url += `?${rolesQuery}`;

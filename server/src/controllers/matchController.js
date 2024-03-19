@@ -5,6 +5,7 @@ const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const cron = require("node-cron");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
+const {getMonthDateRange} = require("./appController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -230,6 +231,47 @@ async function fetchWeekMatches() {
   }
 }
 
+async function getCurrentMonthMatchdays() {
+  try {
+    const matchdays = []
+    const monthDates = getMonthDateRange();
+    const matchs = await Match.findAll({
+      where: {
+        utcDate: {
+          [Op.gte]: monthDates.start,
+          [Op.lte]: monthDates.end
+        }
+      }
+    })
+    for (const match of matchs) {
+      matchdays.push(match.matchday)
+    }
+    return matchdays
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const getCurrentMatchday = async () => {
+  try {
+    const startOfWeek = moment().startOf('isoWeek').tz("Europe/Paris");
+    const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
+    const match = await Match.findOne({
+      where: {
+        utcDate: {
+          [Op.gte]: startDate
+        },
+        status: {
+          [Op.eq]: ['NS']
+        }
+      }
+    })
+    return match.matchday
+  } catch (error) {
+    console.log('Erreur lors de la récupération du numéro de la journée de matchs:', error)
+  }
+}
+
 function getMatchsCronTasks() {
   return cronTasks
 }
@@ -239,4 +281,6 @@ module.exports = {
   updateMatchStatusAndPredictions,
   fetchWeekMatches,
   getMatchsCronTasks,
+  getCurrentMatchday,
+  getCurrentMonthMatchdays
 };

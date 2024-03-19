@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment-timezone");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -21,6 +22,14 @@ async function getAPICallsCount() {
   }
 }
 
+function getMonthDateRange() {
+  var moment = require('moment');
+  const start = moment().startOf('month');
+  const end = moment().endOf('month');
+  return { start: start, end: end };
+}
+
 module.exports = {
   getAPICallsCount,
+  getMonthDateRange
 };
