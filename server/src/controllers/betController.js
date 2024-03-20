@@ -5,12 +5,21 @@ const {getCurrentMonthMatchdays} = require("../controllers/matchController");
 
 async function checkupBets() {
   try {
-    const bets = await Bet.findAll();
+    const bets = await Bet.findAll({
+      where: {
+        points: {
+          [Op.eq]: null
+        }
+      }
+    });
+    if (bets.length === 0) {
+      return { success: true, message: "Aucun pari à mettre à jour." };
+    }
+    let betsUpdated = 0;
     for (const bet of bets) {
       const match = await Match.findByPk(bet.matchId)
       if (!match) continue;
       let points = 0;
-      console.log(match.winnerId, bet.winnerId);
       if (bet.winnerId === match.winnerId) {
         points += 1;
       }
@@ -24,16 +33,34 @@ async function checkupBets() {
           points += 1;
         }
       }
-      // await Bets.update({points}, {where: {id: bet.id}});
+      await Bet.update({points}, {where: {id: bet.id}});
+      betsUpdated++;
     }
+    return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des paris:', error);
+    console.log('Erreur lors de la mise à jour des pronostics :', error);
+    return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
+  }
+}
+
+async function getNullBets() {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        points: {
+          [Op.eq]: null
+        }
+      }
+    });
+    return bets.length !== 0;
+  } catch (error) {
+    console.log('Erreur lors de la recuperation des paris nuls:', error);
   }
 }
 
 const getMonthPoints = async (seasonId, userId) => {
   try {
-    const getMonthMatchdays = await getCurrentMonthMatchdays(seasonId);
+    const matchdays = await getCurrentMonthMatchdays(seasonId);
     const bets = await Bet.findAll({
       where: {
         seasonId: {
@@ -43,7 +70,7 @@ const getMonthPoints = async (seasonId, userId) => {
           [Op.eq]: userId
         },
         matchday: {
-          [Op.in]: getMonthMatchdays
+          [Op.in]: matchdays
         },
         points: {
           [Op.not]: null
@@ -54,7 +81,7 @@ const getMonthPoints = async (seasonId, userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
-    return points;
+    return bets;
   } catch (error) {
     console.log('Erreur lors de la recuperation des points:', error);
   }
@@ -87,6 +114,7 @@ const getSeasonPoints = async (seasonId, userId) => {
 
 module.exports = {
   checkupBets,
+  getNullBets,
   getMonthPoints,
   getSeasonPoints,
 };

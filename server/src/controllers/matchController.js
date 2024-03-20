@@ -1,6 +1,6 @@
 const axios = require("axios");
 const ProgressBar = require("progress");
-const { Match, Bets} = require("../models");
+const {Match, Bet} = require("../models");
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const cron = require("node-cron");
@@ -161,10 +161,9 @@ async function updateSingleMatch(matchId) {
       }
 
       if (Object.keys(fieldsToUpdate).length > 0) {
-        const bets = await Bets.findAll({where: {matchId}});
+        const bets = await Bet.findAll({where: {matchId}});
         for (const bet of bets) {
           let points = 0;
-          console.log(bet.winnerId === fieldsToUpdate['winnerId'])
           if (bet.winnerId && bet.winnerId === fieldsToUpdate['winnerId']) {
             points += 1;
           }
@@ -182,7 +181,7 @@ async function updateSingleMatch(matchId) {
               }
             }
           }
-          await Bets.update({points}, {where: {id: bet.id}});
+          await Bet.update({points}, {where: {id: bet.id}});
         }
       }
     }
@@ -247,8 +246,8 @@ async function getCurrentMonthMatchdays() {
       matchdays.push(match.matchday)
     }
     return matchdays
-  } catch (e) {
-    console.log(e)
+  } catch (error) {
+    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
   }
 }
 

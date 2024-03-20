@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Team, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
+const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -15,11 +15,12 @@ const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
 const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks, getCurrentMatchday} = require("../controllers/matchController");
+const {updatePlayers} = require("../controllers/playerController");
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
-const {getCurrentSeasonId} = require("../controllers/seasonController");
-const {getSeasonPoints, getMonthPoints} = require("../controllers/betController");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../controllers/seasonController");
+const {checkupBets, getNullBets, getMonthPoints, getSeasonPoints} = require("../controllers/betController");
 
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
@@ -180,6 +181,18 @@ router.get('/app/api/calls', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
+router.get('/app/bets/get-null/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await getNullBets();
+    if (!bets) return res.status(404).json({ message: 'Aucun pronostic n\'est null' });
+    res.status(200).json({ bets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 
 router.get('/users/all', authenticateJWT, async (req, res) => {
   try {
@@ -239,10 +252,17 @@ router.get('/teams', authenticateJWT, async (req, res) => {
       offset = null;
     }
 
-    const teams = await Team.findAndCountAll({
+    const teams = await TeamCompetition.findAndCountAll({
+      include: [{
+        model: Team,
+        as: 'Team',
+        required: true
+      }],
+      order: [
+        [sortBy, 'ASC']
+      ],
       offset,
-      limit,
-      order: [[sortBy, order.toUpperCase()]]
+      limit
     });
     res.json({
       data: teams.rows,
@@ -842,6 +862,9 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const matchId = req.params.id
     if (isNaN(matchId)) {
       return res.status(400).json({ message: 'Identifiant de match non valide' });
@@ -856,6 +879,9 @@ router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) =>
 });
 router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await updateMatches()
     res.status(200).json({ message: 'Matchs mis à jour avec succès' });
   } catch (error) {
@@ -864,6 +890,9 @@ router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
 });
 router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await updateTeamsRanking()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
   } catch (error) {
@@ -872,6 +901,9 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await createOrUpdateTeams()
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
@@ -880,13 +912,17 @@ router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => 
 });
 router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
+    const season = await getCurrentSeasonYear(61)
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await createOrUpdateTeams(team.id)
+    await createOrUpdateTeams(team.id, season, 61, false, true)
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -894,13 +930,16 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
 });
 router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamsRanking(team.id)
+    await updateTeamsRanking(team.id, 61)
     res.status(200).json({ message: 'Équipe mise à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -908,17 +947,32 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamsRanking(team.id)
-    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+    await updatePlayers(team.id, 61)
+    res.status(200).json({ message: 'Joueurs mis à jour avec succès pour l\'equipe' + team.name });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
+router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await checkupBets()
+    if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
+    res.status(200).json({ message: bets.message, datas: bets.updatedBets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 
 module.exports = router;

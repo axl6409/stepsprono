@@ -7,7 +7,15 @@ const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
 const { runCronJob, createOrUpdateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
+const morgan = require('morgan')
+const logger = require('./server/src/utils/logger/logger');
+const rfs = require('rotating-file-stream');
 const path = require("path");
+
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
+  path: path.join(__dirname, 'log'),
+});
 
 require('dotenv').config();
 
@@ -41,11 +49,13 @@ const corsOptions = {
 
 // Utiliser CORS pour toutes les routes
 app.use(cors(corsOptions));
+app.use(morgan('combined', { stream: accessLogStream }));
+
 // Routes API
 app.use('/api', apiRoutes);
 
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`Server is running on port ${PORT}`)
+  logger.info(`Server is running on port ${PORT}`);
   try {
     await models.sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
@@ -53,7 +63,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Database synchronized.')
     // runCronJob()
     // Total => 18 * 2 => 36 API requests
-    await createOrUpdateTeams( 79, 2023, 61, false, false )
+    // await createOrUpdateTeams( 79, 2023, 61, false, false )
     // Total => 1 API request
     // await updateMatches(61)
     // Total => 1 API request
@@ -70,3 +80,10 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Unable to connect to the database: ', error)
   }
 })
+
+process.on('uncaughtException', (error) => {
+  logger.error(`Exception non gérée: ${error.message}`, { stack: error.stack });
+});
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Rejet de promesse non géré', { reason, promise });
+});

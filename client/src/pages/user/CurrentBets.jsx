@@ -74,6 +74,7 @@ const CurrentBets = ({ user, token }) => {
       fetchSeasonPoints()
     }
   }, [user, token]);
+
   console.log(seasonPoints)
   return (
     <div>

@@ -15,8 +15,7 @@ async function getAPICallsCount() {
       }
     };
     const response = await axios.request(options);
-    const requests = response.data;
-    return requests;
+    return response.data;
   } catch (error) {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }

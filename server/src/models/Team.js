@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     Team.hasMany(models.Match, { as: 'awayMatches', foreignKey: 'awayTeamId' })
     Team.hasMany(models.Bet, { foreignKey: 'winnerId' })
     Team.belongsToMany(models.Player, { through: models.PlayerTeamCompetition, foreignKey: 'teamId' });
+    Team.hasMany(models.TeamCompetition, { as: 'TeamCompetition', foreignKey: 'teamId' });
   };
 
   return Team;
