@@ -47,7 +47,6 @@ const Teams = () => {
     }
     fetchTeams()
   }, [currentPage, itemsPerPage]);
-
   const getResultIcon = (result) => {
     switch (result) {
       case 'W': return <FontAwesomeIcon icon={faCircleCheck} className="text-green-lime-deep block rounded-full shadow-flat-black-adjust" />
@@ -56,7 +55,7 @@ const Teams = () => {
       default: return null;
     }
   };
-
+  console.log(teams)
   return (
     <div className="inline-block w-full h-auto">
       <Link
@@ -78,17 +77,17 @@ const Teams = () => {
       <div className="relative border-t-2 border-b-2 border-black overflow-hidden py-8 pr-2 pt-0 bg-flat-yellow">
         <ul className="flex flex-col justify-start">
           {teams.map(team => (
-            <li className="flex flex-row justify-between" key={team.id}>
+            <li className="flex flex-row justify-between" key={team.teamId}>
               <p className="w-[8%] flex flex-col justify-center">
                 <span className="font-title font-bold text-xl w-full inline-block leading-4 text-center pb-2 pt-1 bg-white border-black border-t-2 border-r-2 border-b-2 shadow-flat-black-adjust rounded-tr-md rounded-br-md -ml-1">{team.position}</span>
               </p>
               <div className="flex flex-col relative p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
                 <div className="w-full absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center opacity-50 z-[1]">
-                  <img src={team.logoUrl} alt={`${team.name} Logo`} className="team-logo block w-auto h-3/4 mx-auto"/>
+                  <img src={team.Team.logoUrl} alt={`${team.Team.name} Logo`} className="team-logo block w-auto h-3/4 mx-auto"/>
                 </div>
                 <div className="flex flex-row relative z-[5]">
                   <div className="w-full text-center flex flex-col justify-center px-6 py-2">
-                    <p className="name font-sans text-base font-bold">{team.name}</p>
+                    <p className="name font-sans text-base font-bold">{team.Team.name}</p>
                   </div>
                 </div>
                 <ul className="flex flex-row justify-center px-4 h-[50px] relative z-[5]">

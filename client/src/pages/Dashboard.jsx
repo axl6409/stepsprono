@@ -23,7 +23,7 @@ const Dashboard = () => {
     const fetchProfileUser = async () => {
       setIsLoading(true)
       try {
-        const response = await axios.get(`${apiUrl}/api/admin/user/${userId}`, {
+        const response = await axios.get(`${apiUrl}/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

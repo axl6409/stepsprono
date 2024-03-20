@@ -48,7 +48,7 @@ const AdminTeams = () => {
     fetchTeams()
   }, []);
 
-  const handleUpdateTeam = async (teamId) => {
+  const handleUpdateTeamRanking = async (teamId) => {
     try {
       const response = await axios.patch(`${apiUrl}/api/admin/teams/update-ranking/${teamId}`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -241,18 +241,18 @@ const AdminTeams = () => {
               return (
                 <li
                   className="relative flex flex-col justify-between border-2 border-black bg-white rounded-xl py-2 px-4 h-fit shadow-flat-black my-2 shadow-flat-purple"
-                  key={team.id}>
+                  key={team.teamId}>
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-col w-1/2">
-                      <img className="block h-8 w-8 mx-auto" src={team.logoUrl} alt={team.name}/>
+                      <img className="block h-8 w-8 mx-auto" src={team.Team.logoUrl} alt={team.Team.name}/>
                       <p
-                        className="inline-block text-center font-sans text-sm font-bold leading-5 my-auto">{team.name}</p>
+                        className="inline-block text-center font-sans text-sm font-bold leading-5 my-auto">{team.Team.name}</p>
                     </div>
                     <div className="flex flex-row w-1/2">
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team datas</span>
                         <button
-                          onClick={() => updateTeamDatas(team.id)}
+                          onClick={() => updateTeamDatas(team.teamId)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span
@@ -264,7 +264,7 @@ const AdminTeams = () => {
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team ranking</span>
                         <button
-                          onClick={() => handleUpdateTeam(team.id)}
+                          onClick={() => handleUpdateTeamRanking(team.teamId)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span
@@ -276,7 +276,7 @@ const AdminTeams = () => {
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team players</span>
                         <button
-                          onClick={() => handleUpdateTeamPlayers(team.id)}
+                          onClick={() => handleUpdateTeamPlayers(team.teamId)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span

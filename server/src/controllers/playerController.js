@@ -1,33 +1,25 @@
 const {Team, Player, PlayerTeamCompetition} = require("../models");
 const axios = require("axios");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
+const logger = require("../utils/logger/logger");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
-async function updatePlayers(teamId = null, competitionId = null) {
+async function updatePlayers(teamIds = [], competitionId = null) {
   try {
     let teams = [];
-    if (teamId) {
-      if (teamId.length > 1) {
-        for (const id of teamId) {
-          const team = await Team.findByPk(id)
-          if (team) {
-            teams.push(team)
-          }
-        }
-      } else {
-        const team = await Team.findByPk(teamId)
-        if (team) {
-          teams = [team]
-        }
-      }
-    } else {
-      teams = await Team.findAll()
+    if (!Array.isArray(teamIds)) {
+      teamIds = [teamIds];
     }
-
+    if (teamIds.length > 0) {
+      teams = await Team.findAll({
+        where: { id: teamIds }
+      });
+    } else {
+      teams = await Team.findAll();
+    }
     const seasonYear = await getCurrentSeasonYear(competitionId)
-
     for (const team of teams) {
       let currentPage = 1;
       let totalPages = 0;
@@ -46,27 +38,50 @@ async function updatePlayers(teamId = null, competitionId = null) {
           }
         };
         const response = await axios.request(options);
-        const apiMatchData = response.data.response;
-        for (const apiPlayer of apiMatchData) {
-          await Player.upsert({
-            id: apiPlayer.player.id,
-            name: apiPlayer.player.name,
-            firstname: apiPlayer.player.firstname,
-            lastname: apiPlayer.player.lastname,
-            photo: apiPlayer.player.photo
-          })
-          await PlayerTeamCompetition.upsert({
-            playerId: apiPlayer.player.id,
-            teamId: team.id,
-            competitionId: competitionId,
-          })
+        const apiPlayers = response.data.response;
+        for (const apiPlayer of apiPlayers) {
+          let [player, created] = await Player.findOrCreate({
+            where: { id: apiPlayer.player.id },
+            defaults: {
+              name: apiPlayer.player.name,
+              firstname: apiPlayer.player.firstname,
+              lastname: apiPlayer.player.lastname,
+              photo: apiPlayer.player.photo
+            }
+          });
+          if (!created) {
+            await Player.update({
+              name: apiPlayer.player.name,
+              firstname: apiPlayer.player.firstname,
+              lastname: apiPlayer.player.lastname,
+              photo: apiPlayer.player.photo
+            }, {
+              where: { id: apiPlayer.player.id }
+            });
+          }
+          const association = await PlayerTeamCompetition.findOne({
+            where: {
+              playerId: apiPlayer.player.id,
+              teamId: team.id,
+              competitionId: competitionId
+            }
+          });
+          if (!association) {
+            await PlayerTeamCompetition.create({
+              playerId: apiPlayer.player.id,
+              teamId: team.id,
+              competitionId: competitionId
+            });
+          }
         }
+
         totalPages = response.data.paging.total;
         currentPage++;
       } while (currentPage <= totalPages);
     }
+    logger.info(`Mise à jour des joueurs effectuées avec succès`);
   } catch (error) {
-    console.log(`Erreur lors de le récupération des joueurs pour l'équipe ${teamId}:`, error);
+    logger.error(`Erreur lors de le récupération des joueurs: `, error);
   }
 }
 

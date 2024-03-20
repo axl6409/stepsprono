@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "dependencies": {
     "axios": "^1.5.1",
@@ -25,12 +25,16 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
+    "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.1",
     "node-cron": "^3.0.2",
     "nodemon": "^3.0.1",
     "progress": "^2.0.3",
+    "rotating-file-stream": "^3.2.1",
     "sequelize": "^6.33.0",
-    "sharp": "^0.32.6"
+    "sharp": "^0.32.6",
+    "winston": "^3.12.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Team, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
+const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -14,11 +14,13 @@ require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
-const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
+const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks, getCurrentMatchday} = require("../controllers/matchController");
+const {updatePlayers} = require("../controllers/playerController");
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
-const {getCurrentSeasonId} = require("../controllers/seasonController");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../controllers/seasonController");
+const {checkupBets, getNullBets, getMonthPoints, getSeasonPoints} = require("../controllers/betController");
 
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
@@ -79,16 +81,6 @@ router.get('/competitions', authenticateJWT, async (req, res) => {
 router.get('/dashboard', authenticateJWT, (req, res) => {
   res.json({ message: 'Route protégée' });
 });
-
-// Admin Routes
-router.get('/public/users/all', authenticateJWT, async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 router.get('/admin/users', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -112,22 +104,15 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/admin/user/:id', authenticateJWT, async (req, res) => {
+router.get('/admin/users/requests', authenticateJWT, async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id, {
-      include: [{
-        model: Role,
-        as: 'Roles'
-      }]
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
-    res.json(user);
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const users = await User.findAll({ where: { status: 'pending' } });
+    res.json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message })
+    res.status(500).json({ error: error.message });
   }
-});
+})
 router.get('/admin/settings', authenticateJWT, async (req, res) => {
   try {
     // Vérifiez si l'utilisateur est admin ou manager
@@ -140,6 +125,17 @@ router.get('/admin/settings', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/admin/roles', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const roles = await Role.findAll();
+    res.json(roles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+
+// Admin Routes => Dev Mode
 router.get('/admin/matchs/to-update', authenticateJWT, async (req, res) => {
   try {
     const matchs = await Match.findAndCountAll({
@@ -159,24 +155,6 @@ router.get('/admin/matchs/to-update', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.get('/admin/users/requests', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const users = await User.findAll({ where: { status: 'pending' } });
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-})
-router.get('/admin/roles', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const roles = await Role.findAll();
-    res.json(roles);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-})
 router.get('/admin/matchs/program-tasks', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
@@ -195,16 +173,52 @@ router.get('/admin/matchs/cron-tasks', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });
   }
 })
-router.get('/admin/competitions/by-country/:code', authenticateJWT, async (req, res) => {
+router.get('/app/api/calls', authenticateJWT, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
-    const competitions = await getCompetitionsByCountry(req.params.matchId)
-    res.status(200).json({ competitions: competitions })
+    const calls = await getAPICallsCount();
+    res.status(200).json({ calls });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des compétitions', message: error.message })
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.get('/settings/reglement', authenticateJWT, async (req, res) => {
+router.get('/app/bets/get-null/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await getNullBets();
+    if (!bets) return res.status(404).json({ message: 'Aucun pronostic n\'est null' });
+    res.status(200).json({ bets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+
+router.get('/users/all', authenticateJWT, async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/user/:id', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      include: [{
+        model: Role,
+        as: 'Roles'
+      }]
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+})
+router.get('/reglement', authenticateJWT, async (req, res) => {
   try {
     const setting = await Setting.findOne({ where: { key: 'regulation' } });
     if (!setting) {
@@ -214,7 +228,16 @@ router.get('/settings/reglement', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
-});
+})
+router.get('/competitions/by-country/:code', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    const competitions = await getCompetitionsByCountry(req.params.matchId)
+    res.status(200).json({ competitions: competitions })
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des compétitions', message: error.message })
+  }
+})
 router.get('/teams', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -229,10 +252,17 @@ router.get('/teams', authenticateJWT, async (req, res) => {
       offset = null;
     }
 
-    const teams = await Team.findAndCountAll({
+    const teams = await TeamCompetition.findAndCountAll({
+      include: [{
+        model: Team,
+        as: 'Team',
+        required: true
+      }],
+      order: [
+        [sortBy, 'ASC']
+      ],
       offset,
-      limit,
-      order: [[sortBy, order.toUpperCase()]]
+      limit
     });
     res.json({
       data: teams.rows,
@@ -243,35 +273,7 @@ router.get('/teams', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
-});
-router.get('/matches', authenticateJWT, async (req, res) => {
-  try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
-    if (!req.query.page && !req.query.limit) {
-      limit = null;
-      offset = null;
-    }
-    const matchs = await Match.findAndCountAll({
-      offset,
-      limit,
-      include: [
-        { model: Team, as: 'HomeTeam' },
-        { model: Team, as: 'AwayTeam' }
-      ]
-    });
-    res.json({
-      data: matchs.rows,
-      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
-      currentPage: page,
-      totalCount: matchs.count,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée' , error: error.message });
-  }
-});
+})
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
     const match = await Match.findByPk(req.params.matchId);
@@ -302,7 +304,7 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
+})
 router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   try {
     const currentDate = new Date();
@@ -324,7 +326,7 @@ router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
   }
-});
+})
 router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
   try {
     const startOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
@@ -363,21 +365,17 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
     console.error("Erreur :", error);
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
-});
+})
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
     const startOfCurrentWeek = moment().tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const endOfCurrentWeek = moment().tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
-
+    const matchday = await getCurrentMatchday()
     const matchs = await Match.findAndCountAll({
       where: {
-        utcDate: {
-          [Op.gte]: startOfCurrentWeek,
-          [Op.lte]: endOfCurrentWeek
+        matchday: {
+          [Op.eq]: matchday
         },
-        status: {
-          [Op.not]: 'TBD'
-        }
       },
       include: [
         { model: Team, as: 'HomeTeam' },
@@ -401,62 +399,6 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   } catch (error) {
     console.error("Erreur :", error);
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
-  }
-});
-router.get('/matchs/by-week', authenticateJWT, async (req, res) => {
-  try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
-
-    const startOfWeek = moment().tz("Europe/Paris").startOf('week').add((page - 1) * 7, 'days').format('YYYY-MM-DD HH:mm:ss');
-    const endOfWeek = moment().tz("Europe/Paris").startOf('week').add(page * 7 - 1, 'days').endOf('day').format('YYYY-MM-DD HH:mm:ss');
-
-    const matchs = await Match.findAndCountAll({
-      where: {
-        utcDate: {
-          [Op.gte]: startOfWeek,
-          [Op.lte]: endOfWeek
-        }
-      },
-      offset,
-      limit,
-    });
-
-    res.json({
-      data: matchs.rows,
-      totalPages: limit ? Math.ceil(matchs.count / limit) : 1,
-      currentPage: page,
-      totalCount: matchs.count,
-      startOfWeek: startOfWeek,
-      endOfWeek: endOfWeek,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-});
-router.get('/matchs/week/:weekNumber', authenticateJWT, async (req, res) => {
-  try {
-    const weekNumber = req.params.weekNumber;
-    const matchs = await Match.findAndCountAll({
-      where: {
-        week: weekNumber
-      },
-      include: [
-        { model: Team, as: 'HomeTeam' },
-        { model: Team, as: 'AwayTeam' }
-      ],
-      order: [
-        ['utcDate', 'ASC']
-      ]
-    });
-    res.json({
-      data: matchs.rows
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
 router.get('/bets', authenticateJWT, async (req, res) => {
@@ -514,7 +456,7 @@ router.get('/players', authenticateJWT, async (req, res) => {
     console.error('Erreur lors de la récupération des joueurs :', error);
     res.status(500).send('Erreur interne du serveur');
   }
-});
+})
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
     const startOfWeek = moment().startOf('isoWeek');
@@ -556,9 +498,11 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
-});
+})
 router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
   try {
+    const seasonId = await getCurrentSeasonId(61)
+    const monthPoints = await getMonthPoints(seasonId, req.params.id);
     const startOfWeek = moment().startOf('month');
     const endOfWeek = moment().endOf('month');
 
@@ -591,62 +535,25 @@ router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
     });
 
     if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour le mois en cours' })
+      res.json({ message: 'Aucun pari pour le mois en cours', points: monthPoints })
     } else {
-      res.json(bets)
+      res.json(monthPoints)
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
-});
-router.get('/user/:id/bets/year', authenticateJWT, async (req, res) => {
+})
+router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('year');
-    const endOfWeek = moment().endOf('year');
-
-    const startDate = startOfWeek.toDate();
-    const endDate = endOfWeek.toDate();
-
-    const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
-          },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
-      where: {
-        userId: req.params.id
-      }
-    });
-
+    const seasonId = await getCurrentSeasonId(61)
+    const bets = await getSeasonPoints(seasonId, req.params.id)
     if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour l\'année en cours' })
+      res.json({ message: 'Aucun pari pour la saison' })
     } else {
       res.json(bets)
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
-  }
-});
-router.get('/app/api/calls', authenticateJWT, async (req, res) => {
-  try {
-    const calls = await getAPICallsCount();
-    res.status(200).json({ calls });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
 router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {
@@ -657,8 +564,6 @@ router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-
-// Controllers
 router.get('/seasons/current/:competition', async (req, res) => {
   try {
     const competition = req.params.competition;
@@ -875,7 +780,7 @@ router.delete('/admin/user/delete/:id', authenticateJWT, async (req, res) => {
 })
 
 // Define PUT routes
-router.put('/admin/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
+router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
@@ -957,6 +862,9 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const matchId = req.params.id
     if (isNaN(matchId)) {
       return res.status(400).json({ message: 'Identifiant de match non valide' });
@@ -971,6 +879,9 @@ router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) =>
 });
 router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await updateMatches()
     res.status(200).json({ message: 'Matchs mis à jour avec succès' });
   } catch (error) {
@@ -979,6 +890,9 @@ router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
 });
 router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await updateTeamsRanking()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
   } catch (error) {
@@ -987,6 +901,9 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     await createOrUpdateTeams()
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
@@ -995,13 +912,17 @@ router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => 
 });
 router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
+    const season = await getCurrentSeasonYear(61)
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await createOrUpdateTeams(team.id)
+    await createOrUpdateTeams(team.id, season, 61, false, true)
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -1009,13 +930,16 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
 });
 router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamsRanking(team.id)
+    await updateTeamsRanking(team.id, 61)
     res.status(200).json({ message: 'Équipe mise à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -1023,17 +947,32 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
     const teamId = req.params.id
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamsRanking(team.id)
-    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+    await updatePlayers(team.id, 61)
+    res.status(200).json({ message: 'Joueurs mis à jour avec succès pour l\'equipe' + team.name });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
+router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await checkupBets()
+    if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
+    res.status(200).json({ message: bets.message, datas: bets.updatedBets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 
 module.exports = router;
