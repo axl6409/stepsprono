@@ -1,4 +1,5 @@
 const axios = require("axios");
+const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
@@ -7,106 +8,92 @@ const { downloadImage } = require('../services/imageService');
 const { calculatePoints } = require("../services/betService");
 const { getCurrentSeasonId, getCurrentSeasonYear } = require("./seasonController");
 
-async function createOrUpdateTeams(teamID = null, season = null, competitionId = null, includeStats = false, onlyUpdateStats = false) {
+async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = null, includeStats = false, onlyUpdateStats = false) {
+  if (typeof teamIDs === 'number') {
+    teamIDs = [teamIDs];
+  }
   try {
     let teams = [];
     if (!onlyUpdateStats) {
       if (!season) {
         console.log('Please provide a season number');
-        return 'Please provide a season number'
+        return 'Please provide a season number';
       }
       if (!competitionId) {
         console.log('Please provide a competition id');
-        return 'Please provide a competition id'
+        return 'Please provide a competition id';
       }
-      const teamInfosOptions = {
-        method: 'GET',
-        url: apiBaseUrl + 'teams',
-        params: {
-          ...(teamID && { id: teamID }),
-          league: competitionId,
-          season: season
-        },
-        headers: {
-          'X-RapidAPI-Key': apiKey,
-          'X-RapidAPI-Host': apiHost
+      for (const teamID of teamIDs) {
+        const teamInfosOptions = {
+          method: 'GET',
+          url: `${apiBaseUrl}teams/${teamID}`,
+          headers: {
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': apiHost
+          }
+        };
+        const teamResponse = await axios.request(teamInfosOptions);
+        if (teamResponse.data.response) {
+          teams.push(...teamResponse.data.response);
         }
-      };
-      const teamResponse = await axios.request(teamInfosOptions);
-      teams = teamResponse.data.response || [];
+      }
     } else {
-      if (teamID) {
-        const existingTeam = await Team.findByPk(teamID);
-        if (existingTeam) {
-          teams.push({team: existingTeam});
-        }
-      } else {
-        const existingTeams = await Team.findAll();
-        if (existingTeams) {
-          existingTeams.forEach(team => teams.push({team: team}));
-        }
-      }
+      teams = await Team.findAll({
+        where: teamIDs.length ? { id: teamIDs } : undefined,
+      });
     }
 
-    for (const team of teams) {
-      let logoUrl, venueImageUrl;
-      if (!onlyUpdateStats) {
-        const existingTeam = await Team.findByPk(team.team.id);
-        logoUrl = existingTeam?.logoUrl;
-        venueImageUrl = existingTeam?.venueImage;
-        if (!logoUrl && team.team.logo) {
-          logoUrl = await downloadImage(team.team.logo, team.team.id, 'logo');
+    for (const teamData of teams) {
+      let logoUrl = teamData.dataValues.logoUrl;
+      let venueImageUrl = teamData.dataValues.venueImage;
+
+      const existingTeam = await Team.findByPk(teamData.dataValues.id);
+      if (existingTeam) {
+        logoUrl = existingTeam.logoUrl || logoUrl;
+        venueImageUrl = existingTeam.venueImage || venueImageUrl;
+      } else {
+        if (teamData.dataValues.logoUrl) {
+          logoUrl = await downloadImage(teamData.dataValues.logoUrl, teamData.dataValues.id, 'logo');
         }
-        if (!venueImageUrl && team.venue.image) {
-          venueImageUrl = await downloadImage(team.venue.image, team.team.id, 'venue');
+        if (teamData.dataValues.venueImage) {
+          venueImageUrl = await downloadImage(teamData.dataValues.venueImage, teamData.dataValues.id, 'venue');
         }
       }
 
-      const seasonId = await getCurrentSeasonId(competitionId)
-      const seasonYear = await getCurrentSeasonYear(competitionId)
+      const seasonId = await getCurrentSeasonId(competitionId);
+      const seasonYear = await getCurrentSeasonYear(competitionId);
 
-      if (!includeStats) {
-        if (!onlyUpdateStats) {
-          await Team.upsert({
-            id: team.team.id,
-            name: team.team.name,
-            code: team.team.code,
-            logoUrl: logoUrl,
-            venueName: team.venue.name,
-            venueAddress: team.venue.address,
-            venueCity: team.venue.city,
-            venueCapacity: team.venue.capacity,
-            venueImage: venueImageUrl,
-          });
-        } else {
-          await updateTeamStats(competitionId, team.team.id, seasonYear, seasonId)
-        }
-      } else {
-        await updateTeamStats(competitionId, team.team.id, seasonYear, seasonId)
+      await Team.upsert({
+        id: teamData.dataValues.id,
+        name: teamData.dataValues.name,
+        code: teamData.dataValues.code,
+        logoUrl: logoUrl,
+        venueName: teamData.dataValues.venueName ? teamData.dataValues.venueName : null,
+        venueAddress: teamData.dataValues.venueAddress ? teamData.dataValues.venueAddress : null,
+        venueCity: teamData.dataValues.venueCity ? teamData.dataValues.venueCity : null,
+        venueCapacity: teamData.dataValues.venueCapacity ? teamData.dataValues.venueCapacity : null,
+        venueImage: venueImageUrl,
+      });
+
+      if (includeStats || onlyUpdateStats) {
+        await updateTeamStats(competitionId, teamData.dataValues.id, seasonYear);
       }
     }
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des équipes: ', error);
+    logger.error('Erreur lors de la création ou mise à jour des équipes: ', error);
   }
 }
 
-async function updateTeamStats(competitionId = null, teamID = null, seasonYear = null, seasonId = null) {
+async function updateTeamStats(competitionId = null, teamID = null, seasonYear = null) {
   try {
     if (!seasonYear) {
       console.log('Please provide a season number');
-      return 'Please provide a season number'
+      return 'Please provide a season number';
     }
-    if (!seasonId) {
-      console.log('Please provide a season id');
-      return 'Please provide a season id'
-    }
-    if (!competitionId) {
-      console.log('Please provide a competition id');
-      return 'Please provide a competition id'
-    }
-    if (!teamID) {
-      console.log('Please provide a team id');
-      return 'Please provide a team id'
+    const seasonId = await getCurrentSeasonId(competitionId);
+    if (!seasonId || !competitionId || !teamID) {
+      console.log('Missing required parameters');
+      return 'Missing required parameters';
     }
     const teamStatsOptions = {
       method: 'GET',
@@ -124,28 +111,58 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
     const statsResponse = await axios.request(teamStatsOptions);
     const stats = statsResponse.data.response;
 
-    await TeamCompetition.upsert({
-      teamId: teamID || team.team.id,
-      competitionId: stats.league.id,
-      seasonId: seasonId,
-      playedTotal: stats.fixtures.played.total,
-      playedHome: stats.fixtures.played.home,
-      playedAway: stats.fixtures.played.away,
-      winTotal: stats.fixtures.wins.total,
-      winHome: stats.fixtures.wins.home,
-      winAway: stats.fixtures.wins.away,
-      drawTotal: stats.fixtures.draws.total,
-      drawHome: stats.fixtures.draws.home,
-      drawAway: stats.fixtures.draws.away,
-      losesTotal: stats.fixtures.loses.total,
-      losesHome: stats.fixtures.loses.home,
-      losesAway: stats.fixtures.loses.away,
-      form: stats.form,
-      points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
-      goalsFor: stats.goals.for.total.total,
-      goalsAgainst: stats.goals.against.total.total,
-      goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
+    const [teamCompetition, created] = await TeamCompetition.findOrCreate({
+      where: {
+        teamId: teamID,
+        competitionId: stats.league.id,
+        seasonId: seasonId,
+      },
+      defaults: {
+        teamId: teamID,
+        competitionId: stats.league.id,
+        seasonId: seasonId,
+        playedTotal: stats.fixtures.played.total,
+        playedHome: stats.fixtures.played.home,
+        playedAway: stats.fixtures.played.away,
+        winTotal: stats.fixtures.wins.total,
+        winHome: stats.fixtures.wins.home,
+        winAway: stats.fixtures.wins.away,
+        drawTotal: stats.fixtures.draws.total,
+        drawHome: stats.fixtures.draws.home,
+        drawAway: stats.fixtures.draws.away,
+        losesTotal: stats.fixtures.loses.total,
+        losesHome: stats.fixtures.loses.home,
+        losesAway: stats.fixtures.loses.away,
+        form: stats.form,
+        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
+        goalsFor: stats.goals.for.total.total,
+        goalsAgainst: stats.goals.against.total.total,
+        goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
+      }
     });
+
+    if (!created) {
+      await teamCompetition.update({
+        playedTotal: stats.fixtures.played.total,
+        playedHome: stats.fixtures.played.home,
+        playedAway: stats.fixtures.played.away,
+        winTotal: stats.fixtures.wins.total,
+        winHome: stats.fixtures.wins.home,
+        winAway: stats.fixtures.wins.away,
+        drawTotal: stats.fixtures.draws.total,
+        drawHome: stats.fixtures.draws.home,
+        drawAway: stats.fixtures.draws.away,
+        losesTotal: stats.fixtures.loses.total,
+        losesHome: stats.fixtures.loses.home,
+        losesAway: stats.fixtures.loses.away,
+        form: stats.form,
+        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
+        goalsFor: stats.goals.for.total.total,
+        goalsAgainst: stats.goals.against.total.total,
+        goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
+      });
+    }
+    logger.info(`Mise à jour des statistiques effectuées avec succès pour l'équipe ${teamID}`);
   } catch (error) {
     console.log('Erreur lors de la mise à jour des statistiques: ', error);
   }

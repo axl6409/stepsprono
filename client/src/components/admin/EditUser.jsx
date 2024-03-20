@@ -34,7 +34,7 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/admin/user/${id}`, {
+        const response = await axios.get(`${apiUrl}/api/user/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const userData = response.data;
@@ -86,7 +86,7 @@ const EditUser = () => {
     }
 
     try {
-      const response = await axios.put(`${apiUrl}/api/admin/user/update/${id}`, formData, {
+      const response = await axios.put(`${apiUrl}/api/user/update/${id}`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
