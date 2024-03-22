@@ -14,7 +14,7 @@ const allRewards = async function (req, res) {
   }
 }
 
-async function getRewardsByUser(userId) {
+const getRewardsByUser = async function (userId) {
   try {
 
   } catch (error) {
@@ -22,7 +22,31 @@ async function getRewardsByUser(userId) {
   }
 }
 
+const checkRewards = function (matchs, user) {
+
+}
+
+const checkMonthlyRewards = function () {
+
+}
+
+const checkSeasonRewards = function () {
+
+}
+
+const checkBetsReceipt = function (user) {
+
+}
+
+function pointsSum(points) {
+  return points.reduce((a, b) => a + b, 0);
+}
+
 module.exports = {
   allRewards,
   getRewardsByUser,
+  checkRewards,
+  checkMonthlyRewards,
+  checkSeasonRewards,
+  checkBetsReceipt
 }
