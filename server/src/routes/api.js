@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
+const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition, Reward} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -15,7 +15,7 @@ const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
 const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks, getCurrentMatchday} = require("../controllers/matchController");
-const {updatePlayers} = require("../controllers/playerController");
+const {updatePlayers, getPlayersByTeamId} = require("../controllers/playerController");
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
@@ -193,7 +193,6 @@ router.get('/app/bets/get-null/all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-
 router.get('/users/all', authenticateJWT, async (req, res) => {
   try {
     const users = await User.findAll();
@@ -274,6 +273,23 @@ router.get('/teams', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée' , error: error.message });
   }
 })
+router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
+  try {
+    const players = await getPlayersByTeamId(req.params.teamId);
+    res.json(players);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+});
+router.get('/rewards', authenticateJWT, async (req, res) => {
+  try {
+    const rewards = await Reward.findAll();
+    res.json(rewards);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+})
+
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
     const match = await Match.findByPk(req.params.matchId);
@@ -554,6 +570,14 @@ router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/user/:id/rewards', authenticateJWT, async (req, res) => {
+  try {
+    const rewards = await getRewards(req.params.id);
+    res.status(200).json({ rewards });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
 router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {

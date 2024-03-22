@@ -5,7 +5,14 @@ import futbol from "/img/futbol-solid.svg";
 import {useCookies} from "react-cookie";
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faChevronDown, faHourglassHalf, faPersonPraying} from "@fortawesome/free-solid-svg-icons";
+import {
+  faCaretLeft,
+  faChevronDown,
+  faCirclePlus,
+  faHourglassHalf,
+  faMedal,
+  faPersonPraying
+} from "@fortawesome/free-solid-svg-icons";
 import CurrentBets from "./user/CurrentBets.jsx";
 import Loader from "../components/partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
@@ -68,6 +75,15 @@ const Dashboard = () => {
 
   return (
     <div className="text-center relative py-10 flex flex-col justify-center">
+      <Link
+        className="absolute top-2 right-0 z-[60] w-[40px] h-[40px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+        to={`/rewards/${userId}`}>
+          <span
+            className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
+          >
+            <FontAwesomeIcon icon={faMedal} />
+          </span>
+      </Link>
       <span className="absolute top-10 left-4 text-xl text-black">
         <img className="w-[30px]" src={futbol} alt="football icon"/>
       </span>

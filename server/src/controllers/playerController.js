@@ -85,6 +85,29 @@ async function updatePlayers(teamIds = [], competitionId = null) {
   }
 }
 
+const getPlayersByTeamId = async (teamId) => {
+  try {
+    if (!teamId) {
+      logger.info('teamId manquant');
+      return;
+    }
+    const players = await PlayerTeamCompetition.findAll({
+      where: {
+        teamId: teamId
+      },
+      include: {
+        model: Player,
+        as: 'Player',
+      }
+    });
+    logger.info('Joueurs récupérés : ', players);
+    return players;
+  } catch (error) {
+    logger.error(`Erreur lors de le récupération des joueurs: `, error);
+  }
+}
+
 module.exports = {
   updatePlayers,
+  getPlayersByTeamId
 };

@@ -63,7 +63,6 @@ const CurrentBets = ({ user, token }) => {
           return;
         }
         setSeasonPoints(seasonPoints)
-        console.log(seasonPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -75,7 +74,6 @@ const CurrentBets = ({ user, token }) => {
     }
   }, [user, token]);
 
-  console.log(seasonPoints)
   return (
     <div>
       <div className="flex flex-row flex-wrap justify-between px-4">

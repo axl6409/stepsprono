@@ -24,6 +24,8 @@ import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
 import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
 import {AppProvider} from "./contexts/AppContext.jsx";
 import AdminCompetitions from "./components/admin/settings/AdminCompetitions.jsx";
+import TeamPlayers from "./pages/TeamPlayers.jsx";
+import Rewards from "./pages/Rewards.jsx";
 
 const App = () => {
   moment.updateLocale('fr', {})
@@ -39,11 +41,13 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard/:userId?" element={<ProtectedRoute component={Dashboard} />} />
+              <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
               <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
               <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
               <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
               <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
               <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
+              <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
               <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
               <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
               <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />

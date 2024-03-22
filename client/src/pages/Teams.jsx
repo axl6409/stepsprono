@@ -81,12 +81,21 @@ const Teams = () => {
               <p className="w-[8%] flex flex-col justify-center">
                 <span className="font-title font-bold text-xl w-full inline-block leading-4 text-center pb-2 pt-1 bg-white border-black border-t-2 border-r-2 border-b-2 shadow-flat-black-adjust rounded-tr-md rounded-br-md -ml-1">{team.position}</span>
               </p>
-              <div className="flex flex-col relative p-1.5 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
+              <div className="flex flex-col relative p-1.5 pt-4 my-2 border-2 border-black rounded-l bg-white shadow-flat-black w-[90%]">
                 <div className="w-full absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center opacity-50 z-[1]">
                   <img src={team.Team.logoUrl} alt={`${team.Team.name} Logo`} className="team-logo block w-auto h-3/4 mx-auto"/>
                 </div>
                 <div className="flex flex-row relative z-[5]">
                   <div className="w-full text-center flex flex-col justify-center px-6 py-2">
+                    <Link
+                      className="absolute -top-2 right-0 z-[60] w-[40px] h-[40px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                      to={`/teams/${team.teamId}/players`}>
+                      <span
+                        className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
+                      >
+                        <FontAwesomeIcon icon={faCirclePlus} />
+                      </span>
+                    </Link>
                     <p className="name font-sans text-base font-bold">{team.Team.name}</p>
                   </div>
                 </div>
