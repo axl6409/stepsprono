@@ -3,14 +3,18 @@ const {Op} = require("sequelize");
 const {getMonthDateRange} = require("../controllers/appController");
 const {getCurrentMonthMatchdays} = require("../controllers/matchController");
 
-async function checkupBets() {
+async function checkupBets(matchId) {
   try {
-    const bets = await Bet.findAll({
-      where: {
-        points: {
-          [Op.eq]: null
-        }
+    const whereClause = {
+      points: {
+        [Op.eq]: null
       }
+    };
+    if (matchId) {
+      whereClause.matchId = matchId;
+    }
+    const bets = await Bet.findAll({
+      where: whereClause
     });
     if (bets.length === 0) {
       return { success: true, message: "Aucun pari à mettre à jour." };

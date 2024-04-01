@@ -34,10 +34,6 @@ const checkSeasonRewards = function () {
 
 }
 
-const checkBetsReceipt = function (user) {
-
-}
-
 function pointsSum(points) {
   return points.reduce((a, b) => a + b, 0);
 }
@@ -48,5 +44,4 @@ module.exports = {
   checkRewards,
   checkMonthlyRewards,
   checkSeasonRewards,
-  checkBetsReceipt
 }

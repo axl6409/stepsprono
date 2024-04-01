@@ -6,6 +6,7 @@ const {Op} = require("sequelize");
 const cron = require("node-cron");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
 const {getMonthDateRange} = require("./appController");
+const {checkupBets} = require("./betController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -161,28 +162,7 @@ async function updateSingleMatch(matchId) {
       }
 
       if (Object.keys(fieldsToUpdate).length > 0) {
-        const bets = await Bet.findAll({where: {matchId}});
-        for (const bet of bets) {
-          let points = 0;
-          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winnerId']) {
-            points += 1;
-          }
-          if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
-            points += 3;
-          }
-          if (bet.playerGoal) {
-            if (dbMatchData.scorers && dbMatchData.scorers !== '[]') {
-              const matchScorers = JSON.parse(dbMatchData.scorers);
-              if (matchScorers.length > 0) {
-                const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
-                if (scorerFound) {
-                  points += 1;
-                }
-              }
-            }
-          }
-          await Bet.update({points}, {where: {id: bet.id}});
-        }
+        await checkupBets(matchId);
       }
     }
   } catch (error) {
@@ -217,7 +197,6 @@ async function fetchWeekMatches() {
       const hour = updateTime.getHours();
       const minute = updateTime.getMinutes();
       const cronTime = `${minute} ${hour} ${day} ${month} *`;
-      console.log(cronTime + ' | ' + match.id)
       cronTasks.push({
         cronTime: cronTime,
         id: match.id

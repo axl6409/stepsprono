@@ -35,6 +35,8 @@ const corsOptions = {
     'http://localhost:3001',
     'http://192.168.128.61:5173',
     'http://192.168.128.61:3001',
+    'http://192.168.1.21:5173',
+    'http://192.168.1.21:3001',
     'http://192.168.1.22:5173',
     'http://192.168.1.22:3001',
     'http://192.168.1.23:5173',
@@ -73,7 +75,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 18 API requests
     // await updatePlayers([111,112,116], 61)
     // Total => 1 API requests by matchId
-    // await updateMatchStatusAndPredictions()
+    await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
     // Total => 0 API request
     // await checkupBets()
   } catch (error) {

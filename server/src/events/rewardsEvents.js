@@ -13,7 +13,7 @@ eventBus.on('monthlyRewards', () => {
 })
 eventBus.on('seasonRewards', () => {
   logger.info('Season rewards check begins')
-  rewardService.checkSeasonRewards()
+
 })
 eventBus.on('betsReceiptEnded', (userId) => {
   logger.info('Bets receipt ended')
