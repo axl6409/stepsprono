@@ -3,11 +3,17 @@ const eventBus = require('./eventBus');
 const rewardService = require('../services/rewardService');
 const logger = require('../utils/logger/logger');
 
+eventBus.on('weekEnded', () => {
+  logger.info('Week ended')
+  rewardService.checkWeeklyChampion().then(r => {
+    logger.info('Weekly champion checked')
+  })
+})
 eventBus.on('matchUpdated', (matchId, userId) => {
-  console.log('Les matchs ont été mis à jour', matchId);
-  rewardService.checkRewards(matchId, userId);
+  logger.info('Match updated', matchId, userId)
+  rewardService.checkDailyRewards(matchId, userId);
 });
-eventBus.on('monthlyRewards', () => {
+eventBus.on('monthEnded', () => {
   logger.info('Monthly rewards check begins')
   rewardService.checkMonthlyRewards()
 })
@@ -17,7 +23,6 @@ eventBus.on('seasonRewards', () => {
 })
 eventBus.on('betsReceiptEnded', (userId) => {
   logger.info('Bets receipt ended')
-  rewardService.checkBetsReceipt(null, userId)
 })
 
 module.exports = {};

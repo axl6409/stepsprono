@@ -14,7 +14,8 @@ require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
-const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks, getCurrentMatchday} = require("../controllers/matchController");
+const {getCurrentMatchday} = require("../services/appService");
+const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
 const {updatePlayers, getPlayersByTeamId} = require("../controllers/playerController");
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");

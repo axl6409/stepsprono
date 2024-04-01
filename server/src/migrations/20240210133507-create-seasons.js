@@ -44,6 +44,11 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false
       },
+      currentMatchday: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
