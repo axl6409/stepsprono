@@ -2,30 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pour Chrome, Safari */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-track {
-    background: #393939;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00ff00;
-    border-radius: 0;
-    transition: 0.3s ease-in-out;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #00db93;
-    box-shadow: none;
-}
-
 @keyframes slideIn {
     from {
         transform: translateY(-100%);

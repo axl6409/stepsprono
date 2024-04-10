@@ -18,13 +18,13 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
+  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownPopupOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
-  const [countdown, setCountdown] = useState('');
+  const [countdown, setCountdown] = useState({});
   const [cronTasks, setCronTasks] = useState([]);
   let cleanImageUrl = '/src/assets/react.svg'
 
@@ -45,23 +45,40 @@ const UserMenu = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
+      const dayOfWeek = now.getDay();
       const nextFriday = new Date();
-
-      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7);
+      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7 + 1);
       nextFriday.setHours(12, 0, 0, 0);
+      const endFriday = new Date(nextFriday.getTime());
+      endFriday.setHours(23, 59, 59, 999);
+      const lastMonday = new Date(now);
+      lastMonday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+      lastMonday.setHours(0, 0, 0, 0);
 
-      const timeLeft = nextFriday - now;
+      const timeLeft = endFriday - now;
 
-      if (timeLeft > 0) {
+      if (timeLeft > 0 && now >= nextFriday) {
         const totalSeconds = Math.floor(timeLeft / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
 
         const formattedTime = {hours: hours, minutes: minutes, seconds: seconds, expired: false};
-        setCountdown(formattedTime);
+        setCountdown({
+          countdown: formattedTime,
+          expired: false,
+          hidden: false
+        });
+      } else if (now >= lastMonday && now <= nextFriday) {
+        setCountdown({
+          expired: true,
+          hidden: true
+        });
       } else {
-        setCountdown({ expired: true });
+        setCountdown({
+          expired: true,
+          hidden: false
+        });
       }
     }, 1000);
 
@@ -299,7 +316,7 @@ const UserMenu = () => {
       </div>
     )}
     {isAuthenticated && user && user.role !== 'visitor' && (
-      <div className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+      <div id="countdownPoup" className={`${countdown.hidden ? `hidden` : `` } fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
           {!countdown.expired && (
             <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
           )}
