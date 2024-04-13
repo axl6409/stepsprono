@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { UserContext } from "./contexts/UserContext.jsx";
 import Navbar from "./components/nav/Navbar";
-import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Rewards from "./pages/Rewards";
-import { UserContext } from "./contexts/UserContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Reglement from "./pages/Reglement.jsx";
 import Matchs from "./pages/Matchs.jsx";
@@ -26,40 +27,60 @@ import Register from "./pages/Register.jsx";
 
 const AuthenticatedApp = () => {
   const { isAuthenticated } = useContext(UserContext);
+  const location = useLocation();
+
+  const pageVariants = {
+    initial: { opacity: 0, x: -100 },
+    in: { opacity: 1, x: 0 },
+    outLeft: { opacity: 0, x: -100 },
+    outRight: { opacity: 0, x: 100 }
+  };
 
   return isAuthenticated ? (
     <>
       <Navbar />
       <div className="container mx-auto">
-        <Routes>
-          <Route path="/dashboard/:userId?" element={<ProtectedRoute component={Dashboard} />} />
-          <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
-          <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
-          <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
-          <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
-          <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
-          <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
-          <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
-          <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
-          <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
-          <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
-          <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
-          <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
-          <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
-          <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
-          <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
-          <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
-        </Routes>
+        <AnimatePresence>
+          <Routes>
+            <Route path="/dashboard/:userId?" element={
+              <ProtectedRoute component={Dashboard} />
+            } />
+            <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
+            <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
+            <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+            <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
+            <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
+            <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
+            <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
+            <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
+            <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
+            <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
+            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
+            <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
+            <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
+            <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
+            <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
+            <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
+          </Routes>
+        </AnimatePresence>
       </div>
     </>
   ) : (
     <>
       <div className="container mx-auto">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <Home />
+              } />
+            <Route path="/login" element={
+              <Login />
+              } />
+            <Route path="/register" element={
+              <Register />
+              } />
+          </Routes>
+        </AnimatePresence>
       </div>
     </>
   );

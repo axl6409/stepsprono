@@ -1,17 +1,19 @@
 import React, {useContext, useState} from 'react'
+import { motion, useIsPresent } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAt, faKey} from "@fortawesome/free-solid-svg-icons";
 import { CookiesProvider, useCookies } from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
-import background from "../assets/components/background-hexagon-2.png";
+import background from "../assets/components/background-hexagon-large.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 import arrowLeft from "../assets/icons/arrow-left.svg";
 import userIcon from "../assets/icons/user.svg";
 import lockIcon from "../assets/icons/password.svg";
 
 const Login = () => {
+  const isPresent = useIsPresent();
   const { setIsAuthenticated } = useContext(UserContext);
   const [cookies, setCookie] = useCookies(["user"]);
   const [formData, setFormData] = useState({
@@ -47,14 +49,17 @@ const Login = () => {
 
   return (
     <div className="w-full h-100vh">
-      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-center flex flex-col justify-center px-8" style={{backgroundImage: `url(${background})`}}>
+      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-8"
+           style={{backgroundImage: `url(${background})`}}>
         <div
           className="block relative border-2 border-black w-11/12 mx-auto bg-white rounded-xl">
           <Link
             to="/"
             className="relative block w-fit rounded-full mt-2 ml-2 before:content-[''] before:absolute before:z-[1] before:w-[30px] before:h-[30px] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
           >
-            <img className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-0.5 group-hover:-translate-y-0" src={arrowLeft} alt="Icone de retour"/>
+            <img
+              className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-0.5 group-hover:-translate-y-0"
+              src={arrowLeft} alt="Icone de retour"/>
           </Link>
           <h2
             className={`
@@ -124,10 +129,17 @@ const Login = () => {
           </form>
         </div>
       </div>
-      <div className="p-8 h-1/5 bg-purple-light relative z-[1] flex flex-col justify-center">
+      <div className="p-8 h-[30%] bg-purple-light relative z-[1] mt-[-17%] flex flex-col justify-center">
         <p className="font-roboto font-regular text-sm text-center">Pas encore de compte ?</p>
         <Link to="/register" className="underline font-roboto text-base font-medium text-center">Inscrivez-vous !</Link>
       </div>
+      <motion.div
+        initial={{scaleX: 1}}
+        animate={{scaleX: 0, transition: {duration: 0.5, ease: "circOut"}}}
+        exit={{scaleX: 1, transition: {duration: 0.5, ease: "circIn"}}}
+        style={{originX: isPresent ? 0 : 1}}
+        className="fixed inset-0 bg-green-soft z-[5]"
+      />
     </div>
   )
 }

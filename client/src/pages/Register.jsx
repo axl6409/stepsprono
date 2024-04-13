@@ -1,10 +1,14 @@
-import React, {useContext, useState} from 'react'
+import React, { useContext, useState } from 'react';
 import axios from "axios";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAt, faKey, faUser} from "@fortawesome/free-solid-svg-icons";
-import {useNavigate} from "react-router-dom";
-import {useCookies} from "react-cookie";
-import {UserContext} from "../contexts/UserContext.jsx";
+import {Link, useNavigate} from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { UserContext } from "../contexts/UserContext.jsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAt, faKey, faUser } from "@fortawesome/free-solid-svg-icons";
+import background from "../assets/components/background-hexagon-large.png";
+import arrowLeft from "../assets/icons/arrow-left.svg";
+import userIcon from "../assets/icons/user.svg";
+import lockIcon from "../assets/icons/password.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Register = () => {
@@ -13,7 +17,7 @@ const Register = () => {
     username: '',
     email: '',
     password: ''
-  })
+  });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const { isAuthenticated, setIsAuthenticated } = useContext(UserContext);
@@ -22,17 +26,13 @@ const Register = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post(`${apiUrl}/api/register`, {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await axios.post(`${apiUrl}/api/register`, formData);
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setCookie('token', response.data.token, { path: '/' });
@@ -48,63 +48,112 @@ const Register = () => {
         setErrorMessage('Une erreur s’est produite: ' + error);
       }
     }
-  }
+  };
 
   return (
-    <div className="w-full h-100vh pt-10">
-      <div className="block py-10 px-6 border-2 border-black w-11/12 mx-auto relative bg-white shadow-md before:content-[''] before:block before:absolute before:inset-0 before:z-[-1] before:translate-x-4 before:translate-y-4 before:bg-green-lime before:border-2 before:border-black">
-        <h1 className="text-center mb-8 text-xl font-title uppercase font-bold">Créer un compte</h1>
-        <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
-        <form action="" onSubmit={handleSubmit} className="flex flex-col items-center">
-          <label htmlFor="username" className="my-4 w-full border-2 border-black flex flex-row justify-start">
-            <div className="w-[15%] flex flex-col justify-center">
-              <FontAwesomeIcon icon={faUser} className="w-[25px] h-[25px] mx-auto"/>
-            </div>
-            <input
-              type="text"
-              name="username"
-              placeholder="Nom d'utilisateur"
-              value={formData.username}
-              onChange={handleChange}
-              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+    <div className="w-full h-100vh">
+      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-8"
+           style={{backgroundImage: `url(${background})`}}>
+        <div
+          className="block relative border-2 border-black w-11/12 mx-auto bg-white rounded-xl">
+          <Link
+            to="/"
+            className="relative block w-fit rounded-full mt-2 ml-2 before:content-[''] before:absolute before:z-[1] before:w-[30px] before:h-[30px] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+          >
+            <img
+              className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-0.5 group-hover:-translate-y-0"
+              src={arrowLeft} alt="Icone de retour"/>
+          </Link>
+          <h2
+            className={`
+              font-black 
+              font-rubik 
+              my-8 
+              mt-0 
+              capitalize 
+              relative 
+              w-fit 
+              mx-auto 
+              text-xl6
+              before:content-['Hello!']
+              before:absolute
+              before:inset-0
+              before:z-[2]
+              before:translate-x-1
+              before:translate-y-1
+              before:text-xl6
+              before:text-purple-soft
+              after:content-['Hello!']
+              after:absolute
+              after:inset-0
+              after:z-[1]
+              after:translate-x-2
+              after:translate-y-2
+              after:text-xl6
+              after:text-green-soft
+              `}>
+            <span className="relative z-[3]">Hello!</span>
+          </h2>
+          <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
+          <form onSubmit={handleSubmit} className="flex flex-col items-center px-8">
+            {/* Utilisateur */}
+            <label htmlFor="username" className="my-4 w-full relative flex flex-row justify-start">
+              <div className="w-[15%] absolute -top-4 -left-4 -rotate-2 flex flex-col justify-center">
+                <img src={userIcon} alt="icone de l'utilisateur"/>
+              </div>
+              <input
+                type="text"
+                name="username"
+                placeholder="Nom d'utilisateur"
+                value={formData.username}
+                onChange={handleChange}
+                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
               />
-          </label>
-          <label htmlFor="email" className="my-4 w-full border-2 border-black flex flex-row justify-start">
-            <div className="w-[15%] flex flex-col justify-center">
-              <FontAwesomeIcon icon={faAt} className="w-[25px] h-[25px] mx-auto" />
-            </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="adresse@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+            </label>
+            {/* Email */}
+            <label htmlFor="email" className="my-4 w-full relative flex flex-row justify-start">
+              <div className="w-[20%] absolute -top-4 -right-8 -rotate-2 flex flex-col justify-center">
+                <img src={lockIcon} alt="icone de l'utilisateur"/>
+              </div>
+              <input
+                type="email"
+                name="email"
+                placeholder="adresse@email.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
               />
-          </label>
-          <label htmlFor="password" className="my-4 w-full border-2 border-black flex flex-row justify-start">
-            <div className="w-[15%] flex flex-col justify-center">
-              <FontAwesomeIcon icon={faKey} className="w-[25px] h-[25px] mx-auto" />
-            </div>
-            <input
-              type="password"
-              name="password"
-              placeholder="M0t2P44ssSuperSéCu%"
-              value={formData.password}
-              onChange={handleChange}
-              className="p-3 w-[85%] bg-white font-sans border-l-2 border-black focus:outline-none placeholder:text-black"
+            </label>
+            {/* Mot de passe */}
+            <label htmlFor="password" className="my-4 w-full relative flex flex-row justify-start">
+              <div className="w-[20%] absolute -top-4 -right-8 -rotate-2 flex flex-col justify-center">
+                <img src={lockIcon} alt="icone de l'utilisateur"/>
+              </div>
+              <input
+                type="password"
+                name="password"
+                placeholder="M0t2P44ssSuperSéCu%"
+                value={formData.password}
+                onChange={handleChange}
+                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
               />
-          </label>
-          <button
-            type="submit"
-            className="w-3/5 relative my-4 outline-none before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            </label>
+            <button
+              type="submit"
+              className="w-3/5 relative my-4 outline-none before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
             >
-            <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Créer le compte</span>
-          </button>
-        </form>
+              <span
+                className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Créer le compte</span>
+            </button>
+          </form>
+        </div>
+      </div>
+      <div className="p-8 h-[30%] bg-purple-light relative z-[1] mt-[-17%] flex flex-col justify-center">
+        <p className="font-roboto font-regular text-sm text-center">Pas encore de compte ?</p>
+        <Link to="/register" className="underline font-roboto text-base font-medium text-center">Inscrivez-vous !</Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
