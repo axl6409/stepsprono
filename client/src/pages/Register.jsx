@@ -6,30 +6,51 @@ import { UserContext } from "../contexts/UserContext.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAt, faKey, faUser } from "@fortawesome/free-solid-svg-icons";
 import background from "../assets/components/background-hexagon-large.png";
-import arrowLeft from "../assets/icons/arrow-left.svg";
 import userIcon from "../assets/icons/user.svg";
 import lockIcon from "../assets/icons/password.svg";
+import arrowLeft from "../assets/icons/arrow-left.svg";
+import StepOne from "../components/user/register/StepOne.jsx";
+import StepTwo from "../components/user/register/StepTwo.jsx";
+import StepThree from "../components/user/register/StepThree.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Register = () => {
   const [cookies, setCookie] = useCookies(["user"]);
-  const [formData, setFormData] = useState({
-    username: '',
+  const [step, setStep] = useState(1);
+  const [userData, setUserData] = useState({
     email: '',
-    password: ''
+    password: '',
+    username: '',
+    profilePic: null,
+    team: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const { isAuthenticated, setIsAuthenticated } = useContext(UserContext);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const goToNextStep = (data) => {
+    setUserData({...userData, ...data});
+    setStep(step + 1);
   };
 
-  const handleSubmit = async (event) => {
+  const goToPreviousStep = () => {
+    setStep(step - 1);
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return <StepOne onNext={(email, password) => goToNextStep({email, password})} />;
+      case 2:
+        return <StepTwo onPrevious={goToPreviousStep} onNext={(username, profilePic) => goToNextStep({username, profilePic})} />;
+      case 3:
+        return <StepThree onPrevious={goToPreviousStep} onFinish={(team) => handleFinish({team})} />;
+      default:
+        return <StepOne onNext={(email, password) => goToNextStep({email, password})} />;
+    }
+  };
+
+  const handleFinish = async (event) => {
     event.preventDefault();
     try {
       const response = await axios.post(`${apiUrl}/api/register`, formData);
@@ -51,107 +72,8 @@ const Register = () => {
   };
 
   return (
-    <div className="w-full h-100vh">
-      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-8"
-           style={{backgroundImage: `url(${background})`}}>
-        <div
-          className="block relative border-2 border-black w-11/12 mx-auto bg-white rounded-xl">
-          <Link
-            to="/"
-            className="relative block w-fit rounded-full mt-2 ml-2 before:content-[''] before:absolute before:z-[1] before:w-[30px] before:h-[30px] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
-          >
-            <img
-              className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-0.5 group-hover:-translate-y-0"
-              src={arrowLeft} alt="Icone de retour"/>
-          </Link>
-          <h2
-            className={`
-              font-black 
-              font-rubik 
-              my-8 
-              mt-0 
-              capitalize 
-              relative 
-              w-fit 
-              mx-auto 
-              text-xl6
-              before:content-['Hello!']
-              before:absolute
-              before:inset-0
-              before:z-[2]
-              before:translate-x-1
-              before:translate-y-1
-              before:text-xl6
-              before:text-purple-soft
-              after:content-['Hello!']
-              after:absolute
-              after:inset-0
-              after:z-[1]
-              after:translate-x-2
-              after:translate-y-2
-              after:text-xl6
-              after:text-green-soft
-              `}>
-            <span className="relative z-[3]">Hello!</span>
-          </h2>
-          <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
-          <form onSubmit={handleSubmit} className="flex flex-col items-center px-8">
-            {/* Utilisateur */}
-            <label htmlFor="username" className="my-4 w-full relative flex flex-row justify-start">
-              <div className="w-[15%] absolute -top-4 -left-4 -rotate-2 flex flex-col justify-center">
-                <img src={userIcon} alt="icone de l'utilisateur"/>
-              </div>
-              <input
-                type="text"
-                name="username"
-                placeholder="Nom d'utilisateur"
-                value={formData.username}
-                onChange={handleChange}
-                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
-              />
-            </label>
-            {/* Email */}
-            <label htmlFor="email" className="my-4 w-full relative flex flex-row justify-start">
-              <div className="w-[20%] absolute -top-4 -right-8 -rotate-2 flex flex-col justify-center">
-                <img src={lockIcon} alt="icone de l'utilisateur"/>
-              </div>
-              <input
-                type="email"
-                name="email"
-                placeholder="adresse@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
-              />
-            </label>
-            {/* Mot de passe */}
-            <label htmlFor="password" className="my-4 w-full relative flex flex-row justify-start">
-              <div className="w-[20%] absolute -top-4 -right-8 -rotate-2 flex flex-col justify-center">
-                <img src={lockIcon} alt="icone de l'utilisateur"/>
-              </div>
-              <input
-                type="password"
-                name="password"
-                placeholder="M0t2P44ssSuperSéCu%"
-                value={formData.password}
-                onChange={handleChange}
-                className="p-3 w-full bg-white border border-black rounded-full text-center font-roboto text-base font-regular focus:outline-none placeholder:text-grey-soft"
-              />
-            </label>
-            <button
-              type="submit"
-              className="w-3/5 relative my-4 outline-none before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-            >
-              <span
-                className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition group-hover:-translate-y-2.5 group-focus:-translate-y-2.5">Créer le compte</span>
-            </button>
-          </form>
-        </div>
-      </div>
-      <div className="p-8 h-[30%] bg-purple-light relative z-[1] mt-[-17%] flex flex-col justify-center">
-        <p className="font-roboto font-regular text-sm text-center">Pas encore de compte ?</p>
-        <Link to="/register" className="underline font-roboto text-base font-medium text-center">Inscrivez-vous !</Link>
-      </div>
+    <div className="register-container w-full h-100vh">
+      {renderStep()}
     </div>
   );
 };

@@ -18,6 +18,7 @@ export default {
         'deep-red': '#c40404',
 
         // V2
+        'grey-light': '#E9E9E9',
         'grey-medium': '#858383',
         'beige-light': '#F2FFCC',
         'green-light': '#CCFFCC',

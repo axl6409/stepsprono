@@ -49,16 +49,16 @@ const Login = () => {
 
   return (
     <div className="w-full h-100vh">
-      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-8"
+      <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-4"
            style={{backgroundImage: `url(${background})`}}>
         <div
-          className="block relative border-2 border-black w-11/12 mx-auto bg-white rounded-xl">
+          className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl">
           <Link
             to="/"
             className="relative block w-fit rounded-full mt-2 ml-2 before:content-[''] before:absolute before:z-[1] before:w-[30px] before:h-[30px] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
           >
             <img
-              className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-0.5 group-hover:-translate-y-0"
+              className="relative z-[2] w-[30px] h-[30px] block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-white transition -translate-y-0.5 group-hover:-translate-y-0"
               src={arrowLeft} alt="Icone de retour"/>
           </Link>
           <h2
