@@ -32,7 +32,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
 
   return (
     <div
-      className="step-two-container h-full relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-16 px-8">
+      className="step-two-container h-full relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-8 px-8">
       <h2
         className={`
         text-center

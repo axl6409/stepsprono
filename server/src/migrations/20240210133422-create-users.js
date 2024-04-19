@@ -28,6 +28,16 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      teamId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Teams',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       status: {
         type: Sequelize.STRING,
         allowNull: true

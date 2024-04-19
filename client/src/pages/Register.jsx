@@ -44,15 +44,15 @@ const Register = () => {
       case 2:
         return <StepTwo onPrevious={goToPreviousStep} onNext={(username, profilePic) => goToNextStep({username, profilePic})} />;
       case 3:
-        return <StepThree onPrevious={goToPreviousStep} onFinish={(team) => handleFinish({team})} />;
+        return <StepThree userData={userData} onPrevious={goToPreviousStep} onFinish={(team) => handleFinish({team})} />;
       default:
         return <StepOne onNext={(email, password) => goToNextStep({email, password})} />;
     }
   };
 
-  const handleFinish = async (event) => {
-    event.preventDefault();
+  const handleFinish = async (data) => {
     try {
+      const formData = { ...userData, team: data.team };
       const response = await axios.post(`${apiUrl}/api/register`, formData);
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);

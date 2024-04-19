@@ -12,7 +12,7 @@ const StepOne = ({ onNext }) => {
   return (
     <>
       <div
-        className="step-one-container h-[90%] relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-16 px-4"
+        className="step-one-container h-[90%] relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-8 px-4"
         style={{backgroundImage: `url(${background})`}}>
         <div
           className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl">
