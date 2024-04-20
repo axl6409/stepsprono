@@ -84,7 +84,6 @@ async function updatePlayers(teamIds = [], competitionId = null) {
     logger.error(`Erreur lors de le récupération des joueurs: `, error);
   }
 }
-
 const getPlayersByTeamId = async (teamId) => {
   try {
     if (!teamId) {

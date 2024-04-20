@@ -73,7 +73,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
 // Define GET routes
 router.get('/competitions', authenticateJWT, async (req, res) => {
   try {

@@ -85,24 +85,6 @@ const UserMenu = () => {
     return () => clearInterval(interval);
   }, [])
 
-  useEffect(() => {
-    const fetchCronJobs = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/app/cron-jobs/scheduled`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setCronTasks(response.data.cronJobs);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des tâches cron', error);
-      }
-    }
-
-    if (isAuthenticated && user && user.role === 'admin') {
-      fetchCronJobs()
-      fetchMatchsCronJobs()
-    }
-  }, [user, isAuthenticated]);
-
   const handleLogout = () => {
     logout();
     setIsOpen(false);

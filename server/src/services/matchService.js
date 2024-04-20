@@ -6,9 +6,10 @@ const {Match} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../controllers/seasonController");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
-const {schedule} = require("node-cron");
+const {schedule} = require("node-schedule");
 const {updateMatchStatusAndPredictions} = require("../controllers/matchController");
 const {checkBetByMatchId} = require("./betService");
+const moment = require("moment");
 
 async function updateSingleMatch(matchId) {
   try {

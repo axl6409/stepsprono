@@ -71,11 +71,11 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 1 API request
     // await updateTeamsRanking(null, 61)
     // Total => 1 API request
-    // await fetchWeekMatches()
+    await fetchWeekMatches()
     // Total => 18 API requests
     // await updatePlayers([111,112,116], 61)
     // Total => 1 API requests by matchId
-    await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
+    // await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
     // Total => 0 API request
     // await checkupBets()
   } catch (error) {

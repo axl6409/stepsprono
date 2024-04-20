@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import {Routes, Route, useLocation, Navigate} from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { UserContext } from "./contexts/UserContext.jsx";
 import Navbar from "./components/nav/Navbar";
@@ -8,7 +8,6 @@ import Rewards from "./pages/Rewards";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Reglement from "./pages/Reglement.jsx";
 import Matchs from "./pages/Matchs.jsx";
-import Bets from "./pages/Bets.jsx";
 import Classements from "./pages/Classements.jsx";
 import Teams from "./pages/Teams.jsx";
 import TeamPlayers from "./pages/TeamPlayers.jsx";
@@ -29,6 +28,10 @@ const AuthenticatedApp = () => {
   const { isAuthenticated } = useContext(UserContext);
   const location = useLocation();
 
+  if (isAuthenticated && location.pathname === '/') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const pageVariants = {
     initial: { opacity: 0, x: -100 },
     in: { opacity: 1, x: 0 },
@@ -48,7 +51,6 @@ const AuthenticatedApp = () => {
             <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
-            <Route path="/pronostic/:matchId" element={<ProtectedRoute component={Bets} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
