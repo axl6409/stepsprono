@@ -25,6 +25,14 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
   const [players, setPlayers] = useState([]);
   const [scorer, setScorer] = useState('');
   const [seasonId, setSeasonId] = useState('');
+  const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
+  const [homeTeamColor, setHomeTeamColor] = useState('');
+  const [awayTeamColor, setAwayTeamColor] = useState('');
+
+  const getRandomColor = (exclude) => {
+    const filteredColors = colors.filter(color => color !== exclude);
+    return filteredColors[Math.floor(Math.random() * filteredColors.length)];
+  };
 
   useEffect(() => {
     const fetchSeasonId = async () => {
@@ -69,6 +77,12 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
       fetchPlayers();
     }
   }, [match, selectedTeam, token])
+
+  useEffect(() => {
+    const initialHomeColor = colors[Math.floor(Math.random() * colors.length)];
+    setHomeTeamColor(initialHomeColor);
+    setAwayTeamColor(getRandomColor(initialHomeColor));
+  }, []);
 
   const onSubmit = async (data) => {
     try {
@@ -119,7 +133,7 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
   };
 
   return (
-    <div className={`modal z-[40] w-full pb-8`}>
+    <div className={`modal z-[40] w-full`}>
       {errorMessage && (
         <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-deep-red text-white">
           <p className="font-sans uppercase font-bold text-xxs">{errorMessage}</p>
@@ -130,16 +144,30 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
           <p className="font-sans uppercase font-bold text-xxs">{successMessage}</p>
         </div>
       )}
-      <div className="modal-content my-auto block w-[95%] mx-auto bg-white">
-        <div className="py-4 px-2 mx-auto border-2 border-black w-full shadow-flat-black">
-          <p className="text-sans uppercase text-black font-bold text-md mb-4">Sélectionner une équipe</p>
+      <div className="modal-content my-auto block w-[95%] mx-auto bg-white pt-8">
+        <div className="py-4 mx-auto w-full">
           {match && (
             <form
               className="prono-form flex flex-col justify-center w-full h-auto"
               onSubmit={handleSubmit(onSubmit)}>
-              <div className="flex flex-row justify-evenly mb-4">
+              <div className="relative h-[200px] flex flex-row justify-evenly">
+                <div className="w-3/5 h-full flex flex-col justify-start pt-4 clip-path-diagonal-left rounded-l-xl" style={{backgroundColor: homeTeamColor}}>
+                  <img className="mx-auto object-contain block max-h-[120px] max-w-[150px]" src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`}/>
+                </div>
+                <img className="absolute z-[10] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src={vsIcon} alt=""/>
+                <div className="w-3/5 h-full flex flex-col justify-end pb-4 clip-path-diagonal-right rounded-r-xl" style={{backgroundColor: awayTeamColor}}>
+                  <img className="mx-auto object-contain max-h-[120px] max-w-[150px]" src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`}/>
+                </div>
+              </div>
+              <div className="w-full text-center flex flex-col justify-center px-6 py-2">
+                <p className="date-hour capitalize font-medium">
+                  <span className="inline-block font-roboto text-sm mr-2.5">{utcDate.format('DD/MM/YY')}</span>
+                  <span className="inline-block font-roboto text-sm">{utcDate.format('HH:mm:ss')}</span>
+                </p>
+              </div>
+              <div className="flex flex-row justify-evenly items-center mb-4">
                 <label
-                  className={`label-element relative w-[80px] h-[80px] cursor-pointer ${selectedTeam === match.HomeTeam.id ? 'checked' : ''}`}>
+                  className={`label-element w-2/5 h-auto flex flex-col justify-center relative px-2 cursor-pointer ${selectedTeam === match.HomeTeam.id ? 'checked' : ''}`}>
                   <input
                     type="radio"
                     value={match.HomeTeam.id}
@@ -147,12 +175,15 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
                     {...register("team")}
                     onChange={() => setSelectedTeam(match.HomeTeam.id)}
                   />
-                  <div className="border-2 border-black relative z-[2] bg-white h-full p-2.5 px-auto">
-                    <img className="mx-auto h-full" src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`}/>
+                  <div
+                    className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-auto transition-all duration-300 ease-in-out"
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = homeTeamColor}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}>
+                    <p className="font-roboto text-center leading-5 font-bold text-sm">{match.HomeTeam.name}</p>
                   </div>
                 </label>
                 <label
-                  className={`label-element relative w-[80px] h-[80px] cursor-pointer ${selectedTeam === null ? 'checked' : ''}`}>
+                  className={`label-element w-1/5 h-auto flex flex-col justify-center relative px-2 cursor-pointer ${selectedTeam === null ? 'checked' : ''}`}>
                   <input
                     type="radio"
                     value=""
@@ -161,12 +192,12 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
                     onChange={() => setSelectedTeam(null)}
                   />
                   <div
-                    className="w-full h-full flex flex-col justify-center border-2 border-black bg-white relative z-[2]">
-                    <p className="font-sans uppercase text-black font-medium text-sm">nul</p>
+                    className="py-1.5 h-[50px] rounded-full bg-white border border-black transition-all duration-300 ease-in-out">
+                    <p className="font-roboto text-center leading-8 font-medium text-base">nul</p>
                   </div>
                 </label>
                 <label
-                  className={`label-element relative w-[80px] h-[80px] cursor-pointer ${selectedTeam === match.AwayTeam.id ? 'checked' : ''}`}>
+                  className={`label-element w-2/5 h-auto flex flex-col justify-center relative px-2 cursor-pointer ${selectedTeam === match.AwayTeam.id ? 'checked' : ''}`}>
                   <input
                     type="radio"
                     value={match.AwayTeam.id}
@@ -174,22 +205,13 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
                     {...register("team")}
                     onChange={() => setSelectedTeam(match.AwayTeam.id)}
                   />
-                  <div className="border-2 border-black relative z-[2] bg-white h-full p-2.5 px-auto">
-                    <img className="mx-auto h-full" src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`}/>
+                  <div
+                    className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-auto transition-all duration-300 ease-in-out"
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = awayTeamColor}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}>
+                    <p className="font-roboto text-center leading-5 font-bold text-sm">{match.AwayTeam.name}</p>
                   </div>
                 </label>
-              </div>
-              <div className="w-full text-center flex flex-col justify-center px-6 py-2">
-                <p className="name font-sans text-base font-bold capitalize">{utcDate.format('DD MMMM')}
-                  <span className="flex flex-row justify-center">
-                    <span
-                      className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{utcDate.format('HH')}</span>
-                    <span
-                      className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{utcDate.format('mm')}</span>
-                    <span
-                      className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{utcDate.format('ss')}</span>
-                  </span>
-                </p>
               </div>
               {match && match.id === lastMatch.id && (
                 <>
