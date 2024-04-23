@@ -84,7 +84,7 @@ const CurrentBets = ({ user, token }) => {
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
-          className="h-fit flex flex-col w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
           <img src={monthPointsImage} alt="Points du mois"/>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
@@ -92,7 +92,7 @@ const CurrentBets = ({ user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-[120px] relative mt-12">
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative mt-12">
           <img src={weekPointsImage} alt="Points de la semaine"/>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
@@ -100,7 +100,7 @@ const CurrentBets = ({ user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
           <img src={seasonPointsImage} alt="Points de la saison"/>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">

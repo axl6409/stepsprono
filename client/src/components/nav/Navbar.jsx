@@ -1,6 +1,6 @@
 import React, {useContext, useState, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-import logo from '/img/steps-prono-logo.svg';
+import menuBallon from '../../assets/components/icons/menu-ballon.png';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
@@ -96,48 +96,14 @@ const UserMenu = () => {
     <header className="fixed bottom-1 left-1 right-1 z-[90]">
       <nav className="bg-white px-2 py-2 relative z-[10] border-2 border-black rounded-tl-3xl rounded-tr-3xl rounded-br-md rounded-bl-md shadow-flat-black-adjust">
         <div className="container mx-auto flex justify-between items-center">
-          {isAuthenticated && user ? (
-            <Link
-              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              to="/dashboard">
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
-              >
-                <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
-              </span>
-            </Link>
-          ) : (
-            <Link
-              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              to="/">
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0"
-              >
-                <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
-              </span>
-            </Link>
-          )}
-          {isAuthenticated && user ? (
-            <>
-              <p className="font-sans font-medium text-sm bg-white px-2 py-1 text-black border-2 border-black shadow-flat-black-adjust">{user.username}</p>
-              <button
-                className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                onClick={() => setIsOpen(!isOpen)}>
-                <span
-                  className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
-                  style={{ backgroundImage: `url(${cleanImageUrl})` }}
-                >
-                </span>
-              </button>
-            </>
-          ) : (
+          {user && (
             <button
               className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
               onClick={() => setIsOpen(!isOpen)}
             >
               <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                {isOpen ? <FontAwesomeIcon icon={faXmark} className="h-[25px]" /> : <FontAwesomeIcon icon={faBars} className="h-[25px]" />}
+                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                <img src={menuBallon} alt=""/>
               </span>
             </button>
           )}
