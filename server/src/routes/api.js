@@ -5,7 +5,7 @@ const { Op, Sequelize} = require('sequelize')
 const jwt = require('jsonwebtoken')
 const moment = require('moment-timezone')
 moment.tz.setDefault("Europe/Paris");
-const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition} = require("../models")
+const {User, Role, Team, TeamCompetition, Competition, Match, Bet, Setting, Player, PlayerTeamCompetition, Reward} = require("../models")
 const axios = require('axios')
 const multer = require("multer");
 const path = require("path");
@@ -14,8 +14,9 @@ require('dotenv').config()
 const secretKey = process.env.SECRET_KEY
 const sharp = require('sharp')
 const { getCronTasks } = require("../../cronJob");
-const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks, getCurrentMatchday} = require("../controllers/matchController");
-const {updatePlayers} = require("../controllers/playerController");
+const {getCurrentMatchday} = require("../services/appService");
+const {updateMatchStatusAndPredictions, updateMatches, fetchWeekMatches, getMatchsCronTasks} = require("../controllers/matchController");
+const {updatePlayers, getPlayersByTeamId} = require("../controllers/playerController");
 const {createOrUpdateTeams, updateTeamsRanking} = require("../controllers/teamController");
 const {getCompetitionsByCountry} = require("../controllers/competitionController");
 const {getAPICallsCount} = require("../controllers/appController");
@@ -25,24 +26,6 @@ const {checkupBets, getNullBets, getMonthPoints, getSeasonPoints} = require("../
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
 }
-
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    const dest = path.join(__dirname, '../../../client/src/assets/uploads/users/', req.params.id);
-    try {
-      mkdirSync(dest, { recursive: true });
-      console.log(`Dossier créé : ${dest}`);
-      cb(null, dest);
-    } catch (error) {
-      console.error(`Erreur lors de la création du dossier : ${error}`);
-    }
-  },
-
-  filename: function(req, file, cb) {
-    const randomString = generateRandomString(10);
-    cb(null, 'pp_img_' + req.params.id + '_' + randomString + path.extname(file.originalname));
-  }
-});
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -67,6 +50,27 @@ const authenticateJWT = (req, res, next) => {
     next();
   });
 };
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const userId = req.params.id || new Date().getTime();
+    const dest = path.join(__dirname, '../../../client/src/assets/uploads/users/', userId.toString());
+    try {
+      mkdirSync(dest, { recursive: true });
+      console.log(`Dossier créé : ${dest}`);
+      cb(null, dest);
+    } catch (error) {
+      console.error(`Erreur lors de la création du dossier : ${error}`);
+      cb(error);
+    }
+  },
+  filename: function(req, file, cb) {
+    const randomString = generateRandomString(10);
+    const userId = req.params.id || new Date().getTime();
+    cb(null, 'pp_img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
+  }
+});
+
 const upload = multer({ storage: storage });
 
 // Define GET routes
@@ -193,7 +197,6 @@ router.get('/app/bets/get-null/all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-
 router.get('/users/all', authenticateJWT, async (req, res) => {
   try {
     const users = await User.findAll();
@@ -238,7 +241,7 @@ router.get('/competitions/by-country/:code', authenticateJWT, async (req, res) =
     res.status(500).json({ error: 'Erreur lors de la récupération des compétitions', message: error.message })
   }
 })
-router.get('/teams', authenticateJWT, async (req, res) => {
+router.get('/teams', async (req, res) => {
   try {
     const defaultLimit = 10;
     let page = parseInt(req.query.page) || 1;
@@ -271,9 +274,26 @@ router.get('/teams', authenticateJWT, async (req, res) => {
       totalCount: teams.count,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Route protégée' , error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération des équipes' , error: error.message });
   }
 })
+router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
+  try {
+    const players = await getPlayersByTeamId(req.params.teamId);
+    res.json(players);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+});
+router.get('/rewards', authenticateJWT, async (req, res) => {
+  try {
+    const rewards = await Reward.findAll();
+    res.json(rewards);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+})
+
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
     const match = await Match.findByPk(req.params.matchId);
@@ -556,6 +576,14 @@ router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 })
+router.get('/user/:id/rewards', authenticateJWT, async (req, res) => {
+  try {
+    const rewards = await getRewards(req.params.id);
+    res.status(200).json({ rewards });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 router.get('/app/cron-jobs/scheduled', authenticateJWT, async (req, res) => {
   try {
     const cronJobs = await getCronTasks();
@@ -593,48 +621,35 @@ router.post('/verifyToken', async (req, res) => {
     res.status(401).json({ isAuthenticated: false, token, error: error.message });
   }
 });
-router.post('/register', async (req, res) => {
+router.post('/register', upload.single('profilePic'), async (req, res) => {
   try {
-    const { username, email, password } = req.body
+    const { username, email, password, teamId } = req.body;
 
     const usernameExists = await User.findOne({ where: { username } });
     const emailExists = await User.findOne({ where: { email } });
 
-    if (usernameExists && emailExists) {
-      return res.status(400).json({ error: 'Le nom d’utilisateur et le mail existent déjà.' });
-    } else if (usernameExists) {
-      return res.status(400).json({ error: 'Le nom d\'utilisateur est déjà utilisé'});
-    } else if (emailExists) {
-      return res.status(400).json({ error: 'Ce mail est déjà utilisé' });
+    if (usernameExists || emailExists) {
+      return res.status(400).json({ error: 'Le nom d’utilisateur ou l\'email est déjà utilisé.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       username,
       email,
       password: hashedPassword,
-    })
+      img: req.file ? req.file.path : null,
+      teamId
+    });
 
     const [userRole, created] = await Role.findOrCreate({ where: { name: 'visitor' } });
-    if (!userRole) return res.status(500).json({ error: 'Rôle utilisateur non trouvé' })
     await user.addRole(userRole);
 
     const token = jwt.sign({ userId: user.id, role: userRole.name }, secretKey, { expiresIn: '365d' });
 
-    res.set('Cache-Control', 'no-store');
-    const cookieConfig = {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict'
-    };
-    // if (process.env.NODE_ENV !== 'production') {
-    //   cookieConfig.secure = false; // En mode développement (HTTP), définissez secure sur false
-    // }
-    res.cookie('token', token, cookieConfig);
-
-    res.status(201).json({ message: 'Utilisateur créé avec succès', user, token })
+    res.status(201).json({ message: 'Utilisateur créé avec succès', user, token });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error: error.message })
+    res.status(500).json({ message: 'Erreur lors de la création de l’utilisateur', error });
   }
 })
 router.post('/login', async (req, res) => {

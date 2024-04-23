@@ -11,12 +11,12 @@ import {
   faCaretLeft,
   faCaretRight,
   faCircleCheck,
-  faPen,
   faReceipt,
   faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import Pronostic from "../partials/Pronostic.jsx";
-import {EffectCube, Navigation, Pagination} from 'swiper/modules';
+import {EffectCards, Navigation, Pagination} from 'swiper/modules';
+import 'swiper/css/effect-cards';
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
@@ -79,6 +79,21 @@ const Week = ({token, user}) => {
     }
   }
 
+  const submitBet = async (data, matchId) => {
+    try {
+      const payload = {...data, userId: user.id, matchId}
+      const response = await axios.post(`${apiUrl}/api/bet/add`, payload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      console.log(response.data)
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du prono :', error);
+    }
+  }
+
   const isBetPlaced = (matchId) => {
     return bets.some(bet => bet.matchId === matchId);
   };
@@ -94,17 +109,11 @@ const Week = ({token, user}) => {
     isLoading ? (
       <Loader />
     ) : (
-    <div className="relative pt-12 border-2 border-black py-8 px-2 bg-flat-yellow shadow-flat-black">
+    <div className="relative pt-12 py-8 px-2">
       <div>
         <Swiper
-          effect={'cube'}
+          effect={'cards'}
           grabCursor={true}
-          cubeEffect={{
-            shadow: true,
-            slideShadows: true,
-            shadowOffset: 20,
-            shadowScale: 0.94,
-          }}
           pagination={{
             clickable: true,
           }}
@@ -112,7 +121,7 @@ const Week = ({token, user}) => {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
           }}
-          modules={[EffectCube, Pagination, Navigation]}
+          modules={[EffectCards, Pagination, Navigation]}
           className="mySwiper flex flex-col justify-start"
         >
           {matchs.map(match => {
@@ -123,41 +132,13 @@ const Week = ({token, user}) => {
 
             return (
               <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
-                {!isVisitor && (
-                  hasBet ? (
-                    <FontAwesomeIcon icon={faCircleCheck} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block rounded-full shadow-flat-black-adjust-50"/>
-                  ) : (
-                    <FontAwesomeIcon icon={faTriangleExclamation} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>
-                  )
-                )}
-                <div className="w-full text-center flex flex-col justify-center px-6 py-2">
-                  <p className="name font-sans text-base font-bold capitalize">{matchDate.format('DD MMMM')}
-                    <span className="flex flex-row justify-center">
-                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('HH')}</span>
-                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('mm')}</span>
-                      <span className="inline-block bg-white shadow-flat-black text-black px-2 pb-1.5 font-title leading-6 font-medium text-xl mx-0.5 border-2 border-black">{matchDate.format('ss')}</span>
-                    </span>
-                  </p>
-                </div>
-                <div className="w-2/4 flex flex-col justify-center">
-                  <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.HomeTeam.name}</p>
-                </div>
-                <div className="w-2/4 flex flex-col justify-center">
-                  <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[90px] mx-auto"/>
-                  <p>{match.AwayTeam.name}</p>
-                </div>
-                {!isVisitor && (
-                  !hasBet && (isMatchInFuture || isBeforeNextFriday) && !isAfterFridayNoon ? (
-                    <button
-                      className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
-                      onClick={() => { setIsModalOpen(true); setSelectedMatch(match); }}
-                    >
-                      <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                        Faire un prono
-                        <FontAwesomeIcon icon={faReceipt} className="inline-block ml-2 mt-1" />
-                      </span>
-                    </button>
+                {/*{hasBet ? (*/}
+                {/*  <FontAwesomeIcon icon={faCircleCheck} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block rounded-full shadow-flat-black-adjust-50"/>*/}
+                {/*) : (*/}
+                {/*  <FontAwesomeIcon icon={faTriangleExclamation} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>*/}
+                {/*)}*/}
+                {!hasBet && (isMatchInFuture || isBeforeNextFriday) && !isAfterFridayNoon ? (
+                  match ? <Pronostic match={match} utcDate={matchDate} userId={user.id} lastMatch={lastMatch} token={token} /> : <div>Loading...</div>
                   ) : !hasBet && isAfterFridayNoon ? (
                     <div
                       className="relative mt-8 mx-auto block h-fit"
@@ -174,7 +155,6 @@ const Week = ({token, user}) => {
                         Prono reçu
                       </span>
                     </div>
-                    )
                   )}
               </SwiperSlide>
             );

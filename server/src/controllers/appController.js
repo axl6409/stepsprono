@@ -22,7 +22,7 @@ async function getAPICallsCount() {
 }
 
 function getMonthDateRange() {
-  var moment = require('moment');
+  const moment = require('moment');
   const start = moment().startOf('month');
   const end = moment().endOf('month');
   return { start: start, end: end };

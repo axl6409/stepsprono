@@ -1,6 +1,6 @@
 import React, {useContext, useState, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-import logo from '/img/steps-prono-logo.svg';
+import menuBallon from '../../assets/components/icons/menu-ballon.png';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
@@ -18,13 +18,13 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
+  const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownPopupOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
-  const [countdown, setCountdown] = useState('');
+  const [countdown, setCountdown] = useState({});
   const [cronTasks, setCronTasks] = useState([]);
   let cleanImageUrl = '/src/assets/react.svg'
 
@@ -45,46 +45,45 @@ const UserMenu = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
+      const dayOfWeek = now.getDay();
       const nextFriday = new Date();
-
-      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7);
+      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7 + 1);
       nextFriday.setHours(12, 0, 0, 0);
+      const endFriday = new Date(nextFriday.getTime());
+      endFriday.setHours(23, 59, 59, 999);
+      const lastMonday = new Date(now);
+      lastMonday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+      lastMonday.setHours(0, 0, 0, 0);
 
-      const timeLeft = nextFriday - now;
+      const timeLeft = endFriday - now;
 
-      if (timeLeft > 0) {
+      if (timeLeft > 0 && now >= nextFriday) {
         const totalSeconds = Math.floor(timeLeft / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
 
         const formattedTime = {hours: hours, minutes: minutes, seconds: seconds, expired: false};
-        setCountdown(formattedTime);
+        setCountdown({
+          countdown: formattedTime,
+          expired: false,
+          hidden: false
+        });
+      } else if (now >= lastMonday && now <= nextFriday) {
+        setCountdown({
+          expired: true,
+          hidden: true
+        });
       } else {
-        setCountdown({ expired: true });
+        setCountdown({
+          expired: true,
+          hidden: false
+        });
       }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [])
-
-  useEffect(() => {
-    const fetchCronJobs = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/app/cron-jobs/scheduled`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setCronTasks(response.data.cronJobs);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des tâches cron', error);
-      }
-    }
-
-    if (isAuthenticated && user && user.role === 'admin') {
-      fetchCronJobs()
-      fetchMatchsCronJobs()
-    }
-  }, [user, isAuthenticated]);
 
   const handleLogout = () => {
     logout();
@@ -97,48 +96,14 @@ const UserMenu = () => {
     <header className="fixed bottom-1 left-1 right-1 z-[90]">
       <nav className="bg-white px-2 py-2 relative z-[10] border-2 border-black rounded-tl-3xl rounded-tr-3xl rounded-br-md rounded-bl-md shadow-flat-black-adjust">
         <div className="container mx-auto flex justify-between items-center">
-          {isAuthenticated && user ? (
-            <Link
-              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              to="/dashboard">
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
-              >
-                <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
-              </span>
-            </Link>
-          ) : (
-            <Link
-              className="relative z-[60] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              to="/">
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0"
-              >
-                <img src={logo} alt="Logo" className="w-auto h-[50px]"/>
-              </span>
-            </Link>
-          )}
-          {isAuthenticated && user ? (
-            <>
-              <p className="font-sans font-medium text-sm bg-white px-2 py-1 text-black border-2 border-black shadow-flat-black-adjust">{user.username}</p>
-              <button
-                className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                onClick={() => setIsOpen(!isOpen)}>
-                <span
-                  className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0"
-                  style={{ backgroundImage: `url(${cleanImageUrl})` }}
-                >
-                </span>
-              </button>
-            </>
-          ) : (
+          {user && (
             <button
               className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
               onClick={() => setIsOpen(!isOpen)}
             >
               <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                {isOpen ? <FontAwesomeIcon icon={faXmark} className="h-[25px]" /> : <FontAwesomeIcon icon={faBars} className="h-[25px]" />}
+                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                <img src={menuBallon} alt=""/>
               </span>
             </button>
           )}
@@ -299,7 +264,7 @@ const UserMenu = () => {
       </div>
     )}
     {isAuthenticated && user && user.role !== 'visitor' && (
-      <div className={`fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+      <div id="countdownPoup" className={`${countdown.hidden ? `hidden` : `` } fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
           {!countdown.expired && (
             <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
           )}

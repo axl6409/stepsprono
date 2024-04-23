@@ -17,6 +17,7 @@ client/src/assets/uploads
 # Add more patterns as needed
 
 # Logs
+log
 logs
 *.log
 npm-debug.log*
