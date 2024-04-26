@@ -1,6 +1,14 @@
 import React, {useContext, useState, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import menuBallon from '../../assets/components/icons/menu-ballon.png';
+import navHome from '../../assets/components/icons/nav-accueil.svg';
+import navPronos from '../../assets/components/icons/nav-pronos.svg';
+import navRanking from '../../assets/components/icons/nav-classement.svg';
+import navStepsRanking from '../../assets/components/icons/nav-steps.svg';
+import navProfile from '../../assets/components/icons/nav-profil.svg';
+import navClose from '../../assets/components/icons/nav-cross.svg';
+import navLogout from '../../assets/components/icons/nav-logout.svg';
+import navAdmin from '../../assets/components/icons/nav-admin.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
@@ -93,198 +101,204 @@ const UserMenu = () => {
 
   return (
     <>
-    <header className="fixed bottom-1 left-1 right-1 z-[90]">
-      <nav className="bg-white px-2 py-2 relative z-[10] border-2 border-black rounded-tl-3xl rounded-tr-3xl rounded-br-md rounded-bl-md shadow-flat-black-adjust">
-        <div className="container mx-auto flex justify-between items-center">
-          {user && (
-            <button
-              className="relative z-[80] w-[50px] h-[50px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span
-                className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                <img src={menuBallon} alt=""/>
-              </span>
-            </button>
-          )}
-          <div className={`${isOpen ? 'top-0' : 'top-[100%]'} flex flex-col justify-between border-4 border-black fixed z-[70] left-0 bottom-0 right-0 w-[100%] bg-white p-8 pb-16 transition-all duration-200 shadow-menu`}>
-            {isAuthenticated ? (
-              <>
-                <div className="flex flex-row justify-between">
-                  <Link
-                    to="/user/settings"
-                    className="w-auto block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                    onClick={() => setIsOpen(!isOpen)}
-                  >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">
-                    <FontAwesomeIcon icon={faCircleUser} />
+    <header className="fixed bottom-1 right-1 z-[90]">
+      <nav className="px-2 py-2 relative z-[10]">
+        {user && (
+          <button
+            className="relative z-[80] w-[60px] h-[60px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <span
+              className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <img src={menuBallon} alt=""/>
+            </span>
+          </button>
+        )}
+        <div className={`${isOpen ? 'translate-x-0 translate-y-0 scale-100' : 'translate-x-[100%] translate-y-[100%] scale-0'} flex flex-col justify-between border border-black fixed z-[70] bottom-0 right-0 w-4/5 bg-white p-8 pb-16 rounded-t-3xl rounded-bl-3xl transition-all duration-200 shadow-menu`}>
+          {isAuthenticated && (
+            <>
+              <div className="flex flex-row justify-between">
+                <button
+                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <span
+                    className="relative z-[2] w-full h-full flex flex-col justify-center bg-green-soft bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                    <img src={navClose} alt="close menu icon"/>
                   </span>
-                  </Link>
-                  <Link
-                    to="/"
-                    className="w-auto block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                    onClick={handleLogout}
-                  >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">
-                    <FontAwesomeIcon icon={faRightFromBracket} />
+                </button>
+                <Link
+                  to="/"
+                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+                  onClick={handleLogout}
+                >
+                  <span
+                    className="relative z-[2] w-full h-full flex flex-col justify-center bg-blue-medium bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                    <img className='p-1' src={navLogout} alt="close menu icon"/>
                   </span>
-                  </Link>
-                </div>
-                <div>
+                </Link>
+              </div>
+              <div className="mt-8 h-60vh flex flex-col justify-between">
                 <Link
                   to="/dashboard"
-                  className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
                   onClick={() => setIsOpen(!isOpen)}
                 >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Tableau de bord</span>
-                </Link>
-                <Link
-                  to="/teams"
-                  className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                  onClick={() => setIsOpen(!isOpen)}
-                >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Classement Équipes</span>
+                  <span className="inline-block w-1/5">
+                    <img className="h-[20px] mx-auto" src={navHome} alt="Icône accueil"/>
+                  </span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
                 </Link>
                 <Link
                   to="/matchs"
-                  className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
                   onClick={() => setIsOpen(!isOpen)}
                 >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Matchs / Pronos</span>
+                  <span className="inline-block w-1/5">
+                    <img className="h-[20px] mx-auto" src={navPronos} alt="Icône mes pronos"/>
+                  </span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Mes pronos</span>
+                </Link>
+                <Link
+                  to="/teams"
+                  className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <span className="inline-block w-1/5">
+                    <img className="h-[20px] mx-auto" src={navRanking} alt="Icône classement équipes"/>
+                  </span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement équipes</span>
                 </Link>
                 <Link
                   to="/classement"
-                  className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:shadow-inner-black-light before:bg-green-lime before:border-black before:border-2 group"
+                  className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
                   onClick={() => setIsOpen(!isOpen)}
                 >
-                  <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Classement Steps</span>
+                  <span className="inline-block w-1/5">
+                    <img className="h-[20px] mx-auto" src={navStepsRanking} alt="Icône classement steps"/>
+                  </span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement équipes</span>
+                </Link>
+                <Link
+                  to="/user/settings"
+                  className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <span className="inline-block w-1/5">
+                    <img className="h-[20px] mx-auto" src={navProfile} alt="Icône profil"/>
+                  </span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
                 </Link>
                 {user && user.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                    className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
                     onClick={() => setIsOpen(!isOpen)}
                   >
-                    <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Administration</span>
+                    <span className="inline-block w-1/5">
+                      <img className="h-[20px] mx-auto" src={navAdmin} alt="Icône administration"/>
+                    </span>
+                    <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Administration</span>
                   </Link>
                 )}
               </div>
-              </>
-            ) : (
-              <>
-                <div className="flex flex-col justify-center">
-                  <Link
-                    to="/login"
-                    className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Connexion</span>
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="w-full block relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Inscription</span>
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </nav>
     </header>
-    {isAuthenticated && user && user.role === 'admin' && isDebuggerActive && (
-      <div className={`debugger fixed z-[80] max-w-[94%] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
-        <button
-          className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black text-left pl-1 focus:outline-none`}
-          onClick={toggleDebuggerModal}
-        >
-          <FontAwesomeIcon icon={faChevronLeft} className={`text-green-lime-deep text-xs inline-block align-[0] transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'}`} />
-        </button>
-        <div className="bg-black px-2 py-2 relative z-[2] flex flex-col">
-          <div className="flex flex-row mb-2">
-            <button
-              onClick={() => fetchAPICalls()}
-              className="relative block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
-            >
+      {isAuthenticated && user && user.role !== 'visitor' && (
+        <div id="countdownPoup"
+             className={`${countdown.hidden ? `hidden` : ``} fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+            {!countdown.expired && (
+              <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
+            )}
+            <p className="font-sans text-sm text-white text-center">
+              {!countdown.expired ? (
+                <>
+                  <span
+                    className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+                <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
+                <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
+              </>
+            ) : (
+              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
+            )}
+          </p>
+          <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
+            <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white" />
+          </button>
+        </div>
+      )}
+      {user && user.role === 'admin' && isDebuggerActive && (
+        <div className={`debugger fixed z-[80] max-w-[94%] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
+          <button
+            className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black text-left pl-1 focus:outline-none`}
+            onClick={toggleDebuggerModal}
+          >
+            <FontAwesomeIcon icon={faChevronLeft} className={`text-green-lime-deep text-xs inline-block align-[0] transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'}`} />
+          </button>
+          <div className="bg-black px-2 py-2 relative z-[2] flex flex-col">
+            <div className="flex flex-row mb-2">
+              <button
+                onClick={() => fetchAPICalls()}
+                className="relative block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
+              >
             <span
               className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-0.5 py-0.5 rounded text-center text-xs font-sans uppercase font-bold shadow-md bg-white transition translate-y-[-3px] translate-x-[-3px] group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faArrowsRotate}/>
             </span>
-            </button>
-            <p className="font-title font-bold text-green-lime-deep leading-4 my-auto w-[200px]">
-              <span className="inline-block mr-0.5">API Calls : </span>
-              {apiCalls.current !== undefined ? (
-                <>
+              </button>
+              <p className="font-title font-bold text-green-lime-deep leading-4 my-auto w-[200px]">
+                <span className="inline-block mr-0.5">API Calls : </span>
+                {apiCalls.current !== undefined ? (
+                  <>
                   <span className={`inline-block font-bold ${
                     apiCalls.current >= (3 / 4 * apiCalls.limit_day) ? 'text-red-600' :
                       apiCalls.current >= (1 / 3 * apiCalls.limit_day) ? 'text-orange-500' :
                         'text-green-lime-deep'
                   }`}>{apiCalls.current}</span>
-                  <span className="inline-block">/</span>
-                  <span className="inline-block">{apiCalls.limit_day}</span>
-                </>
-              ) : (
-                <span className="inline-block">{apiCalls.error_message}</span>
-              )}
-            </p>
-          </div>
-          <div>
-            <p className="font-title font-bold text-green-lime-deep">Cron Tasks</p>
-            <div
-              className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
-              <ul className="flex flex-col w-max">
-                {cronTasks && cronTasks.length > 0 ? (
-                  cronTasks.map((task, index) => <li key={index}><p
-                    className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p>
-                  </li>)
+                    <span className="inline-block">/</span>
+                    <span className="inline-block">{apiCalls.limit_day}</span>
+                  </>
                 ) : (
-                  <p>Aucune tâche programmée</p>
+                  <span className="inline-block">{apiCalls.error_message}</span>
                 )}
-              </ul>
+              </p>
             </div>
-          </div>
-          <div>
-            <p className="font-title font-bold text-green-lime-deep">Next Matchs Updates</p>
-            <div
-              className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
-              <ul className="flex flex-col w-max">
-                {matchsCronTasks && matchsCronTasks.length > 0 ? (
-                  matchsCronTasks.map((task, index) => <li key={index}><p
-                    className="font-sans text-xxs text-green-lime-deep font-light">{task.id} - {task.cronTime}</p>
-                  </li>)
-                ) : (
-                  <p>Aucune tâche programmée</p>
-                )}
-              </ul>
+            <div>
+              <p className="font-title font-bold text-green-lime-deep">Cron Tasks</p>
+              <div
+                className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
+                <ul className="flex flex-col w-max">
+                  {cronTasks && cronTasks.length > 0 ? (
+                    cronTasks.map((task, index) => <li key={index}><p
+                      className="font-sans text-xxs text-green-lime-deep font-light">{task.task} - {task.schedule}</p>
+                    </li>)
+                  ) : (
+                    <p>Aucune tâche programmée</p>
+                  )}
+                </ul>
+              </div>
+            </div>
+            <div>
+              <p className="font-title font-bold text-green-lime-deep">Next Matchs Updates</p>
+              <div
+                className="overflow-y-scroll overflow-x-scroll max-w-[250px] max-h-[100px] border-t border-l border-green-lime-deep">
+                <ul className="flex flex-col w-max">
+                  {matchsCronTasks && matchsCronTasks.length > 0 ? (
+                    matchsCronTasks.map((task, index) => <li key={index}><p
+                      className="font-sans text-xxs text-green-lime-deep font-light">{task.id} - {task.cronTime}</p>
+                    </li>)
+                  ) : (
+                    <p>Aucune tâche programmée</p>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-    {isAuthenticated && user && user.role !== 'visitor' && (
-      <div id="countdownPoup" className={`${countdown.hidden ? `hidden` : `` } fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
-          {!countdown.expired && (
-            <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
-          )}
-          <p className="font-sans text-sm text-white text-center">
-            {!countdown.expired ? (
-              <>
-                <span
-                  className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
-              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
-              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
-            </>
-          ) : (
-            <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
-          )}
-        </p>
-        <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
-          <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white" />
-        </button>
-      </div>
-    )}
+      )}
     </>
   );
 };
