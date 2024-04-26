@@ -31,6 +31,7 @@ const UserMenu = () => {
   const token = localStorage.getItem('token') || cookies.token
   const { user, isAuthenticated, logout } = useContext(UserContext);
   const { apiCalls, fetchAPICalls } = useContext(AppContext);
+  const { menuOpen, setMenuOpen } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
   const [countdown, setCountdown] = useState({});
   const [cronTasks, setCronTasks] = useState([]);
@@ -99,6 +100,10 @@ const UserMenu = () => {
     navigate('/');
   };
 
+  const toggleMenu = () => {
+    setMenuOpen(prev => !prev);
+  };
+
   return (
     <>
     <header className="fixed bottom-1 right-1 z-[90]">
@@ -106,7 +111,7 @@ const UserMenu = () => {
         {user && (
           <button
             className="relative z-[80] w-[60px] h-[60px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={toggleMenu}
           >
             <span
               className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
@@ -114,13 +119,13 @@ const UserMenu = () => {
             </span>
           </button>
         )}
-        <div className={`${isOpen ? 'translate-x-0 translate-y-0 scale-100' : 'translate-x-[100%] translate-y-[100%] scale-0'} flex flex-col justify-between border border-black fixed z-[70] bottom-0 right-0 w-4/5 bg-white p-8 pb-16 rounded-t-3xl rounded-bl-3xl transition-all duration-200 shadow-menu`}>
+        <div className={`${menuOpen ? 'translate-x-0 translate-y-0 scale-100' : 'translate-x-[100%] translate-y-[100%] scale-0'} flex flex-col justify-between border border-black fixed z-[70] bottom-0 right-0 w-4/5 bg-white p-8 pb-24 rounded-t-3xl rounded-bl-3xl transition-all duration-200 shadow-menu`}>
           {isAuthenticated && (
             <>
               <div className="flex flex-row justify-between">
                 <button
                   className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span
                     className="relative z-[2] w-full h-full flex flex-col justify-center bg-green-soft bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
@@ -142,7 +147,7 @@ const UserMenu = () => {
                 <Link
                   to="/dashboard"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navHome} alt="Icône accueil"/>
@@ -152,7 +157,7 @@ const UserMenu = () => {
                 <Link
                   to="/matchs"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navPronos} alt="Icône mes pronos"/>
@@ -162,7 +167,7 @@ const UserMenu = () => {
                 <Link
                   to="/teams"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navRanking} alt="Icône classement équipes"/>
@@ -172,7 +177,7 @@ const UserMenu = () => {
                 <Link
                   to="/classement"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navStepsRanking} alt="Icône classement steps"/>
@@ -182,7 +187,7 @@ const UserMenu = () => {
                 <Link
                   to="/user/settings"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={toggleMenu}
                 >
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navProfile} alt="Icône profil"/>
@@ -193,7 +198,7 @@ const UserMenu = () => {
                   <Link
                     to="/admin"
                     className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={toggleMenu}
                   >
                     <span className="inline-block w-1/5">
                       <img className="h-[20px] mx-auto" src={navAdmin} alt="Icône administration"/>

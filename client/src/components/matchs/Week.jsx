@@ -131,12 +131,7 @@ const Week = ({token, user}) => {
             const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
 
             return (
-              <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
-                {/*{hasBet ? (*/}
-                {/*  <FontAwesomeIcon icon={faCircleCheck} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block rounded-full shadow-flat-black-adjust-50"/>*/}
-                {/*) : (*/}
-                {/*  <FontAwesomeIcon icon={faTriangleExclamation} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>*/}
-                {/*)}*/}
+              <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
                 {!hasBet && (isMatchInFuture || isBeforeNextFriday) && !isAfterFridayNoon ? (
                   match ? <Pronostic match={match} utcDate={matchDate} userId={user.id} lastMatch={lastMatch} token={token} /> : <div>Loading...</div>
                   ) : !hasBet && isAfterFridayNoon ? (

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useRef, useEffect, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCheck, faPaperPlane, faReceipt, faXmark} from "@fortawesome/free-solid-svg-icons";
 import { useForm } from 'react-hook-form';
@@ -8,6 +8,7 @@ import vsIcon from "../../assets/components/matchs/vs-icon.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
+  const formRef = useRef();
   const { handleSubmit, register, setValue } = useForm();
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -144,19 +145,25 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
           <p className="font-sans uppercase font-bold text-xxs">{successMessage}</p>
         </div>
       )}
-      <div className="modal-content my-auto block w-[95%] mx-auto bg-white pt-8">
-        <div className="py-4 mx-auto w-full">
+      <div className="modal-content my-auto block w-full mx-auto bg-white">
+        <div className="py-1.5 mx-auto w-full">
           {match && (
             <form
+              ref={formRef}
               className="prono-form flex flex-col justify-center w-full h-auto"
               onSubmit={handleSubmit(onSubmit)}>
               <div className="relative h-[200px] flex flex-row justify-evenly">
-                <div className="w-3/5 h-full flex flex-col justify-start pt-4 clip-path-diagonal-left rounded-l-xl" style={{backgroundColor: homeTeamColor}}>
-                  <img className="mx-auto object-contain block max-h-[120px] max-w-[150px]" src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`}/>
+                <div className="w-3/5 h-full flex flex-col justify-start pt-4 clip-path-diagonal-left rounded-l-xl"
+                     style={{backgroundColor: homeTeamColor}}>
+                  <img className="mx-auto object-contain block max-h-[120px] max-w-[150px]" src={match.HomeTeam.logoUrl}
+                       alt={`${match.HomeTeam.name} Logo`}/>
                 </div>
-                <img className="absolute z-[10] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src={vsIcon} alt=""/>
-                <div className="w-3/5 h-full flex flex-col justify-end pb-4 clip-path-diagonal-right rounded-r-xl" style={{backgroundColor: awayTeamColor}}>
-                  <img className="mx-auto object-contain max-h-[120px] max-w-[150px]" src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`}/>
+                <img className="absolute z-[10] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src={vsIcon}
+                     alt=""/>
+                <div className="w-3/5 h-full flex flex-col justify-end pb-4 clip-path-diagonal-right rounded-r-xl"
+                     style={{backgroundColor: awayTeamColor}}>
+                  <img className="mx-auto object-contain max-h-[120px] max-w-[150px]" src={match.AwayTeam.logoUrl}
+                       alt={`${match.AwayTeam.name} Logo`}/>
                 </div>
               </div>
               <div className="w-full text-center flex flex-col justify-center px-6 py-2">
@@ -258,19 +265,20 @@ const Pronostic = ({ match, utcDate, userId, lastMatch, token }) => {
                   </div>
                 </>
               )}
-              <button
-                className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
-                type="submit"
-              >
-                <span
-                  className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-4 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                  Envoyer
-                  <FontAwesomeIcon icon={faPaperPlane} className="ml-4"/>
-                </span>
-              </button>
             </form>
           )}
         </div>
+        <button
+          className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
+          type="button"
+          onClick={() => formRef.current.submit()}
+        >
+          <span
+            className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-4 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            Envoyer
+            <FontAwesomeIcon icon={faPaperPlane} className="ml-4"/>
+          </span>
+        </button>
       </div>
     </div>
   );
