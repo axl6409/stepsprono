@@ -23,9 +23,11 @@ import AdminCompetitions from "./components/admin/settings/AdminCompetitions.jsx
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import {AppContext} from "./contexts/AppContext.jsx";
 
 const AuthenticatedApp = () => {
   const { isAuthenticated } = useContext(UserContext);
+  const { menuOpen } = useContext(AppContext);
   const location = useLocation();
 
   if (isAuthenticated && location.pathname === '/') {
@@ -42,7 +44,7 @@ const AuthenticatedApp = () => {
   return isAuthenticated ? (
     <>
       <Navbar />
-      <div className="container mx-auto">
+      <div className={`container mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
         <AnimatePresence>
           <Routes>
             <Route path="/dashboard/:userId?" element={

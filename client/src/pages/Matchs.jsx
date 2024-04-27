@@ -28,9 +28,12 @@ const Matchs = () => {
           <FontAwesomeIcon icon={faCaretLeft} />
         </span>
       </Link>
-      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Pronostics
-        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Pronostics</span>
-        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Pronostics</span>
+      <h1
+        className={`font-black mt-0 uppercase relative w-fit mx-auto text-xl5`}>Pronostics
+        <span
+          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Pronostics</span>
+        <span
+          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Pronostics</span>
       </h1>
       <div className="px-4 relative">
         <Week token={token} user={user}/>

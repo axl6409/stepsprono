@@ -41,7 +41,7 @@ body {
 
 /* Swiper */
 .swiper-wrapper {
-    margin: 3rem 0;
+    margin-bottom: 2rem;
 }
 
 .swiper-pagination {
@@ -52,11 +52,11 @@ body {
     height: 15px;
     opacity: 1;
     background-color: white;
+    border: 1px solid black;
 }
 .swiper-pagination-bullet-active {
-    width: 20px;
-    height: 20px;
-    vertical-align: top;
+    width: 15px;
+    height: 15px;
     background-color: white;
     background-image: url("./assets/icons/futbol-regular.svg");
 }
@@ -77,8 +77,14 @@ body {
 .label-element .border-black:focus,
 .label-element .border-black:active,
 .label-element .border-black:focus-within,
-.label-element .border-black:hover {
+.label-element .border-black:hover,
+.label-element.checked .border-black {
+    background-color: var(--team-color);
     box-shadow: inset 2px 2px 5px 0 black;
+}
+
+.form-submit-btn:disabled {
+    filter: grayscale(1);
 }
 
 .clip-path-diagonal-left {
