@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef, useCallback} from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import 'swiper/css/effect-cube';
@@ -9,20 +9,23 @@ import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faCaretLeft,
-  faCaretRight,
-  faCircleCheck,
-  faReceipt,
-  faTriangleExclamation
+  faCaretRight, faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCards, Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css/effect-cards';
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
+import checkedIcon from "../../assets/icons/checked-green.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
-  const [matchs, setMatchs] = useState([])
+  const [matchs, setMatchs] = useState([]);
+  const swiperRef = useRef(null);
+  const formRefs = useRef([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
   const [bets, setBets] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [lastMatch, setLastMatch] = useState(null);
@@ -37,6 +40,28 @@ const Week = ({token, user}) => {
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
+    const fetchBets = async (sortedMatchs) => {
+      const matchIds = sortedMatchs.map(match => match.id);
+      try {
+        const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
+          matchIds: matchIds
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        const betsByMatchId = response.data.data.reduce((acc, bet) => {
+          acc[bet.matchId] = bet
+          return acc
+        }, {})
+        setBets(betsByMatchId)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des matchs :', error);
+        setError(error);
+        setIsLoading(false);
+      }
+    }
+
     const fetchMatchs = async () => {
       setIsLoading(true)
       try {
@@ -61,47 +86,88 @@ const Week = ({token, user}) => {
     fetchMatchs()
   }, [token])
 
-  const fetchBets = async (sortedMatchs) => {
-    const matchIds = sortedMatchs.map(match => match.id);
-    try {
-      const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
-        matchIds: matchIds
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      setBets(response.data.data)
-    } catch (error) {
-      console.error('Erreur lors de la récupération des matchs :', error);
-      setError(error);
-      setIsLoading(false);
-    }
-  }
+  useEffect(() => {
+    const swiperInstance = swiperRef.current?.swiper
+    if (swiperInstance) {
+      const updateActiveIndex = () => {
+        setActiveIndex(swiperInstance.activeIndex);
+      };
 
-  const submitBet = async (data, matchId) => {
-    try {
-      const payload = {...data, userId: user.id, matchId}
-      const response = await axios.post(`${apiUrl}/api/bet/add`, payload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-      console.log(response.data)
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du prono :', error);
+      swiperInstance.on('slideChange', updateActiveIndex)
+      updateActiveIndex()
+
+      return () => {
+        swiperInstance.off('slideChange', updateActiveIndex)
+      }
     }
-  }
+  }, [matchs, swiperRef.current])
+
+  useEffect(() => {
+    const { disabled, text, icon } = buttonState();
+    setButtonDisabled(disabled);
+  }, [activeIndex, bets, matchs]);
+
+  const canSubmitBet = (match) => {
+    if (!match) return false;
+    const matchDate = moment(match.utcDate);
+    const isMatchInFuture = matchDate.isAfter(simulatedNow);
+    const hasBet = isBetPlaced(match.id);
+    return isMatchInFuture && simulatedNow.isBefore(nextFridayAtNoon);
+  };
+
+  const isMatchEditable = (match) => {
+    if (!match) return false;
+    return canSubmitBet(match) && isBetPlaced(match.id);
+  };
+
+  const handleGlobalSubmit = () => {
+    const currentIndex = swiperRef.current?.swiper.activeIndex;
+    if (currentIndex !== undefined) {
+      const currentMatch = matchs[currentIndex];
+      const currentFormComponent = formRefs.current[currentIndex];
+      if (currentFormComponent && currentMatch && (isMatchEditable(currentMatch) || !isBetPlaced(currentMatch.id))) {
+        currentFormComponent.triggerSubmit();
+      } else {
+        console.log("No action possible");
+      }
+    }
+  };
+
+  const buttonState = () => {
+    if (!swiperRef.current || !swiperRef.current.swiper) return { disabled: true, text: 'Loading...' };
+
+    const activeIndex = swiperRef.current.swiper.activeIndex;
+    const currentMatch = matchs[activeIndex];
+    if (!currentMatch) return { disabled: true, text: 'Invalid Match' };
+
+    const isOpen = simulatedNow.isBefore(nextFridayAtNoon);
+    const hasBet = isBetPlaced(currentMatch.id);
+    const isFutureMatch = moment(currentMatch.utcDate).isAfter(simulatedNow);
+
+    if (isOpen && isFutureMatch) {
+      if (!hasBet) {
+        return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
+      } else {
+        return { disabled: false, text: 'Modifier', className: 'bg-beige-light' };
+      }
+    } else {
+      if (hasBet) {
+        return { disabled: true, icon: 'check', className: '' };
+      } else {
+        return { disabled: true, text: 'Trop tard !', className: '' };
+      }
+    }
+  };
 
   const isBetPlaced = (matchId) => {
-    return bets.some(bet => bet.matchId === matchId);
+    return !!bets[matchId];
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     fetchBets(matchs)
   };
+  const { disabled, text, icon, className } = buttonState();
 
   if (error) return <p>Erreur : {error.message}</p>;
 
@@ -112,6 +178,7 @@ const Week = ({token, user}) => {
     <div className="relative pt-12 py-8 px-2">
       <div>
         <Swiper
+          ref={swiperRef}
           effect={'cards'}
           grabCursor={true}
           pagination={{
@@ -122,49 +189,54 @@ const Week = ({token, user}) => {
             prevEl: '.swiper-button-prev',
           }}
           modules={[EffectCards, Pagination, Navigation]}
-          className="mySwiper flex flex-col justify-start"
+          className="mySwiper relative flex flex-col justify-start"
         >
-          {matchs.map(match => {
+          {matchs.length > 0 && matchs.map((match, index) => {
             const matchDate = moment(match.utcDate)
-            const isMatchInFuture = matchDate.isAfter(simulatedNow);
-            const hasBet = isBetPlaced(match.id)
-            const isAfterFridayNoon = simulatedNow.isAfter(nextFridayAtNoon)
+            const enableSubmit = canSubmitBet(match);
 
             return (
-              <SwiperSlide className="flex flex-row flex-wrap relative p-1.5 my-2 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]" key={match.id} data-match-id={match.id}>
-                {!hasBet && (isMatchInFuture || isBeforeNextFriday) && !isAfterFridayNoon ? (
-                  match ? <Pronostic match={match} utcDate={matchDate} userId={user.id} lastMatch={lastMatch} token={token} /> : <div>Loading...</div>
-                  ) : !hasBet && isAfterFridayNoon ? (
-                    <div
-                      className="relative mt-8 mx-auto block h-fit"
-                    >
-                      <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-deep-red">
-                        Trop tard !
-                      </span>
-                    </div>
-                    ) : (
-                    <div
-                      className="relative mt-8 mx-auto block h-fit"
-                      >
-                      <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-white px-2 py-1.5 shadow-flat-black text-center font-sans uppercase font-bold bg-green-lime-deep">
-                        Prono reçu
-                      </span>
-                    </div>
-                  )}
+              <SwiperSlide
+                className="flex flex-row flex-wrap relative m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
+                key={match.id} data-match-id={match.id}>
+                <Pronostic
+                  ref={(el) => (formRefs.current[index] = el)}
+                  match={match}
+                  utcDate={matchDate}
+                  userId={user.id}
+                  lastMatch={lastMatch}
+                  token={token}
+                  betDetails={bets[match.id]}
+                  disabled={!enableSubmit} />
               </SwiperSlide>
             );
           })}
-          <div className="swiper-button-prev w-[50px] h-[50px] bg-white top-4 left-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
-            <FontAwesomeIcon icon={faCaretLeft} className="text-black" />
+          <div
+            className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            <img src={arrowIcon} alt="Icône flèche"/>
           </div>
-          <div className="swiper-button-next w-[50px] h-[50px] bg-white top-4 right-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
-            <FontAwesomeIcon icon={faCaretRight} className="text-black" />
+          <div
+            className="swiper-button-next w-[30px] h-[30px] rounded-full bg-white top-7 right-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            <img className="rotate-180" src={arrowIcon} alt="Icône flèche"/>
           </div>
         </Swiper>
+        {icon ? (
+          <div className="relative z-[2] w-full flex flex-row justify-center text-black px-8 py-1 text-center">
+            <img src={checkedIcon} alt=""/>
+          </div>
+        ) : (
+          <button
+            className="form-submit-btn relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+            type="button"
+            onClick={handleGlobalSubmit}
+            disabled={disabled}
+          >
+            <span className={`relative z-[2] w-full flex flex-row justify-center border border-black text-black px-8 py-1 rounded-full text-center font-roboto text-base uppercase font-bold shadow-md ${className} transition -translate-y-1 -translate-x-0 group-hover:-translate-y-0 group-hover:-translate-x-0`}>
+              {text}
+            </span>
+          </button>
+        )}
       </div>
-
-      <Pronostic match={selectedMatch} userId={user.id} lastMatch={lastMatch} closeModal={closeModal} isModalOpen={isModalOpen} token={token} />
-
     </div>
     )
   )
