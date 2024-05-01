@@ -1,5 +1,81 @@
 const {Op} = require("sequelize");
 const {Bet, Match} = require("../models");
+const {getCurrentMonthMatchdays} = require("../services/matchService");
+
+async function checkupBets(matchId) {
+  if (matchId) {
+    await checkBetByMatchId()
+  }
+}
+
+async function getNullBets() {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        points: {
+          [Op.eq]: null
+        }
+      }
+    });
+    return bets.length !== 0;
+  } catch (error) {
+    console.log('Erreur lors de la recuperation des paris nuls:', error);
+  }
+}
+
+const getMonthPoints = async (seasonId, userId) => {
+  try {
+    const matchdays = await getCurrentMonthMatchdays(seasonId);
+    const bets = await Bet.findAll({
+      where: {
+        seasonId: {
+          [Op.eq]: seasonId
+        },
+        userId: {
+          [Op.eq]: userId
+        },
+        matchday: {
+          [Op.in]: matchdays
+        },
+        points: {
+          [Op.not]: null
+        }
+      }
+    });
+    let points = 0;
+    for (const bet of bets) {
+      points += bet.points;
+    }
+    return bets;
+  } catch (error) {
+    console.log('Erreur lors de la recuperation des points:', error);
+  }
+}
+
+const getSeasonPoints = async (seasonId, userId) => {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        seasonId: {
+          [Op.eq]: seasonId
+        },
+        userId: {
+          [Op.eq]: userId
+        },
+        points: {
+          [Op.not]: null
+        }
+      }
+    });
+    let points = 0;
+    for (const bet of bets) {
+      points += bet.points;
+    }
+    return points;
+  } catch (error) {
+    console.log('Erreur lors de la recuperation des points:', error);
+  }
+}
 
 function calculatePoints(wins, draws, loses) {
   return (wins * 3) + draws;
@@ -51,5 +127,9 @@ async function checkBetByMatchId(matchId) {
 
 module.exports = {
   calculatePoints,
-  checkBetByMatchId
+  checkBetByMatchId,
+  checkupBets,
+  getNullBets,
+  getMonthPoints,
+  getSeasonPoints,
 };

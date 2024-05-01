@@ -36,7 +36,7 @@ const Week = ({token, user}) => {
   const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = simulatedNow.isBefore(nextFridayAtNoon);
+  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
@@ -154,7 +154,7 @@ const Week = ({token, user}) => {
       if (hasBet) {
         return { disabled: true, icon: 'check', className: '' };
       } else {
-        return { disabled: true, text: 'Trop tard !', className: '' };
+        return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
       }
     }
   };

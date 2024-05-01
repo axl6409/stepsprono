@@ -1,225 +1,148 @@
+const express = require('express')
+const router = express.Router()
+const {authenticateJWT} = require("../middlewares/auth");
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
+const {getPlayersByTeamId, updatePlayers} = require("./playerController");
+const {updateTeamsRanking, createOrUpdateTeams} = require("../services/teamService");
+const {getCurrentSeasonYear} = require("./seasonController");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const { downloadImage } = require('../services/imageService');
-const { calculatePoints } = require("../services/betService");
-const { getCurrentSeasonId, getCurrentSeasonYear } = require("./seasonController");
 
-async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = null, includeStats = false, onlyUpdateStats = false) {
-  if (typeof teamIDs === 'number') {
-    teamIDs = [teamIDs];
-  }
+router.get('/teams', async (req, res) => {
   try {
-    let teams = [];
-    if (!onlyUpdateStats) {
-      if (!season) {
-        console.log('Please provide a season number');
-        return 'Please provide a season number';
-      }
-      if (!competitionId) {
-        console.log('Please provide a competition id');
-        return 'Please provide a competition id';
-      }
-      for (const teamID of teamIDs) {
-        const teamInfosOptions = {
-          method: 'GET',
-          url: `${apiBaseUrl}teams/${teamID}`,
-          headers: {
-            'X-RapidAPI-Key': apiKey,
-            'X-RapidAPI-Host': apiHost
-          }
-        };
-        const teamResponse = await axios.request(teamInfosOptions);
-        if (teamResponse.data.response) {
-          teams.push(...teamResponse.data.response);
-        }
-      }
-    } else {
-      teams = await Team.findAll({
-        where: teamIDs.length ? { id: teamIDs } : undefined,
-      });
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    const sortBy = req.query.sortBy || 'position';
+    const order = req.query.order || 'ASC';
+
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
     }
 
-    for (const teamData of teams) {
-      let logoUrl = teamData.dataValues.logoUrl;
-      let venueImageUrl = teamData.dataValues.venueImage;
-
-      const existingTeam = await Team.findByPk(teamData.dataValues.id);
-      if (existingTeam) {
-        logoUrl = existingTeam.logoUrl || logoUrl;
-        venueImageUrl = existingTeam.venueImage || venueImageUrl;
-      } else {
-        if (teamData.dataValues.logoUrl) {
-          logoUrl = await downloadImage(teamData.dataValues.logoUrl, teamData.dataValues.id, 'logo');
-        }
-        if (teamData.dataValues.venueImage) {
-          venueImageUrl = await downloadImage(teamData.dataValues.venueImage, teamData.dataValues.id, 'venue');
-        }
-      }
-
-      const seasonId = await getCurrentSeasonId(competitionId);
-      const seasonYear = await getCurrentSeasonYear(competitionId);
-
-      await Team.upsert({
-        id: teamData.dataValues.id,
-        name: teamData.dataValues.name,
-        code: teamData.dataValues.code,
-        logoUrl: logoUrl,
-        venueName: teamData.dataValues.venueName ? teamData.dataValues.venueName : null,
-        venueAddress: teamData.dataValues.venueAddress ? teamData.dataValues.venueAddress : null,
-        venueCity: teamData.dataValues.venueCity ? teamData.dataValues.venueCity : null,
-        venueCapacity: teamData.dataValues.venueCapacity ? teamData.dataValues.venueCapacity : null,
-        venueImage: venueImageUrl,
-      });
-
-      if (includeStats || onlyUpdateStats) {
-        await updateTeamStats(competitionId, teamData.dataValues.id, seasonYear);
-      }
-    }
-  } catch (error) {
-    logger.error('Erreur lors de la création ou mise à jour des équipes: ', error);
-  }
-}
-
-async function updateTeamStats(competitionId = null, teamID = null, seasonYear = null) {
-  try {
-    if (!seasonYear) {
-      console.log('Please provide a season number');
-      return 'Please provide a season number';
-    }
-    const seasonId = await getCurrentSeasonId(competitionId);
-    if (!seasonId || !competitionId || !teamID) {
-      console.log('Missing required parameters');
-      return 'Missing required parameters';
-    }
-    const teamStatsOptions = {
-      method: 'GET',
-      url: apiBaseUrl + 'teams/statistics',
-      params: {
-        league: competitionId,
-        season: seasonYear,
-        team: teamID
-      },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
-      }
-    };
-    const statsResponse = await axios.request(teamStatsOptions);
-    const stats = statsResponse.data.response;
-
-    const [teamCompetition, created] = await TeamCompetition.findOrCreate({
-      where: {
-        teamId: teamID,
-        competitionId: stats.league.id,
-        seasonId: seasonId,
-      },
-      defaults: {
-        teamId: teamID,
-        competitionId: stats.league.id,
-        seasonId: seasonId,
-        playedTotal: stats.fixtures.played.total,
-        playedHome: stats.fixtures.played.home,
-        playedAway: stats.fixtures.played.away,
-        winTotal: stats.fixtures.wins.total,
-        winHome: stats.fixtures.wins.home,
-        winAway: stats.fixtures.wins.away,
-        drawTotal: stats.fixtures.draws.total,
-        drawHome: stats.fixtures.draws.home,
-        drawAway: stats.fixtures.draws.away,
-        losesTotal: stats.fixtures.loses.total,
-        losesHome: stats.fixtures.loses.home,
-        losesAway: stats.fixtures.loses.away,
-        form: stats.form,
-        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
-        goalsFor: stats.goals.for.total.total,
-        goalsAgainst: stats.goals.against.total.total,
-        goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
-      }
+    const teams = await TeamCompetition.findAndCountAll({
+      include: [{
+        model: Team,
+        as: 'Team',
+        required: true
+      }],
+      order: [
+        [sortBy, 'ASC']
+      ],
+      offset,
+      limit
     });
-
-    if (!created) {
-      await teamCompetition.update({
-        playedTotal: stats.fixtures.played.total,
-        playedHome: stats.fixtures.played.home,
-        playedAway: stats.fixtures.played.away,
-        winTotal: stats.fixtures.wins.total,
-        winHome: stats.fixtures.wins.home,
-        winAway: stats.fixtures.wins.away,
-        drawTotal: stats.fixtures.draws.total,
-        drawHome: stats.fixtures.draws.home,
-        drawAway: stats.fixtures.draws.away,
-        losesTotal: stats.fixtures.loses.total,
-        losesHome: stats.fixtures.loses.home,
-        losesAway: stats.fixtures.loses.away,
-        form: stats.form,
-        points: calculatePoints(stats.fixtures.wins.total, stats.fixtures.draws.total, stats.fixtures.loses.total),
-        goalsFor: stats.goals.for.total.total,
-        goalsAgainst: stats.goals.against.total.total,
-        goalDifference: stats.goals.for.total.total - stats.goals.against.total.total
-      });
-    }
-    logger.info(`Mise à jour des statistiques effectuées avec succès pour l'équipe ${teamID}`);
+    res.json({
+      data: teams.rows,
+      totalPages: limit ? Math.ceil(teams.count / limit) : 1,
+      currentPage: page,
+      totalCount: teams.count,
+    });
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des statistiques: ', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des équipes' , error: error.message });
   }
-}
-
-async function updateTeamsRanking(teamId = null, competitionId = null) {
+})
+router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
   try {
-    const seasonId = await getCurrentSeasonId(competitionId)
-    const seasonYear = await getCurrentSeasonYear(competitionId)
-    const options = {
-      method: 'GET',
-      url: apiBaseUrl + 'standings',
-      params: {
-        season: seasonYear,
-        league: competitionId
-      },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
-      }
-    };
-    const response = await axios.request(options);
-    const teams = response.data.response[0].league.standings[0];
-
-    if (teamId) {
-      const teamToUpdate = teams.find(team => team.team.id === teamId);
-      if (teamToUpdate) {
-        await TeamCompetition.update({
-          position: teamToUpdate.rank,
-        }, {
-          where: {
-            teamId: teamId,
-            seasonId: seasonId,
-            competitionId: competitionId,
-          }
-        });
-      }
-    } else {
-      for (const team of teams) {
-        console.log(team.team.id, team.rank);
-        await TeamCompetition.update({
-          position: team.rank,
-        }, {
-          where: {
-            teamId: team.team.id,
-            seasonId: seasonId,
-            competitionId: competitionId,
-          }
-        });
-      }
-    }
+    const players = await getPlayersByTeamId(req.params.teamId);
+    res.json(players);
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des données:', error);
+    res.status(500).json({ message: 'Route protégée', error: error.message })
   }
-}
+});
+router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    await updateTeamsRanking()
+    res.status(200).json({ message: 'Équipes mises à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    await createOrUpdateTeams()
+    res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const teamId = req.params.id
+    const season = await getCurrentSeasonYear(61)
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await createOrUpdateTeams(team.id, season, 61, false, true)
+    res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const teamId = req.params.id
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await updateTeamsRanking(team.id, 61)
+    res.status(200).json({ message: 'Équipe mise à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const teamId = req.params.id
+    if (isNaN(teamId)) {
+      return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
+    }
+    const team = await Team.findByPk(teamId)
+    if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
+    await updatePlayers(team.id, 61)
+    res.status(200).json({ message: 'Joueurs mis à jour avec succès pour l\'equipe' + team.name });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
-module.exports = {
-  createOrUpdateTeams,
-  updateTeamsRanking,
-};
+    const teamId = req.params.id;
+    const team = await Team.findByPk(teamId);
+    if (!team) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await team.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+});
+
+
+module.exports = router
