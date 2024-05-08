@@ -228,5 +228,6 @@ module.exports = {
   updateMatchStatusAndPredictions,
   updateSingleMatch,
   updateMatches,
+  getMatchsCronTasks,
   fetchWeekMatches
 };

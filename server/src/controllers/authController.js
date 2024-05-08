@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const path = require("path");
 const { upload } = require('../utils/utils');
+const logger = require("../utils/logger/logger");
 
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
@@ -51,7 +52,7 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
     await user.addRole(userRole);
 
     const token = jwt.sign({ userId: user.id, role: userRole.name }, secretKey, { expiresIn: '365d' });
-
+    logger.info('Utilisateur enregistré avec succès', user);
     res.status(201).json({ message: 'Utilisateur créé avec succès', user, token });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création de l’utilisateur', error });
