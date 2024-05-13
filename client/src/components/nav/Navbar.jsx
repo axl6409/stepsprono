@@ -182,7 +182,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navStepsRanking} alt="Icône classement steps"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement équipes</span>
+                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement Steps</span>
                 </Link>
                 <Link
                   to="/user/settings"

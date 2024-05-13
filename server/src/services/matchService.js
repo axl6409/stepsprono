@@ -9,10 +9,10 @@ const {Op} = require("sequelize");
 const {schedule} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
-const {getMonthDateRange} = require("../controllers/appController");
+const {getMonthDateRange} = require("../services/appService");
 let cronTasks = [];
 
-async function updateMatchStatusAndPredictions(matchIds) {
+const updateMatchStatusAndPredictions = async (matchIds) => {
   if (!Array.isArray(matchIds)) {
     matchIds = [matchIds];
   }
@@ -21,7 +21,7 @@ async function updateMatchStatusAndPredictions(matchIds) {
   }
 }
 
-async function getCurrentMonthMatchdays() {
+const getCurrentMonthMatchdays = async () => {
   try {
     const matchdays = []
     const monthDates = getMonthDateRange();
@@ -225,6 +225,7 @@ async function fetchWeekMatches() {
 }
 
 module.exports = {
+  getCurrentMonthMatchdays,
   updateMatchStatusAndPredictions,
   updateSingleMatch,
   updateMatches,

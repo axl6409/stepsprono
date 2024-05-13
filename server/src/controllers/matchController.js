@@ -13,6 +13,7 @@ const {checkupBets} = require("../services/betService");
 const {schedule} = require("node-cron");
 const {updateSingleMatch, updateMatchStatusAndPredictions, updateMatches} = require("../services/matchService");
 const {getCurrentMatchday} = require("../services/appService");
+const logger = require("../utils/logger/logger");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -116,8 +117,9 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     const matchday = await getCurrentMatchday()
     const matchs = await Match.findAndCountAll({
       where: {
-        matchday: {
-          [Op.eq]: matchday
+        utcDate: {
+          [Op.gte]: startOfCurrentWeek,
+          [Op.lte]: endOfCurrentWeek
         },
       },
       include: [

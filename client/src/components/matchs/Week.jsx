@@ -5,12 +5,6 @@ import 'swiper/css/effect-cube';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import axios from "axios";
-import {Link} from "react-router-dom";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-  faCaretLeft,
-  faCaretRight, faCheck,
-} from "@fortawesome/free-solid-svg-icons";
 import Pronostic from "../partials/Pronostic.jsx";
 import {EffectCards, Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css/effect-cards';
@@ -18,10 +12,13 @@ import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
+import AlertModal from "../partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
   const [matchs, setMatchs] = useState([]);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   const swiperRef = useRef(null);
   const formRefs = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -37,7 +34,6 @@ const Week = ({token, user}) => {
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
   const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
-  const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
@@ -133,6 +129,18 @@ const Week = ({token, user}) => {
     }
   };
 
+  const handleSuccess = (message) => {
+    setAlertMessage(message);
+    setAlertType('success');
+    setTimeout(() => setAlertMessage(''), 2000);
+  };
+
+  const handleError = (message) => {
+    setAlertMessage(message);
+    setAlertType('error');
+    setTimeout(() => setAlertMessage(''), 3000);
+  };
+
   const buttonState = () => {
     if (!swiperRef.current || !swiperRef.current.swiper) return { disabled: true, text: 'Loading...' };
 
@@ -140,9 +148,9 @@ const Week = ({token, user}) => {
     const currentMatch = matchs[activeIndex];
     if (!currentMatch) return { disabled: true, text: 'Invalid Match' };
 
-    const isOpen = simulatedNow.isBefore(nextFridayAtNoon);
+    const isOpen = now.isBefore(nextFridayAtNoon);
     const hasBet = isBetPlaced(currentMatch.id);
-    const isFutureMatch = moment(currentMatch.utcDate).isAfter(simulatedNow);
+    const isFutureMatch = moment(currentMatch.utcDate).isAfter(now);
 
     if (isOpen && isFutureMatch) {
       if (!hasBet) {
@@ -163,6 +171,27 @@ const Week = ({token, user}) => {
     return !!bets[matchId];
   };
 
+  const refreshBets = async () => {
+    // Re-fetch bets logic here
+    const matchIds = matchs.map(match => match.id);
+    try {
+      const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
+        matchIds: matchIds
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      const betsByMatchId = response.data.data.reduce((acc, bet) => {
+        acc[bet.matchId] = bet
+        return acc
+      }, {})
+      setBets(betsByMatchId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des paris :', error);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     fetchBets(matchs)
@@ -176,6 +205,7 @@ const Week = ({token, user}) => {
       <Loader />
     ) : (
     <div className="relative pt-12 py-8 px-2">
+      <AlertModal message={alertMessage} type={alertType} />
       <div>
         <Swiper
           ref={swiperRef}
@@ -207,7 +237,10 @@ const Week = ({token, user}) => {
                   lastMatch={lastMatch}
                   token={token}
                   betDetails={bets[match.id]}
-                  disabled={!enableSubmit} />
+                  handleSuccess={handleSuccess}
+                  handleError={handleError}
+                  disabled={!enableSubmit}
+                  refreshBets={refreshBets} />
               </SwiperSlide>
             );
           })}
