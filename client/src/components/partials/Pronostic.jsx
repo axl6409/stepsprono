@@ -1,16 +1,12 @@
 import React, {useEffect, useState, forwardRef, useRef, useImperativeHandle} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretLeft, faCheck, faPaperPlane, faReceipt, faXmark} from "@fortawesome/free-solid-svg-icons";
 import { useForm } from 'react-hook-form';
 import axios from "axios";
 import moment from "moment";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabled, betDetails }, ref) => {
+const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabled, betDetails, refreshBets, handleSuccess, handleError }, ref) => {
   const { handleSubmit, register, setValue } = useForm();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const formRef = useRef();
   const [formData, setFormData] = useState({
     userId: '',
@@ -40,9 +36,11 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
       setSelectedTeam(betDetails.winnerId)
       setHomeScore(betDetails.homeScore)
       setAwayScore(betDetails.awayScore)
+      setScorer(betDetails.playerGoal);
       setValue('homeScore', betDetails.homeScore)
       setValue('awayScore', betDetails.awayScore)
       setValue('playerGoal', betDetails.playerGoal)
+      setValue('scorer', betDetails.playerGoal);
     }
   }, [betDetails]);
 
@@ -106,66 +104,51 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     if (event) {
       event.preventDefault();
     }
-    console.log(data);
+    const isNewBet = !betDetails || !betDetails.id;
+    const endpoint = isNewBet ? '/api/bet/add' : `/api/bet/update/${betDetails.id}`;
+    const method = isNewBet ? 'post' : 'patch'
+    const playerGoal = data.scorer === "null" ? null : data.scorer;
+    const payload = {
+      ...data,
+      userId: userId,
+      seasonId: seasonId,
+      matchId: match.id,
+      competitionId: match.league,
+      matchday: match.matchday,
+      winnerId: selectedTeam,
+      homeScore: data.homeScore,
+      awayScore: data.awayScore,
+      playerGoal: playerGoal
+    };
     try {
       if (match.id === lastMatch.id) {
         if (!data.homeScore || !data.awayScore) {
-          setErrorMessage('Score obligatoire');
+          handleError('Score obligatoire');
           return
         }
       }
-      const playerGoal = data.scorer === "null" ? null : data.scorer;
-      console.log(playerGoal)
-
-      const payload = {
-        ...data,
-        userId: userId,
-        seasonId: seasonId,
-        matchId: match.id,
-        competitionId: match.league,
-        matchday: match.matchday,
-        winnerId: selectedTeam,
-        homeScore: data.homeScore,
-        awayScore: data.awayScore,
-        playerGoal: playerGoal
-      };
-
-      const response = await axios.post(`${apiUrl}/api/bet/add`, payload, {
+      const response = await axios({
+        method: method,
+        url: `${apiUrl}${endpoint}`,
+        data: payload,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
       if (response.status === 200) {
-        setSuccessMessage('Prono enregistré avec succès:');
-        setTimeout(function () {
-          setSuccessMessage('')
-          setErrorMessage('')
-          setSelectedTeam('')
-          setSelectedTeam(null)
-        }, 1000)
+        handleSuccess('Prono enregistré avec succès');
+        refreshBets();
       } else {
-        setErrorMessage(response.error || 'Erreur lors de l\'enregistrement du prono');
-        setSuccessMessage('')
+        handleError(response.data.error || 'Erreur lors de l\'enregistrement du prono');
       }
     } catch (error) {
-      setErrorMessage(error.response.data.error || 'Erreur lors de l\'envoi du prono');
-      setSuccessMessage('')
+      handleError(error.response.data.error || 'Erreur lors de l\'envoi du prono');
     }
   };
 
   return (
     <div className={`modal z-[40] p-1.5 bg-white w-full`}>
-      {errorMessage && (
-        <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-deep-red text-white">
-          <p className="font-sans uppercase font-bold text-xxs">{errorMessage}</p>
-        </div>
-      )}
-      {successMessage && (
-        <div className="modal-error relative w-[80%] mr-auto ml-4 py-2 px-4 mb-4 border-2 border-black shadow-flat-black bg-green-lime-deep text-white">
-          <p className="font-sans uppercase font-bold text-xxs">{successMessage}</p>
-        </div>
-      )}
       <div className="modal-content my-auto block w-full mx-auto bg-white">
         <div className="pt-1.5 pb-3 mx-auto w-full">
           {match && (
@@ -220,7 +203,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                     onChange={() => setSelectedTeam(null)}
                   />
                   <div
-                    className="py-1.5 h-[45px] rounded-full bg-white border border-black transition-all duration-300 ease-in-out">
+                    className="py-1.5 h-[45px] w-[45px] mx-auto rounded-full bg-white border border-black transition-all duration-300 ease-in-out">
                     <p className="font-roboto text-center leading-8 font-medium text-sm">nul</p>
                   </div>
                 </label>

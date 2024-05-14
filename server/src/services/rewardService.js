@@ -88,8 +88,26 @@ const bestPointsMatchday = async (matchday) => {
   }
 }
 
-function pointsSum(points) {
-  return points.reduce((a, b) => a + b, 0);
+const getAllRewards = async function (req, res) {
+  try {
+    const rewards = allRewards();
+    res.json(rewards);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+    logger.error('Erreur lors de la recuperation des trophées:', error)
+  }
+}
+
+const getAllUserRewards = async function (req, res) {
+  const userId = req.params.userId;
+  const rewards = await getRewardsByUser(userId);
+  res.json(rewards);
+}
+
+const checkAvailableRewards = async function (req, res) {
+  const userId = req.params.userId;
+  const rewards = await checkAvailableRewards(userId);
+  res.json(rewards);
 }
 
 module.exports = {

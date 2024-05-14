@@ -3,13 +3,48 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const {Match} = require("../models");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("../controllers/seasonController");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
 const {schedule} = require("node-schedule");
-const {updateMatchStatusAndPredictions} = require("../controllers/matchController");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
+const {getMonthDateRange} = require("../services/appService");
+let cronTasks = [];
+
+const updateMatchStatusAndPredictions = async (matchIds) => {
+  if (!Array.isArray(matchIds)) {
+    matchIds = [matchIds];
+  }
+  for (const matchId of matchIds) {
+    await updateSingleMatch(matchId);
+  }
+}
+
+const getCurrentMonthMatchdays = async () => {
+  try {
+    const matchdays = []
+    const monthDates = getMonthDateRange();
+    const matchs = await Match.findAll({
+      where: {
+        utcDate: {
+          [Op.gte]: monthDates.start,
+          [Op.lte]: monthDates.end
+        }
+      }
+    })
+    for (const match of matchs) {
+      matchdays.push(match.matchday)
+    }
+    return matchdays
+  } catch (error) {
+    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
+  }
+}
+
+function getMatchsCronTasks() {
+  return cronTasks
+}
 
 async function updateSingleMatch(matchId) {
   try {
@@ -190,7 +225,10 @@ async function fetchWeekMatches() {
 }
 
 module.exports = {
+  getCurrentMonthMatchdays,
+  updateMatchStatusAndPredictions,
   updateSingleMatch,
   updateMatches,
+  getMatchsCronTasks,
   fetchWeekMatches
 };

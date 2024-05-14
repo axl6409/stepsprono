@@ -34,7 +34,7 @@ export const AppProvider = ({ children }) => {
 
   const fetchAPICalls = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/app/api/calls`, {
+      const response = await axios.get(`${apiUrl}/api/app/calls`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
