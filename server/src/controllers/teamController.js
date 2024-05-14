@@ -13,17 +13,8 @@ const apiBaseUrl = process.env.FB_API_URL;
 
 router.get('/teams', async (req, res) => {
   try {
-    const defaultLimit = 10;
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || defaultLimit;
-    let offset = (page - 1) * limit;
     const sortBy = req.query.sortBy || 'position';
     const order = req.query.order || 'ASC';
-
-    if (!req.query.page && !req.query.limit) {
-      limit = null;
-      offset = null;
-    }
 
     const teams = await TeamCompetition.findAndCountAll({
       include: [{
@@ -34,13 +25,9 @@ router.get('/teams', async (req, res) => {
       order: [
         [sortBy, 'ASC']
       ],
-      offset,
-      limit
     });
     res.json({
       data: teams.rows,
-      totalPages: limit ? Math.ceil(teams.count / limit) : 1,
-      currentPage: page,
       totalCount: teams.count,
     });
   } catch (error) {

@@ -30,7 +30,7 @@ router.post('/verifyToken', async (req, res) => {
 router.post('/register', upload.single('profilePic'), async (req, res) => {
   try {
     const { username, email, password, teamId } = req.body;
-
+    logger.info('Request body:', req.body);
     const usernameExists = await User.findOne({ where: { username } });
     const emailExists = await User.findOne({ where: { email } });
 
