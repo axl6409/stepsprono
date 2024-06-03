@@ -44,7 +44,7 @@ const Classements = () => {
         <img src={arrowIcon} alt="Icône flèche" />
       </Link>
       <h1
-        className={`font-black mb-12 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Classement Steps
+        className={`font-black mb-32 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Classement Steps
         <span
           className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Classement Steps</span>
         <span

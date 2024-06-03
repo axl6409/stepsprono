@@ -243,9 +243,9 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
       startDate = now.clone().startOf('isoWeek').toDate();
       endDate = now.clone().endOf('isoWeek').toDate();
     } else if (filter === 'month') {
-      const now = moment().set({ 'year': 2024, 'month': 4, 'date': 1 }); // Simulated date
-      startDate = moment().startOf('month').toDate();
-      endDate = moment().endOf('month').toDate();
+      const seasonId = await getCurrentSeasonId(61);
+      const monthPoints = await getMonthPoints(seasonId, userId);
+      return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
       const seasonPoints = await getSeasonPoints(seasonId, userId);
