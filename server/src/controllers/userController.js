@@ -135,8 +135,9 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('isoWeek');
-    const endOfWeek = moment().endOf('isoWeek');
+    const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+    const startOfWeek = now.clone().startOf('isoWeek');
+    const endOfWeek = now.clone().endOf('isoWeek');
 
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
@@ -165,7 +166,6 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
         userId: req.params.id
       }
     });
-
     if (bets.length === 0) {
       res.json({ message: 'Aucun pari pour la semaine en cours' })
     } else {
@@ -232,6 +232,73 @@ router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 })
+router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const filter = req.params.filter;
+    let startDate, endDate;
+
+    if (filter === 'week') {
+      const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+      startDate = now.clone().startOf('isoWeek').toDate();
+      endDate = now.clone().endOf('isoWeek').toDate();
+    } else if (filter === 'month') {
+      const now = moment().set({ 'year': 2024, 'month': 4, 'date': 1 }); // Simulated date
+      startDate = moment().startOf('month').toDate();
+      endDate = moment().endOf('month').toDate();
+    } else if (filter === 'season') {
+      const seasonId = await getCurrentSeasonId(61);
+      const seasonPoints = await getSeasonPoints(seasonId, userId);
+      return res.json(seasonPoints);
+    } else {
+      return res.status(400).json({ error: 'Filtre non valide' });
+    }
+
+    const bets = await Bet.findAll({
+      include: [{
+        model: Match,
+        where: {
+          utcDate: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      }],
+      where: {
+        userId: userId
+      }
+    });
+
+    if (filter === 'month') {
+      const seasonId = await getCurrentSeasonId(61);
+      const monthPoints = await getMonthPoints(seasonId, userId);
+      if (bets.length === 0) {
+        return res.json({ message: 'Aucun pari pour le mois en cours', points: monthPoints });
+      } else {
+        return res.json(monthPoints);
+      }
+    }
+
+    if (bets.length === 0) {
+      res.json({ message: `Aucun pari pour la ${filter} en cours` });
+    } else {
+      res.json(bets);
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
+  }
+});
+
 router.get('/user/:id/rewards', authenticateJWT, async (req, res) => {
   try {
     const rewards = await getRewards(req.params.id);

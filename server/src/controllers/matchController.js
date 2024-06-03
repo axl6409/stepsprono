@@ -112,9 +112,9 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
-    const startOfCurrentWeek = moment().tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
-    const endOfCurrentWeek = moment().tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
-    const matchday = await getCurrentMatchday()
+    const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
+    const startOfCurrentWeek = now.tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
       where: {
         utcDate: {

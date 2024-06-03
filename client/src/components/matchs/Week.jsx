@@ -29,7 +29,8 @@ const Week = ({token, user}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const now = moment();
+  // const now = moment();
+  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
   const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);

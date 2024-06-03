@@ -37,9 +37,6 @@ const Matchs = () => {
       <div className="px-4 relative">
         <Week token={token} user={user}/>
       </div>
-      <div className="px-4 relative my-8">
-        <Passed token={token} user={user}/>
-      </div>
     </div>
   );
 }

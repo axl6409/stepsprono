@@ -106,15 +106,15 @@ const Teams = () => {
                     <ul className="flex flex-row justify-center items-center mt-2">
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BP</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.goalsFor}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalsFor}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BC</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.goalsAgainst}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalsAgainst}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BD</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.goalDifference}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalDifference}</p>
                       </li>
                     </ul>
                   </div>

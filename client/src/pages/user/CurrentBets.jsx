@@ -79,7 +79,7 @@ const CurrentBets = ({ user, token }) => {
       fetchSeasonPoints()
     }
   }, [user, token]);
-  console.log(user)
+
   return (
     <div>
       <div
@@ -138,7 +138,7 @@ const CurrentBets = ({ user, token }) => {
             <span
               className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
             <span
-              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 uppercase z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
           </h2>
           <div className="w-full px-2">
             <div className="flex flex-col w-full">

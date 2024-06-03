@@ -55,7 +55,7 @@ app.use(morgan('combined', { stream: accessLogStream }));
 app.use('/api', apiRoutes);
 
 app.listen(PORT, '0.0.0.0', async () => {
-  logger.info(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
   try {
     await models.sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
