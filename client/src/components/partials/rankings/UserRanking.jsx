@@ -10,7 +10,7 @@ import purpleStarOpacity from "../../../assets/components/ranking/purple-star-op
 import yellowStar from "../../../assets/components/ranking/yellow-star.svg";
 import blackStar from "../../../assets/components/ranking/black-star.svg";
 import purpleFlower from "../../../assets/components/ranking/purple-flower.svg";
-import flowerYellowOpacity from "../../../assets/components/ranking/flower-yellow-opacity.svg";
+import flowerYellowOpacity from "../../../assets/components/ranking/flower-yellow-opacity.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = ({ users, token }) => {
@@ -26,13 +26,7 @@ const UserRanking = ({ users, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        if (typeof response.data === 'object' && response.data.points !== undefined) {
-          return response.data.points;
-        } else if (Array.isArray(response.data)) {
-          return response.data.reduce((total, bet) => total + bet.points, 0);
-        } else {
-          return 0;
-        }
+        return response.data.points;
       } catch (error) {
         console.error(`Erreur lors de la récupération des points pour l'utilisateur ${userId}`, error);
         return null;
@@ -54,6 +48,10 @@ const UserRanking = ({ users, token }) => {
     }
   }, [users, token, filter]);
 
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+  };
+
   if (isLoading) {
     return (
       <div className="text-center flex flex-col justify-center">
@@ -66,9 +64,15 @@ const UserRanking = ({ users, token }) => {
     <div className="relative p-8 px-2 pt-0">
 
       {/* Podium: Top 3 users */}
-      <div className="relative flex flex-row justify-center items-end mb-8">
-        <img className="absolute -top-20 left-4 w-20" src={crownOpacity} alt=""/>
-        <div className="relative z-[2] flex flex-col items-center order-1 -mr-6">
+      <div className="relative z-[10] flex flex-row justify-center items-end mb-8">
+        <img className="absolute z-[1] -top-20 left-4 w-20" src={crownOpacity} alt=""/>
+        <img className="absolute z-[1] -top-20 right-0 w-20" src={purpleStar} alt=""/>
+        <img className="absolute z-[1] -top-20 right-12 w-4" src={blackStar} alt=""/>
+        <img className="absolute z-[1] bottom-20 -left-2" src={flowerYellowOpacity} alt=""/>
+        <img className="absolute z-[1] bottom-16 left-4 w-4" src={blackStar} alt=""/>
+        <img className="absolute z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
+        <img className="absolute z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
+        <div className="relative z-[3] flex flex-col items-center order-1 -mr-6">
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
           <div
@@ -78,7 +82,7 @@ const UserRanking = ({ users, token }) => {
           <p className="font-bold">{updatedUsers[1]?.username}</p>
           <p>{updatedUsers[1]?.points}</p>
         </div>
-        <div className="relative z-[3] flex flex-col items-center order-2 transform -translate-y-4">
+        <div className="relative z-[4] flex flex-col items-center order-2 transform -translate-y-4">
           <img className="absolute -top-20 w-20" src={crown} alt=""/>
           <img className="absolute z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
           <div
@@ -90,7 +94,7 @@ const UserRanking = ({ users, token }) => {
           <p className="font-bold">{updatedUsers[0]?.username}</p>
           <p>{updatedUsers[0]?.points}</p>
         </div>
-        <div className="relative z-[1] flex flex-col items-center order-3 -ml-6">
+        <div className="relative z-[2] flex flex-col items-center order-3 -ml-6">
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
@@ -102,29 +106,51 @@ const UserRanking = ({ users, token }) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-center mb-4">
-        <button onClick={() => setFilter('week')} className="mx-2">Cette semaine</button>
-        <button onClick={() => setFilter('month')} className="mx-2">Ce mois</button>
-        <button onClick={() => setFilter('season')} className="mx-2">Cette saison</button>
+      <div className="relative z-[30] bg-white w-full mb-4 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
+        <div
+          className="relative z-[2] bg-white rounded-md p-1 flex flex-row justify-center w-full h-full border border-black">
+          <button
+            onClick={() => handleFilterChange('week')}
+            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'week' ? 'bg-green-medium' : ''}`}
+          >
+            semaine
+          </button>
+          <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
+          <button
+            onClick={() => handleFilterChange('month')}
+            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'month' ? 'bg-green-medium' : ''}`}
+          >
+            mois
+          </button>
+          <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
+          <button
+            onClick={() => handleFilterChange('season')}
+            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'season' ? 'bg-green-medium' : ''}`}
+          >
+            saison
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-col justify-start">
-        <ul>
+      <div className="relative z-[20] flex flex-col justify-start">
+        <ul className="px-6">
           {updatedUsers.slice(3).map(user => (
             <li
-              className="flex flex-row relative justify-between my-2 border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black"
+              className="relative rounded-xl overflow-hidden my-2 border-2 border-black bg-white h-fit shadow-flat-black"
               key={user.id}>
               <Link to={`/dashboard/${user.id}`}
-                    className="w-fit h-fit block relative my-2 before:content-[''] before:inline-block before:absolute before:z-[1] before:shadow-inner-black-light before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group">
-                <span
-                  className="relative z-[2] w-full block border-2 border-black text-black px-4 py-1 rounded-full text-center shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">
-                  {user.username}
-                </span>
+                    className="relative z-[20] group flex flex-row justify-between">
+                <div className="w-14 bg-grey-light rounded-r-xl">
+                  <img className="object-center object-cover" src={user.img || defaultUserImage} alt={user.username}/>
+                </div>
+                <p className="font-title text-black text-xl font-bold h-fit my-auto w-3/5 pl-6 pr-2">
+                  <span className="inline-block mr-2">{user.username}</span>
+                </p>
+                <div className="w-px h-auto mx-1 border-l-2 border-black border-dotted"></div>
+                <p className="font-title text-black text-right uppercase text-l font-bold leading-4 w-1/5 pr-4 my-auto">
+                  <span className="inline-block text-black p-2 ">{user.points}</span>
+                </p>
               </Link>
-              <p className="font-title text-black uppercase text-l font-bold leading-4 h-fit my-auto">
-              <span className="inline-block mr-2">Points</span>
-                <span className="inline-block bg-black text-white p-2 ">{user.points}</span>
-              </p>
             </li>
           ))}
         </ul>

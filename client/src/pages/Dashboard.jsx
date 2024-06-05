@@ -5,12 +5,13 @@ import {useCookies} from "react-cookie";
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
+  faBellConcierge,
   faCaretLeft,
   faChevronDown,
   faCirclePlus,
   faHourglassHalf,
   faMedal,
-  faPersonPraying
+  faPersonPraying, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import CurrentBets from "./user/CurrentBets.jsx";
 import Loader from "../components/partials/Loader.jsx";
@@ -18,16 +19,21 @@ import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextTeam from "../assets/components/texts/equipe-de-coeur.svg";
 import heartRed from "../assets/components/register/step-3/heart-red.png";
+import StatusModal from "../components/partials/modals/StatusModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = () => {
-  const { user, isAuthenticated } = useContext(UserContext);
+  const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
+  const isVisitor = user.role === 'visitor';
   const [cookies, setCookie] = useCookies(["user"]);
   const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
   const { userId } = useParams()
   const [isLoading, setIsLoading] = useState(true);
   const [animateTitle, setAnimateTitle] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
 
   useEffect(() => {
     const fetchProfileUser = async () => {
@@ -60,6 +66,36 @@ const Dashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleRequestRoleUpdate = async () => {
+    try {
+      const response = await axios.patch(`${apiUrl}/api/user/${user.id}/request-role`, null,{
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.status === 200) {
+        setUpdateStatus(true);
+        setUpdateMessage('Utilisateur modifié avec succès');
+        setIsModalOpen(true)
+        updateUserStatus('pending')
+        setTimeout(function () {
+          closeModal()
+        }, 1500)
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors de l\'envoi de la demande');
+        setIsModalOpen(true)
+        updateUserStatus(null)
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      setUpdateMessage('Erreur lors de l\'envoi de la demande : ' + error);
+      setIsModalOpen(true)
+      updateUserStatus(null)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="text-center flex flex-col justify-center">
@@ -78,6 +114,9 @@ const Dashboard = () => {
 
   return (
     <div className="text-center relative flex flex-col justify-center">
+      {isModalOpen && (
+        <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
+      )}
       <div className="flex flex-row justify-between px-4 py-2">
         <Link
           className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
@@ -133,15 +172,36 @@ const Dashboard = () => {
         ) : (
           <>
             <div className="">
-              <p className="font-sans font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
-              <Link
-                to="/user/settings"
-                className="w-3/4 block mx-auto relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-              >
-                <span
-                  className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Devenir membre <FontAwesomeIcon
-                  icon={faPersonPraying}/></span>
-              </Link>
+              <p className="font-rubik font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
+              {isVisitor && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
+                <button
+                  className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"
+                  onClick={handleRequestRoleUpdate}
+                >
+                  <span className="font-roboto text-black text-sm font-medium leading-4">Devenir un Steps</span>
+                  <span className="w-fit mx-auto relative">
+                      <FontAwesomeIcon icon={faPersonPraying} className="text-black h-6 w-6 mx-auto ml-4 relative z-[2]"/>
+                  </span>
+                </button>
+              ) : user.status === 'refused' ? (
+                <p
+                  className="font-sans relative bg-deep-red flex flex-col text-center border border-black rounded-xl pt-2 pb-1 px-2.5 transition-shadow duration-300 shadow-flat-black-adjust"
+                >
+                  <span className="font-roboto text-black text-xs leading-4">Demande <br/> refusée</span>
+                  <span className="w-fit mx-auto relative">
+                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-black w-fit mx-auto mt-1 relative z-[2]"/>
+                  </span>
+                </p>
+              ) : user.status === 'pending' ? (
+                <p
+                  className="font-sans relative bg-green-lime-deep flex flex-col text-center border border-black rounded-xl pt-2 pb-1 px-2.5 transition-shadow duration-300 shadow-flat-black-adjust"
+                >
+                  <span className="font-roboto text-black text-xs leading-4">Demande <br/> en attente</span>
+                  <span className="w-fit mx-auto relative">
+                    <FontAwesomeIcon icon={faHourglassHalf} className="text-black w-fit mx-auto mt-1 relative z-[2]"/>
+                  </span>
+                </p>
+              ) : null}
             </div>
           </>
         )}

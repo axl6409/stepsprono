@@ -16,7 +16,8 @@ const { upload } = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {getMonthPoints, getSeasonPoints} = require("../services/betService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints} = require("../services/betService");
+const {getCurrentMatchday} = require("../services/appService");
 
 router.get('/admin/users/requests', authenticateJWT, async (req, res) => {
   try {
@@ -236,12 +237,12 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
   try {
     const userId = req.params.id;
     const filter = req.params.filter;
-    let startDate, endDate;
 
     if (filter === 'week') {
       const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-      startDate = now.clone().startOf('isoWeek').toDate();
-      endDate = now.clone().endOf('isoWeek').toDate();
+      const matchday = await getCurrentMatchday(61);
+      const weekPoints = await getWeekPoints(61, userId, matchday); // Note: 61 seems to be the seasonId here
+      return res.json({ points: weekPoints });
     } else if (filter === 'month') {
       const seasonId = await getCurrentSeasonId(61);
       const monthPoints = await getMonthPoints(seasonId, userId);
@@ -249,50 +250,9 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
       const seasonPoints = await getSeasonPoints(seasonId, userId);
-      return res.json(seasonPoints);
+      return res.json({ points: seasonPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
-    }
-
-    const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
-          },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
-      where: {
-        userId: userId
-      }
-    });
-
-    if (filter === 'month') {
-      const seasonId = await getCurrentSeasonId(61);
-      const monthPoints = await getMonthPoints(seasonId, userId);
-      if (bets.length === 0) {
-        return res.json({ message: 'Aucun pari pour le mois en cours', points: monthPoints });
-      } else {
-        return res.json(monthPoints);
-      }
-    }
-
-    if (bets.length === 0) {
-      res.json({ message: `Aucun pari pour la ${filter} en cours` });
-    } else {
-      res.json(bets);
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });

@@ -11,7 +11,7 @@ function generateRandomString(length) {
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     const userId = req.params.id || new Date().getTime();
-    const dest = path.join(__dirname, '../../client/src/assets/uploads/users/', userId.toString());
+    const dest = path.join(__dirname, '../../../client/src/assets/uploads/users/', userId.toString());
     try {
       mkdirSync(dest, { recursive: true });
       console.log(`Dossier créé : ${dest}`);

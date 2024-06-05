@@ -28,8 +28,9 @@ const getAPICallsCount = async () => {
 
 const getMonthDateRange = () => {
   const moment = require('moment');
-  const start = moment().startOf('month');
-  const end = moment().endOf('month');
+  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  const start = now.clone().startOf('month');
+  const end = now.clone().endOf('month');
   return { start: start, end: end };
 }
 

@@ -10,6 +10,7 @@ const {schedule} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
 const {getMonthDateRange} = require("../services/appService");
+const logger = require("../utils/logger/logger");
 let cronTasks = [];
 
 const updateMatchStatusAndPredictions = async (matchIds) => {

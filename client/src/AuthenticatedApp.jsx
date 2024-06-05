@@ -26,6 +26,8 @@ import Register from "./pages/Register.jsx";
 import {AppContext} from "./contexts/AppContext.jsx";
 
 const AuthenticatedApp = () => {
+  const { user, setUser } = useContext(UserContext);
+  const token = localStorage.getItem('token') || user?.token;
   const { isAuthenticated } = useContext(UserContext);
   const { menuOpen } = useContext(AppContext);
   const location = useLocation();
@@ -56,10 +58,12 @@ const AuthenticatedApp = () => {
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
-            <Route path="/user/settings" element={<ProtectedRoute component={UserSettings} />} />
+            <Route path="/user/settings" element={
+              <ProtectedRoute component={() => <UserSettings user={user} token={token} setUser={setUser} />} />
+            } />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
-            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
+            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser}/>} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
             <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
