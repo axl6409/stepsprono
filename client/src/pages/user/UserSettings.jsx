@@ -74,8 +74,8 @@ const UserSettings = (props) => {
             <img src={previewImage} alt="Profil" className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>
             <div className="file-upload-wrapper relative inline-block mt-4">
               <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" type="file" accept="image/*" onChange={handleImageChange}/>
-              <label className="custom-file-upload relative inline-block cursor-pointer bg-grey-light text-black px-4 py-1 border rounded text-sm text-center hover:bg-grey-medium">
-                Choisir un fichier
+              <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center hover:bg-grey-medium">
+                Changer la photo
               </label>
             </div>
           </div>
@@ -84,7 +84,7 @@ const UserSettings = (props) => {
           <ul className="px-8">
             <li className="my-3">
               <Link
-                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black"
+                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/username">
                 <span className="relative z-[5] font-roboto text-sm font-medium">Changer le pseudo</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconUser} alt=""/>
@@ -93,7 +93,7 @@ const UserSettings = (props) => {
             </li>
             <li className="my-3">
               <Link
-                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black"
+                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/email">
                 <span className="relative z-[5] font-roboto text-sm font-medium">Changer le mail</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconMail} alt=""/>
@@ -102,7 +102,7 @@ const UserSettings = (props) => {
             </li>
             <li className="my-3">
               <Link
-                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black"
+                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/password">
                 <span className="relative z-[5] font-roboto text-sm font-medium">Changer le mot de passe</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconMdp} alt=""/>
@@ -111,7 +111,7 @@ const UserSettings = (props) => {
             </li>
             <li className="my-3">
               <Link
-                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black"
+                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/team">
                 <span className="relative z-[5] font-roboto text-sm font-medium">Trahir l'équipe de cœur</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconHeart} alt=""/>
@@ -120,7 +120,7 @@ const UserSettings = (props) => {
             </li>
             <li className="my-3">
               <Link
-                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black"
+                className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/trophies">
                 <span className="relative z-[5] font-roboto text-sm font-medium">Mes trophées</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconTrophees} alt=""/>
