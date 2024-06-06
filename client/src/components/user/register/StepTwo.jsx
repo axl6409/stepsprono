@@ -51,7 +51,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
         <span className="absolute inset-0 translate-x-2 translate-y-2 text-green-soft z-[1]">Complète ton profil</span>
       </h2>
       <div
-        className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl py-12 overflow-hidden">
+        className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl py-12 overflow-hidden min-h-[400px]">
         <img src={blueOctogram} alt="" className="absolute top-0 right-0"/>
         <img src={interrogationBlack} alt="" className="absolute -rotate-[30deg] top-8 right-8"/>
         <div className="relative w-fit mx-auto">

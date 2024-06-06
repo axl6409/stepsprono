@@ -24,7 +24,6 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = () => {
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
-  const isVisitor = user.role === 'visitor';
   const [cookies, setCookie] = useCookies(["user"]);
   const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
@@ -173,7 +172,7 @@ const Dashboard = () => {
           <>
             <div className="">
               <p className="font-rubik font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
-              {isVisitor && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
+              {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
                 <button
                   className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"
                   onClick={handleRequestRoleUpdate}

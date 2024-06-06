@@ -31,9 +31,10 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
   }, []);
 
   const handleTeamChange = (event) => {
-    const selectedTeam = teams.find(team => team.id.toString() === event.target.value);
-    setTeam(selectedTeam.id);
-    userData.team = selectedTeam.id;
+    const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
+    console.log(selectedTeam)
+    setTeam(selectedTeam.teamId);
+    userData.team = selectedTeam.teamId;
     setTeamLogo(selectedTeam.Team.logoUrl || '');
   };
 
@@ -97,7 +98,7 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
             <div
               className="w-[150px] h-[150px] relative z-[3] bg-white overflow-hidden rounded-full border-2 border-black p-4">
               {teamLogo ? (
-                <img src={teamLogo} alt="Logo de l'équipe" className="w-auto h-auto"/>
+                <img src={teamLogo + ".svg"} alt="Logo de l'équipe" className="w-auto h-auto"/>
               ) : (
                 <div className="w-full h-full bg-white"></div>
               )}
@@ -109,7 +110,7 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
                   value={team} required>
             <option value="">Choisis</option>
             {teams.map((team) => (
-              <option key={team.id} value={team.id}>{team.Team.name}</option>
+              <option key={team.id} value={team.Team.id}>{team.Team.name}</option>
             ))}
           </select>
         </form>
