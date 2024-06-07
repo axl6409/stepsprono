@@ -34,17 +34,17 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
     const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
     console.log(selectedTeam)
     setTeam(selectedTeam.teamId);
-    userData.team = selectedTeam.teamId;
+    userData.teamId = selectedTeam.Team.id;
     setTeamLogo(selectedTeam.Team.logoUrl || '');
   };
 
   const isFormValid = () => {
-    return userData.email && userData.password && userData.username && userData.profilePic && userData.team;
+    return userData.email && userData.password && userData.username && userData.profilePic && userData.teamId;
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onFinish({ team });
+    onFinish({ teamId: team });
   }
   console.log(userData)
   return (

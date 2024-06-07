@@ -30,6 +30,11 @@ const StepTwo = ({ onPrevious, onNext }) => {
     fileInputRef.current.click();
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onNext(username, profilePic);
+  };
+
   return (
     <div
       className="step-two-container h-full relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-8 px-8">
@@ -60,10 +65,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
         </div>
         <form
           className="flex flex-col items-center px-8"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNext(username, profilePic);
-          }}>
+          onSubmit={handleSubmit}>
           <label htmlFor="text" className="my-4 w-full relative flex flex-row justify-start">
             <input
               type="text"

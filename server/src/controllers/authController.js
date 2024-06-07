@@ -8,6 +8,7 @@ const multer = require("multer");
 const path = require("path");
 const { upload } = require('../utils/utils');
 const logger = require("../utils/logger/logger");
+const sharp = require("sharp");
 
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
@@ -30,7 +31,14 @@ router.post('/verifyToken', async (req, res) => {
 router.post('/register', upload.single('profilePic'), async (req, res) => {
   try {
     const { username, email, password, teamId } = req.body;
+    let img = req.file
     logger.info('Request body:', req.body);
+    logger.info('File:', req.file);
+
+    if (!teamId) {
+      return res.status(400).json({ error: 'L\'ID de l\'équipe est manquant.' });
+    }
+
     const usernameExists = await User.findOne({ where: { username } });
     const emailExists = await User.findOne({ where: { email } });
 
@@ -40,12 +48,32 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    if (req.file) {
+      const imagePath = req.file.path;
+      const baseName = path.basename(imagePath, path.extname(imagePath));
+      // Créer des variations redimensionnées
+      await sharp(imagePath)
+        .resize(120, 120)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_120x120${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450, 450)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_450x450${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450)
+        .toFile(`${path.dirname(imagePath)}/${baseName}_450xAuto${path.extname(imagePath)}`);
+
+      img = req.file.path.split('client')[1]
+    }
+
     const user = await User.create({
       username,
       email,
       password: hashedPassword,
-      img: req.file ? req.file.path : null,
-      teamId
+      img: img,
+      teamId,
+      status: 'pending'
     });
 
     const [userRole, created] = await Role.findOrCreate({ where: { name: 'visitor' } });

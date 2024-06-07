@@ -62,10 +62,15 @@ router.get('/users/all', authenticateJWT, async (req, res) => {
 router.get('/user/:id', authenticateJWT, async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      include: [{
-        model: Role,
-        as: 'Roles'
-      }]
+      include: [
+        {
+          model: Role,
+          as: 'Roles'
+        },
+        {
+          model: Team,
+          as: 'team',
+        }]
     });
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });

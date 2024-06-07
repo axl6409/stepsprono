@@ -5,12 +5,7 @@ import {useCookies} from "react-cookie";
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-  faBellConcierge,
-  faCaretLeft,
-  faChevronDown,
-  faCirclePlus,
   faHourglassHalf,
-  faMedal,
   faPersonPraying, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import CurrentBets from "./user/CurrentBets.jsx";
@@ -19,7 +14,7 @@ import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextTeam from "../assets/components/texts/equipe-de-coeur.svg";
 import heartRed from "../assets/components/register/step-3/heart-red.png";
-import StatusModal from "../components/partials/modals/StatusModal.jsx";
+import AlertModal from "../components/partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = () => {
@@ -75,7 +70,7 @@ const Dashboard = () => {
 
       if (response.status === 200) {
         setUpdateStatus(true);
-        setUpdateMessage('Utilisateur modifié avec succès');
+        setUpdateMessage('Demande envoyée !');
         setIsModalOpen(true)
         updateUserStatus('pending')
         setTimeout(function () {
@@ -95,6 +90,12 @@ const Dashboard = () => {
     }
   }
 
+  const closeModal = () => {
+    setUpdateStatus(false);
+    setUpdateMessage('');
+    setIsModalOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="text-center flex flex-col justify-center">
@@ -110,11 +111,13 @@ const Dashboard = () => {
       </div>
     );
   }
-
+  const teamLogoUrl = profileUser.team?.logoUrl;
+  console.log(user)
+  console.log(teamLogoUrl)
   return (
     <div className="text-center relative flex flex-col justify-center">
       {isModalOpen && (
-        <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
+        <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'} />
       )}
       <div className="flex flex-row justify-between px-4 py-2">
         <Link
@@ -170,7 +173,7 @@ const Dashboard = () => {
           </>
         ) : (
           <>
-            <div className="">
+            <div className="px-4">
               <p className="font-rubik font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
               {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
                 <button
@@ -184,20 +187,20 @@ const Dashboard = () => {
                 </button>
               ) : user.status === 'refused' ? (
                 <p
-                  className="font-sans relative bg-deep-red flex flex-col text-center border border-black rounded-xl pt-2 pb-1 px-2.5 transition-shadow duration-300 shadow-flat-black-adjust"
+                  className="font-sans w-fit relative bg-red-medium flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust"
                 >
-                  <span className="font-roboto text-black text-xs leading-4">Demande <br/> refusée</span>
+                  <span className="font-roboto text-white text-xs leading-4">Demande <br/> refusée</span>
                   <span className="w-fit mx-auto relative">
-                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-black w-fit mx-auto mt-1 relative z-[2]"/>
+                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-white h-6 w-6 mx-auto ml-4 relative z-[2]"/>
                   </span>
                 </p>
               ) : user.status === 'pending' ? (
                 <p
-                  className="font-sans relative bg-green-lime-deep flex flex-col text-center border border-black rounded-xl pt-2 pb-1 px-2.5 transition-shadow duration-300 shadow-flat-black-adjust"
+                  className="font-sans w-fit relative bg-yellow-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust"
                 >
                   <span className="font-roboto text-black text-xs leading-4">Demande <br/> en attente</span>
-                  <span className="w-fit mx-auto relative">
-                    <FontAwesomeIcon icon={faHourglassHalf} className="text-black w-fit mx-auto mt-1 relative z-[2]"/>
+                  <span className="w-fit mx-auto my-auto relative">
+                    <FontAwesomeIcon icon={faHourglassHalf} className="text-black h-4 w-4 mx-auto ml-4 relative z-[2]"/>
                   </span>
                 </p>
               ) : null}

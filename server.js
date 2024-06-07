@@ -12,10 +12,10 @@ const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
 const path = require("path");
-const accessLogStream = rfs.createStream('access.log', {
-  interval: '1d',
-  path: path.join(__dirname, 'log'),
-});
+// const accessLogStream = rfs.createStream('access.log', {
+//   interval: '1d',
+//   path: path.join(__dirname, 'log'),
+// });
 
 // Define routes and middlewares
 const PORT = process.env.PORT || 3001
@@ -49,7 +49,7 @@ const corsOptions = {
 
 // Utiliser CORS pour toutes les routes
 app.use(cors(corsOptions));
-app.use(morgan('combined', { stream: accessLogStream }));
+// app.use(morgan('combined', { stream: accessLogStream }));
 
 // Routes API
 app.use('/api', apiRoutes);
