@@ -26,7 +26,6 @@ const CurrentBets = ({ user, token }) => {
           }
         });
         const fetchedMatchs = response.data;
-        console.log(response.data)
         if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
           return;
         }

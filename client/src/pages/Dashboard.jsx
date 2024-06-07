@@ -17,12 +17,11 @@ import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Dashboard = () => {
+const Dashboard = ({userId}) => {
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
   const [cookies, setCookie] = useCookies(["user"]);
   const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
-  const { userId } = useParams()
   const [isLoading, setIsLoading] = useState(true);
   const [animateTitle, setAnimateTitle] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +37,7 @@ const Dashboard = () => {
             Authorization: `Bearer ${token}`
           }
         });
+        console.log(response.data)
         setProfileUser(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l’utilisateur', error);
@@ -112,8 +112,7 @@ const Dashboard = () => {
     );
   }
   const teamLogoUrl = profileUser.team?.logoUrl;
-  console.log(user)
-  console.log(teamLogoUrl)
+
   return (
     <div className="text-center relative flex flex-col justify-center">
       {isModalOpen && (
@@ -130,7 +129,7 @@ const Dashboard = () => {
             </span>
             <span
               className="block relative z-[3] w-full h-full border-2 border-black text-black p-2 pt-4 rounded-full text-center shadow-md bg-white">
-              <img className="mx-auto" src={trophyIcon} alt=""/>
+              <img className="mx-auto h-full" src={teamLogoUrl + ".svg"} alt=""/>
               <span className="w-[13px] h-[13px] rounded-full absolute left-0.5 top-1/2 -rotate-12">
                 <img src={heartRed} alt=""/>
               </span>

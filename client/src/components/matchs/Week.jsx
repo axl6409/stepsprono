@@ -193,10 +193,6 @@ const Week = ({token, user}) => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    fetchBets(matchs)
-  };
   const { disabled, text, icon, className } = buttonState();
 
   if (error) return <p>Erreur : {error.message}</p>;

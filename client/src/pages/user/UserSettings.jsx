@@ -121,7 +121,7 @@ const UserSettings = (props) => {
             <li className="my-3">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
-                to="/settings/trophies">
+                to={`/rewards/${user.id}`}>
                 <span className="relative z-[5] font-roboto text-sm font-medium">Mes trophées</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconTrophees} alt=""/>
                 <img className="absolute z-[2] right-1 -top-4" src={iconTropheesBg} alt=""/>

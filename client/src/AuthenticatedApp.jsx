@@ -15,6 +15,7 @@ import UserSettings from "./pages/user/UserSettings.jsx";
 import Admin from "./pages/admin/Admin.jsx";
 import Users from "./pages/admin/Users.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
+import EditField from "./components/user/EditField.jsx";
 import Settings from "./pages/admin/Settings.jsx";
 import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
 import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
@@ -49,8 +50,59 @@ const AuthenticatedApp = () => {
       <div className={`container mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
         <AnimatePresence>
           <Routes>
-            <Route path="/dashboard/:userId?" element={
-              <ProtectedRoute component={Dashboard} />
+            <Route path="/dashboard/?" element={
+              <ProtectedRoute component={() => <Dashboard userId={user?.id} />} />
+            } />
+            <Route path="/settings/username" element={
+              <ProtectedRoute component={() => (
+                <EditField
+                  title="Changer le pseudo"
+                  fieldName="username"
+                  fieldLabel="Nouveau pseudo"
+                  user={user}
+                  token={token}
+                  setUser={setUser}
+                />
+              )} />
+            } />
+            <Route path="/settings/email" element={
+              <ProtectedRoute component={() => (
+                <EditField
+                  title="Changer le mail"
+                  fieldName="email"
+                  fieldLabel="Nouvel email"
+                  user={user}
+                  token={token}
+                  setUser={setUser}
+                  type="email"
+                />
+              )} />
+            } />
+            <Route path="/settings/password" element={
+              <ProtectedRoute component={() => (
+                <EditField
+                  title="Changer le mot de passe"
+                  fieldName="password"
+                  fieldLabel="Nouveau mot de passe"
+                  user={user}
+                  token={token}
+                  setUser={setUser}
+                  type="password"
+                />
+              )} />
+            } />
+            <Route path="/settings/team" element={
+              <ProtectedRoute component={() => (
+                <EditField
+                  title="Trahir l'équipe de coeur"
+                  fieldName="team"
+                  fieldLabel="Changer l'équipe de coeur"
+                  user={user}
+                  token={token}
+                  setUser={setUser}
+                  type="password"
+                />
+              )} />
             } />
             <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
