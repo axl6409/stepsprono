@@ -71,7 +71,7 @@ const AuthenticatedApp = () => {
                 <EditField
                   title="Changer le mail"
                   fieldName="email"
-                  fieldLabel="Nouvel email"
+                  fieldLabel="Nouveau mail"
                   user={user}
                   token={token}
                   setUser={setUser}

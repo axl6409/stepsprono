@@ -74,17 +74,30 @@ body {
 .swiper-button-disabled {
     display: none;
 }
-
-.historySwiper {
-    .swiper-wrapper {
-        margin-bottom: 0;
-    }
-    .swiper-slide-active {
-        border: 1px solid black;
-        border-radius: 25px;
-    }
+.historySwiper:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid black;
+    border-radius: 0.75rem;
+    width: auto;
+    margin-left: 2rem;
+    margin-right: 2rem;
+    box-shadow: inset 1px 4px 12px rgba(0,0,0,0.3);
+    overflow: hidden;
 }
-
+.historySwiper .swiper-wrapper {
+    margin-bottom: 0;
+}
+.historySwiper .swiper-wrapper .swiper-slide.swiper-slide-active {
+    border: 1px solid black;
+    border-radius: 0.75rem;
+    transition: all 0.150s ease-in-out;
+    transform: scale(0.85);
+}
+.historySwiper .swiper-button-prev:focus {
+    transform: scale(0.85);
+}
 /* Form Prono */
 .label-element .border-black {
     box-shadow: 2px 2px 0 0 black;

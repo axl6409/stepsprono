@@ -162,14 +162,14 @@ const Passed = ({ token, user }) => {
           onSlideChange={handleSlideChange}
           onInit={updateSlideClasses}
           modules={[Navigation]}
-          className="historySwiper flex flex-col justify-start px-8 relative mb-12"
+          className="historySwiper flex flex-col justify-start px-8 relative mb-12 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl"
           ref={swiperRef}
         >
           {matchdays.map((day, index) => (
             <SwiperSlide
               key={day}
               onClick={() => handleSlideClick(day, index)}
-              className={`${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
+              className={`transition-all duration-300 ease-in ${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
             >
               <div className="text-center font-roboto py-4 cursor-pointer">
                 <span className="block text-xxs">Journée</span>
@@ -177,10 +177,10 @@ const Passed = ({ token, user }) => {
               </div>
             </SwiperSlide>
           ))}
-          <div className="swiper-button-prev mt-0 absolute h-full w-8 -left-2 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+          <div className="swiper-button-prev overflow-visible mt-0 absolute shadow-md h-full w-8 left-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
             <img src={SwiperArrow} alt=""/>
           </div>
-          <div className="swiper-button-next mt-0 absolute h-full w-8 -right-2 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+          <div className="swiper-button-next overflow-visible mt-0 absolute shadow-md h-full w-8 right-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white focus:scla">
             <img className="rotate-180" src={SwiperArrow} alt=""/>
           </div>
         </Swiper>
@@ -225,21 +225,13 @@ const Passed = ({ token, user }) => {
                         </div>
                       ) : (
                         <div className="flex flex-row justify-between">
-                          <div className="w-1/3 flex flex-col justify-center">
-                            {bet.winnerId === match.HomeTeam.id && (
-                              <img src={match.HomeTeam.logoUrl + ".svg"} alt=""/>
-                            )}
-                          </div>
-                          <div className="w-1/3 flex flex-col justify-center">
-                            {bet.winnerId === null && (
-                              <img src={nullSymbol} alt=""/>
-                            )}
-                          </div>
-                          <div className="w-1/3 flex flex-col justify-center">
-                            {bet.winnerId === match.AwayTeam.id && (
-                              <img src={match.AwayTeam.logoUrl + ".svg"} alt=""/>
-                            )}
-                          </div>
+                          {bet.winnerId === match.HomeTeam.id ? (
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={match.HomeTeam.logoUrl + ".svg"} alt=""/>
+                          ) : bet.winnerId === null ? (
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={nullSymbol} alt=""/>
+                          ) : bet.winnerId === match.AwayTeam.id && (
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={match.AwayTeam.logoUrl + ".svg"} alt=""/>
+                          )}
                         </div>
                       )}
                     </div>

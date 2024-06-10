@@ -31,7 +31,7 @@ const Week = ({token, user}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const now = moment();
   const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
+  const simulatedNow = now.day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
   const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
@@ -107,7 +107,7 @@ const Week = ({token, user}) => {
   const canSubmitBet = (match) => {
     if (!match) return false;
     const matchDate = moment(match.utcDate);
-    const isMatchInFuture = matchDate.isAfter(simulatedNow);
+    const isMatchInFuture = matchDate.isAfter(now);
     const hasBet = isBetPlaced(match.id);
     return isMatchInFuture && simulatedNow.isBefore(nextFridayAtNoon);
   };
@@ -124,16 +124,17 @@ const Week = ({token, user}) => {
       const currentFormComponent = formRefs.current[currentIndex];
       if (currentFormComponent && currentMatch && (isMatchEditable(currentMatch) || !isBetPlaced(currentMatch.id))) {
         currentFormComponent.triggerSubmit();
+        handleError('Prono enregistré', 3000)
       } else {
-        console.log("No action possible");
+        handleError('Prono refusé', 3000)
       }
     }
   };
 
-  const handleSuccess = (message) => {
+  const handleSuccess = (message, timeout) => {
     setAlertMessage(message);
     setAlertType('success');
-    setTimeout(() => setAlertMessage(''), 2000);
+    setTimeout(() => setAlertMessage(''), timeout);
   };
 
   const handleError = (message) => {
