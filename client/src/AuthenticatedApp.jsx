@@ -8,6 +8,7 @@ import Rewards from "./pages/Rewards";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Reglement from "./pages/Reglement.jsx";
 import Matchs from "./pages/Matchs.jsx";
+import MatchsHistory from "./pages/MatchsHistory.jsx";
 import Classements from "./pages/Classements.jsx";
 import Teams from "./pages/Teams.jsx";
 import TeamPlayers from "./pages/TeamPlayers.jsx";
@@ -94,7 +95,7 @@ const AuthenticatedApp = () => {
             <Route path="/settings/team" element={
               <ProtectedRoute component={() => (
                 <EditField
-                  title="Trahir l'équipe de coeur"
+                  title="Changer l'équipe de coeur"
                   fieldName="team"
                   fieldLabel="Changer l'équipe de coeur"
                   user={user}
@@ -107,6 +108,7 @@ const AuthenticatedApp = () => {
             <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+            <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />

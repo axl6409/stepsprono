@@ -120,8 +120,8 @@ const Dashboard = ({userId}) => {
       )}
       <div className="flex flex-row justify-between px-4 py-2">
         <Link
-          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-          to={`/rewards/${userId}`}>
+          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+          to={`/settings/team`}>
           <div className="relative w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span
               className="absolute top-1.5 left-0 right-0 z-[4]">
@@ -140,7 +140,7 @@ const Dashboard = ({userId}) => {
           </div>
         </Link>
         <Link
-          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
           to={`/rewards/${userId}`}>
           <div className="relative w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span

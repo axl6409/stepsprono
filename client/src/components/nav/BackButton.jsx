@@ -2,6 +2,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
 
 const BackButton = () => {
   const history = useNavigate();
@@ -13,11 +14,9 @@ const BackButton = () => {
   return (
     <button
       onClick={handleBackClick}
-      className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+      className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
     >
-        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          <FontAwesomeIcon icon={faCaretLeft} />
-        </span>
+      <img src={arrowIcon} alt="Icône flèche"/>
     </button>
   );
 };

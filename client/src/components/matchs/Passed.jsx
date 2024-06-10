@@ -1,33 +1,27 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import 'swiper/css/effect-cube';
-import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import axios from "axios";
-import {Link} from "react-router-dom";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-  faCaretLeft,
-  faCaretRight, faCheck,
-  faCircleCheck,
-  faPen,
-  faReceipt, faThumbsDown, faThumbsUp,
-  faTriangleExclamation
-} from "@fortawesome/free-solid-svg-icons";
-import Pronostic from "../partials/Pronostic.jsx";
-import {EffectCube, Navigation, Pagination} from 'swiper/modules';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbsUp, faThumbsDown, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { Navigation } from 'swiper/modules';
+import SwiperArrow from "../../assets/icons/swiper-arrow.svg";
+import nullSymbol from "../../assets/icons/null-symbol.svg";
+import correctIcon from "../../assets/icons/correct-icon.svg";
+import incorrectIcon from "../../assets/icons/incorrect-icon.svg";
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Passed = ({token, user}) => {
+const Passed = ({ token, user }) => {
   const [matchs, setMatchs] = useState([]);
   const [matchdays, setMatchdays] = useState([]);
   const [selectedMatchday, setSelectedMatchday] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bets, setBets] = useState([]);
+  const swiperRef = useRef(null);
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
@@ -45,7 +39,7 @@ const Passed = ({token, user}) => {
           setSelectedMatchday(days[0])
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des équipes :', error);
+        console.error('Erreur lors de la récupération des journées :', error);
         setError(error);
         setIsLoading(false);
       }
@@ -54,51 +48,51 @@ const Passed = ({token, user}) => {
   }, [token]);
 
   useEffect(() => {
-    const fetchMatchs = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        const sortedMatchs = response.data.data.sort((a, b) => {
-          return new Date(a.utcDate) - new Date(b.utcDate);
-        })
-        setMatchs(sortedMatchs);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des équipes :', error);
-        setError(error);
-        setIsLoading(false);
+    if (selectedMatchday) {
+      const fetchMatchs = async () => {
+        try {
+          const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+          const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+          setMatchs(sortedMatchs);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des matchs :', error);
+          setError(error);
+          setIsLoading(false);
+        }
       }
+      fetchMatchs();
     }
-    fetchMatchs()
-  }, [selectedMatchday, token])
+  }, [selectedMatchday, token]);
 
   useEffect(() => {
-    const fetchBets = async () => {
-      const matchIds = matchs.map(match => match.id);
-      try {
-        const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
-          matchIds: matchIds
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        setBets(response.data.data)
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs :', error);
-        setError(error);
-        setIsLoading(false);
+    if (matchs.length > 0) {
+      const fetchBets = async () => {
+        const matchIds = matchs.map(match => match.id);
+        try {
+          const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, { matchIds }, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+          setBets(response.data.data);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des pronostics :', error);
+          setError(error);
+          setIsLoading(false);
+        }
       }
+      fetchBets();
     }
-    fetchBets()
-  }, [matchs , token, user])
+  }, [matchs, token, user]);
 
-  const handleMatchdayChange = (event) => {
-    setSelectedMatchday(event.target.value);
+  const handleMatchdayChange = (day) => {
+    setSelectedMatchday(day);
   };
 
   const isBetPlaced = (matchId) => {
@@ -110,12 +104,43 @@ const Passed = ({token, user}) => {
     if (!match || match.winnerId === undefined) {
       return false;
     }
-    const bet = bets.find(b => b.matchId === matchId)
-    return bet && bet.winnerId === match.winnerId
-  }
+    const bet = bets.find(b => b.matchId === matchId);
+    return bet && bet.winnerId === match.winnerId;
+  };
 
   const getBetForMatch = (matchId) => {
     return bets.find(bet => bet.matchId === matchId);
+  };
+
+  const updateSlideClasses = () => {
+    if (swiperRef.current) {
+      const swiper = swiperRef.current.swiper;
+      swiper.slides.forEach((slide, index) => {
+        slide.classList.remove('swiper-slide-active', 'swiper-slide-prev', 'swiper-slide-next');
+        if (index === swiper.activeIndex) {
+          slide.classList.add('swiper-slide-active');
+        } else if (index === swiper.activeIndex - 1) {
+          slide.classList.add('swiper-slide-prev');
+        } else if (index === swiper.activeIndex + 1) {
+          slide.classList.add('swiper-slide-next');
+        }
+      });
+    }
+  };
+
+  const handleSlideChange = (swiper) => {
+    const day = matchdays[swiper.activeIndex];
+    handleMatchdayChange(day);
+    updateSlideClasses();
+  };
+
+  const handleSlideClick = (day, index) => {
+    handleMatchdayChange(day);
+    if (swiperRef.current) {
+      const swiper = swiperRef.current.swiper;
+      swiper.slideTo(index);
+      updateSlideClasses();
+    }
   };
 
   if (error) return <p>Erreur : {error.message}</p>;
@@ -124,115 +149,122 @@ const Passed = ({token, user}) => {
     isLoading ? (
       <Loader />
     ) : (
-    <div className="relative pt-12 border-2 border-black py-8 px-2 bg-flat-yellow shadow-flat-black">
-      <form className=" absolute top-[-4px] right-2 mt-0 z-[5]">
-        <select onChange={handleMatchdayChange} value={selectedMatchday} className="border-2 border-black rounded-br-md rounded-bl-md px-2 py-1 shadow-flat-black-adjust font-bold">
-          {matchdays.map((day) => (
-            <option key={day} value={day} className="font-sans font-bold">Journée {day}</option>
-          ))}
-        </select>
-      </form>
-      <div>
+      <div className="relative pt-12 pb-20">
         <Swiper
-          effect={'cube'}
-          grabCursor={true}
-          cubeEffect={{
-            shadow: true,
-            slideShadows: true,
-            shadowOffset: 20,
-            shadowScale: 0.94,
-          }}
-          pagination={{
-            clickable: true,
-          }}
+          slidesPerView={5}
+          spaceBetween={10}
+          centeredSlides={true}
+          grabCursor={false}
           navigation={{
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
           }}
-          modules={[EffectCube, Pagination, Navigation]}
-          className="mySwiper flex flex-col justify-start"
+          onSlideChange={handleSlideChange}
+          onInit={updateSlideClasses}
+          modules={[Navigation]}
+          className="historySwiper flex flex-col justify-start px-8 relative mb-12"
+          ref={swiperRef}
         >
-          {matchs.map(match => {
-            const matchDate = moment(match.utcDate)
-            const bet = getBetForMatch(match.id);
-            return (
-              <SwiperSlide className={`flex flex-col justify-start relative p-1.5 my-2 border-2 border-black bg-white shadow-flat-black ${isVisitor ? 'min-h-fit pb-4' : 'min-h-[350px]'} min-h-[350px]`} key={match.id} data-match-id={match.id}>
-                {!isVisitor && (
-                  isBetPlaced(match.id) ? (
-                    isBetWin(match.id) ? (
-                      <FontAwesomeIcon icon={faThumbsUp} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-green-lime-deep rotate-12 block"/>
-                    ) : (
-                      <FontAwesomeIcon icon={faThumbsDown} className="ml-2 mt-1 absolute right-2 top-2 text-xl3 text-flat-red rotate-12 block"/>
-                    )
-                  ) : null
-                )}
-                <div className="w-full text-center flex flex-col justify-center px-6 py-2 h-fit">
-                  <p className="name font-sans text-base font-bold capitalize">{matchDate.format('DD MMMM')}</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                  <div className="w-2/4 flex flex-col justify-center">
-                    <img src={match.HomeTeam.logoUrl} alt={`${match.HomeTeam.name} Logo`} className="team-logo h-[70px] mx-auto"/>
-                    <p className="font-sans font-bold text-sm">{match.HomeTeam.name}</p>
-                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.goalsHome}</p>
-                  </div>
-                  <div className="w-2/4 flex flex-col justify-center">
-                    <img src={match.AwayTeam.logoUrl} alt={`${match.AwayTeam.name} Logo`} className="team-logo h-[70px] mx-auto"/>
-                    <p className="font-sans font-bold text-sm">{match.AwayTeam.name}</p>
-                    <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{match.goalsAway}</p>
-                  </div>
-                </div>
-                {!isVisitor && (
-                  bet ? (
-                    <div className="pronostic-info mt-4">
-                      <p className="name font-sans text-base font-bold capitalize">Pronostic</p>
-                      <div className="flex flex-row justify-between">
-                        <div className="w-1/3 flex flex-col justify-center">
-                          {bet.winnerId === match.HomeTeam.id ? (
-                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                          ) : null}
-                        </div>
-                        <div className="w-1/3 flex flex-col justify-center">
-                          {bet.winnerId === null ? (
-                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                          ) : null}
-                        </div>
-                        <div className="w-1/3 flex flex-col justify-center">
-                          {bet.winnerId === match.AwayTeam.id ? (
-                            <FontAwesomeIcon icon={faCheck} className="ml-2 mt-1 text-xl3 text-green-lime-deep rotate-12 block"/>
-                          ) : null}
-                        </div>
-                      </div>
-                      {bet.homeScore !== null && bet.awayScore !== null ? (
-                        <div className="flex flex-row justify-between">
-                          <div className="w-2/4 flex flex-col justify-center">
-                            <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.homeScore}</p>
-                          </div>
-                          <div className="w-2/4 flex flex-col justify-center">
-                            <p className="font-title font-black text-xl border-2 mt-4 border-black shadow-flat-black mx-auto w-[30px] h-[30px] leading-5">{bet.awayScore}</p>
-                          </div>
-                        </div>
-                    ) : null}
-                  </div>
-                  ) : (
-                    <div className="pronostic-info mt-8">
-                      <p className="name font-sans text-base font-bold capitalize">Aucun Pronostic</p>
-                    </div>
-                  )
-                )}
-              </SwiperSlide>
-            );
-          })}
-          <div className="swiper-button-prev w-[50px] h-[50px] bg-white top-4 left-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
-            <FontAwesomeIcon icon={faCaretLeft} className="text-black" />
+          {matchdays.map((day, index) => (
+            <SwiperSlide
+              key={day}
+              onClick={() => handleSlideClick(day, index)}
+              className={`${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
+            >
+              <div className="text-center font-roboto py-4 cursor-pointer">
+                <span className="block text-xxs">Journée</span>
+                <span className="block text-xl">{day}</span>
+              </div>
+            </SwiperSlide>
+          ))}
+          <div className="swiper-button-prev mt-0 absolute h-full w-8 -left-2 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+            <img src={SwiperArrow} alt=""/>
           </div>
-          <div className="swiper-button-next w-[50px] h-[50px] bg-white top-4 right-0 shadow-flat-black border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
-            <FontAwesomeIcon icon={faCaretRight} className="text-black" />
+          <div className="swiper-button-next mt-0 absolute h-full w-8 -right-2 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+            <img className="rotate-180" src={SwiperArrow} alt=""/>
           </div>
         </Swiper>
+        <div className="mt-4">
+          <div className="flex flex-row justify-end border-t border-b border-black">
+            <div className="w-2/3 px-4">
+              <p className="font-roboto text-sm uppercase text-black text-right">Match</p>
+            </div>
+            <div className="w-1/3 px-2 border-l border-dashed border-black">
+              <p className="font-roboto text-sm uppercase text-black">Mon Prono</p>
+            </div>
+          </div>
+          <div className="px-4">
+            {matchs.map(match => {
+              const bet = getBetForMatch(match.id);
+              return (
+                <div
+                  className="flex flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
+                  key={match.id} data-match-id={match.id}>
+                  <div className="flex flex-col justify-evenly items-center w-[68%] px-4 py-2">
+                    <div className="w-full flex flex-row justify-center">
+                      <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
+                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goalsHome}</p>
+                    </div>
+                    <div className="w-full flex flex-row justify-center">
+                      <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
+                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goalsAway}</p>
+                    </div>
+                  </div>
+                  {bet ? (
+                    <div className="pronostic-info w-[32%] border-l border-dashed border-black px-2 py-2">
+                      {bet.homeScore !== null && bet.awayScore !== null ? (
+                        <div className="h-full flex flex-col justify-center">
+                          <div className="w-full my-1 flex flex-col justify-center">
+                            <p
+                              className="font-title font-black text-xl mx-auto leading-5">{bet.homeScore}</p>
+                          </div>
+                          <div className="w-full my-1 flex flex-col justify-center">
+                            <p
+                              className="font-title font-black text-xl mx-auto leading-5">{bet.awayScore}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-row justify-between">
+                          <div className="w-1/3 flex flex-col justify-center">
+                            {bet.winnerId === match.HomeTeam.id && (
+                              <img src={match.HomeTeam.logoUrl + ".svg"} alt=""/>
+                            )}
+                          </div>
+                          <div className="w-1/3 flex flex-col justify-center">
+                            {bet.winnerId === null && (
+                              <img src={nullSymbol} alt=""/>
+                            )}
+                          </div>
+                          <div className="w-1/3 flex flex-col justify-center">
+                            {bet.winnerId === match.AwayTeam.id && (
+                              <img src={match.AwayTeam.logoUrl + ".svg"} alt=""/>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="pronostic-info flex flex-col justify-center w-[32%] border-l border-dashed border-black px-2 py-2">
+                      <p className="name font-sans text-base font-bold capitalize">???</p>
+                    </div>
+                  )}
+                  {!isVisitor && (
+                    isBetPlaced(match.id) ? (
+                      isBetWin(match.id) ? (
+                        <img className="absolute -right-6 -bottom-4 w-12" src={correctIcon} alt=""/>
+                      ) : (
+                        <img className="absolute -right-6 -bottom-4 w-12 rotate-180" src={incorrectIcon} alt=""/>
+                      )
+                    ) : null
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
     )
-  )
-}
+  );
+};
 
-export default Passed
+export default Passed;

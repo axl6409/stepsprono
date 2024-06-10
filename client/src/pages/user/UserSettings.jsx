@@ -25,7 +25,6 @@ const UserSettings = (props) => {
   const user = props.user || contextUser;
   const token = props.token || localStorage.getItem('token');
   const setUser = props.setUser || setContextUser;
-  console.log(user);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(user?.img || null);
 
