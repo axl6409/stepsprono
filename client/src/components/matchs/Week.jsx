@@ -202,7 +202,7 @@ const Week = ({token, user}) => {
     isLoading ? (
       <Loader />
     ) : (
-    <div className="relative pt-12 py-8 px-2">
+    <div className="relative pt-6 px-2">
       <AlertModal message={alertMessage} type={alertType} />
       <div>
         <Swiper

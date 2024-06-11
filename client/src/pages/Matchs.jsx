@@ -20,7 +20,7 @@ const Matchs = () => {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20">
+    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-12">
       <Link
         to="/dashboard"
         className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"

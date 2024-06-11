@@ -17,8 +17,10 @@ import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Dashboard = ({userId}) => {
+const Dashboard = ({ userId: propUserId }) => {
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
+  const { userId: paramUserId } = useParams();
+  const userId = paramUserId || propUserId;
   const [cookies, setCookie] = useCookies(["user"]);
   const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
@@ -37,7 +39,6 @@ const Dashboard = ({userId}) => {
             Authorization: `Bearer ${token}`
           }
         });
-        console.log(response.data)
         setProfileUser(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l’utilisateur', error);

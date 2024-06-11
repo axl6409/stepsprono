@@ -49,8 +49,8 @@ const Teams = () => {
   }, [token]);
   const getResultIcon = (result) => {
     switch (result) {
-      case 'W': return <FontAwesomeIcon icon={faCircleCheck} className="text-green-lime-deep block rounded-full shadow-flat-black-adjust" />
-      case 'L': return <FontAwesomeIcon icon={faTimesCircle} className="text-flat-red block rounded-full shadow-flat-black-adjust" />
+      case 'W': return <FontAwesomeIcon icon={faCircleCheck} className="text-green-medium block rounded-full shadow-flat-black-adjust" />
+      case 'L': return <FontAwesomeIcon icon={faTimesCircle} className="text-red-medium block rounded-full shadow-flat-black-adjust" />
       case 'D': return <FontAwesomeIcon icon={faMinusCircle} className="text-slate-200 block rounded-full shadow-flat-black-adjust" />
       default: return null;
     }
@@ -78,7 +78,7 @@ const Teams = () => {
               <div className="my-6 flex flex-col relative border-2 border-black rounded-xl bg-white shadow-flat-black w-full">
                 <div className="absolute z-[10] -top-5 left-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust" style={{backgroundColor: teamColors[team.teamId]}}>
                   <p
-                    className="font-rubik font-black text-stroke-black-2 text-white text-[1.5em] inline-block leading-[35px]">{team.position}</p>
+                    className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] inline-block leading-[35px]">{team.position}</p>
                 </div>
                 <div className="flex flex-row justify-center items-center relative rounded-t-xl overflow-hidden z-[5] border-b border-black py-2" style={{backgroundColor: teamColors[team.teamId] + "60"}}>
                   <p className="name font-sans text-base font-bold">{team.Team.name}</p>

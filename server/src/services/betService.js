@@ -1,6 +1,6 @@
 const {Op} = require("sequelize");
 const {Bet, Match} = require("../models");
-const {getCurrentMonthMatchdays} = require("../services/matchService");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
 const checkupBets = async (matchId) => {
@@ -24,17 +24,14 @@ const getNullBets = async () => {
   }
 }
 
-const getWeekPoints = async (seasonId, userId, matchday) => {
+const getWeekPoints = async (seasonId, userId) => {
   try {
-    const matchdays = matchday;
+    const matchdays = await getCurrentWeekMatchdays(seasonId);
+    console.log('Matchdays for the week:', matchdays);
     const bets = await Bet.findAll({
       where: {
-        seasonId: {
-          [Op.eq]: seasonId
-        },
-        userId: {
-          [Op.eq]: userId
-        },
+        seasonId: seasonId,
+        userId: userId,
         matchday: {
           [Op.in]: matchdays
         },
@@ -44,9 +41,11 @@ const getWeekPoints = async (seasonId, userId, matchday) => {
       }
     });
     let points = 0;
+    console.log('bets => ' + bets)
     for (const bet of bets) {
       points += bet.points;
     }
+    console.log(`Total points for user ${userId} in week:`, points);
     return points;
   } catch (error) {
     console.log('Erreur lors de la recuperation des points:', error);
@@ -59,12 +58,8 @@ const getMonthPoints = async (seasonId, userId) => {
     const matchdays = await getCurrentMonthMatchdays(seasonId);
     const bets = await Bet.findAll({
       where: {
-        seasonId: {
-          [Op.eq]: seasonId
-        },
-        userId: {
-          [Op.eq]: userId
-        },
+        seasonId: seasonId,
+        userId: userId,
         matchday: {
           [Op.in]: matchdays
         },
@@ -88,12 +83,8 @@ const getSeasonPoints = async (seasonId, userId) => {
   try {
     const bets = await Bet.findAll({
       where: {
-        seasonId: {
-          [Op.eq]: seasonId
-        },
-        userId: {
-          [Op.eq]: userId
-        },
+        seasonId: seasonId,
+        userId: userId,
         points: {
           [Op.not]: null
         }

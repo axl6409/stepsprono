@@ -12,6 +12,7 @@ import clockIcon from "../../assets/icons/clock-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ user, token }) => {
+  console.log(user)
   const [matchs, setMatchs] = useState([]);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
@@ -45,14 +46,12 @@ const CurrentBets = ({ user, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        const fetchedMatchs = response.data;
-        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+        const seasonPoints = response.data;
+        if (seasonPoints.length === undefined || seasonPoints.length === 0) {
           return;
         }
-        const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (match.points >= 0 ? match.points : 0);
-        }, 0)
-        setMonthPoints(totalPoints)
+        console.log(seasonPoints)
+        setMonthPoints(seasonPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }

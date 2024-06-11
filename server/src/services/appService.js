@@ -26,6 +26,14 @@ const getAPICallsCount = async () => {
   }
 }
 
+const getWeekDateRange = () => {
+  const moment = require('moment');
+  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  const start = now.clone().startOf('isoWeek');
+  const end = now.clone().endOf('isoWeek');
+  return { start: start, end: end };
+}
+
 const getMonthDateRange = () => {
   const moment = require('moment');
   const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
@@ -85,6 +93,7 @@ const getSettlement = async () => {
 
 module.exports = {
   getAPICallsCount,
+  getWeekDateRange,
   getMonthDateRange,
   getCurrentMatchday,
   checkAndScheduleSeasonEndTasks,

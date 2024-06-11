@@ -29,7 +29,7 @@ const UserRanking = ({ users, token }) => {
         return response.data.points;
       } catch (error) {
         console.error(`Erreur lors de la récupération des points pour l'utilisateur ${userId}`, error);
-        return null;
+        return 0;
       }
     }
 
@@ -76,7 +76,7 @@ const UserRanking = ({ users, token }) => {
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
           <div
-            className="w-28 h-28 flex items-center justify-center rounded-full bg-white mb-2 border-blue-medium border-2">
+            className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
             <img src={updatedUsers[1]?.img || defaultUserImage} alt={updatedUsers[1]?.username}/>
           </div>
           <p className="font-bold">{updatedUsers[1]?.username}</p>
@@ -86,9 +86,11 @@ const UserRanking = ({ users, token }) => {
           <img className="absolute -top-20 w-20" src={crown} alt=""/>
           <img className="absolute z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
           <div
-            className="w-40 h-40 relative z-[2] flex items-center justify-center rounded-full bg-white mb-2 border-yellow-medium border-2">
+            className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
             <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
-            <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
+            <div className="overflow-hidden flex items-center justify-center w-full h-full">
+              <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
+            </div>
             <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
           </div>
           <p className="font-bold">{updatedUsers[0]?.username}</p>
@@ -98,7 +100,7 @@ const UserRanking = ({ users, token }) => {
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
-            className="w-28 h-28 flex items-center justify-center rounded-full bg-white mb-2 border-blue-medium border-2">
+            className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
             <img src={updatedUsers[2]?.img || defaultUserImage} alt={updatedUsers[2]?.username}/>
           </div>
           <p className="font-bold">{updatedUsers[2]?.username}</p>

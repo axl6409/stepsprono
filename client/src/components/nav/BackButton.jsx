@@ -14,7 +14,7 @@ const BackButton = () => {
   return (
     <button
       onClick={handleBackClick}
-      className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+      className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
     >
       <img src={arrowIcon} alt="Icône flèche"/>
     </button>

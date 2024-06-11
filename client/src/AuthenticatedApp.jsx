@@ -51,8 +51,11 @@ const AuthenticatedApp = () => {
       <div className={`container mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
         <AnimatePresence>
           <Routes>
-            <Route path="/dashboard/?" element={
-              <ProtectedRoute component={() => <Dashboard userId={user?.id} />} />
+            <Route path="/dashboard/" element={
+              <ProtectedRoute component={Dashboard} componentProps={{ userId: user?.id }} />
+            } />
+            <Route path="/dashboard/:userId" element={
+              <ProtectedRoute component={Dashboard} />
             } />
             <Route path="/settings/username" element={
               <ProtectedRoute component={() => (

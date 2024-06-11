@@ -85,10 +85,11 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password, roleName } = req.body
+    const { username, email, password, roleName, teamId } = req.body
     if (username) user.username = username
     if (email) user.email = email
     if (password) user.password = await bcrypt.hash(password, 10)
+    if (teamId) user.teamId = teamId
     if (req.file) {
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
@@ -181,86 +182,48 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 })
-router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
-  try {
-    const seasonId = await getCurrentSeasonId(61)
-    const monthPoints = await getMonthPoints(seasonId, req.params.id);
-    const startOfWeek = moment().startOf('month');
-    const endOfWeek = moment().endOf('month');
-
-    const startDate = startOfWeek.toDate();
-    const endDate = endOfWeek.toDate();
-
-    const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
-          },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
-      where: {
-        userId: req.params.id
-      }
-    });
-
-    if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour le mois en cours', points: monthPoints })
-    } else {
-      res.json(monthPoints)
-    }
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
-  }
-})
-router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
-  try {
-    const seasonId = await getCurrentSeasonId(61)
-    const bets = await getSeasonPoints(seasonId, req.params.id)
-    if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour la saison' })
-    } else {
-      res.json(bets)
-    }
-  } catch (error) {
-    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
-  }
-})
 router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
   try {
     const userId = req.params.id;
     const filter = req.params.filter;
 
     if (filter === 'week') {
-      const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-      const matchday = await getCurrentMatchday(61);
-      const weekPoints = await getWeekPoints(61, userId, matchday); // Note: 61 seems to be the seasonId here
+      const seasonId = await getCurrentSeasonId(61);
+      const weekPoints = await getWeekPoints(seasonId, userId);
+      console.log(`Week points for user ${userId}:`, weekPoints);
       return res.json({ points: weekPoints });
     } else if (filter === 'month') {
       const seasonId = await getCurrentSeasonId(61);
       const monthPoints = await getMonthPoints(seasonId, userId);
+      console.log(`Month points for user ${userId}:`, monthPoints);
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
       const seasonPoints = await getSeasonPoints(seasonId, userId);
+      console.log("typeof seasonPoints" + typeof seasonPoints);
+      console.log(`Season points for user ${userId}:`, seasonPoints);
       return res.json({ points: seasonPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
     }
   } catch (error) {
+    console.error('Impossible de récupérer les pronostics:', error);
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
+  }
+});
+router.post('/user/verify-password', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, currentPassword } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
+
+    res.status(200).json({ message: 'Mot de passe actuel correct' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
   }
 });
 

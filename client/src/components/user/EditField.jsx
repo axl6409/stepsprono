@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
 import BgUser from "../partials/user/BgUser.jsx";
@@ -8,29 +8,36 @@ import BgEmail from "../partials/user/BgEmail.jsx";
 import BgPassword from "../partials/user/BgPassword.jsx";
 import BgTeam from "../partials/user/BgTeam.jsx";
 import BackButton from "../nav/BackButton.jsx";
+import AlertModal from "../partials/modals/AlertModal.jsx";
 
 const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = "text" }) => {
+  const history = useNavigate();
   const [value, setValue] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [team, setTeam] = useState(user.team || '');
+  const [team, setTeam] = useState(user.teamId || '');
   const [teams, setTeams] = useState([]);
   const [teamLogo, setTeamLogo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
   useEffect(() => {
     if (fieldName === 'team') {
       axios.get(`${apiUrl}/api/teams`)
         .then(response => {
-          console.log(response.data.data)
           setTeams(response.data.data)
+          const selectedTeam = response.data.data.find(team => team.teamId.toString() === user.teamId.toString());
+          if (selectedTeam && selectedTeam.Team) {
+            setTeamLogo(selectedTeam.Team.logoUrl || "");
+          }
         })
         .catch(error => console.error('Erreur lors de la récupération des équipes', error));
     }
-  }, [fieldName, apiUrl]);
+  }, [fieldName, apiUrl, user.teamId]);
 
   const handleTeamChange = (event) => {
     const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
@@ -42,6 +49,24 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
     event.preventDefault();
     setLoading(true);
     let updateData = {};
+
+    const verifyCurrentPassword = async () => {
+      try {
+        const response = await axios.post(`${apiUrl}/api/user/verify-password`, {
+          userId: user.id,
+          currentPassword
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        return response.status === 200;
+      } catch (error) {
+        handleError('Mot de passe actuel incorrect', 3000);
+        return false;
+      }
+    };
     switch(fieldName) {
       case 'username':
       case 'email':
@@ -49,35 +74,60 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
         break;
       case 'password':
         if (newPassword !== confirmPassword) {
-          setError('Les nouveaux mots de passe ne correspondent pas');
+          handleError('Les nouveaux mots de passe ne correspondent pas', 3000);
+          setLoading(false);
+          return;
+        }
+        const isCurrentPasswordValid = await verifyCurrentPassword();
+        if (!isCurrentPasswordValid) {
+          handleError('Le mot de passe actuel est incorrect', 3000);
           setLoading(false);
           return;
         }
         updateData = { currentPassword, newPassword };
         break;
       case 'team':
-        updateData[fieldName] = team;
+        updateData['teamId'] = team;
         break;
       default:
         break;
     }
 
     try {
-      const response = await axios.put(
-        `${apiUrl}/api/user/update/${user.id}`,
+      const response = await axios.put(`${apiUrl}/api/user/update/${user.id}`,
         updateData,
         {
           headers: {
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
           }
         }
       );
       setUser(response.data);
       setLoading(false);
+      handleSuccess('Mise à jour effectuée', 2000);
     } catch (error) {
-      setError('Erreur lors de la mise à jour');
       setLoading(false);
+      handleError('Erreur lors de la mise à jour', 2000);
     }
+  };
+
+  const handleSuccess = (message, timeout) => {
+    console.log("Success:", message); // Ajouté pour le débogage
+    setAlertMessage(message);
+    setAlertType('success');
+    setTimeout(() => {
+      setAlertMessage('');
+    }, timeout);
+  };
+
+  const handleError = (message, timeout) => {
+    console.log("Error:", message); // Ajouté pour le débogage
+    setAlertMessage(message);
+    setAlertType('error');
+    setTimeout(() => {
+      setAlertMessage('')
+    }, timeout);
   };
 
   return (
@@ -96,11 +146,12 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
       )}
       <BackButton />
       <div className="relative z-[3]">
+        <AlertModal message={alertMessage} type={alertType} />
         <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>{title}
           <span className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">{title}</span>
           <span className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">{title}</span>
         </h1>
-        <div className="px-8 mt-20">
+        <div className="px-8 mt-12">
           <div className="border border-black shadow-flat-black px-4 py-8 rounded-xl bg-white">
             <div className="mb-4">
               {fieldName === 'username' ? (
@@ -116,14 +167,14 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
                 </>
               ) : fieldName === 'email' && (
                 <>
-                <p className="font-roboto text-sm text-black font-regular text-center">Ancien mail</p>
-                <p className="font-black text-center relative w-fit mx-auto text-base">
-                  <span className="relative z-[3]">{user.email}</span>
-                  <span
-                    className="absolute left-0 top-0 right-0 text-purple-soft z-[2] translate-x-0.5 translate-y-0.5">{user.email}</span>
-                  <span
-                    className="absolute left-0 top-0 right-0 text-green-soft z-[1] translate-x-1 translate-y-1">{user.email}</span>
-                </p>
+                  <p className="font-roboto text-sm text-black font-regular text-center">Ancien mail</p>
+                  <p className="font-black text-center relative w-fit mx-auto text-base">
+                    <span className="relative z-[3]">{user.email}</span>
+                    <span
+                      className="absolute left-0 top-0 right-0 text-purple-soft z-[2] translate-x-0.5 translate-y-0.5">{user.email}</span>
+                    <span
+                      className="absolute left-0 top-0 right-0 text-green-soft z-[1] translate-x-1 translate-y-1">{user.email}</span>
+                  </p>
                 </>
               )}
             </div>
@@ -188,12 +239,12 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
               {fieldName === 'team' && (
                 <>
                   <div
-                    className="w-[100px] h-[100px] mx-auto relative z-[3] bg-white overflow-hidden rounded-full border-2 border-black p-4">
+                    className="w-[100px] h-[100px] mx-auto relative z-[3] bg-white overflow-hidden rounded-full border-2 border-black p-0 flex flex-col justify-center">
                     {teamLogo ? (
                       <img
                         src={teamLogo + ".svg"}
                         alt="Logo de l'équipe"
-                        className="w-auto h-auto"
+                        className="w-auto h-[90%] mx-auto object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-white"></div>
@@ -213,17 +264,17 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
                   </select>
                 </>
               )}
-                <button type="submit"
-                        className="border block mx-auto mt-4 w-12 h-12 border-green-medium rounded-full p-2 shadow-green-medium transition-shadow duration-300 ease-out hover:shadow-none focus:shadow-none"
-                        disabled={loading}>
-                  <div className="relative z-[2] w-full flex flex-row justify-center text-black text-center">
-                    <img src={checkedIcon} alt=""/>
-                  </div>
-                </button>
-                {error && <p>{error}</p>}
-                </form>
+              <button type="submit"
+                      className="border block mx-auto mt-4 w-12 h-12 border-green-medium rounded-full p-2 shadow-green-medium transition-shadow duration-300 ease-out hover:shadow-none focus:shadow-none"
+                      disabled={loading}>
+                <div className="relative z-[2] w-full flex flex-row justify-center text-black text-center">
+                  <img src={checkedIcon} alt=""/>
                 </div>
-                </div>
+              </button>
+              {error && <p>{error}</p>}
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
