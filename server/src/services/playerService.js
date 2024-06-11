@@ -2,8 +2,11 @@ const {Team, Player, PlayerTeamCompetition} = require("../models");
 const {getCurrentSeasonYear} = require("./seasonService");
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
+const apiKey = process.env.FB_API_KEY;
+const apiHost = process.env.FB_API_HOST;
+const apiBaseUrl = process.env.FB_API_URL;
 
-async function updatePlayers(teamIds = [], competitionId = null) {
+const updatePlayers = async function (teamIds = [], competitionId = null) {
   try {
     let teams = [];
     if (!Array.isArray(teamIds)) {
@@ -35,6 +38,7 @@ async function updatePlayers(teamIds = [], competitionId = null) {
           }
         };
         const response = await axios.request(options);
+        console.log(response)
         const apiPlayers = response.data.response;
         for (const apiPlayer of apiPlayers) {
           let [player, created] = await Player.findOrCreate({

@@ -78,6 +78,11 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
             'Authorization': `Bearer ${token}`,
           }
         });
+        const sortedPlayers = response.data.sort((a, b) => {
+          if (a.Player.name < b.Player.name) return -1;
+          if (a.Player.name > b.Player.name) return 1;
+          return 0;
+        });
         setPlayers(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des joueurs :', error);
@@ -137,14 +142,18 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
         },
       });
       if (response.status === 200) {
-        handleSuccess('Prono enregistré avec succès');
+        handleSuccess('Prono enregistré avec succès', 3000);
         refreshBets();
       } else {
-        handleError(response.data.error || 'Erreur lors de l\'enregistrement du prono');
+        handleError(response.data.error || 'Erreur lors de l\'enregistrement du prono', 2000);
       }
     } catch (error) {
-      handleError(error.response.data.error || 'Erreur lors de l\'envoi du prono');
+      handleError(error.response.data.error || 'Erreur lors de l\'envoi du prono', 3000);
     }
+  };
+
+  const cleanPlayerName = (name) => {
+    return name.replace(/^[A-Z]\. /, '');
   };
 
   return (
@@ -172,8 +181,8 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
               </div>
               <div className="w-full text-center flex flex-col justify-center px-6 py-4">
                 <p className="date-hour capitalize font-medium">
-                  <span className="inline-block font-roboto text-sm mr-2.5">{utcDate.format('DD/MM/YY')}</span>
-                  <span className="inline-block font-roboto text-sm">{utcDate.format('HH:mm:ss')}</span>
+                  <span className="inline-block font-roboto text-sm mr-4">{utcDate.format('DD/MM/YY')}</span>
+                  <span className="inline-block font-roboto text-sm ml-4">{utcDate.format('HH:mm:ss')}</span>
                 </p>
               </div>
               <div className="flex flex-row justify-evenly items-center mb-4">
@@ -224,7 +233,8 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   </div>
                 </label>
               </div>
-              {match && match.id === lastMatch.id && (
+              {/*{match && match.id === lastMatch.id && (*/}
+              {match && match.id && (
                 <>
                   <div className="flex flex-row justify-between items-center">
                     <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
@@ -247,17 +257,18 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                       </label>
                     </div>
                     <div className="flex flex-row justify-evenly my-2 w-1/2">
-                      {((homeScore > 0 || awayScore > 0) && players.length > 0) && (
+                      {( players.length > 0) && (
                         <label className="flex flex-col w-11/12 ml-auto text-center">
                           <select
                             className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
                             {...register("scorer")}
                             onChange={(e) => setScorer(e.target.value)}
                           >
-                            <option value={"null"}>Aucun butteur</option>
+                            <option key={1} value={1}>Aucun butteur</option>
                             {players.map((player, index) => {
                               return (
-                                <option key={`${player.playerId}-${index}`} value={player.playerId}>{player.Player.name}</option>
+                                <option key={`${player.playerId}-${index}`}
+                                        value={player.playerId}>{cleanPlayerName(player.Player.name)}</option>
                               );
                             })}
                           </select>

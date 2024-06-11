@@ -46,6 +46,9 @@ const CurrentBets = ({ user, token }) => {
         if (weekPoints === undefined || weekPoints === 0) {
           return;
         }
+        if (user.id === 2) {
+          setWeekPoints()
+        }
         setWeekPoints(weekPoints.points)
       } catch (error) {
         console.error('Erreur lors de la sélection des points de la semaine', error);
