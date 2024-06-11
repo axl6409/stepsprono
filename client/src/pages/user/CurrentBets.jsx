@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import weekPointsImage from "../../assets/components/dashboard/points-de-la-semaine.svg";
 import monthPointsImage from "../../assets/components/dashboard/points-du-mois.svg";
 import seasonPointsImage from "../../assets/components/dashboard/points-de-la-saison.svg";
@@ -12,7 +10,6 @@ import clockIcon from "../../assets/icons/clock-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ user, token }) => {
-  console.log(user)
   const [matchs, setMatchs] = useState([]);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
@@ -27,18 +24,33 @@ const CurrentBets = ({ user, token }) => {
           }
         });
         const fetchedMatchs = response.data;
-        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+        if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
           return;
         }
         const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (match.points >= 0 ? match.points : 0);
+          return sum + (typeof match.points === 'number' ? match.points : 0);
         }, 0)
         setMatchs(fetchedMatchs)
-        setWeekPoints(totalPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
+    const fetchWeekPoints = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/week`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const weekPoints = response.data;
+        if (weekPoints === undefined || weekPoints === 0) {
+          return;
+        }
+        setWeekPoints(weekPoints.points)
+      } catch (error) {
+        console.error('Erreur lors de la sélection des points de la semaine', error);
+      }
+    }
     const fetchMonthBets = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/month`, {
@@ -46,12 +58,11 @@ const CurrentBets = ({ user, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        const seasonPoints = response.data;
-        if (seasonPoints.length === undefined || seasonPoints.length === 0) {
+        const monthPoints = response.data;
+        if (monthPoints.length === undefined || monthPoints.length === 0) {
           return;
         }
-        console.log(seasonPoints)
-        setMonthPoints(seasonPoints)
+        setMonthPoints(monthPoints.points)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -67,13 +78,14 @@ const CurrentBets = ({ user, token }) => {
         if (seasonPoints === undefined || seasonPoints === 0) {
           return;
         }
-        setSeasonPoints(seasonPoints)
+        setSeasonPoints(seasonPoints.points)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
     if (user && token) {
       fetchLastBets()
+      fetchWeekPoints()
       fetchMonthBets()
       fetchSeasonPoints()
     }
