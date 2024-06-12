@@ -1,24 +1,46 @@
 const {Op} = require("sequelize");
-const {Bet, Match} = require("../models");
+const {Bet, Match, Team} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
-const checkupBets = async (matchId) => {
-  if (matchId) {
-    await checkBetByMatchId()
+const checkupBets = async (betId) => {
+  if (betId) {
+    if (Array.isArray(betId)) {
+      for (const id of betId) {
+        await checkBetByMatchId(id)
+      }
+    } else {
+      await checkBetByMatchId(betId)
+    }
   }
 }
 
 const getNullBets = async () => {
   try {
-    const bets = await Bet.findAll({
+    return await Bet.findAll({
       where: {
         points: {
           [Op.eq]: null
         }
-      }
+      },
+      include: [{
+        model: Match,
+        as: 'MatchId',
+        // where: {
+        //   status: 'FT'
+        // },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      }]
     });
-    return bets.length !== 0;
   } catch (error) {
     console.log('Erreur lors de la recuperation des paris nuls:', error);
   }
@@ -105,32 +127,46 @@ const calculatePoints = (wins, draws, loses) => {
   return (wins * 3) + draws;
 }
 
-const checkBetByMatchId = async (matchId) => {
+const checkBetByMatchId = async (betIds) => {
   try {
     const whereClause = {
       points: {
         [Op.eq]: null
       }
     };
-    if (matchId) {
-      whereClause.matchId = matchId;
+    if (Array.isArray(betIds)) {
+      whereClause.id = {
+        [Op.in]: betIds
+      };
+    } else {
+      whereClause.id = betIds;
     }
+
     const bets = await Bet.findAll({
       where: whereClause
     });
+
     if (bets.length === 0) {
       return { success: true, message: "Aucun pari à mettre à jour." };
     }
+
     let betsUpdated = 0;
     for (const bet of bets) {
-      const match = await Match.findByPk(bet.matchId)
-      if (!match) continue;
+      const match = await Match.findByPk(bet.matchId);
+      if (!match) {
+        return { success: false, message: "Match non trouvé." };
+      }
+      if (match.status !== 'FT') {
+        return { success: false, message: "Le match n'est pas fini." };
+      }
       let points = 0;
       if (bet.winnerId === match.winnerId) {
         points += 1;
       }
-      if (match.goalsHome === bet.homeScore && match.goalsAway === bet.awayScore) {
-        points += 3;
+      if (bet.homeScore !== null && bet.awayScore !== null) {
+        if (match.goalsHome === bet.homeScore && match.goalsAway === bet.awayScore) {
+          points += 3;
+        }
       }
       if (bet.playerGoal) {
         const matchScorers = JSON.parse(match.scorers || '[]');
@@ -139,15 +175,16 @@ const checkBetByMatchId = async (matchId) => {
           points += 1;
         }
       }
-      await Bet.update({points}, {where: {id: bet.id}});
+      await Bet.update({ points }, { where: { id: bet.id } });
       betsUpdated++;
     }
+
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
     console.log('Erreur lors de la mise à jour des pronostics :', error);
     return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
   }
-}
+};
 
 const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   const match = await Match.findOne({

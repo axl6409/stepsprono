@@ -3,12 +3,13 @@ import {useCookies} from "react-cookie";
 import {UserContext} from "../../../contexts/UserContext.jsx";
 import {Link, Navigate, useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretLeft, faCloudArrowDown, faPen} from "@fortawesome/free-solid-svg-icons";
+import {faCaretLeft, faCloudArrowDown, faFlagCheckered, faPen} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import moment from "moment";
 import ConfirmationModal from "../../partials/modals/ConfirmationModal.jsx";
 import StatusModal from "../../partials/modals/StatusModal.jsx";
 import {AppContext} from "../../../contexts/AppContext.jsx";
+import AlertModal from "../../partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminMatchs = () => {
@@ -17,17 +18,19 @@ const AdminMatchs = () => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [matchs, setMatchs] = useState([]);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
 
-  if (!user || user.role !== 'admin' && user.role !== 'manager') {
-    return <Navigate to={'/'} replace />
-  }
+  useEffect(() => {
+    fetchMatchs()
+  }, [user, token]);
 
   const fetchMatchs = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/admin/matchs/to-update`, {
+      const response = await axios.get(`${apiUrl}/api/admin/matchs/no-results`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -38,33 +41,35 @@ const AdminMatchs = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMatchs()
-  }, []);
-
   const handleUpdateMatch = async (matchId) => {
     try {
-      const response = await axios.patch(`${apiUrl}/api/admin/matchs/to-update/${matchId}`, null, {
+      const response = await axios.patch(`${apiUrl}/api/admin/matchs/update/results/${matchId}`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
         await fetchMatchs()
-        setUpdateStatus(true);
-        setUpdateMessage('Match mis à jour !');
-        setIsModalOpen(true)
-        setTimeout(function () {
-          closeModal()
-        }, 1500)
+        handleSuccess('Résultats mis à jour !', 1500)
       } else {
-        setUpdateStatus(false);
-        setUpdateMessage('Erreur lors de la mise à jour du match : ' + response.data.message);
-        setIsModalOpen(true)
+        handleError('Erreur lors de la mise à jour des resultats', 1500)
       }
     } catch (error) {
-      setUpdateStatus(false);
-      console.log(error)
-      setUpdateMessage('Erreur lors de la mise à jour du match : ' + error.response.data.message);
-      setIsModalOpen(true)
+      handleError(error, 1500)
+    }
+  };
+
+  const handleUpdateDatas = async (matchId) => {
+    try {
+      const response = await axios.patch(`${apiUrl}/api/admin/matchs/datas/to-update/${matchId}`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        await fetchMatchs()
+        handleSuccess('Données des matchs mise à jour', 1500)
+      } else {
+        handleError('Erreur lors de la mise à jour des données des matchs', 1500)
+      }
+    } catch (error) {
+      handleError(error, 1500)
     }
   };
 
@@ -75,61 +80,34 @@ const AdminMatchs = () => {
       });
       if (response.status === 200) {
         await fetchMatchs()
-        setUpdateStatus(true);
-        setUpdateMessage('Programmation des matchs effectuée avec succès');
-        setIsModalOpen(true)
-        fetchMatchsCronJobs()
-        setTimeout(function () {
-          closeModal()
-        }, 1500)
+        handleSuccess('Tâches programmées récupérées !', 1500)
       } else {
-        setUpdateStatus(false);
-        setUpdateMessage('Erreur lors de la programmation des match : ' + response.data.message);
-        setIsModalOpen(true)
+        handleError('Erreur lors de la récupération des tâches programmées', 1500)
       }
     } catch (error) {
-      setUpdateStatus(false);
-      console.log(error)
-      setUpdateMessage('Erreur lors de la programmation des match : ' + error.response.data.message);
-      setIsModalOpen(true)
+      handleError(error, 1500)
     }
   }
 
-  const handleUpdateAll = async () => {
-    try {
-      const response = await axios.patch(`${apiUrl}/api/admin/matchs/update-all`, null, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.status === 200) {
-        setUpdateStatus(true);
-        setUpdateMessage(response.data.message);
-        setIsModalOpen(true)
-        setTimeout(function () {
-          closeModal()
-        }, 1500)
-      } else {
-        setUpdateStatus(false);
-        setUpdateMessage('Erreur lors de la mise à jour du match : ' + response.data.message);
-        setIsModalOpen(true)
-      }
-    } catch (error) {
-      setUpdateStatus(false);
-      setUpdateMessage('Erreur lors de la mise à jour du match : ' + error.response.data.message);
-      setIsModalOpen(true)
-    }
-  }
+  const handleSuccess = (message, timeout) => {
+    setAlertMessage(message);
+    setAlertType('success');
+    setTimeout(() => {
+      setAlertMessage('')
+    }, timeout);
+  };
 
-  const closeModal = () => {
-    setUpdateStatus(false);
-    setUpdateMessage('');
-    setIsModalOpen(false);
+  const handleError = (message) => {
+    setAlertMessage(message);
+    setAlertType('error');
+    setTimeout(() => {
+      setAlertMessage('')
+    }, 2000);
   };
 
   return (
     <div className="inline-block w-full h-auto">
-      {isModalOpen && (
-        <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
-      )}
+      <AlertModal message={alertMessage} type={alertType} />
       <Link
         to="/admin"
         className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
@@ -145,13 +123,6 @@ const AdminMatchs = () => {
         <span
           className="absolute left-0 bottom-0 text-green-lime z-[-2] text-center transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Données des matchs</span>
       </h1>
-      <button
-        onClick={() => handleUpdateAll()}
-        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-      >
-        <span
-          className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">Tout mettre à jour</span>
-      </button>
       <button
         onClick={() => handleProgramMatchsTasks()}
         className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
@@ -184,16 +155,25 @@ const AdminMatchs = () => {
                         className="inline-block bg-white shadow-flat-black text-black px-1 pb-0.5 font-title leading-4 font-medium text-sm mx-0.5 border-2 border-black">{utcDate.format('ss')}</span>
                     </p>
                   </div>
-                  <div className="flex flex-row justify-between mt-2">
+                  <div className="flex flex-row justify-between mb-2">
                     <div className="flex flex-row justify-between">
-                      <img className="inline-block h-8 w-auto my-auto" src={match.HomeTeam.logoUrl}
+                      <img className="inline-block h-12 w-auto my-auto" src={match.HomeTeam.logoUrl + ".svg"}
                            alt={match.HomeTeam.name}/>
                       <span className="font-sans font-bold text-center block my-auto"> - </span>
-                      <img className="inline-block h-8 w-auto my-auto" src={match.AwayTeam.logoUrl}
+                      <img className="inline-block h-12 w-auto my-auto" src={match.AwayTeam.logoUrl + ".svg"}
                            alt={match.AwayTeam.name}/>
                     </div>
                     <button
                       onClick={() => handleUpdateMatch(match.id)}
+                      className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+                    >
+                    <span
+                      className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                      <FontAwesomeIcon icon={faFlagCheckered} />
+                    </span>
+                    </button>
+                    <button
+                      onClick={() => handleUpdateDatas(match.id)}
                       className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                     >
                     <span

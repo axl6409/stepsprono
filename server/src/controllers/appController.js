@@ -50,25 +50,6 @@ router.get('/admin/roles', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 })
-router.get('/admin/matchs/to-update', authenticateJWT, async (req, res) => {
-  try {
-    const matchs = await Match.findAndCountAll({
-      where: {
-        scorers: null,
-        status: "FT",
-      },
-      include: [
-        { model: Team, as: 'HomeTeam' },
-        { model: Team, as: 'AwayTeam' }
-      ]
-    });
-    res.json({
-      data: matchs.rows,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-});
 router.get('/admin/matchs/program-tasks', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });

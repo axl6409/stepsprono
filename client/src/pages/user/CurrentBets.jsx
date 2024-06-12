@@ -27,9 +27,6 @@ const CurrentBets = ({ user, token }) => {
         if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
           return;
         }
-        const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (typeof match.points === 'number' ? match.points : 0);
-        }, 0)
         setMatchs(fetchedMatchs)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
@@ -160,10 +157,10 @@ const CurrentBets = ({ user, token }) => {
                 <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
                   <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
                 </div>
-                <div scope="col" className="py-0.5 px-1 w-[25%] border-r-2 border-black border-dotted">
+                <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
                   <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
                 </div>
-                <div scope="col" className="py-0.5 px-1 w-[25%]">
+                <div scope="col" className="py-0.5 px-1 w-[20%]">
                   <p className="font-rubik font-medium text-xxs uppercase">Points</p>
                 </div>
               </div>
@@ -177,41 +174,43 @@ const CurrentBets = ({ user, token }) => {
                         {bet.homeScore !== null && bet.awayScore !== null ? (
                           <>
                             <div className="relative flex flex-row justify-center items-center">
-                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.Match.HomeTeam.logoUrl + ".svg"}
-                                   alt={bet.Match.HomeTeam.name}/>
+                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.HomeTeam.name}/>
                               <img className="h-[40px] relative z-[3]"
                                    src={vsIcon}
                                    alt=""/>
-                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.Match.AwayTeam.logoUrl + ".svg"}
-                                   alt={bet.Match.AwayTeam.name}/>
+                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.AwayTeam.name}/>
                             </div>
                           </>
                         ) : (
                           <>
                             <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.HomeTeam.name}</p>
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
                             <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.AwayTeam.name}</p>
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
                           </>
                         )}
                       </div>
                     </div>
-                    <div className="relative z-[2] w-[25%] py-2 border-r-2 border-black border-dotted">
+                    <div className="relative z-[2] w-[30%] py-2 border-r-2 border-black border-dotted">
                       <div className="h-full flex flex-row justify-center items-center">
                         {bet.homeScore !== null && bet.awayScore !== null ? (
                           <div>
                             <p className="font-rubik font-medium text-xl">
                               {bet.homeScore} - {bet.awayScore}
                             </p>
-                            <p className="font-title text-base font-bold">{bet.playerGoal}</p>
+                            {bet.playerGoal !== null && (
+                              <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
+                            )}
                           </div>
                         ) : (
-                          bet.winnerId === bet.Match.HomeTeam.id ? (
-                            <img className="h-auto w-8" src={bet.Match.HomeTeam.logoUrl + ".svg"}
-                                 alt={bet.Match.HomeTeam.name}/>
-                          ) : bet.winnerId === bet.Match.AwayTeam.id ? (
-                            <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl + ".svg"}
-                                 alt={bet.Match.AwayTeam.name}/>
+                          bet.winnerId === bet.MatchId.HomeTeam.id ? (
+                            <img className="h-auto w-8" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                                 alt={bet.MatchId.HomeTeam.name}/>
+                          ) : bet.winnerId === bet.MatchId.AwayTeam.id ? (
+                            <img className="h-auto w-8" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                                 alt={bet.MatchId.AwayTeam.name}/>
                           ) : (
                             <img className="h-auto w-8" src={nullSymbol}
                                  alt="symbole match null"/>
@@ -219,7 +218,7 @@ const CurrentBets = ({ user, token }) => {
                         )}
                       </div>
                     </div>
-                    <div className="w-[25%] flex flex-col justify-center items-center py-2">
+                    <div className="w-[20%] flex flex-col justify-center items-center py-2">
                       {bet.points === null ? (
                         <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
                       ) : bet.points === 0 ? (

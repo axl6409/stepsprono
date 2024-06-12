@@ -3,7 +3,7 @@ const router = express.Router()
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const {authenticateJWT} = require("../middlewares/auth");
-const { User, Team, Role, Bet, Match} = require("../models");
+const { User, Team, Role, Bet, Match, Player} = require("../models");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -150,25 +150,32 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     const endDate = endOfWeek.toDate();
 
     const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
+      include: [
+        {
+          model: Match,
+          as: 'MatchId',
+          where: {
+            utcDate: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate
+            }
           },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
+          include: [
+            {
+              model: Team,
+              as: 'HomeTeam'
+            },
+            {
+              model: Team,
+              as: 'AwayTeam'
+            }
+          ]
+        },
+        {
+          model: Player,
+          as: 'PlayerGoal'
+        }
+      ],
       where: {
         userId: req.params.id
       }

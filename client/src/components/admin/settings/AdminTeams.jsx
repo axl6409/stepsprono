@@ -32,21 +32,21 @@ const AdminTeams = () => {
     return <Navigate to={'/'} replace />
   }
 
-  const fetchTeams = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/teams`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      setTeams(response.data.data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des matchs :', error);
-    }
-  };
   useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/teams`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setTeams(response.data.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des matchs :', error);
+      }
+    };
     fetchTeams()
-  }, []);
+  }, [user, token]);
 
   const handleUpdateTeamRanking = async (teamId) => {
     try {

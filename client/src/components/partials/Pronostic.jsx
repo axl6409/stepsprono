@@ -69,6 +69,9 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
         if (selectedTeam === null) {
           url += `?teamId1=${match.HomeTeam.id}&teamId2=${match.AwayTeam.id}`;
         } else if (selectedTeam) {
+          if (homeScore > 0 || awayScore > 0) {
+            url += `?teamId1=${match.HomeTeam.id}&teamId2=${match.AwayTeam.id}`;
+          }
           url += `?teamId1=${selectedTeam}`;
         } else {
           return;
@@ -121,9 +124,9 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
       matchday: match.matchday,
       matchId: match.id,
       winnerId: selectedTeam,
-      homeScore: data.homeScore,
-      awayScore: data.awayScore,
-      playerGoal: playerGoal
+      homeScore: data.homeScore ? data.homeScore : null,
+      awayScore: data.awayScore ? data.awayScore : null,
+      playerGoal: playerGoal ? playerGoal : null
     };
     try {
       if (match.id === lastMatch.id) {
@@ -142,7 +145,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
         },
       });
       if (response.status === 200) {
-        handleSuccess('Prono enregistré avec succès', 3000);
+        handleSuccess('Prono enregistré avec succès', 1000);
         refreshBets();
       } else {
         handleError(response.data.error || 'Erreur lors de l\'enregistrement du prono', 2000);

@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, useCallback} from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import {Swiper, SwiperSlide, useSwiper} from "swiper/react";
 import "swiper/css";
 import 'swiper/css/effect-cube';
 import 'swiper/css/pagination';
@@ -30,6 +30,7 @@ const Week = ({token, user}) => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const now = moment();
+  const swiperInstance = swiperRef.current?.swiper
   const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
   const simulatedNow = now.day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
@@ -134,13 +135,18 @@ const Week = ({token, user}) => {
   const handleSuccess = (message, timeout) => {
     setAlertMessage(message);
     setAlertType('success');
-    setTimeout(() => setAlertMessage(''), timeout);
+    setTimeout(() => {
+      setAlertMessage('')
+      swiperInstance.slideNext()
+    }, timeout);
   };
 
   const handleError = (message) => {
     setAlertMessage(message);
     setAlertType('error');
-    setTimeout(() => setAlertMessage(''), 3000);
+    setTimeout(() => {
+      setAlertMessage('')
+    }, 2000);
   };
 
   const buttonState = () => {

@@ -22,6 +22,7 @@ import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
 import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
 import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
 import AdminCompetitions from "./components/admin/settings/AdminCompetitions.jsx";
+import AdminBets from "./components/admin/settings/AdminBets.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -126,6 +127,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
             <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
             <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
+            <Route path="/admin/bets" element={<ProtectedRoute component={AdminBets} />} />
           </Routes>
         </AnimatePresence>
       </div>

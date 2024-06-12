@@ -160,7 +160,56 @@ router.delete('/admin/matchs/delete/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
 });
-router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) => {
+router.get('/admin/matchs/no-results', authenticateJWT, async (req, res) => {
+  try {
+    const matchs = await Match.findAndCountAll({
+      where: {
+        status: "NS",
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    })
+    res.status(200).json({
+      data: matchs.rows,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/admin/matchs/update/results/:id', authenticateJWT, async (req, res) => {
+  try {
+    const matchId = req.params.id;
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Match non trouvé' });
+    await updateMatchStatusAndPredictions(matchId)
+    res.status(200).json({ message: 'Match mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.get('/admin/matchs/datas/to-update', authenticateJWT, async (req, res) => {
+  try {
+    const matchs = await Match.findAndCountAll({
+      where: {
+        scorers: null,
+        status: "FT",
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    res.json({
+      data: matchs.rows,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/matchs/datas/to-update/:id', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });

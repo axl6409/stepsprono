@@ -107,7 +107,26 @@ const getPlayersByTeamId = async (teamId) => {
   }
 }
 
+const getPlayerById = async (id) => {
+  try {
+    if (!id) {
+      logger.info('id manquant');
+      return;
+    }
+    const player = await Player.findByPk({
+      where: {
+        id: id
+      },
+    });
+    logger.info('Joueurs récupérés : ', player);
+    return player;
+  } catch (error) {
+    logger.error(`Erreur lors de le récupération des joueurs: `, error);
+  }
+}
+
 module.exports = {
   updatePlayers,
+  getPlayerById,
   getPlayersByTeamId
 };

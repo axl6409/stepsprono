@@ -3,7 +3,7 @@ const router = express.Router()
 const {authenticateJWT} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getNullBets, checkupBets, createBet, updateBet} = require("../services/betService");
+const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 
 router.get('/bets', authenticateJWT, async (req, res) => {
@@ -93,6 +93,18 @@ router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
 })
+router.get('/admin/bets/unchecked', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await getNullBets();
+    if (!bets) return res.status(404).json({ message: 'Aucun pronostic n\'est null' });
+    res.status(200).json({ bets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
 router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -101,6 +113,19 @@ router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
     const bets = await checkupBets()
     if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
     res.status(200).json({ message: bets.message, datas: bets.updatedBets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/admin/bets/checkup/:betId', authenticateJWT, async (req, res) => {
+  try {
+    const betId = req.params.betId;
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bet = await checkBetByMatchId(betId)
+    if (bet.success === false) return res.status(403).json({ error: bet.error, message: bet.message });
+    res.status(200).json({ message: bet.message, datas: bet.updatedBets });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
