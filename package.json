@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npm ci --prefix client --include=dev && npm run build --prefix client",
-    "build": "cd client && npm install && npm run build"
+    "heroku-postbuild": "npm install --prefix client --include=dev && npm run build --prefix client",
   },
   "keywords": [],
   "author": "",
