@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "heroku-postbuild": "npm install --prefix client --include=dev && npm run build --prefix client"
+    "heroku-postbuild": "npm install --prefix client --include=dev && npm run build --prefix client",
+    "migrate": "sequelize db:migrate",
+    "seed": "sequelize db:seed:all"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +32,8 @@
     "node-cron": "^3.0.2",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.0.1",
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
     "progress": "^2.0.3",
     "rotating-file-stream": "^3.2.1",
     "sequelize": "^6.33.0",
