@@ -17,10 +17,8 @@ const path = require("path");
 //   path: path.join(__dirname, 'log'),
 // });
 
-// Define routes and middlewares
 const PORT = process.env.PORT || 3001
 
-// Use body-parser and cors middleware here (as shown in previous steps)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -42,17 +40,23 @@ const corsOptions = {
     'http://192.168.1.29:5173',
     'http://192.168.1.29:3001',
     'http://192.168.56.1:5173',
-    'http://192.168.56.1:3001'],
+    'http://192.168.56.1:3001',
+    'https://steps-prono-111820aa394d.herokuapp.com'
+  ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
 
-// Utiliser CORS pour toutes les routes
 app.use(cors(corsOptions));
 // app.use(morgan('combined', { stream: accessLogStream }));
 
-// Routes API
 app.use('/api', apiRoutes);
+
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`);
