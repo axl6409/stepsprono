@@ -21,7 +21,7 @@ async function getCurrentSeasonId(competitionId = null) {
     const currentSeason = await Season.findOne({
       where: {
         competitionId: competitionId,
-        current: 1,
+        current: true,
       }
     });
     return currentSeason.id;
@@ -36,7 +36,7 @@ async function getCurrentSeasonYear(competitionId = null) {
     const currentSeason = await Season.findOne({
       where: {
         competitionId: competitionId,
-        current: 1,
+        current: true,
       }
     });
     return currentSeason.year;
