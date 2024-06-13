@@ -80,7 +80,7 @@ const AdminUsers = () => {
     isLoading ? (
       <Loader />
     ) : (
-    <div className="py-3.5 px-6 pr-0 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
+    <div className="py-3.5 mb-20 px-6 pr-0 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
       <ul className="flex flex-col justify-start">
         {users.map(user => {
           const request = getRequestForUser(user.id)

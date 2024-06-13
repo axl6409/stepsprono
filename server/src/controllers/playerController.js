@@ -9,6 +9,26 @@ const apiKey = process.env.FB_API_KEY
 const apiHost = process.env.FB_API_HOST
 const apiBaseUrl = process.env.FB_API_URL
 
+router.get('/player/:id', authenticateJWT, async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    if (!playerId) {
+      return res.status(400).send('Aucun identifiant d\'équipe fourni');
+    }
+    const player = await PlayerTeamCompetition.findOne({
+      where: {
+        playerId: playerId
+      },
+      include: [
+        { model: Player, as: 'Player' },
+      ]
+    });
+    res.json(player);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des joueurs :', error);
+    res.status(500).send(error);
+  }
+})
 router.get('/players', authenticateJWT, async (req, res) => {
   try {
     const teamId1 = req.query.teamId1;

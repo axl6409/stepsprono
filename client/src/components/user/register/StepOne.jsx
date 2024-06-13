@@ -98,7 +98,7 @@ const StepOne = ({ onNext }) => {
           </form>
         </div>
       </div>
-      <div className="p-8 h-[30%] bg-purple-light relative z-[1] mt-[-17%] flex flex-col justify-center">
+      <div className="p-8 h-[30%] bg-green-light relative z-[1] mt-[-17%] flex flex-col justify-center">
       </div>
     </>
   );

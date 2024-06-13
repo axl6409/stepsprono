@@ -69,9 +69,9 @@ module.exports = (sequelize, DataTypes) => {
     Bet.belongsTo(models.User, { foreignKey: 'userId' });
     Bet.belongsTo(models.Competition, { foreignKey: 'competitionId' });
     Bet.belongsTo(models.Season, { foreignKey: 'seasonId' });
-    Bet.belongsTo(models.Match, { foreignKey: 'matchId' });
+    Bet.belongsTo(models.Match, { foreignKey: 'matchId', as: 'MatchId' });
     Bet.belongsTo(models.Team, { foreignKey: 'winnerId' });
-    Bet.belongsTo(models.Player, { foreignKey: 'playerGoal' });
+    Bet.belongsTo(models.Player, { foreignKey: 'playerGoal', as: 'PlayerGoal' });
   };
 
   return Bet;

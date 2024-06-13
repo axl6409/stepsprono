@@ -4,7 +4,7 @@ const {authenticateJWT} = require("../middlewares/auth");
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
-const {getPlayersByTeamId, updatePlayers} = require("./playerController");
+const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
 const {updateTeamsRanking, createOrUpdateTeams} = require("../services/teamService");
 const {getCurrentSeasonYear} = require("./seasonController");
 const apiKey = process.env.FB_API_KEY;
@@ -101,6 +101,7 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
 });
 router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
   try {
+    logger.info(req.user)
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }

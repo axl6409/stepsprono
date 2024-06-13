@@ -9,7 +9,8 @@ const {Op} = require("sequelize");
 const {schedule} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
-const {getMonthDateRange} = require("../services/appService");
+const {getWeekDateRange, getMonthDateRange} = require("../services/appService");
+const logger = require("../utils/logger/logger");
 let cronTasks = [];
 
 const updateMatchStatusAndPredictions = async (matchIds) => {
@@ -18,6 +19,27 @@ const updateMatchStatusAndPredictions = async (matchIds) => {
   }
   for (const matchId of matchIds) {
     await updateSingleMatch(matchId);
+  }
+}
+
+const getCurrentWeekMatchdays = async () => {
+  try {
+    const matchdays = []
+    const monthDates = getWeekDateRange();
+    const matchs = await Match.findAll({
+      where: {
+        utcDate: {
+          [Op.gte]: monthDates.start,
+          [Op.lte]: monthDates.end
+        }
+      }
+    })
+    for (const match of matchs) {
+      matchdays.push(match.matchday)
+    }
+    return matchdays
+  } catch (error) {
+    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
   }
 }
 
@@ -225,6 +247,7 @@ async function fetchWeekMatches() {
 }
 
 module.exports = {
+  getCurrentWeekMatchdays,
   getCurrentMonthMatchdays,
   updateMatchStatusAndPredictions,
   updateSingleMatch,

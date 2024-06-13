@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, useCallback} from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import {Swiper, SwiperSlide, useSwiper} from "swiper/react";
 import "swiper/css";
 import 'swiper/css/effect-cube';
 import 'swiper/css/pagination';
@@ -29,8 +29,10 @@ const Week = ({token, user}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const now = moment();
-  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
+  // const now = moment();
+  const swiperInstance = swiperRef.current?.swiper
+  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  const simulatedNow = now.day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
   const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
@@ -106,7 +108,7 @@ const Week = ({token, user}) => {
   const canSubmitBet = (match) => {
     if (!match) return false;
     const matchDate = moment(match.utcDate);
-    const isMatchInFuture = matchDate.isAfter(simulatedNow);
+    const isMatchInFuture = matchDate.isAfter(now);
     const hasBet = isBetPlaced(match.id);
     return isMatchInFuture && simulatedNow.isBefore(nextFridayAtNoon);
   };
@@ -123,22 +125,28 @@ const Week = ({token, user}) => {
       const currentFormComponent = formRefs.current[currentIndex];
       if (currentFormComponent && currentMatch && (isMatchEditable(currentMatch) || !isBetPlaced(currentMatch.id))) {
         currentFormComponent.triggerSubmit();
+        handleError('Prono enregistré', 3000)
       } else {
-        console.log("No action possible");
+        handleError('Prono refusé', 3000)
       }
     }
   };
 
-  const handleSuccess = (message) => {
+  const handleSuccess = (message, timeout) => {
     setAlertMessage(message);
     setAlertType('success');
-    setTimeout(() => setAlertMessage(''), 2000);
+    setTimeout(() => {
+      setAlertMessage('')
+      swiperInstance.slideNext()
+    }, timeout);
   };
 
   const handleError = (message) => {
     setAlertMessage(message);
     setAlertType('error');
-    setTimeout(() => setAlertMessage(''), 3000);
+    setTimeout(() => {
+      setAlertMessage('')
+    }, 2000);
   };
 
   const buttonState = () => {
@@ -192,10 +200,6 @@ const Week = ({token, user}) => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    fetchBets(matchs)
-  };
   const { disabled, text, icon, className } = buttonState();
 
   if (error) return <p>Erreur : {error.message}</p>;
@@ -204,7 +208,7 @@ const Week = ({token, user}) => {
     isLoading ? (
       <Loader />
     ) : (
-    <div className="relative pt-12 py-8 px-2">
+    <div className="relative pt-6 px-2">
       <AlertModal message={alertMessage} type={alertType} />
       <div>
         <Swiper
@@ -227,7 +231,7 @@ const Week = ({token, user}) => {
 
             return (
               <SwiperSlide
-                className="flex flex-row flex-wrap relative m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
+                className="flex flex-row flex-wrap relative h-auto m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
                 key={match.id} data-match-id={match.id}>
                 <Pronostic
                   ref={(el) => (formRefs.current[index] = el)}
@@ -245,11 +249,11 @@ const Week = ({token, user}) => {
             );
           })}
           <div
-            className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <img src={arrowIcon} alt="Icône flèche"/>
           </div>
           <div
-            className="swiper-button-next w-[30px] h-[30px] rounded-full bg-white top-7 right-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            className="swiper-button-next w-[40px] h-[40px] rounded-full bg-white top-7 right-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <img className="rotate-180" src={arrowIcon} alt="Icône flèche"/>
           </div>
         </Swiper>
@@ -259,7 +263,7 @@ const Week = ({token, user}) => {
           </div>
         ) : (
           <button
-            className="form-submit-btn relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+            className="form-submit-btn relative mt-16 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
             type="button"
             onClick={handleGlobalSubmit}
             disabled={disabled}
