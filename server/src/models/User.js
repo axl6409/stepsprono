@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    teamId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Team',
+        key: 'id'
+      }
+    },
     status: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -27,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.belongsToMany(models.Role, { through: models.UserRole, foreignKey: 'userId' });
     User.hasMany(models.Bet, { foreignKey: 'userId' });
+    User.belongsTo(models.Team, { foreignKey: 'teamId', as: 'team' });
   };
 
   return User;

@@ -1,120 +1,117 @@
-const {Bet, Match} = require("../models");
+const express = require('express')
+const router = express.Router()
+const {authenticateJWT} = require("../middlewares/auth");
+const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getMonthDateRange} = require("../controllers/appController");
-const {getCurrentMonthMatchdays} = require("../controllers/matchController");
+const {getNullBets, checkupBets, createBet, updateBet} = require("../services/betService");
+const logger = require("../utils/logger/logger");
 
-async function checkupBets() {
+router.get('/bets', authenticateJWT, async (req, res) => {
+  try {
+    const defaultLimit = 10;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || defaultLimit;
+    let offset = (page - 1) * limit;
+    if (!req.query.page && !req.query.limit) {
+      limit = null;
+      offset = null;
+    }
+    const bets = await Bet.findAndCountAll({
+      offset,
+      limit,
+      include: [
+        { model: Team, as: 'Winner' }
+      ]
+    });
+    res.json({
+      data: bets.rows,
+      totalPages: limit ? Math.ceil(bets.count / limit) : 1,
+      currentPage: page,
+      totalCount: bets.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée' , error: error.message });
+  }
+})
+router.get('/bets/get-null/all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await getNullBets();
+    if (!bets) return res.status(404).json({ message: 'Aucun pronostic n\'est null' });
+    res.status(200).json({ bets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.post('/bet/add', authenticateJWT, async (req, res) => {
+  try {
+    const bet = await createBet(req.body);
+    logger.info(req.body)
+    res.status(200).json(bet);
+  } catch (error) {
+    if (error.message === 'Match non trouvé' || error.message === 'Un prono existe déjà pour ce match') {
+      res.status(404).json({ error: error.message });
+    } else if (error.message.startsWith('Le score n\'est pas valide')) {
+      res.status(401).json({ error: error.message });
+    } else {
+      res.status(400).json({ error: 'Impossible d\'enregistrer le prono', message: error.message });
+    }
+  }
+})
+router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
+  const matchIds = req.body.matchIds;
+
   try {
     const bets = await Bet.findAll({
       where: {
-        points: {
-          [Op.eq]: null
+        userId: req.params.id,
+        matchId: {
+          [Op.in]: matchIds
         }
-      }
+      },
     });
-    if (bets.length === 0) {
-      return { success: true, message: "Aucun pari à mettre à jour." };
-    }
-    let betsUpdated = 0;
-    for (const bet of bets) {
-      const match = await Match.findByPk(bet.matchId)
-      if (!match) continue;
-      let points = 0;
-      if (bet.winnerId === match.winnerId) {
-        points += 1;
-      }
-      if (match.goalsHome === bet.homeScore && match.goalsAway === bet.awayScore) {
-        points += 3;
-      }
-      if (bet.playerGoal) {
-        const matchScorers = JSON.parse(match.scorers || '[]');
-        const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
-        if (scorerFound) {
-          points += 1;
-        }
-      }
-      await Bet.update({points}, {where: {id: bet.id}});
-      betsUpdated++;
-    }
-    return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
+    res.json({
+      data: bets,
+    });
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des pronostics :', error);
-    return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-}
-
-async function getNullBets() {
+})
+router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
   try {
-    const bets = await Bet.findAll({
-      where: {
-        points: {
-          [Op.eq]: null
-        }
-      }
-    });
-    return bets.length !== 0;
-  } catch (error) {
-    console.log('Erreur lors de la recuperation des paris nuls:', error);
-  }
-}
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
-const getMonthPoints = async (seasonId, userId) => {
+    const betId = req.params.id;
+    const bet = await Match.findByPk(betId);
+    if (!bet) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await bet.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+})
+router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
   try {
-    const matchdays = await getCurrentMonthMatchdays(seasonId);
-    const bets = await Bet.findAll({
-      where: {
-        seasonId: {
-          [Op.eq]: seasonId
-        },
-        userId: {
-          [Op.eq]: userId
-        },
-        matchday: {
-          [Op.in]: matchdays
-        },
-        points: {
-          [Op.not]: null
-        }
-      }
-    });
-    let points = 0;
-    for (const bet of bets) {
-      points += bet.points;
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    return bets;
+    const bets = await checkupBets()
+    if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
+    res.status(200).json({ message: bets.message, datas: bets.updatedBets });
   } catch (error) {
-    console.log('Erreur lors de la recuperation des points:', error);
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-}
-
-const getSeasonPoints = async (seasonId, userId) => {
+})
+router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
   try {
-    const bets = await Bet.findAll({
-      where: {
-        seasonId: {
-          [Op.eq]: seasonId
-        },
-        userId: {
-          [Op.eq]: userId
-        },
-        points: {
-          [Op.not]: null
-        }
-      }
-    });
-    let points = 0;
-    for (const bet of bets) {
-      points += bet.points;
-    }
-    return points;
+    const betId = req.params.betId;
+    const bet = await updateBet({ id: betId, ...req.body });
+    res.status(200).json(bet);
   } catch (error) {
-    console.log('Erreur lors de la recuperation des points:', error);
+    res.status(400).json({ error: error.message });
   }
-}
-
-module.exports = {
-  checkupBets,
-  getNullBets,
-  getMonthPoints,
-  getSeasonPoints,
-};
+})
+module.exports = router

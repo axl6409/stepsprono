@@ -15,7 +15,8 @@ export const AppProvider = ({ children }) => {
   const [apiCalls, setApiCalls] = useState({ current: 0, limit_day: 0, error: false, error_message: '' });
   const [isDebuggerActive, setIsDebuggerActive] = useState(cookies.debug || false);
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
-  const [isCountDownOpen, setIsCountDownOpen] = useState(false);
+  const [isCountDownPopupOpen, setIsCountDownPopupOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [userRequests, setUserRequests] = useState([]);
   const [matchsCronTasks, setMatchsCronTasks] = useState([]);
 
@@ -33,7 +34,7 @@ export const AppProvider = ({ children }) => {
 
   const fetchAPICalls = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/app/api/calls`, {
+      const response = await axios.get(`${apiUrl}/api/app/calls`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -80,7 +81,7 @@ export const AppProvider = ({ children }) => {
     setIsDebuggerOpen(!isDebuggerOpen);
   };
   const toggleCountDownModal = () => {
-    setIsCountDownOpen(!isCountDownOpen)
+    setIsCountDownPopupOpen(!isCountDownPopupOpen)
   }
   const fetchMatchsCronJobs = async () => {
     try {
@@ -94,7 +95,7 @@ export const AppProvider = ({ children }) => {
   }
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownPopupOpen, toggleCountDownModal, menuOpen, setMenuOpen, matchsCronTasks, fetchMatchsCronJobs }}>
       {children}
     </AppContext.Provider>
   );

@@ -29,7 +29,7 @@ const Admin = () => {
   useEffect(() => {
     const getNullBets = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/app/bets/get-null/all`, {
+        const response = await axios.get(`${apiUrl}/api/bets/get-null/all`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

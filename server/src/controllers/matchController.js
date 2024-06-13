@@ -1,285 +1,192 @@
+const express = require('express')
+const router = express.Router()
+const {authenticateJWT} = require("../middlewares/auth");
 const axios = require("axios");
 const ProgressBar = require("progress");
-const {Match, Bet} = require("../models");
+const {Match, Bet, Team} = require("../models");
 const moment = require("moment-timezone");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 const cron = require("node-cron");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonController");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
 const {getMonthDateRange} = require("./appController");
+const {checkupBets} = require("../services/betService");
+const {schedule} = require("node-cron");
+const {updateSingleMatch, updateMatchStatusAndPredictions, updateMatches} = require("../services/matchService");
+const {getCurrentMatchday} = require("../services/appService");
+const logger = require("../utils/logger/logger");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-let cronTasks = [];
 
-async function updateMatches(competitionId = null) {
+router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
-    if (!competitionId) {
-      console.log('Please provide a competition id');
-      return
-    }
-    const seasonId = await getCurrentSeasonId(competitionId)
-    const seasonYear = await getCurrentSeasonYear(competitionId)
-    const options = {
-      method: 'GET',
-      url: apiBaseUrl + 'fixtures',
-      params: {
-        league: competitionId,
-        season: seasonYear
-      },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
-      }
-    };
-    const response = await axios.request(options);
-    const matches = response.data.response;
-    const bar = new ProgressBar(':bar :percent', { total: matches.length });
-    for (const match of matches) {
-      let winner = null
-      if (match.teams.home.winner === true) {
-        winner = match.teams.home.id
-      }
-      if (match.teams.away.winner === true) {
-        winner = match.teams.away.id
-      }
-
-      bar.tick();
-
-      let [stage, matchDay] = match.league.round.split(' - ');
-      stage = stage.trim();
-      matchDay = parseInt(matchDay, 10);
-
-      await Match.upsert({
-        id: match.fixture.id,
-        utcDate: match.fixture.date,
-        status: match.fixture.status.short,
-        venue: match.fixture.venue.name,
-        matchday: matchDay,
-        stage: stage,
-        homeTeamId: match.teams.home.id,
-        awayTeamId: match.teams.away.id,
-        league: competitionId,
-        season: seasonId,
-        winnerId: winner,
-        goalsHome: match.goals.home,
-        goalsAway: match.goals.away,
-        scoreFullTimeHome: match.score.fulltime.home,
-        scoreFullTimeAway: match.score.fulltime.away,
-        scoreHalfTimeHome: match.score.halftime.home,
-        scoreHalfTimeAway: match.score.halftime.away,
-        scoreExtraTimeHome: match.score.extratime.home,
-        scoreExtraTimeAway: match.score.extratime.away,
-        scorePenaltyHome: match.score.penalty.home,
-      })
-    }
+    const match = await Match.findByPk(req.params.matchId);
+    res.json(match);
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des données:', error);
+    res.status(500).json({ message: 'Route protégée', error: error.message })
   }
-}
-
-async function updateMatchStatusAndPredictions(matchIds) {
-  if (!Array.isArray(matchIds)) {
-    matchIds = [matchIds];
-  }
-  for (const matchId of matchIds) {
-    await updateSingleMatch(matchId);
-  }
-}
-
-async function updateSingleMatch(matchId) {
+})
+router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
   try {
-    const options = {
-      method: 'GET',
-      url: `${apiBaseUrl}fixtures/`,
-      params: {
-        id: `${matchId}`
+    let matchday = parseInt(req.params.matchday) || 1;
+    const currentDate = new Date()
+    const matchs = await Match.findAndCountAll({
+      where: {
+        matchday: matchday,
+        status: {
+          [Op.or]: ["FT", "AET", "PEN"]
+        },
       },
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': apiHost
-      }
-    };
-    const response = await axios.request(options);
-    const apiMatchData = response.data.response[0];
-    const events = []
-    const scorers = apiMatchData.events
-      .filter(event => event.type === 'Goal')
-      .map(goalEvent => ({
-        playerId: goalEvent.player.id,
-        playerName: goalEvent.player.name
-      }));
-    const scorersJson = JSON.stringify(scorers);
-    const dbMatchData = await Match.findByPk(matchId);
-    if (dbMatchData && apiMatchData) {
-      const fieldsToUpdate = {};
-      if (dbMatchData['status'] !== apiMatchData.fixture.status.short) {
-        fieldsToUpdate['status'] = apiMatchData.fixture.status.short
-      }
-      if (apiMatchData.teams.home.winner === true) {
-        fieldsToUpdate['winnerId'] = apiMatchData.teams.home.id
-      } else if (apiMatchData.teams.away.winner === true) {
-        fieldsToUpdate['winnerId'] = apiMatchData.teams.away.id
-      } else {
-        fieldsToUpdate['winnerId'] = null
-      }
-      if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
-        fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
-      }
-      if (dbMatchData['goalsAway'] !== apiMatchData.score.fulltime.away) {
-        fieldsToUpdate['goalsAway'] = apiMatchData.score.fulltime.away
-      }
-      if (dbMatchData['scoreFullTimeHome'] !== apiMatchData.score.halftime.home) {
-        fieldsToUpdate['scoreFullTimeHome'] = apiMatchData.score.halftime.home
-      }
-      if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
-        fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
-      }
-      if (dbMatchData['scoreExtraTimeHome'] !== apiMatchData.score.extratime.home) {
-        fieldsToUpdate['scoreExtraTimeHome'] = apiMatchData.score.extratime.home
-      }
-      if (dbMatchData['scoreExtraTimeAway'] !== apiMatchData.score.extratime.away) {
-        fieldsToUpdate['scoreExtraTimeAway'] = apiMatchData.score.extratime.away
-      }
-      if (dbMatchData['scorePenaltyHome'] !== apiMatchData.score.penalty.home) {
-        fieldsToUpdate['scorePenaltyHome'] = apiMatchData.score.penalty.home
-      }
-      if (dbMatchData['scorers'] !== scorersJson) {
-        fieldsToUpdate['scorers'] = scorersJson;
-      }
-
-      if (Object.keys(fieldsToUpdate).length > 0) {
-        fieldsToUpdate['updatedAt'] = new Date();
-        await Match.update(fieldsToUpdate, {where: {id: matchId}});
-      }
-
-      for (const goals of apiMatchData.events) {
-        if (goals.type === 'Goal') {
-          events.push({
-            id: goals.player.id,
-          });
-        }
-      }
-
-      if (Object.keys(fieldsToUpdate).length > 0) {
-        const bets = await Bet.findAll({where: {matchId}});
-        for (const bet of bets) {
-          let points = 0;
-          if (bet.winnerId && bet.winnerId === fieldsToUpdate['winnerId']) {
-            points += 1;
-          }
-          if (bet.homeScore === apiMatchData.score.fulltime.home && bet.awayScore === apiMatchData.score.fulltime.away) {
-            points += 3;
-          }
-          if (bet.playerGoal) {
-            if (dbMatchData.scorers && dbMatchData.scorers !== '[]') {
-              const matchScorers = JSON.parse(dbMatchData.scorers);
-              if (matchScorers.length > 0) {
-                const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
-                if (scorerFound) {
-                  points += 1;
-                }
-              }
-            }
-          }
-          await Bet.update({points}, {where: {id: bet.id}});
-        }
-      }
-    }
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    res.json({
+      data: matchs.rows,
+    });
   } catch (error) {
-    console.log('Erreur lors de la mise à jour du match et des pronostics:', error);
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-}
-
-async function fetchWeekMatches() {
+})
+router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('isoWeek').tz("Europe/Paris");
-    const endOfWeek = moment().endOf('isoWeek').tz("Europe/Paris");
-
-    const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
-    const endDate = endOfWeek.format('YYYY-MM-DD 23:59:59');
-
-    const matches = await Match.findAll({
+    const currentDate = new Date();
+    const matchdays = await Match.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('matchday')), 'matchday'],
+      ],
       where: {
         utcDate: {
-          [Op.gte]: startDate,
-          [Op.lte]: endDate
+          [Op.lt]: currentDate
+        }
+      },
+      order: [
+        ['matchday', 'ASC']
+      ]
+    });
+    const uniqueMatchdays = matchdays.map(match => match.matchday);
+    res.json(uniqueMatchdays);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
+  }
+})
+router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
+  try {
+    const startOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utcDate: {
+          [Op.gte]: startOfNextWeek,
+          [Op.lte]: endOfNextWeek
         },
         status: {
-          [Op.not]: ['PST', 'FT']
+          [Op.not]: 'SCHEDULED'
         }
-      }
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ],
+      order: [
+        ['utcDate', 'ASC']
+      ]
     });
-    matches.forEach(match => {
-      const matchTime = new Date(match.utcDate)
-      const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
-      const day = updateTime.getDate();
-      const month = updateTime.getMonth() + 1;
-      const hour = updateTime.getHours();
-      const minute = updateTime.getMinutes();
-      const cronTime = `${minute} ${hour} ${day} ${month} *`;
-      console.log(cronTime + ' | ' + match.id)
-      cronTasks.push({
-        cronTime: cronTime,
-        id: match.id
-      })
-      cron.schedule(cronTime, () => updateMatchStatusAndPredictions(match.id))
-    });
-    return cronTasks
-  } catch (error) {
-    console.log('Erreur lors de la récupération des matchs du weekend:', error);
-  }
-}
 
-async function getCurrentMonthMatchdays() {
-  try {
-    const matchdays = []
-    const monthDates = getMonthDateRange();
-    const matchs = await Match.findAll({
-      where: {
-        utcDate: {
-          [Op.gte]: monthDates.start,
-          [Op.lte]: monthDates.end
-        }
-      }
-    })
-    for (const match of matchs) {
-      matchdays.push(match.matchday)
+    if (matchs.count === 0) {
+      return res.status(404).json({ message: 'Aucun match trouvé pour la semaine prochaine' });
     }
-    return matchdays
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
-  }
-}
 
-const getCurrentMatchday = async () => {
+    res.json({
+      data: matchs.rows,
+      totalCount: matchs.count,
+      startOfNextWeek: startOfNextWeek,
+      endOfNextWeek: endOfNextWeek
+    });
+  } catch (error) {
+    console.error("Erreur :", error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
+  }
+})
+router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('isoWeek').tz("Europe/Paris");
-    const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
-    const match = await Match.findOne({
+    const startOfCurrentWeek = moment().tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfCurrentWeek = moment().tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const matchday = await getCurrentMatchday()
+    const matchs = await Match.findAndCountAll({
       where: {
         utcDate: {
-          [Op.gte]: startDate
+          [Op.gte]: startOfCurrentWeek,
+          [Op.lte]: endOfCurrentWeek
         },
-        status: {
-          [Op.eq]: ['NS']
-        }
-      }
-    })
-    return match.matchday
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ],
+      order: [
+        ['utcDate', 'ASC']
+      ]
+    });
+
+    if (matchs.count === 0) {
+      return res.status(404).json({ message: 'Aucun match trouvé pour cette semaine' });
+    }
+
+    res.json({
+      data: matchs.rows,
+      totalCount: matchs.count,
+      startOfNextWeek: startOfCurrentWeek,
+      endOfNextWeek: endOfCurrentWeek
+    });
   } catch (error) {
-    console.log('Erreur lors de la récupération du numéro de la journée de matchs:', error)
+    console.error("Erreur :", error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
-}
+})
+router.delete('/admin/matchs/delete/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
-function getMatchsCronTasks() {
-  return cronTasks
-}
+    const matchId = req.params.id;
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Équipe non trouvée' });
 
-module.exports = {
-  updateMatches,
-  updateMatchStatusAndPredictions,
-  fetchWeekMatches,
-  getMatchsCronTasks,
-  getCurrentMatchday,
-  getCurrentMonthMatchdays
-};
+    await match.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+});
+router.patch('/admin/matchs/to-update/:id', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const matchId = req.params.id
+    if (isNaN(matchId)) {
+      return res.status(400).json({ message: 'Identifiant de match non valide' });
+    }
+    const match = await Match.findByPk(matchId)
+    if (!match) return res.status(404).json({error: 'Match non trouvé' })
+    await updateMatchStatusAndPredictions(match.id)
+    res.status(200).json({ message: 'Match mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    await updateMatches()
+    res.status(200).json({ message: 'Matchs mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+
+module.exports = router

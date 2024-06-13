@@ -4,6 +4,7 @@ import {UserContext} from "../contexts/UserContext.jsx";
 import Week from "../components/matchs/Week.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
+import arrowIcon from "../assets/icons/arrow-left.svg";
 import Passed from "../components/matchs/Passed.jsx";
 
 const Matchs = () => {
@@ -19,25 +20,24 @@ const Matchs = () => {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden">
+    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20">
       <Link
         to="/dashboard"
-        className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
-        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          <FontAwesomeIcon icon={faCaretLeft} />
-        </span>
+        <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1 className="text-3xl font-black my-8 uppercase relative w-fit mx-auto">Matchs
-        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Matchs</span>
-        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Matchs</span>
+      <h1
+        className={`font-black mt-0 uppercase relative w-fit mx-auto text-xl5`}>Pronostics
+        <span
+          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Pronostics</span>
+        <span
+          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Pronostics</span>
       </h1>
       <div className="px-4 relative">
-        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Cette semaine</h2>
         <Week token={token} user={user}/>
       </div>
       <div className="px-4 relative my-8">
-        <h2 className="font-title uppercase font-black bg-white w-fit h-[35px] mx-auto px-2.5 text-[22px] border-2 border-black rounded-br-md rounded-bl-md absolute top-[-2px] left-6 mt-0 z-[5] shadow-flat-black-adjust">Passés</h2>
         <Passed token={token} user={user}/>
       </div>
     </div>

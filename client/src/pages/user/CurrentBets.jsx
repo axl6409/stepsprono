@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
-import bets from "../Bets.jsx";
+import weekPointsImage from "../../assets/components/dashboard/points-de-la-semaine.svg";
+import monthPointsImage from "../../assets/components/dashboard/points-du-mois.svg";
+import seasonPointsImage from "../../assets/components/dashboard/points-de-la-saison.svg";
+import {Link} from "react-router-dom";
+import vsIcon from "../../assets/components/matchs/vs-icon.png";
+import nullSymbol from "../../assets/icons/null-symbol.svg";
+import clockIcon from "../../assets/icons/clock-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ user, token }) => {
@@ -63,7 +69,6 @@ const CurrentBets = ({ user, token }) => {
           return;
         }
         setSeasonPoints(seasonPoints)
-        console.log(seasonPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -74,117 +79,148 @@ const CurrentBets = ({ user, token }) => {
       fetchSeasonPoints()
     }
   }, [user, token]);
-
-  console.log(seasonPoints)
+  console.log(user)
   return (
     <div>
-      <div className="flex flex-row flex-wrap justify-between px-4">
-        <div className="flex flex-col w-2/5 px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
-          <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la semaine</p>
-          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
-            <p className="font-title text-xl font-bold leading-5">
-              {weekPoints}
-            </p>
-          </div>
+      <div
+        className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full border-2 border-black">
+        <img className="w-full h-full object-cover" src={user.img} alt="Image de profil"/>
+      </div>
+      <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
+        <div
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
+          <img src={monthPointsImage} alt="Points du mois"/>
+          <p
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
+            {monthPoints}
+          </p>
         </div>
-        <div className="flex flex-col w-2/5 px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
-          <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>du mois</p>
-          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
-            <p className="font-title text-xl font-bold leading-5">
-              {monthPoints}
-            </p>
-          </div>
+        <div
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative mt-12">
+          <img src={weekPointsImage} alt="Points de la semaine"/>
+          <p
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
+            {weekPoints}
+          </p>
         </div>
-        <div className="flex flex-col w-1/2 mx-auto px-4 py-2 bg-white border-2 border-black shadow-flat-black rounded-md">
-          <p className="font-sans text-xs font-bold leading-4 uppercase">Points <br/>de la saison</p>
-          <div className="bg-electric-blue border-2 mt-2 border-black rounded-md shadow-flat-black-adjust py-4">
-            <p className="font-title text-xl font-bold leading-5">
-              {seasonPoints}
-            </p>
-          </div>
+        <div
+          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
+          <img src={seasonPointsImage} alt="Points de la saison"/>
+          <p
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
+            {seasonPoints}
+          </p>
         </div>
       </div>
-      <div
-        className="relative px-2 pt-8 pb-16 mt-8 bg-flat-yellow border-t-2 border-b-2 border-black rounded-[30px] before:content-[''] before:absolute before:z-[-1] before:-top-1 before:left-0 before:-right-0.5 before:-bottom-1 before:bg-black before:rounded-[30px]">
-        <p className="font-sans text-l font-bold mb-4 leading-5">Pronostics <br/>de la semaine</p>
-        <div className="w-full">
+      <div className="pt-8">
+        <Link
+          to="/matchs"
+          className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group">
           {matchs && matchs.length > 0 ? (
+            <span
+              className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">
+              Modifier mes pronos
+            </span>
+          ) : (
+            <span
+              className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-medium transition -translate-y-1.5 group-hover:-translate-y-0">
+              Faire mes pronos
+            </span>
+          )}
+        </Link>
+      </div>
+      {matchs && matchs.length > 0 && (
+        <div
+          className="relative my-[25%]">
+          <h2 className={`relative mb-12 w-fit mx-auto`}>
+            <span
+              className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
+            <span
+              className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+            <span
+              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 uppercase z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+          </h2>
+          <div className="w-full px-2">
             <div className="flex flex-col w-full">
-              <div className="relative flex flex-row border-2 border-black rounded-xs shadow-flat-black-adjust bg-white">
-                <div className="w-[5%]"></div>
+              <div className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
+                <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
+                  <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
+                </div>
+                <div scope="col" className="py-0.5 px-1 w-[25%] border-r-2 border-black border-dotted">
+                  <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
+                </div>
                 <div scope="col" className="py-0.5 px-1 w-[25%]">
-                  <p className="font-sans text-xxs font-bold">Match</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[20%]">
-                  <p className="font-sans text-xxs font-bold">Gagnant</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[20%]">
-                  <p className="font-sans text-xxs font-bold leading-4">Score / Butteur</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[15%]">
-                  <p className="font-sans text-xxs font-bold">Status</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[15%]">
-                  <p className="font-sans text-xxs font-bold">Points</p>
+                  <p className="font-rubik font-medium text-xxs uppercase">Points</p>
                 </div>
               </div>
-              <div className={`flex flex-col mt-2 border-2 border-black rounded-xs shadow-flat-black-adjust`}>
+              <div className={`flex flex-col mt-2 `}>
                 {matchs.map((bet, index) => (
                   <div key={index}
-                       className="flex flex-row py-1 px-0.5 border-b last-of-type:border-0 border-black odd:bg-white even:bg-sky-50">
-                    <div className="w-[5%] p-1">
-                      <p className="font-title text-base font-bold inline-block align-sub">{index + 1}</p>
-                    </div>
-                    <div className="w-[25%] p-1">
-                      <div className="flex flex-row justify-between">
-                        <img className="inline-block h-auto w-8" src={bet.Match.HomeTeam.logoUrl}
-                             alt={bet.Match.HomeTeam.name}/>
-                        <span className="font-sans font-bold text-center block my-auto"> - </span>
-                        <img className="inline-block h-auto w-8" src={bet.Match.AwayTeam.logoUrl}
-                             alt={bet.Match.AwayTeam.name}/>
-                      </div>
-                    </div>
-                    <div className="w-[20%] p-1">
-                      <div className="flex flex-row justify-center">
-                        {bet.winnerId === bet.Match.HomeTeam.id ? (
-                          <img className="h-auto w-8" src={bet.Match.HomeTeam.logoUrl} alt={bet.Match.HomeTeam.name}/>
-                        ) : bet.winnerId === bet.Match.AwayTeam.id ? (
-                          <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl} alt={bet.Match.AwayTeam.name}/>
+                       className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
+                    <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
+                    <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
+                      <div className="flex flex-col justify-evenly h-full">
+                        {bet.homeScore !== null && bet.awayScore !== null ? (
+                          <>
+                            <div className="relative flex flex-row justify-center items-center">
+                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.Match.HomeTeam.logoUrl + ".svg"}
+                                   alt={bet.Match.HomeTeam.name}/>
+                              <img className="h-[40px] relative z-[3]"
+                                   src={vsIcon}
+                                   alt=""/>
+                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.Match.AwayTeam.logoUrl + ".svg"}
+                                   alt={bet.Match.AwayTeam.name}/>
+                            </div>
+                          </>
                         ) : (
-                          <p className="font-title text-base font-bold">NUL</p>
+                          <>
+                            <p
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.HomeTeam.name}</p>
+                            <p
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.AwayTeam.name}</p>
+                          </>
                         )}
                       </div>
                     </div>
-                    <div className="w-[20%] p-1">
-                      {bet.homeScore !== null && bet.awayScore !== null ? (
-                        <>
-                          <p className="font-title text-base font-bold">{`${bet.homeScore} - ${bet.awayScore}`}</p>
-                        </>
-                      ) : (
-                        <p></p>
-                      )}
+                    <div className="relative z-[2] w-[25%] py-2 border-r-2 border-black border-dotted">
+                      <div className="h-full flex flex-row justify-center items-center">
+                        {bet.homeScore !== null && bet.awayScore !== null ? (
+                          <div>
+                            <p className="font-rubik font-medium text-xl">
+                              {bet.homeScore} - {bet.awayScore}
+                            </p>
+                            <p className="font-title text-base font-bold">{bet.playerGoal}</p>
+                          </div>
+                        ) : (
+                          bet.winnerId === bet.Match.HomeTeam.id ? (
+                            <img className="h-auto w-8" src={bet.Match.HomeTeam.logoUrl + ".svg"}
+                                 alt={bet.Match.HomeTeam.name}/>
+                          ) : bet.winnerId === bet.Match.AwayTeam.id ? (
+                            <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl + ".svg"}
+                                 alt={bet.Match.AwayTeam.name}/>
+                          ) : (
+                            <img className="h-auto w-8" src={nullSymbol}
+                                 alt="symbole match null"/>
+                          )
+                        )}
+                      </div>
                     </div>
-                    <div className="w-[18%] p-1">
+                    <div className="w-[25%] flex flex-col justify-center items-center py-2">
                       {bet.points === null ? (
-                        <FontAwesomeIcon className="inline-block align-bottom text-flat-orange" icon={faHourglassHalf}/>
+                        <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
                       ) : bet.points === 0 ? (
-                        <p></p>
+                        <p className="font-rubik font-medium text-xl">{bet.points}</p>
                       ) : (
-                        <p>{bet.points}</p>
+                        <p className="font-rubik font-medium text-xl">{bet.points}</p>
                       )}
-                    </div>
-                    <div className="w-[15%] p-1">
-                      <p className="font-title text-base font-bold inline-block align-sub">{bet.points}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <p>Aucun pari pour la semaine en cours</p>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

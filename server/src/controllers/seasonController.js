@@ -1,52 +1,22 @@
+const express = require('express')
+const router = express.Router()
+const {authenticateJWT} = require("../middlewares/auth");
 const axios = require("axios");
 const { Season } = require("../models");
+const {getCurrentSeasonId} = require("../services/seasonService");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
-async function updateSeasons() {
+router.get('/seasons/current/:competition', async (req, res) => {
   try {
-    const options = {
-      method: 'GET',
-      url: apiBaseUrl + '/seasons',
-    }
+    const competition = req.params.competition;
+    const currentSeason = await getCurrentSeasonId(competition);
+    res.status(200).json({ currentSeason });
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des données:', error);
+    res.status(500).json({ message: 'Current season can\'t be reached', error: error.message });
   }
-}
+})
 
-async function getCurrentSeasonId(competitionId = null) {
-  try {
-    if (!competitionId) return "Please provide a competition id";
-    const currentSeason = await Season.findOne({
-      where: {
-        competitionId: competitionId,
-        current: 1,
-      }
-    });
-    return currentSeason.id;
-  } catch (error) {
-    console.log('Erreur lors de la récupération des données:', error);
-  }
-}
 
-async function getCurrentSeasonYear(competitionId = null) {
-  try {
-    if (!competitionId) return "Please provide a competition id";
-    const currentSeason = await Season.findOne({
-      where: {
-        competitionId: competitionId,
-        current: 1,
-      }
-    });
-    return currentSeason.year;
-  } catch (error) {
-    console.log('Erreur lors de la récupération des données:', error);
-  }
-}
-
-module.exports = {
-  updateSeasons,
-  getCurrentSeasonId,
-  getCurrentSeasonYear,
-};
+module.exports = router

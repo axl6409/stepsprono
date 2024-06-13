@@ -2,30 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pour Chrome, Safari */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-track {
-    background: #393939;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00ff00;
-    border-radius: 0;
-    transition: 0.3s ease-in-out;
-    box-shadow: none;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #00db93;
-    box-shadow: none;
-}
-
 @keyframes slideIn {
     from {
         transform: translateY(-100%);
@@ -59,13 +35,19 @@ body {
 .stroke-black {
     -webkit-text-stroke: 1px #000000;
 }
+.text-stroke-black-2 {
+    -webkit-text-stroke: 2px #000000;
+}
+.text-stroke-green-soft {
+    -webkit-text-stroke: 2px #00CC99;
+}
 .text-shadow-black {
     text-shadow: 1px 2px 0 rgba(0,0,0,1);
 }
 
 /* Swiper */
 .swiper-wrapper {
-    margin: 3rem 0;
+    margin-bottom: 2rem;
 }
 
 .swiper-pagination {
@@ -76,11 +58,11 @@ body {
     height: 15px;
     opacity: 1;
     background-color: white;
+    border: 1px solid black;
 }
 .swiper-pagination-bullet-active {
-    width: 20px;
-    height: 20px;
-    vertical-align: top;
+    width: 15px;
+    height: 15px;
     background-color: white;
     background-image: url("./assets/icons/futbol-regular.svg");
 }
@@ -95,24 +77,29 @@ body {
 }
 
 /* Form Prono */
-.label-element::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #00ff00; /* ou toute autre couleur */
-    transition-property: all;
-    transition-duration: 300ms;
-    transition-timing-function: ease-in-out;
-    transform: translate(0, 0);
-    border: 2px solid black;
-    z-index: 1;
+.label-element .border-black {
+    box-shadow: 2px 2px 0 0 black;
 }
-.label-element.checked::before {
-    content: "";
-    transform: translate(5px, 5px);
+.label-element .border-black:focus,
+.label-element .border-black:active,
+.label-element .border-black:focus-within,
+.label-element .border-black:hover,
+.label-element.checked .border-black {
+    background-color: var(--team-color);
+    box-shadow: inset 2px 2px 5px 0 black;
+}
+
+.form-submit-btn:disabled {
+    filter: grayscale(1);
+}
+
+.clip-path-diagonal-left {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 4rem) 100%, 0% 100%);
+    margin-right: -12%;
+}
+.clip-path-diagonal-right {
+    clip-path: polygon(4rem 0, 100% 0, 100% 100%, 0% 100%);
+    margin-left: -12%;
 }
 
 .informations-text-styles > p {

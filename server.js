@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+require('dotenv').config()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const apiRoutes = require('./server/src/routes/api')
@@ -11,13 +12,10 @@ const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
 const path = require("path");
-
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
   path: path.join(__dirname, 'log'),
 });
-
-require('dotenv').config();
 
 // Define routes and middlewares
 const PORT = process.env.PORT || 3001
@@ -35,13 +33,15 @@ const corsOptions = {
     'http://localhost:3001',
     'http://192.168.128.61:5173',
     'http://192.168.128.61:3001',
+    'http://192.168.1.21:5173',
+    'http://192.168.1.21:3001',
     'http://192.168.1.22:5173',
     'http://192.168.1.22:3001',
     'http://192.168.1.23:5173',
     'http://192.168.1.23:3001',
-    'http://192.168.56.1:5173',
     'http://192.168.1.29:5173',
     'http://192.168.1.29:3001',
+    'http://192.168.56.1:5173',
     'http://192.168.56.1:3001'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
@@ -73,7 +73,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 18 API requests
     // await updatePlayers([111,112,116], 61)
     // Total => 1 API requests by matchId
-    // await updateMatchStatusAndPredictions()
+    // await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
     // Total => 0 API request
     // await checkupBets()
   } catch (error) {
