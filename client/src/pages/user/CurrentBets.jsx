@@ -56,9 +56,9 @@ const CurrentBets = ({ user, token }) => {
           }
         });
         const monthPoints = response.data;
-        if (monthPoints.length === undefined || monthPoints.length === 0) {
-          return;
-        }
+        // if (monthPoints.length === undefined || monthPoints.length === 0) {
+        //   return;
+        // }
         setMonthPoints(monthPoints.points)
         if (user.id === 2) {
           setMonthPoints(17)
