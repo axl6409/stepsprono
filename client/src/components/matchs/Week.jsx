@@ -32,7 +32,7 @@ const Week = ({token, user}) => {
   // const now = moment();
   const swiperInstance = swiperRef.current?.swiper
   const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-  const simulatedNow = moment().day(1).hour(10).minute(0).second(0);
+  const simulatedNow = now.day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
   const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
@@ -159,20 +159,20 @@ const Week = ({token, user}) => {
     const isOpen = now.isBefore(nextFridayAtNoon);
     const hasBet = isBetPlaced(currentMatch.id);
     const isFutureMatch = moment(currentMatch.utcDate).isAfter(now);
-
-    if (isOpen && isFutureMatch) {
-      if (!hasBet) {
-        return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
-      } else {
-        return { disabled: false, text: 'Modifier', className: 'bg-beige-light' };
-      }
-    } else {
-      if (hasBet) {
-        return { disabled: true, icon: 'check', className: '' };
-      } else {
-        return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
-      }
-    }
+    return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
+    // if (isOpen && isFutureMatch) {
+    //   if (!hasBet) {
+    //     return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
+    //   } else {
+    //     return { disabled: false, text: 'Modifier', className: 'bg-beige-light' };
+    //   }
+    // } else {
+    //   if (hasBet) {
+    //     return { disabled: true, icon: 'check', className: '' };
+    //   } else {
+    //     return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
+    //   }
+    // }
   };
 
   const isBetPlaced = (matchId) => {
