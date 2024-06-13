@@ -5,14 +5,14 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npm ci --prefix client && npm run build --prefix client",
+    "postinstall": "npm ci --prefix client --include=dev && npm run build --prefix client",
     "build": "cd client && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=18.x"
+    "node": "18.x"
   },
   "dependencies": {
     "axios": "^1.5.1",
