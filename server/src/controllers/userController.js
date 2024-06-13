@@ -3,7 +3,7 @@ const router = express.Router()
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const {authenticateJWT} = require("../middlewares/auth");
-const { User, Team, Role, Bet, Match} = require("../models");
+const { User, Team, Role, Bet, Match, Player} = require("../models");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -16,7 +16,8 @@ const { upload } = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {getMonthPoints, getSeasonPoints} = require("../services/betService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints} = require("../services/betService");
+const {getCurrentMatchday} = require("../services/appService");
 
 router.get('/admin/users/requests', authenticateJWT, async (req, res) => {
   try {
@@ -61,10 +62,15 @@ router.get('/users/all', authenticateJWT, async (req, res) => {
 router.get('/user/:id', authenticateJWT, async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      include: [{
-        model: Role,
-        as: 'Roles'
-      }]
+      include: [
+        {
+          model: Role,
+          as: 'Roles'
+        },
+        {
+          model: Team,
+          as: 'team',
+        }]
     });
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
@@ -79,10 +85,11 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password, roleName } = req.body
+    const { username, email, password, roleName, teamId } = req.body
     if (username) user.username = username
     if (email) user.email = email
     if (password) user.password = await bcrypt.hash(password, 10)
+    if (teamId) user.teamId = teamId
     if (req.file) {
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
@@ -135,37 +142,44 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    const startOfWeek = moment().startOf('isoWeek');
-    const endOfWeek = moment().endOf('isoWeek');
+    const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+    const startOfWeek = now.clone().startOf('isoWeek');
+    const endOfWeek = now.clone().endOf('isoWeek');
 
     const startDate = startOfWeek.toDate();
     const endDate = endOfWeek.toDate();
 
     const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
+      include: [
+        {
+          model: Match,
+          as: 'MatchId',
+          where: {
+            utcDate: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate
+            }
           },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
+          include: [
+            {
+              model: Team,
+              as: 'HomeTeam'
+            },
+            {
+              model: Team,
+              as: 'AwayTeam'
+            }
+          ]
+        },
+        {
+          model: Player,
+          as: 'PlayerGoal'
+        }
+      ],
       where: {
         userId: req.params.id
       }
     });
-
     if (bets.length === 0) {
       res.json({ message: 'Aucun pari pour la semaine en cours' })
     } else {
@@ -175,63 +189,51 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
   }
 })
-router.get('/user/:id/bets/month', authenticateJWT, async (req, res) => {
+router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
   try {
-    const seasonId = await getCurrentSeasonId(61)
-    const monthPoints = await getMonthPoints(seasonId, req.params.id);
-    const startOfWeek = moment().startOf('month');
-    const endOfWeek = moment().endOf('month');
+    const userId = req.params.id;
+    const filter = req.params.filter;
 
-    const startDate = startOfWeek.toDate();
-    const endDate = endOfWeek.toDate();
-
-    const bets = await Bet.findAll({
-      include: [{
-        model: Match,
-        where: {
-          utcDate: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
-          }
-        },
-        include: [
-          {
-            model: Team,
-            as: 'HomeTeam'
-          },
-          {
-            model: Team,
-            as: 'AwayTeam'
-          }
-        ]
-      }],
-      where: {
-        userId: req.params.id
-      }
-    });
-
-    if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour le mois en cours', points: monthPoints })
+    if (filter === 'week') {
+      const seasonId = await getCurrentSeasonId(61);
+      const weekPoints = await getWeekPoints(seasonId, userId);
+      console.log(`Week points for user ${userId}:`, weekPoints);
+      return res.json({ points: weekPoints });
+    } else if (filter === 'month') {
+      const seasonId = await getCurrentSeasonId(61);
+      const monthPoints = await getMonthPoints(seasonId, userId);
+      console.log(`Month points for user ${userId}:`, monthPoints);
+      return res.json({ points: monthPoints });
+    } else if (filter === 'season') {
+      const seasonId = await getCurrentSeasonId(61);
+      const seasonPoints = await getSeasonPoints(seasonId, userId);
+      console.log("typeof seasonPoints" + typeof seasonPoints);
+      console.log(`Season points for user ${userId}:`, seasonPoints);
+      return res.json({ points: seasonPoints });
     } else {
-      res.json(monthPoints)
+      return res.status(400).json({ error: 'Filtre non valide' });
     }
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+    console.error('Impossible de récupérer les pronostics:', error);
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
   }
-})
-router.get('/user/:id/bets/season', authenticateJWT, async (req, res) => {
+});
+router.post('/user/verify-password', authenticateJWT, async (req, res) => {
   try {
-    const seasonId = await getCurrentSeasonId(61)
-    const bets = await getSeasonPoints(seasonId, req.params.id)
-    if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour la saison' })
-    } else {
-      res.json(bets)
-    }
+    const { userId, currentPassword } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
+
+    res.status(200).json({ message: 'Mot de passe actuel correct' });
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+    res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
   }
-})
+});
+
 router.get('/user/:id/rewards', authenticateJWT, async (req, res) => {
   try {
     const rewards = await getRewards(req.params.id);

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import weekPointsImage from "../../assets/components/dashboard/points-de-la-semaine.svg";
 import monthPointsImage from "../../assets/components/dashboard/points-du-mois.svg";
 import seasonPointsImage from "../../assets/components/dashboard/points-de-la-saison.svg";
@@ -26,18 +24,33 @@ const CurrentBets = ({ user, token }) => {
           }
         });
         const fetchedMatchs = response.data;
-        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+        if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
           return;
         }
-        const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (match.points >= 0 ? match.points : 0);
-        }, 0)
         setMatchs(fetchedMatchs)
-        setWeekPoints(totalPoints)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
+    const fetchWeekPoints = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/week`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const weekPoints = response.data;
+        if (weekPoints === undefined || weekPoints === 0) {
+          return;
+        }
+        if (user.id === 2) {
+          setWeekPoints()
+        }
+        setWeekPoints(weekPoints.points)
+      } catch (error) {
+        console.error('Erreur lors de la sélection des points de la semaine', error);
+      }
+    }
     const fetchMonthBets = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/month`, {
@@ -45,14 +58,11 @@ const CurrentBets = ({ user, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        const fetchedMatchs = response.data;
-        if (fetchedMatchs.length === undefined || fetchedMatchs.length === 0) {
+        const monthPoints = response.data;
+        if (monthPoints.length === undefined || monthPoints.length === 0) {
           return;
         }
-        const totalPoints = fetchedMatchs.reduce((sum, match) => {
-          return sum + (match.points >= 0 ? match.points : 0);
-        }, 0)
-        setMonthPoints(totalPoints)
+        setMonthPoints(monthPoints.points)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -68,18 +78,19 @@ const CurrentBets = ({ user, token }) => {
         if (seasonPoints === undefined || seasonPoints === 0) {
           return;
         }
-        setSeasonPoints(seasonPoints)
+        setSeasonPoints(seasonPoints.points)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
     if (user && token) {
       fetchLastBets()
+      fetchWeekPoints()
       fetchMonthBets()
       fetchSeasonPoints()
     }
   }, [user, token]);
-  console.log(user)
+
   return (
     <div>
       <div
@@ -138,7 +149,7 @@ const CurrentBets = ({ user, token }) => {
             <span
               className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
             <span
-              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 uppercase z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
           </h2>
           <div className="w-full px-2">
             <div className="flex flex-col w-full">
@@ -146,10 +157,10 @@ const CurrentBets = ({ user, token }) => {
                 <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
                   <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
                 </div>
-                <div scope="col" className="py-0.5 px-1 w-[25%] border-r-2 border-black border-dotted">
+                <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
                   <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
                 </div>
-                <div scope="col" className="py-0.5 px-1 w-[25%]">
+                <div scope="col" className="py-0.5 px-1 w-[20%]">
                   <p className="font-rubik font-medium text-xxs uppercase">Points</p>
                 </div>
               </div>
@@ -163,41 +174,43 @@ const CurrentBets = ({ user, token }) => {
                         {bet.homeScore !== null && bet.awayScore !== null ? (
                           <>
                             <div className="relative flex flex-row justify-center items-center">
-                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.Match.HomeTeam.logoUrl + ".svg"}
-                                   alt={bet.Match.HomeTeam.name}/>
+                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.HomeTeam.name}/>
                               <img className="h-[40px] relative z-[3]"
                                    src={vsIcon}
                                    alt=""/>
-                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.Match.AwayTeam.logoUrl + ".svg"}
-                                   alt={bet.Match.AwayTeam.name}/>
+                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.AwayTeam.name}/>
                             </div>
                           </>
                         ) : (
                           <>
                             <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.HomeTeam.name}</p>
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
                             <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.Match.AwayTeam.name}</p>
+                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
                           </>
                         )}
                       </div>
                     </div>
-                    <div className="relative z-[2] w-[25%] py-2 border-r-2 border-black border-dotted">
+                    <div className="relative z-[2] w-[30%] py-2 border-r-2 border-black border-dotted">
                       <div className="h-full flex flex-row justify-center items-center">
                         {bet.homeScore !== null && bet.awayScore !== null ? (
                           <div>
                             <p className="font-rubik font-medium text-xl">
                               {bet.homeScore} - {bet.awayScore}
                             </p>
-                            <p className="font-title text-base font-bold">{bet.playerGoal}</p>
+                            {bet.playerGoal !== null && (
+                              <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
+                            )}
                           </div>
                         ) : (
-                          bet.winnerId === bet.Match.HomeTeam.id ? (
-                            <img className="h-auto w-8" src={bet.Match.HomeTeam.logoUrl + ".svg"}
-                                 alt={bet.Match.HomeTeam.name}/>
-                          ) : bet.winnerId === bet.Match.AwayTeam.id ? (
-                            <img className="h-auto w-8" src={bet.Match.AwayTeam.logoUrl + ".svg"}
-                                 alt={bet.Match.AwayTeam.name}/>
+                          bet.winnerId === bet.MatchId.HomeTeam.id ? (
+                            <img className="h-auto w-8" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                                 alt={bet.MatchId.HomeTeam.name}/>
+                          ) : bet.winnerId === bet.MatchId.AwayTeam.id ? (
+                            <img className="h-auto w-8" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                                 alt={bet.MatchId.AwayTeam.name}/>
                           ) : (
                             <img className="h-auto w-8" src={nullSymbol}
                                  alt="symbole match null"/>
@@ -205,7 +218,7 @@ const CurrentBets = ({ user, token }) => {
                         )}
                       </div>
                     </div>
-                    <div className="w-[25%] flex flex-col justify-center items-center py-2">
+                    <div className="w-[20%] flex flex-col justify-center items-center py-2">
                       {bet.points === null ? (
                         <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
                       ) : bet.points === 0 ? (

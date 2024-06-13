@@ -93,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
   Match.associate = (models) => {
     Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
     Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
-    Match.hasMany(models.Bet, { foreignKey: 'matchId' })
+    Match.hasMany(models.Bet, { foreignKey: 'matchId', as: 'MatchId' })
   };
 
   return Match;

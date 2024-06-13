@@ -10,7 +10,7 @@ client/.env
 client/src/assets/teams
 client/src/assets/uploads
 
-.idea
+.idea/
 .fleet
 
 # Ignore any other project-specific files or directories

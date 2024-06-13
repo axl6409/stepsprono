@@ -9,7 +9,7 @@ import logo from "/img/Logo.svg";
 const Home = () => {
   const isPresent = useIsPresent();
   const { isAuthenticated } = useContext(UserContext);
-  console.log(logo)
+
   return (
     <>
       <div className="h-100vh flex flex-col justify-start">

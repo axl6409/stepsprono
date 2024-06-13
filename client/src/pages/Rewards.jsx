@@ -3,6 +3,7 @@ import axios from 'axios';
 import rewardDefault from "/img/futbol-solid.svg";
 import {UserContext} from "../contexts/UserContext.jsx";
 import {useCookies} from "react-cookie";
+import BackButton from "../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Rewards = () => {
@@ -53,24 +54,25 @@ const Rewards = () => {
 
   return (
     <div className="text-center relative py-10 flex flex-col justify-center">
-      <h1 className="text-3xl font-black my-8 mt-0 uppercase relative w-fit mx-auto">Rewards
+      <BackButton />
+      <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Trophées
         <span
-          className="absolute left-0 bottom-0 text-flat-purple z-[-1] transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Rewards</span>
+          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Trophées</span>
         <span
-          className="absolute left-0 bottom-0 text-green-lime z-[-2] transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Rewards</span>
+          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Trophées</span>
       </h1>
-      <div className="flex flex-row flex-wrap justify-between px-4">
+      <div className="flex flex-row flex-wrap justify-around px-4">
         {rewards.map((reward) => (
           <div
             key={reward.id}
-            className="w-1/2 md:w-1/3 lg:w-1/4 p-4 flex flex-col items-center"
+            className="w-[150px] flex flex-col items-center my-4"
           >
             <img
               src={reward.image || rewardDefault}
               alt={reward.name}
-              className="w-full h-64 object-cover rounded-lg"
+              className="w-full h-[150px] object-cover rounded-lg"
             />
-            <h2 className="text-xl font-bold mt-2">{reward.name}</h2>
+            <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
           </div>
         ))}
       </div>

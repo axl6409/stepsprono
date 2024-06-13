@@ -27,7 +27,7 @@ const AdminCompetitions = () => {
 
   const fetchMatchs = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/admin/matchs/to-update`, {
+      const response = await axios.get(`${apiUrl}/api/admin/matchs/datas/to-update`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -44,7 +44,7 @@ const AdminCompetitions = () => {
 
   const handleUpdateMatch = async (matchId) => {
     try {
-      const response = await axios.patch(`${apiUrl}/api/admin/matchs/to-update/${matchId}`, null, {
+      const response = await axios.patch(`${apiUrl}/api/admin/matchs/datas/to-update/${matchId}`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {

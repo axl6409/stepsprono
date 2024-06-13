@@ -32,21 +32,21 @@ const AdminTeams = () => {
     return <Navigate to={'/'} replace />
   }
 
-  const fetchTeams = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/teams`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      setTeams(response.data.data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des matchs :', error);
-    }
-  };
   useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/teams`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setTeams(response.data.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des matchs :', error);
+      }
+    };
     fetchTeams()
-  }, []);
+  }, [user, token]);
 
   const handleUpdateTeamRanking = async (teamId) => {
     try {
@@ -244,7 +244,7 @@ const AdminTeams = () => {
                   key={team.teamId}>
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-col w-1/2">
-                      <img className="block h-8 w-8 mx-auto" src={team.Team.logoUrl} alt={team.Team.name}/>
+                      <img className="block h-8 w-8 object-cover mx-auto" src={team.Team.logoUrl + ".svg"} alt={team.Team.name}/>
                       <p
                         className="inline-block text-center font-sans text-sm font-bold leading-5 my-auto">{team.Team.name}</p>
                     </div>

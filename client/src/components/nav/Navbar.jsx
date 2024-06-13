@@ -155,7 +155,7 @@ const UserMenu = () => {
                   <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
                 </Link>
                 <Link
-                  to="/matchs"
+                  to="/matchs/history"
                   className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
                   onClick={toggleMenu}
                 >

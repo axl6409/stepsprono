@@ -1,14 +1,8 @@
 import React, { useContext, useState } from 'react';
 import axios from "axios";
-import {Link, useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { UserContext } from "../contexts/UserContext.jsx";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAt, faKey, faUser } from "@fortawesome/free-solid-svg-icons";
-import background from "../assets/components/background-hexagon-large.png";
-import userIcon from "../assets/icons/user.svg";
-import lockIcon from "../assets/icons/password.svg";
-import arrowLeft from "../assets/icons/arrow-left.svg";
 import StepOne from "../components/user/register/StepOne.jsx";
 import StepTwo from "../components/user/register/StepTwo.jsx";
 import StepThree from "../components/user/register/StepThree.jsx";
@@ -22,7 +16,7 @@ const Register = () => {
     password: '',
     username: '',
     profilePic: null,
-    team: ''
+    teamId: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -52,7 +46,14 @@ const Register = () => {
 
   const handleFinish = async (data) => {
     try {
-      const formData = { ...userData, team: data.team };
+      const formData = new FormData();
+      formData.append('email', userData.email);
+      formData.append('password', userData.password);
+      formData.append('username', userData.username);
+      formData.append('teamId', userData.teamId);
+      if (userData.profilePic) {
+        formData.append('profilePic', userData.profilePic);
+      }
       const response = await axios.post(`${apiUrl}/api/register`, formData);
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);

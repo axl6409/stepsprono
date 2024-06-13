@@ -30,6 +30,11 @@ const StepTwo = ({ onPrevious, onNext }) => {
     fileInputRef.current.click();
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onNext(username, profilePic);
+  };
+
   return (
     <div
       className="step-two-container h-full relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-8 px-8">
@@ -51,7 +56,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
         <span className="absolute inset-0 translate-x-2 translate-y-2 text-green-soft z-[1]">Complète ton profil</span>
       </h2>
       <div
-        className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl py-12 overflow-hidden">
+        className="block relative border-2 border-black w-full mx-auto bg-white rounded-xl py-12 overflow-hidden min-h-[400px]">
         <img src={blueOctogram} alt="" className="absolute top-0 right-0"/>
         <img src={interrogationBlack} alt="" className="absolute -rotate-[30deg] top-8 right-8"/>
         <div className="relative w-fit mx-auto">
@@ -60,10 +65,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
         </div>
         <form
           className="flex flex-col items-center px-8"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNext(username, profilePic);
-          }}>
+          onSubmit={handleSubmit}>
           <label htmlFor="text" className="my-4 w-full relative flex flex-row justify-start">
             <input
               type="text"
@@ -77,12 +79,15 @@ const StepTwo = ({ onPrevious, onNext }) => {
           <img src={interrogationBlack} alt="" className="absolute top-1/3 left-4"/>
           <img src={interrogationBlack} alt="" className="absolute -rotate-[7deg] top-2/3 right-4"/>
           <label htmlFor="file" className="my-4 w-full relative flex flex-col justify-center items-center">
-            <div className="relative overflow-visible">
+            <div className="relative overflow-visibles">
               <img src={blueOctogram} alt="" className="absolute w-[50px] bottom-0 -left-5"/>
               <img src={yellowStar} alt="" className="absolute z-[7] rotate-[5deg] bottom-4 left-1"/>
               <img src={duodecimgram} alt="" className="absolute z-[4] rotate-[5deg] -top-2 -right-2"/>
               <img src={interrogationBlue} alt="" className="absolute z-[8] rotate-[5deg] top-1 right-1"/>
-              <img src={imagePreviewUrl} alt="Aperçu du profil" className="w-[150px] relative z-[6]"/>
+              <div className="w-[150px] h-[150px] rounded-full overflow-hidden border-2 border-black">
+                <img src={imagePreviewUrl} alt="Aperçu du profil"
+                     className="w-[150px] relative z-[1] rounded-full"/>
+              </div>
             </div>
             <button type="button" onClick={handleButtonClick}
                     className="file-input-button mt-2 font-roboto text-sm font-regular text-grey-medium underline">
