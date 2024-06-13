@@ -65,17 +65,21 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        let url = `${apiUrl}/api/players`;
+        const params = new URLSearchParams();
         if (selectedTeam === null) {
-          url += `?teamId1=${match.HomeTeam.id}&teamId2=${match.AwayTeam.id}`;
+          params.append('teamId1', match.HomeTeam.id);
+          params.append('teamId2', match.AwayTeam.id);
         } else if (selectedTeam) {
           if (homeScore > 0 || awayScore > 0) {
-            url += `?teamId1=${match.HomeTeam.id}&teamId2=${match.AwayTeam.id}`;
+            params.append('teamId1', match.HomeTeam.id);
+            params.append('teamId2', match.AwayTeam.id);
+          } else {
+            params.append('teamId1', selectedTeam);
           }
-          url += `?teamId1=${selectedTeam}`;
         } else {
           return;
         }
+        const url = `${apiUrl}/api/players?${params.toString()}`;
         const response = await axios.get(url, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -86,7 +90,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
           if (a.Player.name > b.Player.name) return 1;
           return 0;
         });
-        setPlayers(response.data);
+        setPlayers(sortedPlayers);
       } catch (error) {
         console.error('Erreur lors de la récupération des joueurs :', error);
       }
