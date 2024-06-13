@@ -9,7 +9,7 @@ import AuthenticatedApp from "./AuthenticatedApp.jsx";
 const App = () => {
   moment.updateLocale('fr', {})
   React.useEffect(() => {
-    console.log('API URL:', process.env.VITE_APP_API_URL);
+    console.log('API URL:', import.meta.env.VITE_APP_API_URL);
   }, []);
   return (
     <UserProvider>
