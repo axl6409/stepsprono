@@ -258,6 +258,7 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
           monthPoints = 6;
           break;
       }
+      console.log(`userId: ${userId}, filter: ${filter}`);
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
@@ -319,6 +320,7 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
           seasonPoints = 6;
           break;
       }
+      console.log(`userId: ${userId}, filter: ${filter}`);
       return res.json({ points: seasonPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
