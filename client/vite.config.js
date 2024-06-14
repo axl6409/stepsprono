@@ -8,9 +8,4 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  build: {
-    rollupOptions: {
-      external: ['/img/your-icon-150x143.png', '/img/your-icon-522x498.png'],
-    },
-  },
 });
