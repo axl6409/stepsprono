@@ -176,8 +176,8 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
       method: 'GET',
       url: apiBaseUrl + 'standings',
       params: {
-        season: seasonYear,
-        league: competitionId
+        season: 2023,
+        league: 61
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
