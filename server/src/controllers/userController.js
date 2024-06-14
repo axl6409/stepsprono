@@ -200,118 +200,120 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
       return res.json({ points: weekPoints });
     } else if (filter === 'month') {
       const seasonId = await getCurrentSeasonId(61);
-      const monthPoints = await getMonthPoints(seasonId, userId);
+      // const monthPoints = await getMonthPoints(seasonId, userId);
+      let monthPoints = 0
       if (userId === 2) {
-        monthPoints(17)
+        monthPoints = 17
       }
       if (userId === 4) {
-        monthPoints(23)
+        monthPoints = 23
       }
       if (userId === 5) {
-        monthPoints(16)
+        monthPoints = 16
       }
       if (userId === 6) {
-        monthPoints(12)
+        monthPoints = 12
       }
       if (userId === 7) {
-        monthPoints(11)
+        monthPoints = 11
       }
       if (userId === 8) {
-        monthPoints(21)
+        monthPoints = 21
       }
       if (userId === 9) {
-        monthPoints(18)
+        monthPoints = 18
       }
       if (userId === 10) {
-        monthPoints(14)
+        monthPoints = 14
       }
       if (userId === 11) {
-        monthPoints(13)
+        monthPoints = 13
       }
       if (userId === 12) {
-        monthPoints(11)
+        monthPoints = 11
       }
       if (userId === 13) {
-        monthPoints(22)
+        monthPoints = 22
       }
       if (userId === 14) {
-        monthPoints(12)
+        monthPoints = 12
       }
       if (userId === 15) {
-        monthPoints(16)
+        monthPoints = 16
       }
       if (userId === 16) {
-        monthPoints(15)
+        monthPoints = 15
       }
       if (userId === 17) {
-        monthPoints(20)
+        monthPoints = 20
       }
       if (userId === 18) {
-        monthPoints(19)
+        monthPoints = 19
       }
       if (userId === 20) {
-        monthPoints(13)
+        monthPoints = 13
       }
       if (userId === 21) {
-        monthPoints(6)
+        monthPoints = 6
       }
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
-      const seasonPoints = await getSeasonPoints(seasonId, userId);
+      // const seasonPoints = await getSeasonPoints(seasonId, userId);
+      let seasonPoints = 0
       if (userId === 2) {
-        seasonPoints(17)
+        seasonPoints = 17
       }
       if (userId === 4) {
-        seasonPoints(23)
+        seasonPoints = 23
       }
       if (userId === 5) {
-        seasonPoints(16)
+        seasonPoints = 16
       }
       if (userId === 6) {
-        seasonPoints(12)
+        seasonPoints = 12
       }
       if (userId === 7) {
-        seasonPoints(11)
+        seasonPoints = 11
       }
       if (userId === 8) {
-        seasonPoints(21)
+        seasonPoints = 21
       }
       if (userId === 9) {
-        seasonPoints(18)
+        seasonPoints = 18
       }
       if (userId === 10) {
-        seasonPoints(14)
+        seasonPoints = 14
       }
       if (userId === 11) {
-        seasonPoints(13)
+        seasonPoints = 13
       }
       if (userId === 12) {
-        seasonPoints(11)
+        seasonPoints = 11
       }
       if (userId === 13) {
-        seasonPoints(22)
+        seasonPoints = 22
       }
       if (userId === 14) {
-        seasonPoints(12)
+        seasonPoints = 12
       }
       if (userId === 15) {
-        seasonPoints(16)
+        seasonPoints = 16
       }
       if (userId === 16) {
-        seasonPoints(15)
+        seasonPoints = 15
       }
       if (userId === 17) {
-        seasonPoints(20)
+        seasonPoints = 20
       }
       if (userId === 18) {
-        seasonPoints(19)
+        seasonPoints = 19
       }
       if (userId === 20) {
-        seasonPoints(13)
+        seasonPoints = 13
       }
       if (userId === 21) {
-        seasonPoints(6)
+        seasonPoints = 6
       }
       return res.json({ points: seasonPoints });
     } else {
