@@ -258,7 +258,6 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
           monthPoints = 6;
           break;
       }
-      console.log(`userId: ${userId}, monthPoints: ${monthPoints}`);
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
@@ -266,61 +265,60 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
       let seasonPoints = 0;
       switch (userId) {
         case 2:
-          seasonPoints = 17;
+          seasonPoints = 154;
           break;
         case 4:
-          seasonPoints = 23;
+          seasonPoints = 162;
           break;
         case 5:
-          seasonPoints = 16;
+          seasonPoints = 154;
           break;
         case 6:
-          seasonPoints = 12;
+          seasonPoints = 163;
           break;
         case 7:
-          seasonPoints = 11;
+          seasonPoints = 143;
           break;
         case 8:
-          seasonPoints = 21;
+          seasonPoints = 173;
           break;
         case 9:
-          seasonPoints = 18;
+          seasonPoints = 131;
           break;
         case 10:
-          seasonPoints = 14;
+          seasonPoints = 146;
           break;
         case 11:
-          seasonPoints = 13;
+          seasonPoints = 147;
           break;
         case 12:
-          seasonPoints = 11;
+          seasonPoints = 152;
           break;
         case 13:
-          seasonPoints = 22;
+          seasonPoints = 176;
           break;
         case 14:
-          seasonPoints = 12;
+          seasonPoints = 166;
           break;
         case 15:
-          seasonPoints = 16;
+          seasonPoints = 166;
           break;
         case 16:
-          seasonPoints = 15;
+          seasonPoints = 162;
           break;
         case 17:
-          seasonPoints = 20;
+          seasonPoints = 174;
           break;
         case 18:
-          seasonPoints = 19;
+          seasonPoints = 148;
           break;
         case 20:
-          seasonPoints = 13;
+          seasonPoints = 168;
           break;
         case 21:
-          seasonPoints = 6;
+          seasonPoints = 148;
           break;
       }
-      console.log(`userId: ${userId}, seasonPoints: ${seasonPoints}`);
       return res.json({ points: seasonPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
