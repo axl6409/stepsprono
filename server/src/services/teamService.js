@@ -185,7 +185,7 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
       }
     };
     const response = await axios.request(options);
-    console.log("API Response => " + response)
+    console.log("API Response => " + response.data)
     const teams = response.data.response[0].league.standings[0];
 
     if (teamId) {
