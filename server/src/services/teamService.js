@@ -209,8 +209,8 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
         }, {
           where: {
             teamId: team.team.id,
-            seasonId: seasonId,
-            competitionId: competitionId,
+            seasonId: 2023,
+            competitionId: 61,
           }
         });
       }
