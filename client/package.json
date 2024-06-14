@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build:css": "postcss src/styles/tailwind.css -o src/styles/main.css",
-    "build": "npm run build:css && vite build",
-    "start": "vite",
+    "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
