@@ -14,6 +14,7 @@ const Home = () => {
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('beforeinstallprompt event fired');
       e.preventDefault();
       setDeferredPrompt(e);
       setIsVisible(true);
