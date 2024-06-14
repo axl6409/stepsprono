@@ -4,8 +4,8 @@ import { motion, useIsPresent } from "framer-motion";
 import {Link} from "react-router-dom";
 import background from "../assets/components/background-hexagon.svg";
 import logo from "/img/Logo.svg";
-import icon150x143 from "/img/your-icon-150x143.png";
-import icon522x498 from "/img/your-icon-522x498.png";
+import icon150x143 from "/img/logo-steps-150x143.png";
+import icon522x498 from "/img/logo-steps-522x498.png";
 
 const Home = () => {
   const isPresent = useIsPresent();
