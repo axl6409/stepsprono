@@ -210,7 +210,7 @@ const UserMenu = () => {
     </header>
       {isAuthenticated && user && user.role !== 'visitor' && (
         <div id="countdownPoup"
-             className={`${countdown.hidden ? `hidden` : ``} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+             className={`${countdown.hidden ? `` : ``} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
             {!countdown.expired && (
               <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
             )}
