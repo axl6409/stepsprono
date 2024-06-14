@@ -201,119 +201,123 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
     } else if (filter === 'month') {
       const seasonId = await getCurrentSeasonId(61);
       // const monthPoints = await getMonthPoints(seasonId, userId);
-      let monthPoints = 0
-      if (userId === 2) {
-        monthPoints = 17
-      }
-      if (userId === 4) {
-        monthPoints = 23
-      }
-      if (userId === 5) {
-        monthPoints = 16
-      }
-      if (userId === 6) {
-        monthPoints = 12
-      }
-      if (userId === 7) {
-        monthPoints = 11
-      }
-      if (userId === 8) {
-        monthPoints = 21
-      }
-      if (userId === 9) {
-        monthPoints = 18
-      }
-      if (userId === 10) {
-        monthPoints = 14
-      }
-      if (userId === 11) {
-        monthPoints = 13
-      }
-      if (userId === 12) {
-        monthPoints = 11
-      }
-      if (userId === 13) {
-        monthPoints = 22
-      }
-      if (userId === 14) {
-        monthPoints = 12
-      }
-      if (userId === 15) {
-        monthPoints = 16
-      }
-      if (userId === 16) {
-        monthPoints = 15
-      }
-      if (userId === 17) {
-        monthPoints = 20
-      }
-      if (userId === 18) {
-        monthPoints = 19
-      }
-      if (userId === 20) {
-        monthPoints = 13
-      }
-      if (userId === 21) {
-        monthPoints = 6
+      let monthPoints = 0;
+      switch (userId) {
+        case 2:
+          monthPoints = 17;
+          break;
+        case 4:
+          monthPoints = 23;
+          break;
+        case 5:
+          monthPoints = 16;
+          break;
+        case 6:
+          monthPoints = 12;
+          break;
+        case 7:
+          monthPoints = 11;
+          break;
+        case 8:
+          monthPoints = 21;
+          break;
+        case 9:
+          monthPoints = 18;
+          break;
+        case 10:
+          monthPoints = 14;
+          break;
+        case 11:
+          monthPoints = 13;
+          break;
+        case 12:
+          monthPoints = 11;
+          break;
+        case 13:
+          monthPoints = 22;
+          break;
+        case 14:
+          monthPoints = 12;
+          break;
+        case 15:
+          monthPoints = 16;
+          break;
+        case 16:
+          monthPoints = 15;
+          break;
+        case 17:
+          monthPoints = 20;
+          break;
+        case 18:
+          monthPoints = 19;
+          break;
+        case 20:
+          monthPoints = 13;
+          break;
+        case 21:
+          monthPoints = 6;
+          break;
       }
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
       // const seasonPoints = await getSeasonPoints(seasonId, userId);
-      let seasonPoints = 0
-      if (userId === 2) {
-        seasonPoints = 17
-      }
-      if (userId === 4) {
-        seasonPoints = 23
-      }
-      if (userId === 5) {
-        seasonPoints = 16
-      }
-      if (userId === 6) {
-        seasonPoints = 12
-      }
-      if (userId === 7) {
-        seasonPoints = 11
-      }
-      if (userId === 8) {
-        seasonPoints = 21
-      }
-      if (userId === 9) {
-        seasonPoints = 18
-      }
-      if (userId === 10) {
-        seasonPoints = 14
-      }
-      if (userId === 11) {
-        seasonPoints = 13
-      }
-      if (userId === 12) {
-        seasonPoints = 11
-      }
-      if (userId === 13) {
-        seasonPoints = 22
-      }
-      if (userId === 14) {
-        seasonPoints = 12
-      }
-      if (userId === 15) {
-        seasonPoints = 16
-      }
-      if (userId === 16) {
-        seasonPoints = 15
-      }
-      if (userId === 17) {
-        seasonPoints = 20
-      }
-      if (userId === 18) {
-        seasonPoints = 19
-      }
-      if (userId === 20) {
-        seasonPoints = 13
-      }
-      if (userId === 21) {
-        seasonPoints = 6
+      let seasonPoints = 0;
+      switch (userId) {
+        case 2:
+          seasonPoints = 17;
+          break;
+        case 4:
+          seasonPoints = 23;
+          break;
+        case 5:
+          seasonPoints = 16;
+          break;
+        case 6:
+          seasonPoints = 12;
+          break;
+        case 7:
+          seasonPoints = 11;
+          break;
+        case 8:
+          seasonPoints = 21;
+          break;
+        case 9:
+          seasonPoints = 18;
+          break;
+        case 10:
+          seasonPoints = 14;
+          break;
+        case 11:
+          seasonPoints = 13;
+          break;
+        case 12:
+          seasonPoints = 11;
+          break;
+        case 13:
+          seasonPoints = 22;
+          break;
+        case 14:
+          seasonPoints = 12;
+          break;
+        case 15:
+          seasonPoints = 16;
+          break;
+        case 16:
+          seasonPoints = 15;
+          break;
+        case 17:
+          seasonPoints = 20;
+          break;
+        case 18:
+          seasonPoints = 19;
+          break;
+        case 20:
+          seasonPoints = 13;
+          break;
+        case 21:
+          seasonPoints = 6;
+          break;
       }
       return res.json({ points: seasonPoints });
     } else {
