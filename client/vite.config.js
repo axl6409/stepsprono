@@ -8,4 +8,12 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        sw: 'public/service-worker.js',
+      },
+    },
+  },
 });
