@@ -1,14 +1,38 @@
 // Homepage.jsx
-import React, {useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import { motion, useIsPresent } from "framer-motion";
 import {Link} from "react-router-dom";
-import {UserContext} from "../contexts/UserContext.jsx";
 import background from "../assets/components/background-hexagon.svg";
 import logo from "/img/Logo.svg";
+import icon150x143 from "/img/logo-steps-150x143.png";
+import icon522x498 from "/img/logo-steps-522x498.png";
 
 const Home = () => {
   const isPresent = useIsPresent();
-  const { isAuthenticated } = useContext(UserContext);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsVisible(true);
+    });
+  }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        setDeferredPrompt(null);
+      });
+    }
+  };
 
   return (
     <>
@@ -34,6 +58,12 @@ const Home = () => {
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Inscription</span>
             </Link>
           </>
+          {isVisible && (
+            <button onClick={handleInstallClick} className="w-4/5 relative my-4 mx-auto">
+              <span className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Ajouter à l'écran d'accueil</span>
+              <img src={icon150x143} alt="Icon 150x143" />
+            </button>
+          )}
         </div>
         <motion.div
           initial={{scaleX: 1}}
