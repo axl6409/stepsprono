@@ -14,6 +14,7 @@ const Home = () => {
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('beforeinstallprompt event fired');
       e.preventDefault();
       setDeferredPrompt(e);
       setIsVisible(true);
@@ -58,12 +59,6 @@ const Home = () => {
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Inscription</span>
             </Link>
           </>
-          {isVisible && (
-            <button onClick={handleInstallClick} className="w-4/5 relative my-4 mx-auto">
-              <span className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Ajouter à l'écran d'accueil</span>
-              <img src={icon150x143} alt="Icon 150x143" />
-            </button>
-          )}
         </div>
         <motion.div
           initial={{scaleX: 1}}
