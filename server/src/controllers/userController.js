@@ -191,7 +191,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id, 10);
     const filter = req.params.filter;
 
     if (filter === 'week') {
