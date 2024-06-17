@@ -4,36 +4,9 @@ import { motion, useIsPresent } from "framer-motion";
 import {Link} from "react-router-dom";
 import background from "../assets/components/background-hexagon.svg";
 import logo from "/img/Logo.svg";
-import icon150x143 from "/img/logo-steps-150x143.png";
-import icon522x498 from "/img/logo-steps-522x498.png";
 
 const Home = () => {
   const isPresent = useIsPresent();
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('beforeinstallprompt event fired');
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsVisible(true);
-    });
-  }, []);
-
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        } else {
-          console.log('User dismissed the install prompt');
-        }
-        setDeferredPrompt(null);
-      });
-    }
-  };
 
   return (
     <>
