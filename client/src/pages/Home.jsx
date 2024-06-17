@@ -1,14 +1,12 @@
 // Homepage.jsx
-import React, {useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import { motion, useIsPresent } from "framer-motion";
 import {Link} from "react-router-dom";
-import {UserContext} from "../contexts/UserContext.jsx";
 import background from "../assets/components/background-hexagon.svg";
 import logo from "/img/Logo.svg";
 
 const Home = () => {
   const isPresent = useIsPresent();
-  const { isAuthenticated } = useContext(UserContext);
 
   return (
     <>

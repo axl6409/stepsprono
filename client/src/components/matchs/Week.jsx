@@ -159,20 +159,20 @@ const Week = ({token, user}) => {
     const isOpen = now.isBefore(nextFridayAtNoon);
     const hasBet = isBetPlaced(currentMatch.id);
     const isFutureMatch = moment(currentMatch.utcDate).isAfter(now);
-
-    if (isOpen && isFutureMatch) {
-      if (!hasBet) {
-        return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
-      } else {
-        return { disabled: false, text: 'Modifier', className: 'bg-beige-light' };
-      }
-    } else {
-      if (hasBet) {
-        return { disabled: true, icon: 'check', className: '' };
-      } else {
-        return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
-      }
-    }
+    return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
+    // if (isOpen && isFutureMatch) {
+    //   if (!hasBet) {
+    //     return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
+    //   } else {
+    //     return { disabled: false, text: 'Modifier', className: 'bg-beige-light' };
+    //   }
+    // } else {
+    //   if (hasBet) {
+    //     return { disabled: true, icon: 'check', className: '' };
+    //   } else {
+    //     return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
+    //   }
+    // }
   };
 
   const isBetPlaced = (matchId) => {

@@ -2,8 +2,6 @@ import React, {useContext, useState} from 'react'
 import { motion, useIsPresent } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAt, faKey} from "@fortawesome/free-solid-svg-icons";
 import { CookiesProvider, useCookies } from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
 import background from "../assets/components/background-hexagon-large.png";

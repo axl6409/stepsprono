@@ -1,4 +1,7 @@
 const axios = require("axios");
+const apiKey = process.env.FB_API_KEY;
+const apiHost = process.env.FB_API_HOST;
+const apiBaseUrl = process.env.FB_API_URL;
 const {Team, TeamCompetition} = require("../models");
 const {downloadImage} = require("./imageService");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
@@ -173,8 +176,8 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
       method: 'GET',
       url: apiBaseUrl + 'standings',
       params: {
-        season: seasonYear,
-        league: competitionId
+        season: 2023,
+        league: 61
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
@@ -182,6 +185,7 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
       }
     };
     const response = await axios.request(options);
+    console.log("API Response => ", response.data)
     const teams = response.data.response[0].league.standings[0];
 
     if (teamId) {
@@ -205,8 +209,8 @@ async function updateTeamsRanking(teamId = null, competitionId = null) {
         }, {
           where: {
             teamId: team.team.id,
-            seasonId: seasonId,
-            competitionId: competitionId,
+            seasonId: 2023,
+            competitionId: 61,
           }
         });
       }

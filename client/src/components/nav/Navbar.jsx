@@ -12,15 +12,11 @@ import navAdmin from '../../assets/components/icons/nav-admin.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
-  faBars, faChevronLeft,
-  faCircleUser,
-  faCloudArrowDown,
-  faRightFromBracket, faStopwatch,
-  faXmark
+  faChevronLeft,
+  faStopwatch,
 } from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../../contexts/UserContext.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
-import axios from "axios";
 import {useCookies} from "react-cookie";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -214,7 +210,7 @@ const UserMenu = () => {
     </header>
       {isAuthenticated && user && user.role !== 'visitor' && (
         <div id="countdownPoup"
-             className={`${countdown.hidden ? `hidden` : ``} fixed z-[70] top-20 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+             className={`${countdown.hidden ? `` : ``} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
             {!countdown.expired && (
               <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
             )}
@@ -230,7 +226,7 @@ const UserMenu = () => {
               <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
             )}
           </p>
-          <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
+          <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 rounded-r-lg border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
             <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white" />
           </button>
         </div>

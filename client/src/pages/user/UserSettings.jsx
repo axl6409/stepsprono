@@ -71,7 +71,8 @@ const UserSettings = (props) => {
           <div className="profile-picture mt-4 w-fit mx-auto">
             <img src={previewImage} alt="Profil" className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>
             <div className="file-upload-wrapper relative inline-block mt-4">
-              <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" type="file" accept="image/*" onChange={handleImageChange}/>
+              {/* onChange={handleImageChange} */}
+              <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" type="file" accept="image/*"/>
               <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center hover:bg-grey-medium">
                 Changer la photo
               </label>
