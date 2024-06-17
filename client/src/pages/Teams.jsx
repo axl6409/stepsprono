@@ -15,8 +15,6 @@ const Teams = () => {
   const [teams, setTeams] = useState([])
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [teamToDelete, setTeamToDelete] = useState(null)
   const [isListOpen, setIsListOpen] = useState(false)
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate()
