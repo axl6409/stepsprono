@@ -76,7 +76,7 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await createOrUpdateTeams(team.id, season, 61, false, true)
+    await createOrUpdateTeams(team.id, season, 61, true, true)
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });

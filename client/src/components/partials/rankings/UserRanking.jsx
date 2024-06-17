@@ -88,7 +88,7 @@ const UserRanking = ({ users, token }) => {
           <div
             className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
             <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
-            <div className="overflow-hidden flex items-center justify-center w-full h-full">
+            <div className="overflow-hidden flex items-center rounded-full justify-center w-full h-full">
               <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
             </div>
             <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
