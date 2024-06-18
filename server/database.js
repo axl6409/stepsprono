@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const config = require('./config/config.js');
+const config = require('./config/config'); // Charger la configuration
 
 const env = process.env.NODE_ENV || 'development';
 const isProduction = env === 'production';
@@ -19,6 +19,12 @@ if (isProduction) {
     define: {
       underscored: true,
       freezeTableName: true,
+    },
+    pool: {
+      max: 20,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   });
 } else {
@@ -33,6 +39,12 @@ if (isProduction) {
     define: {
       underscored: false,
       freezeTableName: false,
+    },
+    pool: {
+      max: 20,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   });
 }

@@ -1,15 +1,17 @@
-const axios = require("axios");
+// server/src/services/appService.js
+const axios = require('axios');
+const { Setting, Role, Season } = require('../models');
+const logger = require('../utils/logger/logger');
+const { Op } = require('sequelize');
+const schedule = require('node-schedule');
+const { checkSeasonRewards } = require('./rewardService');
+const { fetchWeekMatches, getMatchsCronTasks } = require('./matchService');
+const moment = require('moment-timezone');
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const logger = require("../utils/logger/logger");
-const {Op} = require("sequelize");
-const {Season, Setting} = require("../models");
-const schedule = require('node-schedule');
-const {checkSeasonRewards} = require("./rewardService");
-const moment = require("moment/moment");
 
-const getAPICallsCount = async () => {
+exports.getAPICallsCount = async () => {
   try {
     const options = {
       method: 'GET',
@@ -24,38 +26,49 @@ const getAPICallsCount = async () => {
   } catch (error) {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
-}
+};
 
-const getWeekDateRange = () => {
-  const moment = require('moment');
-  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-  const start = now.clone().startOf('isoWeek');
-  const end = now.clone().endOf('isoWeek');
-  return { start: start, end: end };
-}
+exports.getSettings = async () => {
+  return await Setting.findAll();
+};
 
-const getMonthDateRange = () => {
-  const moment = require('moment');
-  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
-  const start = now.clone().startOf('month');
-  const end = now.clone().endOf('month');
-  return { start: start, end: end };
-}
+exports.updateSetting = async (id, newValue) => {
+  const setting = await Setting.findByPk(id);
+  if (!setting) return null;
 
-const getCurrentMatchday = async () => {
-  try {
-    const response = await Season.findAll({
-      where: {
-        current: true,
-      }
-    })
-    return response[0].dataValues.currentMatchday
-  } catch (error) {
-    logger.error('getCurrentMatchday ERROR: ', error)
+  const type = setting.type;
+  if (type === 'select') {
+    setting.activeOption = newValue;
+  } else if (type === 'text') {
+    const newOptions = { ...setting.options };
+    newOptions['Value'] = newValue;
+    setting.options = newOptions;
   }
-}
+  await setting.save();
+  return setting;
+};
 
-const checkAndScheduleSeasonEndTasks = async () => {
+exports.getRoles = async () => {
+  return await Role.findAll();
+};
+
+exports.programMatchTasks = async () => {
+  await fetchWeekMatches();
+};
+
+exports.getMatchCronTasks = async () => {
+  return await getMatchsCronTasks();
+};
+
+exports.getCronTasks = async () => {
+  return getCronTasks();
+};
+
+exports.getSettlement = async () => {
+  return await Setting.findOne({ where: { key: 'regulation' } });
+};
+
+exports.checkAndScheduleSeasonEndTasks = async () => {
   try {
     const today = new Date();
     const seasons = await Season.findAll({
@@ -71,31 +84,14 @@ const checkAndScheduleSeasonEndTasks = async () => {
       schedule.scheduleJob(season.endDate, async () => {
         // Logique à exécuter à la fin de la saison
         logger.info(`Exécution de la tâche [SeasonEnded] pour la saison ${season.id}`);
-        checkSeasonRewards()
+        checkSeasonRewards();
         await Season.update(
-          {
-            taskScheduled: true
-          },
-          {
-            where: { id: season.id }
-          },
+          { taskScheduled: true },
+          { where: { id: season.id } },
         );
       });
     });
   } catch (error) {
-    logger.error("checkAndScheduleSeasonEndTasks ERROR :", error);
+    logger.error('checkAndScheduleSeasonEndTasks ERROR:', error);
   }
 };
-
-const getSettlement = async () => {
-  return await Setting.findOne({where: {key: 'regulation'}})
-}
-
-module.exports = {
-  getAPICallsCount,
-  getWeekDateRange,
-  getMonthDateRange,
-  getCurrentMatchday,
-  checkAndScheduleSeasonEndTasks,
-  getSettlement,
-}

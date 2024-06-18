@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
       const token = cookies.token || localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.post(`${apiUrl}/api/verifyToken`, { token });
+          const response = await axios.post(`${apiUrl}/api/verify-token`, { token });
           if (response.data.isAuthenticated) {
             setUser(response.data.user);
             setIsAuthenticated(true);
