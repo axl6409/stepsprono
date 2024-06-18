@@ -15,7 +15,7 @@ exports.getAPICallsCount = async () => {
   try {
     const options = {
       method: 'GET',
-      url: `${apiBaseUrl}status/`,
+      url: `${apiBaseUrl}/status/`,
       headers: {
         'X-RapidAPI-Key': apiKey,
         'X-RapidAPI-Host': apiHost
