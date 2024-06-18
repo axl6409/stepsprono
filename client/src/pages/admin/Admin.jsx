@@ -15,16 +15,11 @@ const Admin = () => {
   const { userRequests } = useContext(AppContext)
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
-  const navigate = useNavigate();
   const { isDebuggerActive, toggleDebugger } = useContext(AppContext);
   const [nullBets, setNullBets] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
-
-  if (!user || user.role !== 'admin') {
-    return <Navigate to={'/'} replace />
-  }
 
   useEffect(() => {
     const getNullBets = async () => {
@@ -45,7 +40,7 @@ const Admin = () => {
       }
     }
     getNullBets()
-  },[userRequests, nullBets])
+  },[user, token])
 
   const checkBets = async () => {
     try {
