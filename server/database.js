@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const config = require('./config/config.js');
 
 const env = process.env.NODE_ENV || 'development';
 const isProduction = env === 'production';
@@ -21,9 +22,10 @@ if (isProduction) {
     }
   });
 } else {
-  sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
+  const dbConfig = config[env];
+  sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+    host: dbConfig.host,
+    dialect: dbConfig.dialect,
     protocol: 'postgres',
     dialectOptions: {
       ssl: false
