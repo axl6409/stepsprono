@@ -11,6 +11,11 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
+/**
+ * Retrieves the count of API calls made.
+ *
+ * @return {Promise} The data representing the count of API calls.
+ */
 exports.getAPICallsCount = async () => {
   try {
     const options = {
@@ -28,10 +33,22 @@ exports.getAPICallsCount = async () => {
   }
 };
 
+/**
+ * Retrieves all settings.
+ *
+ * @return {Promise} All settings retrieved.
+ */
 exports.getSettings = async () => {
   return await Setting.findAll();
 };
 
+/**
+ * Updates a setting based on the provided ID and new value.
+ *
+ * @param {number} id - The ID of the setting to update.
+ * @param {string} newValue - The new value to set.
+ * @return {Promise} The updated setting.
+ */
 exports.updateSetting = async (id, newValue) => {
   const setting = await Setting.findByPk(id);
   if (!setting) return null;
@@ -48,26 +65,56 @@ exports.updateSetting = async (id, newValue) => {
   return setting;
 };
 
+/**
+ * Retrieves all roles.
+ *
+ * @return {Promise} All roles retrieved.
+ */
 exports.getRoles = async () => {
   return await Role.findAll();
 };
 
+/**
+ * Executes a program to match tasks asynchronously.
+ *
+ * @return {Promise} The result of the program execution.
+ */
 exports.programMatchTasks = async () => {
   await fetchWeekMatches();
 };
 
+/**
+ * Retrieves match cron tasks asynchronously.
+ *
+ * @return {Promise} The result of retrieving match cron tasks.
+ */
 exports.getMatchCronTasks = async () => {
   return await getMatchsCronTasks();
 };
 
+/**
+ * Retrieves all cron tasks.
+ *
+ * @return {Promise} The result of retrieving all cron tasks.
+ */
 exports.getCronTasks = async () => {
   return getCronTasks();
 };
 
+/**
+ * Retrieves the settlement based on the regulation key.
+ *
+ * @return {Promise} The settlement retrieved.
+ */
 exports.getSettlement = async () => {
   return await Setting.findOne({ where: { key: 'regulation' } });
 };
 
+/**
+ * Checks and schedules tasks at the end of a season.
+ *
+ * @return {Promise} The result of checking and scheduling season end tasks.
+ */
 exports.checkAndScheduleSeasonEndTasks = async () => {
   try {
     const today = new Date();

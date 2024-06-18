@@ -8,6 +8,14 @@ const sharp = require('sharp');
 const logger = require('../utils/logger/logger');
 const secretKey = process.env.SECRET_KEY;
 
+/**
+ * Verifies the token provided in the request, retrieves user information based on the token payload,
+ * and returns the user data with role information if the user is authenticated.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} JSON object containing user authentication status and user data with role information
+ */
 exports.verifyToken = async (req, res) => {
   try {
     const { token } = req.body;
@@ -26,6 +34,13 @@ exports.verifyToken = async (req, res) => {
   }
 };
 
+/**
+ * Registers a new user with the provided username, email, password, and teamId.
+ *
+ * @param {Object} req - The request object containing user information
+ * @param {Object} res - The response object for sending back the result
+ * @return {Object} JSON response with the status of user registration
+ */
 exports.register = async (req, res) => {
   try {
     const { username, email, password, teamId } = req.body;
@@ -59,6 +74,13 @@ exports.register = async (req, res) => {
   }
 };
 
+/**
+ * Handles user login by verifying credentials, generating a token, and setting cookie configurations.
+ *
+ * @param {Object} req - The request object containing username and password
+ * @param {Object} res - The response object for sending back the login result
+ * @return {Object} JSON response with the user login status and token
+ */
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;

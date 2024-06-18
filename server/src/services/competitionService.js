@@ -5,6 +5,12 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
+/**
+ * Retrieves competitions for a specific country code.
+ *
+ * @param {string} countryCode - The country code to retrieve competitions for.
+ * @return {Array} An array of competitions data for the specified country.
+ */
 exports.getCompetitionsByCountry = async (countryCode) => {
   try {
     const options = {

@@ -2,6 +2,13 @@
 const betService = require('../services/betService');
 const logger = require('../utils/logger/logger');
 
+/**
+ * Retrieves bets based on the provided query parameters and sends a JSON response with the retrieved bets.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} The retrieved bets in a JSON format
+ */
 exports.getBets = async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -19,6 +26,13 @@ exports.getBets = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves null bets based on the user's role and sends a JSON response with the retrieved bets or appropriate errors.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} The retrieved null bets in a JSON format or error messages
+ */
 exports.getNullBets = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -32,6 +46,13 @@ exports.getNullBets = async (req, res) => {
   }
 };
 
+/**
+ * Adds a new bet based on the request body, logs the request body, and returns the created bet in a JSON format.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} The created bet in a JSON format
+ */
 exports.addBet = async (req, res) => {
   try {
     const bet = await betService.createBet(req.body);
@@ -48,6 +69,13 @@ exports.addBet = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves user bets based on the provided match IDs, and sends a JSON response with the retrieved bets.
+ *
+ * @param {Object} req - The request object containing matchIds
+ * @param {Object} res - The response object
+ * @return {Object} The retrieved user bets in a JSON format
+ */
 exports.getUserBets = async (req, res) => {
   try {
     const matchIds = req.body.matchIds;
@@ -58,6 +86,13 @@ exports.getUserBets = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a bet based on the request parameters and user role, and returns a success message or error response.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} A JSON response indicating the success or failure of the bet deletion
+ */
 exports.deleteBet = async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
@@ -68,6 +103,13 @@ exports.deleteBet = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves unchecked bets based on the user's role and sends a JSON response with the retrieved bets or appropriate errors.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} The retrieved unchecked bets in a JSON format or error messages
+ */
 exports.getUncheckedBets = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -81,6 +123,13 @@ exports.getUncheckedBets = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves all bets, checks their status, and returns a JSON response with the updated bets or appropriate errors.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} A JSON response with the updated bets or error messages
+ */
 exports.checkupAllBets = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -94,6 +143,13 @@ exports.checkupAllBets = async (req, res) => {
   }
 };
 
+/**
+ * Function to check a bet by its ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response with the result of the bet check.
+ */
 exports.checkupBetById = async (req, res) => {
   try {
     const betId = req.params.betId;
@@ -108,6 +164,13 @@ exports.checkupBetById = async (req, res) => {
   }
 };
 
+/**
+ * Updates a bet based on the request body, logs the request body, and returns the updated bet in a JSON format.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} The updated bet in a JSON format
+ */
 exports.updateBet = async (req, res) => {
   try {
     const bet = await betService.updateBet({ id: req.params.betId, ...req.body });

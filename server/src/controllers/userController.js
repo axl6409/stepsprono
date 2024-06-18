@@ -3,6 +3,13 @@ const userService = require('../services/userService');
 const { upload } = require('../utils/utils');
 const bcrypt = require('bcrypt');
 
+/**
+ * Retrieves pending users if the request user is an admin.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the pending users or an error message.
+ */
 exports.getPendingUsers = async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -13,6 +20,13 @@ exports.getPendingUsers = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves all users based on their roles if the requesting user is an admin or a manager.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the users with specified roles or an error message.
+ */
 exports.getAllUsers = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -26,6 +40,13 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves all users simplistically and returns them as a JSON response.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the users or an error message.
+ */
 exports.getAllUsersSimple = async (req, res) => {
   try {
     const users = await userService.findAllUsers();
@@ -35,6 +56,13 @@ exports.getAllUsersSimple = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves a user by their ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the user found by ID or an error message.
+ */
 exports.getUserById = async (req, res) => {
   try {
     const user = await userService.findUserById(req.params.id);
@@ -47,6 +75,13 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+/**
+ * Updates a user based on the provided request parameters, body, and file.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the updated user information or an error message.
+ */
 exports.updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body, req.file);
@@ -56,6 +91,13 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+/**
+ * Processes a user role request and returns the result.
+ *
+ * @param {Object} req - The request object containing user ID.
+ * @param {Object} res - The response object for sending the result.
+ * @return {Promise} JSON response containing the result or an error message.
+ */
 exports.requestUserRole = async (req, res) => {
   try {
     const result = await userService.requestUserRole(req.params.id);
@@ -65,6 +107,13 @@ exports.requestUserRole = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves the last bets for a user based on the provided ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the last bets or an error message.
+ */
 exports.getLastBets = async (req, res) => {
   try {
     const bets = await userService.getLastBets(req.params.id);
@@ -78,6 +127,13 @@ exports.getLastBets = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves and returns filtered bets based on the provided ID and filter.
+ *
+ * @param {string} id - The ID used to filter bets.
+ * @param {string} filter - The filter criteria for selecting bets.
+ * @return {Promise} The filtered bets retrieved from the database.
+ */
 exports.getFilteredBets = async (req, res) => {
   try {
     const bets = await userService.getFilteredBets(req.params.id, req.params.filter);
@@ -87,6 +143,13 @@ exports.getFilteredBets = async (req, res) => {
   }
 };
 
+/**
+ * Verifies the user's password.
+ *
+ * @param {Object} req - The request object containing userId and currentPassword
+ * @param {Object} res - The response object
+ * @return {Promise} JSON response indicating the success or failure of password verification
+ */
 exports.verifyPassword = async (req, res) => {
   try {
     const { userId, currentPassword } = req.body;
@@ -98,6 +161,13 @@ exports.verifyPassword = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves the user rewards based on the provided ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing the user rewards or an error message.
+ */
 exports.getUserRewards = async (req, res) => {
   try {
     const rewards = await userService.getUserRewards(req.params.id);
@@ -107,6 +177,13 @@ exports.getUserRewards = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a user based on the provided ID if the requesting user is an admin or a manager.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of user deletion.
+ */
 exports.deleteUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });

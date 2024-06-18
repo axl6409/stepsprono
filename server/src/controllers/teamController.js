@@ -1,17 +1,18 @@
-const express = require('express')
-const router = express.Router()
-const {authenticateJWT} = require("../middlewares/auth");
-const axios = require("axios");
-const logger = require("../utils/logger/logger");
+// server/src/controllers/teamController.js
+const { getPlayersByTeamId, updatePlayers } = require("../services/playerService");
+const { updateTeamsRanking, createOrUpdateTeams } = require("../services/teamService");
+const { getCurrentSeasonYear } = require("../services/seasonService");
 const { Team, TeamCompetition } = require("../models");
-const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
-const {updateTeamsRanking, createOrUpdateTeams} = require("../services/teamService");
-const {getCurrentSeasonYear} = require("./seasonController");
-const apiKey = process.env.FB_API_KEY;
-const apiHost = process.env.FB_API_HOST;
-const apiBaseUrl = process.env.FB_API_URL;
+const logger = require("../utils/logger/logger");
 
-router.get('/teams', async (req, res) => {
+/**
+ * Retrieves teams based on sorting criteria and returns them as JSON response.
+ *
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @return {Object} JSON response containing teams' data and count
+ */
+exports.getTeams = async (req, res) => {
   try {
     const sortBy = req.query.sortBy || 'position';
     const order = req.query.order || 'ASC';
@@ -33,16 +34,32 @@ router.get('/teams', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des équipes' , error: error.message });
   }
-})
-router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Retrieves players by team ID and sends them as a JSON response.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} The JSON response containing the players.
+ */
+exports.getPlayersByTeamId = async (req, res) => {
   try {
     const players = await getPlayersByTeamId(req.params.teamId);
     res.json(players);
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
-});
-router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Updates the ranking of teams based on certain conditions.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of updating teams' ranking.
+ */
+exports.updateTeamsRanking = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -52,8 +69,16 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
-router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Updates the team data based on certain conditions.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of updating team data.
+ */
+exports.updateTeamsDatas = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -63,8 +88,16 @@ router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => 
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
-router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Updates the team data based on certain conditions.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of updating team data.
+ */
+exports.updateTeamDatasById = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -81,8 +114,16 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
-router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Updates the team ranking by ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of updating team ranking.
+ */
+exports.updateTeamRankingById = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -98,8 +139,16 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
-router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Updates players for a team based on the team ID provided in the request.
+ *
+ * @param {Object} req - The request object containing user information and team ID.
+ * @param {Object} res - The response object used to send success or error messages.
+ * @return {Promise} JSON response indicating the success or failure of updating players for the team.
+ */
+exports.updatePlayersByTeamId = async (req, res) => {
   try {
     logger.info(req.user)
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -112,12 +161,20 @@ router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
     await updatePlayers(team.id, 61)
-    res.status(200).json({ message: 'Joueurs mis à jour avec succès pour l\'equipe' + team.name });
+    res.status(200).json({ message: 'Joueurs mis à jour avec succès pour l\'équipe' + team.name });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
-});
-router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
+};
+
+/**
+ * Deletes a team by its ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response indicating the success or failure of team deletion.
+ */
+exports.deleteTeamById = async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
@@ -130,7 +187,4 @@ router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
-});
-
-
-module.exports = router
+};

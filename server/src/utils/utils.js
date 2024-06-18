@@ -31,6 +31,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+/**
+ * Sums up the points in an array.
+ *
+ * @param {Array} points - An array of points to be summed up
+ * @return {number} The total sum of points
+ */
 function pointsSum(points) {
   return points.reduce((a, b) => a + b, 0);
 }

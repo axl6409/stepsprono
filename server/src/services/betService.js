@@ -3,6 +3,13 @@ const { Op } = require('sequelize');
 const { Bet, Match, Team } = require('../models');
 const logger = require('../utils/logger/logger');
 
+/**
+ * Retrieves a list of bets with pagination information.
+ *
+ * @param {number} offset - The starting index of the bets to retrieve.
+ * @param {number} limit - The maximum number of bets to retrieve.
+ * @return {object} An object containing data array of bets, total pages, current page, and total count.
+ */
 exports.getBets = async ({ offset, limit }) => {
   const bets = await Bet.findAndCountAll({
     offset,
@@ -17,6 +24,11 @@ exports.getBets = async ({ offset, limit }) => {
   };
 };
 
+/**
+ * Retrieves all null bets with associated match and team information.
+ *
+ * @return {Promise<Array>} An array of null bets with detailed match and team information.
+ */
 exports.getNullBets = async () => {
   try {
     return await Bet.findAll({
@@ -37,6 +49,20 @@ exports.getNullBets = async () => {
   }
 };
 
+/**
+ * Creates a new bet entry based on the provided information.
+ *
+ * @param {Object} userId - The ID of the user placing the bet.
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} competitionId - The ID of the competition.
+ * @param {number} matchday - The matchday number.
+ * @param {number} matchId - The ID of the match for the bet.
+ * @param {number} winnerId - The ID of the winning team or null for a draw.
+ * @param {number} homeScore - The score of the home team.
+ * @param {number} awayScore - The score of the away team.
+ * @param {string} scorer - The ID of the player who scored.
+ * @return {Object} The newly created bet entry.
+ */
 exports.createBet = async ({ userId, seasonId, competitionId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   const match = await Match.findOne({ where: { id: matchId } });
   if (!match) throw new Error('Match non trouvé');
@@ -68,6 +94,18 @@ exports.createBet = async ({ userId, seasonId, competitionId, matchday, matchId,
   return bet;
 };
 
+/**
+ * Updates a bet entry with the provided information.
+ *
+ * @param {Object} id - The ID of the bet to update.
+ * @param {Object} userId - The ID of the user updating the bet.
+ * @param {Object} matchId - The ID of the match associated with the bet.
+ * @param {Object} winnerId - The ID of the winning team or null for a draw.
+ * @param {Object} homeScore - The score of the home team in the bet.
+ * @param {Object} awayScore - The score of the away team in the bet.
+ * @param {Object} scorer - The ID of the player who scored in the bet.
+ * @return {Object} The updated bet entry.
+ */
 exports.updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer }) => {
   logger.info('updateBet', { id, userId, matchId, winnerId, homeScore, awayScore, scorer });
   try {
@@ -100,6 +138,13 @@ exports.updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore
   }
 };
 
+/**
+ * Retrieves all bets for a specific user and set of match IDs.
+ *
+ * @param {type} userId - The ID of the user.
+ * @param {type} matchIds - An array of match IDs.
+ * @return {type} An array of bets matching the criteria.
+ */
 exports.getUserBets = async (userId, matchIds) => {
   const bets = await Bet.findAll({
     where: {
@@ -110,12 +155,23 @@ exports.getUserBets = async (userId, matchIds) => {
   return bets;
 };
 
+/**
+ * Deletes a bet entry by the provided betId.
+ *
+ * @param {number} betId - The ID of the bet to delete.
+ * @return {Promise<void>} Promise that resolves after deleting the bet.
+ */
 exports.deleteBet = async (betId) => {
   const bet = await Bet.findByPk(betId);
   if (!bet) throw new Error('Équipe non trouvée');
   await bet.destroy();
 };
 
+/**
+ * Retrieves null bets and checks each bet by match ID.
+ *
+ * @return {Promise<void>} Promise that resolves after checking all bets.
+ */
 exports.checkupBets = async () => {
   const bets = await this.getNullBets();
   for (const bet of bets) {
@@ -123,6 +179,12 @@ exports.checkupBets = async () => {
   }
 };
 
+/**
+ * Retrieves bets by match ID, updates points, and returns a message with the number of updated bets.
+ *
+ * @param {number} betId - The ID of the bet to check.
+ * @return {Object} An object containing success status, message, and the number of updated bets.
+ */
 exports.checkBetByMatchId = async (betId) => {
   try {
     const whereClause = { points: { [Op.eq]: null } };

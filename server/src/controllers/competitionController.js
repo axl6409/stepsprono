@@ -2,6 +2,13 @@
 const competitionService = require('../services/competitionService');
 const { Competition } = require('../models');
 
+/**
+ * Retrieves all competitions and sends them as a JSON response.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} JSON response containing all competitions.
+ */
 exports.getCompetitions = async (req, res) => {
   try {
     const competitions = await Competition.findAll();
@@ -11,6 +18,13 @@ exports.getCompetitions = async (req, res) => {
   }
 };
 
+/**
+ * A description of the entire function.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise} JSON response containing competitions.
+ */
 exports.getCompetitionsByCountry = async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });

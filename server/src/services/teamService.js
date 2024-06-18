@@ -1,13 +1,23 @@
+// server/src/services/teamService.js
 const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const {Team, TeamCompetition} = require("../models");
-const {downloadImage} = require("./imageService");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
+const { Team, TeamCompetition } = require("../models");
+const { downloadImage } = require("./imageService");
+const { getCurrentSeasonId, getCurrentSeasonYear } = require("../services/seasonService");
 const logger = require("../utils/logger/logger");
-const {calculatePoints} = require("./betService");
+const { calculatePoints } = require("./betService");
 
+/**
+ * Creates or updates teams based on provided parameters.
+ *
+ * @param {Array} teamIDs - Array of team IDs
+ * @param {number} season - Season number
+ * @param {number} competitionId - Competition ID
+ * @param {boolean} includeStats - Flag to include stats
+ * @param {boolean} onlyUpdateStats - Flag to update stats only
+ */
 async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = null, includeStats = false, onlyUpdateStats = false) {
   if (typeof teamIDs === 'number') {
     teamIDs = [teamIDs];
@@ -84,6 +94,14 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
   }
 }
 
+/**
+ * Updates the team statistics based on the provided competition, team, and season.
+ *
+ * @param {number} competitionId - The ID of the competition.
+ * @param {number} teamID - The ID of the team.
+ * @param {number} seasonYear - The year of the season.
+ * @return {Promise} A promise containing the updated team statistics.
+ */
 async function updateTeamStats(competitionId = null, teamID = null, seasonYear = null) {
   try {
     if (!seasonYear) {
@@ -168,6 +186,13 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
   }
 }
 
+/**
+ * Updates the ranking of teams based on the provided teamId and competitionId.
+ *
+ * @param {number} teamId - The ID of the team to update ranking for
+ * @param {number} competitionId - The ID of the competition for which to update ranking
+ * @return {Promise} A promise indicating the success or failure of the ranking update
+ */
 async function updateTeamsRanking(teamId = null, competitionId = null) {
   try {
     const seasonId = await getCurrentSeasonId(competitionId)
@@ -224,4 +249,4 @@ module.exports = {
   createOrUpdateTeams,
   updateTeamStats,
   updateTeamsRanking,
-}
+};

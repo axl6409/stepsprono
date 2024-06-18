@@ -7,10 +7,21 @@ const moment = require('moment-timezone');
 const { Op } = require('sequelize');
 const { getCurrentSeasonId, getWeekPoints, getMonthPoints, getSeasonPoints } = require('../services/betService');
 
+/**
+ * Retrieves pending users from the database.
+ *
+ * @return {Promise} An array of pending users
+ */
 exports.findPendingUsers = async () => {
   return await User.findAll({ where: { status: 'pending' } });
 };
 
+/**
+ * Retrieves all users with specified roles.
+ *
+ * @param {Array} roles - The roles to filter the users by
+ * @return {Promise} An array of users with the specified roles
+ */
 exports.findAllUsersWithRoles = async (roles) => {
   let queryOptions = {
     include: [{
@@ -25,10 +36,21 @@ exports.findAllUsersWithRoles = async (roles) => {
   return await User.findAll(queryOptions);
 };
 
+/**
+ * Retrieves all users from the database.
+ *
+ * @return {Promise} An array of all users
+ */
 exports.findAllUsers = async () => {
   return await User.findAll();
 };
 
+/**
+ * Retrieves a user by their ID along with associated roles and team.
+ *
+ * @param {number} userId - The ID of the user to be retrieved
+ * @return {Promise} A user object with associated roles and team
+ */
 exports.findUserById = async (userId) => {
   return await User.findByPk(userId, {
     include: [
@@ -44,6 +66,14 @@ exports.findUserById = async (userId) => {
   });
 };
 
+/**
+ * Updates a user's information including username, email, password, role, team, and image.
+ *
+ * @param {number} userId - The ID of the user to update
+ * @param {object} userData - An object containing the user data to update
+ * @param {object} file - The file object for user image upload
+ * @return {Promise} The updated user object
+ */
 exports.updateUser = async (userId, userData, file) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('Utilisateur non trouvé');
@@ -81,6 +111,12 @@ exports.updateUser = async (userId, userData, file) => {
   return user;
 };
 
+/**
+ * Retrieves the user by ID and updates their status to pending if not already pending or refused.
+ *
+ * @param {number} userId - The ID of the user to request the role for
+ * @return {object} An object with a message indicating the success of the request
+ */
 exports.requestUserRole = async (userId) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('Utilisateur non trouvé');
@@ -93,6 +129,12 @@ exports.requestUserRole = async (userId) => {
   return { message: 'La demande a été soumise avec succès' };
 };
 
+/**
+ * Retrieves the last bets of a user within the current week based on the specified user ID.
+ *
+ * @param {number} userId - The ID of the user to retrieve last bets for
+ * @return {Promise} A list of bets made by the user within the current week
+ */
 exports.getLastBets = async (userId) => {
   const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
   const startOfWeek = now.clone().startOf('isoWeek');
@@ -134,6 +176,13 @@ exports.getLastBets = async (userId) => {
   });
 };
 
+/**
+ * Retrieves filtered bets for a specific user based on the provided filter.
+ *
+ * @param {number} userId - The ID of the user to retrieve filtered bets for
+ * @param {string} filter - The filter criteria for retrieving the bets (week, month, or season)
+ * @return {Object} An object containing the points based on the filtered bets
+ */
 exports.getFilteredBets = async (userId, filter) => {
   const seasonId = await getCurrentSeasonId(61);
   if (filter === 'week') {
@@ -147,6 +196,13 @@ exports.getFilteredBets = async (userId, filter) => {
   }
 };
 
+/**
+ * Verifies the user's password against the stored password hash.
+ *
+ * @param {number} userId - The ID of the user to verify the password for
+ * @param {string} currentPassword - The password to verify
+ * @return {boolean} Indicates if the password is valid or not
+ */
 exports.verifyPassword = async (userId, currentPassword) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('Utilisateur non trouvé');
@@ -155,10 +211,22 @@ exports.verifyPassword = async (userId, currentPassword) => {
   return isPasswordValid;
 };
 
+/**
+ * A description of the entire function.
+ *
+ * @param {number} userId - The ID of the user to retrieve rewards for
+ * @return {Promise} The rewards associated with the user
+ */
 exports.getUserRewards = async (userId) => {
   // Ajoutez ici la logique pour récupérer les récompenses utilisateur
 };
 
+/**
+ * Deletes a user from the database based on their ID.
+ *
+ * @param {number} userId - The ID of the user to be deleted
+ * @return {Promise} Resolves after the user is deleted
+ */
 exports.deleteUser = async (userId) => {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('Utilisateur non trouvé');
