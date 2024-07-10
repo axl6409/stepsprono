@@ -18,6 +18,7 @@ import Users from "./pages/admin/Users.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
 import EditField from "./components/user/EditField.jsx";
 import Settings from "./pages/admin/Settings.jsx";
+import AdminRewards from "./pages/admin/AdminRewards.jsx";
 import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
 import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
 import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
@@ -123,6 +124,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser}/>} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
+            <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
             <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
             <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
