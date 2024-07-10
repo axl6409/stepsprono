@@ -8,6 +8,9 @@ node_modules/
 .env
 client/.env
 
+.gitignore
+server/database.js
+
 .idea/
 .fleet
 

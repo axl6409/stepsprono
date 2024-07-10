@@ -207,8 +207,7 @@ const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, w
       throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
     }
   } else {
-    if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) ||
-      (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+    if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) || (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
       throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
     }
   }
