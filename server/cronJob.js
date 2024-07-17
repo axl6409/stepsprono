@@ -1,7 +1,7 @@
 const cron = require('node-cron')
 const eventBus = require('./src/events/eventBus')
 const moment = require("moment");
-const { createOrUpdateTeams, updateTeamsRanking } = require('./src/services/teamService')
+const { createOrUpdateTeams, updateTeamStats } = require('./src/services/teamService')
 const { updateMatchStatusAndPredictions } = require('./src/services/matchService')
 const { checkupBets } = require('./src/services/betService')
 const { updatePlayers } = require('./src/controllers/playerController')
@@ -25,8 +25,8 @@ const runCronJob = () => {
       logger.info('Season Rewards : Success');
     })
   })
-  cron.schedule('01 00 * * *', updateTeamsRanking)
+  cron.schedule('01 00 * * *', updateTeamStats)
   cron.schedule('01 00 * * *', updateMatches)
 }
 
-module.exports = { runCronJob, createOrUpdateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };
+module.exports = { runCronJob, createOrUpdateTeams, updateTeamStats, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets };

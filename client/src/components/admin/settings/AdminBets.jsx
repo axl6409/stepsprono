@@ -57,7 +57,7 @@ const AdminBets = () => {
         handleError('Erreur lors de la vérification du pronostic !', 1500)
       }
     } catch (error) {
-      handleError(error.response.data.message, 1500)
+      handleError(error.response.data.message)
     }
   };
 
@@ -90,7 +90,7 @@ const AdminBets = () => {
     setAlertType('error');
     setTimeout(() => {
       setAlertMessage('')
-    }, 2000);
+    }, 10000);
   };
 
   return (

@@ -35,8 +35,15 @@ function pointsSum(points) {
   return points.reduce((a, b) => a + b, 0);
 }
 
+function extractMatchday(round) {
+  const match = round.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+
 module.exports = {
   generateRandomString,
   upload,
-  pointsSum
+  pointsSum,
+  extractMatchday
 };

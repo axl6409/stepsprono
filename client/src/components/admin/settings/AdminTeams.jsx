@@ -28,10 +28,6 @@ const AdminTeams = () => {
   const [updateMessage, setUpdateMessage] = useState('');
   const { fetchAPICalls } = useContext(AppContext);
 
-  if (!user || user.role !== 'admin' && user.role !== 'manager') {
-    return <Navigate to={'/'} replace />
-  }
-
   useEffect(() => {
     fetchTeams()
   }, [user, token]);

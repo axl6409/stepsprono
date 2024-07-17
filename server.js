@@ -7,7 +7,7 @@ const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
-const { runCronJob, createOrUpdateTeams, updateTeamsRanking, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
+const { runCronJob, createOrUpdateTeams, updateTeamStats, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
 const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
@@ -73,7 +73,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 1 API request
     // await updateMatches(61)
     // Total => 1 API request
-    // await updateTeamsRanking(null, 61)
+    // await updateTeamStats(null, 61)
     // Total => 1 API request
     // await fetchWeekMatches()
     // Total => 18 API requests

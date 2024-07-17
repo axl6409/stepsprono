@@ -5,8 +5,8 @@ const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
-const {updateTeamsRanking, createOrUpdateTeams} = require("../services/teamService");
-const {getCurrentSeasonYear} = require("./seasonController");
+const {updateTeamStats, createOrUpdateTeams} = require("../services/teamService");
+const {getCurrentSeasonYear} = require("../services/seasonService");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -47,7 +47,7 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    await updateTeamsRanking()
+    await updateTeamStats()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -76,7 +76,7 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await createOrUpdateTeams(team.id, season, 61, true, true)
+    await createOrUpdateTeams(team.id, season, 61, false, true)
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -93,7 +93,7 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamsRanking(team.id, 61)
+    await updateTeamStats(team.id, 61)
     res.status(200).json({ message: 'Équipe mise à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
