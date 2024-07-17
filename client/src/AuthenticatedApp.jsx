@@ -28,6 +28,7 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import {AppContext} from "./contexts/AppContext.jsx";
+import AdminSeasons from "./components/admin/settings/AdminSeasons.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -125,6 +126,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser}/>} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
+            <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
             <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
             <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />

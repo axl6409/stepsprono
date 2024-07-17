@@ -115,19 +115,6 @@ const Admin = () => {
             </button>
           </div>
         </div>
-        <div
-          className="w-[90%] h-full flex flex-row justify-between items-center bg-flat-blue border-2 border-black mx-auto shadow-flat-black-adjust py-2 px-8">
-          <p className="font-sans text-sm font-medium text-white">Vérifier les pronostics</p>
-          <div className="flex justify-center items-center">
-            <button
-              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust focus:outline-none ${nullBets ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
-              onClick={checkBets}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform ${nullBets ? 'translate-x-6' : ''}`}></div>
-            </button>
-          </div>
-        </div>
       </div>
       <div className="py-4 block">
         <Link
@@ -159,6 +146,12 @@ const Admin = () => {
           className="w-3/4 block mx-auto relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
         >
           <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Données des Compétitions</span>
+        </Link>
+        <Link
+            to="/admin/seasons"
+            className="w-3/4 block mx-auto relative my-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+        >
+          <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2.5 group-hover:-translate-y-0">Saisons</span>
         </Link>
         <Link
           to="/admin/teams"

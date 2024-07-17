@@ -1,12 +1,4 @@
-/**
- * Defines a Reward model with name, description, image, rank, and type attributes.
- *
- * @param {Object} sequelize - the Sequelize object
- * @param {Object} DataTypes - the data types object
- * @return {Object} the defined Reward model
- */
 module.exports = (sequelize, DataTypes) => {
-
   const Reward = sequelize.define('Reward', {
     name: {
       type: DataTypes.STRING,
@@ -14,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     slug: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.STRING,
@@ -30,20 +22,19 @@ module.exports = (sequelize, DataTypes) => {
     },
     type: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
       defaultValue: false,
-    }
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
   });
 
-  /**
-   * Associates Reward with User through UserReward.
-   *
-   * @param {Object} models - the models object
-   * @return {void}
-   */
   Reward.associate = function(models) {
     Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'userId' });
-  }
+  };
 
-  return Reward
-}
+  return Reward;
+};

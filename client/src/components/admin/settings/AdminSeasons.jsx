@@ -40,15 +40,22 @@ const AdminSeasons = () => {
   }
 
   return (
-    <div className="admin-seasons">
-      {isModalOpen && (
-        <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal} />
-      )}
-      <h1 className="text-3xl font-black my-8 uppercase">Gestion des Saisons</h1>
-      <button onClick={() => handleCheckAndAddSeason(1)} className="btn btn-primary">
-        Vérifier et Ajouter la Saison Suivante
-      </button>
-    </div>
+      <div className="admin-seasons">
+        {isModalOpen && (
+            <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
+        )}
+        <h1 className="text-3xl font-black my-8 uppercase">Gestion des Saisons</h1>
+        <button onClick={() => handleCheckAndAddSeason(1)} className="btn btn-primary">
+          Vérifier et Ajouter la Saison Suivante
+        </button>
+        <button
+            className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust focus:outline-none focus:bg-green-lime-deep bg-gray-400'}`}
+            onClick={() => handleCheckAndAddSeason(1)}
+        >
+          <div
+              className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform focus:translate-x-6`}></div>
+        </button>
+      </div>
   );
 };
 

@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import arrowIcon from "../../assets/icons/arrow-left.svg";
+import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import RewardForm from '../../components/admin/RewardForm'; // Assurez-vous que le chemin est correct
+import { useCookies } from "react-cookie";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminRewards = () => {
+  const [cookies] = useCookies(['token']);
+  const token = localStorage.getItem('token') || cookies.token;
   const [rewards, setRewards] = useState([]);
   const [selectedReward, setSelectedReward] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [status, setStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchRewards();
@@ -15,7 +24,11 @@ const AdminRewards = () => {
 
   const fetchRewards = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/rewards`);
+      const response = await axios.get(`${apiUrl}/api/rewards`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
       setRewards(response.data);
     } catch (error) {
       console.error('Erreur lors de la récupération des trophées:', error);
@@ -29,103 +42,80 @@ const AdminRewards = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiUrl}/rewards/${id}`);
+      await axios.delete(`${apiUrl}/api/rewards/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      setStatusMessage('Trophée supprimé avec succès');
+      setStatus(true);
+      setIsModalOpen(true);
       fetchRewards();
     } catch (error) {
+      setStatusMessage('Erreur lors de la suppression du trophée');
+      setStatus(false);
+      setIsModalOpen(true);
       console.error('Erreur lors de la suppression du trophée:', error);
     }
   };
 
-  return (
-    <div>
-      <h1>Administration des Trophées</h1>
-      <Link to="/admin">Retour à l'administration</Link>
-      <button onClick={() => { setSelectedReward(null); setShowForm(true); }}>Ajouter un Trophée</button>
-      <ul>
-        {rewards.map((reward) => (
-          <li key={reward.id}>
-            <img src={`${apiUrl}/img/trophies/${reward.image}`} alt={reward.name} width="50" />
-            <p>{reward.name}</p>
-            <button onClick={() => handleEdit(reward)}>Éditer</button>
-            <button onClick={() => handleDelete(reward.id)}>Supprimer</button>
-          </li>
-        ))}
-      </ul>
-      {showForm && <RewardForm reward={selectedReward} onClose={() => { setShowForm(false); fetchRewards(); }} />}
-    </div>
-  );
-};
-
-const RewardForm = ({ reward, onClose }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    image: null,
-    rank: '',
-    type: false
-  });
-
-  useEffect(() => {
-    if (reward) {
-      setFormData({
-        name: reward.name,
-        slug: reward.slug,
-        description: reward.description,
-        image: reward.image,
-        rank: reward.rank,
-        type: reward.type
-      });
-    }
-  }, [reward]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
-      image: e.target.files[0]
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-    try {
-      if (reward) {
-        await axios.put(`${apiUrl}/rewards/${reward.id}`, data);
-      } else {
-        await axios.post(`${apiUrl}/rewards`, data);
-      }
-      onClose();
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du trophée:', error);
-    }
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nom" required />
-      <input type="text" name="slug" value={formData.slug} onChange={handleChange} placeholder="Slug" required />
-      <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" required />
-      <input type="file" name="image" onChange={handleFileChange} />
-      <input type="text" name="rank" value={formData.rank} onChange={handleChange} placeholder="Rank" required />
-      <label>
-        Type:
-        <input type="checkbox" name="type" checked={formData.type} onChange={handleChange} />
-      </label>
-      <button type="submit">Sauvegarder</button>
-      <button type="button" onClick={onClose}>Annuler</button>
-    </form>
+      <div className="inline-block w-full h-auto py-20">
+        <Link
+            to="/dashboard"
+            className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+        >
+          <img src={arrowIcon} alt="Icône flèche" />
+        </Link>
+        <h1 className="text-2xl font-bold mb-4">Administration des Trophées</h1>
+        <button
+            onClick={() => { setSelectedReward(null); setShowForm(true); }}
+            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Ajouter un Trophée
+        </button>
+        <ul className="space-y-4">
+          {rewards.map((reward) => (
+              <li key={reward.id} className="flex items-center space-x-4">
+                <img src={`${apiUrl}/img/trophies/${reward.image}`} alt={reward.name} className="w-12 h-12" />
+                <p className="flex-1">{reward.name}</p>
+                <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded">
+                  Éditer
+                </button>
+                <button onClick={() => handleDelete(reward.id)} className="bg-red-500 text-white px-2 py-1 rounded">
+                  Supprimer
+                </button>
+                <input
+                    type="checkbox"
+                    checked={reward.active}
+                    onChange={async () => {
+                      try {
+                        await axios.put(`${apiUrl}/rewards/${reward.id}`, { active: !reward.active });
+                        fetchRewards();
+                      } catch (error) {
+                        console.error('Erreur lors de la mise à jour du trophée:', error);
+                      }
+                    }}
+                    className="ml-2"
+                />
+              </li>
+          ))}
+        </ul>
+        {showForm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-8 rounded shadow-lg">
+                <RewardForm reward={selectedReward} onClose={() => { setShowForm(false); fetchRewards(); }} />
+              </div>
+            </div>
+        )}
+        {isModalOpen && (
+            <StatusModal message={statusMessage} status={status} closeModal={closeModal} />
+        )}
+      </div>
   );
 };
 

@@ -10,8 +10,17 @@ function generateRandomString(length) {
 // Configuration de stockage Multer
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    const userId = req.params.id || new Date().getTime();
-    const relativeDest = path.join('src/assets/uploads/users', userId.toString());
+    const fileType = req.body.type;
+    let relativeDest;
+    if (fileType === 'profile') {
+      relativeDest = path.join('src/assets/uploads/users', (req.params.id || new Date().getTime()).toString());
+    } else if (fileType === 'team') {
+      relativeDest = path.join('src/assets/uploads/teams', (req.params.id || new Date().getTime()).toString());
+    } else if (fileType === 'trophy') {
+      relativeDest = path.join('src/assets/uploads/trophies');
+    } else {
+      relativeDest = path.join('src/assets/uploads/others');
+    }
     const absoluteDest = path.join(__dirname, '../../../client', relativeDest);
     try {
       mkdirSync(absoluteDest, { recursive: true });
@@ -25,9 +34,10 @@ const storage = multer.diskStorage({
   filename: function(req, file, cb) {
     const randomString = generateRandomString(10);
     const userId = req.params.id || new Date().getTime();
-    cb(null, 'pp_img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
+    cb(null, 'img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
   }
 });
+
 
 const upload = multer({ storage: storage });
 

@@ -24,7 +24,7 @@ module.exports = {
       },
       slug: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       description: {
         type: Sequelize.STRING,
@@ -40,7 +40,12 @@ module.exports = {
       },
       type: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        allowNull: true
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
       createdAt: {
         allowNull: false,
