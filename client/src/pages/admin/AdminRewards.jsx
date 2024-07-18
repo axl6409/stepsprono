@@ -81,7 +81,7 @@ const AdminRewards = () => {
         <ul className="space-y-4">
           {rewards.map((reward) => (
               <li key={reward.id} className="flex items-center space-x-4">
-                <img src={`${apiUrl}/img/trophies/${reward.image}`} alt={reward.name} className="w-12 h-12" />
+                <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-12 h-12" />
                 <p className="flex-1">{reward.name}</p>
                 <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded">
                   Éditer

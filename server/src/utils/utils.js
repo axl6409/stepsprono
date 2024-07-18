@@ -32,12 +32,22 @@ const storage = multer.diskStorage({
     }
   },
   filename: function(req, file, cb) {
+    const fileType = req.body.type;
     const randomString = generateRandomString(10);
-    const userId = req.params.id || new Date().getTime();
-    cb(null, 'img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
+    if (fileType === 'profile') {
+      const userId = req.params.id || new Date().getTime();
+      cb(null, 'img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
+    } else if (fileType === 'trophy') {
+      const teamId = req.params.id || new Date().getTime();
+      cb(null, 'trophy_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
+    } else if (fileType === 'team') {
+      const teamId = req.params.id || new Date().getTime();
+      cb(null, 'team_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
+    } else {
+      cb(null, randomString + path.extname(file.originalname));
+    }
   }
 });
-
 
 const upload = multer({ storage: storage });
 

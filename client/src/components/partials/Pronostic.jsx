@@ -271,7 +271,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                             {...register("scorer")}
                             onChange={(e) => setScorer(e.target.value)}
                           >
-                            <option key={1} value={1}>Aucun butteur</option>
+                            <option key={1} value={''}>Aucun butteur</option>
                             {players.map((player, index) => {
                               return (
                                 <option key={`${player.playerId}-${index}`}

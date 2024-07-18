@@ -21,9 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     type: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: false,
     },
     active: {
       type: DataTypes.BOOLEAN,
@@ -31,10 +30,8 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
     },
   });
-
   Reward.associate = function(models) {
     Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'userId' });
   };
-
   return Reward;
 };

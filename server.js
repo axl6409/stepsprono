@@ -54,7 +54,7 @@ app.use(cors(corsOptions));
 app.use('/api', apiRoutes);
 
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
-app.use('/src/assets/uploads', express.static(path.join(__dirname, 'client', 'src', 'assets', 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'client', 'src', 'assets', 'uploads')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));

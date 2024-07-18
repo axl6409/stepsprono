@@ -11,8 +11,8 @@ const RewardForm = ({ reward, onClose }) => {
         name: '',
         description: '',
         image: null,
-        rank: '',
-        type: 'bronze'
+        rank: 'bronze',
+        type: 'trophy'
     });
 
     useEffect(() => {
@@ -106,8 +106,8 @@ const RewardForm = ({ reward, onClose }) => {
                 className="w-full px-4 py-2 border rounded"
             />
             <select
-                name="type"
-                value={formData.type}
+                name="rank"
+                value={formData.rank}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border rounded"
             >

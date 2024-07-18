@@ -187,42 +187,48 @@ const checkBetByMatchId = async (betIds) => {
 };
 
 const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
-  const match = await Match.findOne({
-    where: { id: matchId },
-  });
-  if (!match) {
-    throw new Error('Match non trouvé');
-  }
-  const existingBet = await Bet.findOne({
-    where: {
-      userId: userId,
-      matchId: matchId
+  try {
+    const match = await Match.findOne({
+      where: {id: matchId},
+    });
+    if (!match) {
+      throw new Error('Match non trouvé');
     }
-  });
-  if (existingBet) {
-    throw new Error('Un prono existe déjà pour ce match');
-  }
-  if (winnerId === null) {
-    if (homeScore !== awayScore) {
-      throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
+    const existingBet = await Bet.findOne({
+      where: {
+        userId: userId,
+        matchId: matchId
+      }
+    });
+    if (existingBet) {
+      throw new Error('Un prono existe déjà pour ce match');
     }
-  } else {
-    if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) || (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
-      throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
+    if (winnerId === null) {
+      if (homeScore !== awayScore) {
+        throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
+      }
+    } else {
+      if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) || (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+        throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
+      }
     }
+    console.log("Scorer => ", scorer);
+    const bet = await Bet.create({
+      userId,
+      seasonId,
+      competitionId,
+      matchday,
+      matchId,
+      winnerId,
+      homeScore,
+      awayScore,
+      playerGoal: scorer ? scorer : null
+    });
+    return bet;
+  } catch (error) {
+    logger.error('Erreur lors de la creation du pronostic :', error);
+    throw error;
   }
-  const bet = await Bet.create({
-    userId,
-    seasonId,
-    competitionId,
-    matchday,
-    matchId,
-    winnerId,
-    homeScore,
-    awayScore,
-    playerGoal:scorer
-  });
-  return bet;
 };
 
 const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer }) => {

@@ -39,7 +39,7 @@ module.exports = {
         allowNull: false
       },
       type: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
         allowNull: true
       },
       active: {
