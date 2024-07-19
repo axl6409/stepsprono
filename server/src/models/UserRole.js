@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const UserRole = sequelize.define('user_role', {
+  const UserRole = sequelize.define('UserRole', {
     user_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -17,7 +17,20 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       },
       field: 'role_id'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'user_roles',
+    timestamps: true
   });
 
   return UserRole;

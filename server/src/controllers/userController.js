@@ -155,7 +155,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
           model: Match,
           as: 'MatchId',
           where: {
-            utcDate: {
+            utc_date: {
               [Op.gte]: startDate,
               [Op.lte]: endDate
             }

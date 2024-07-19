@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Setting = sequelize.define('setting', {
+  const Setting = sequelize.define('Settings', {
     key: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -30,7 +30,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'active_option',
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'settings',
+    timestamps: true
   });
 
   return Setting;

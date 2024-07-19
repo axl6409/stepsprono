@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Competition = sequelize.define('competition', {
+  const Competition = sequelize.define('Competition', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -24,11 +24,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'emblem'
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
+    }
+  }, {
+    tableName: 'competitions',
+    timestamps: true
   });
 
   Competition.associate = (models) => {
-    Competition.belongsTo(models.area, { foreignKey: 'area_id', as: 'Area' });
-    Competition.hasMany(models.season, { foreignKey: 'competition_id' });
+    Competition.belongsTo(models.Area, { foreignKey: 'area_id', as: 'Area' });
+    Competition.hasMany(models.Season, { foreignKey: 'competition_id' });
   };
 
   return Competition;

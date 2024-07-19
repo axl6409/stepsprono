@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('user', {
+  const User = sequelize.define('User', {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Team',
+        model: 'teams',
         key: 'id'
       },
       field: 'team_id'
@@ -35,13 +35,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'status'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'users',
+    timestamps: true
   });
 
   User.associate = (models) => {
-    User.belongsToMany(models.role, { through: models.user_role, foreignKey: 'user_id' });
-    User.hasMany(models.bet, { foreignKey: 'user_id' });
-    User.belongsTo(models.team, { foreignKey: 'team_id', as: 'team' });
+    User.belongsToMany(models.Role, { through: models.UserRole, foreignKey: 'user_id' });
+    User.hasMany(models.Bet, { foreignKey: 'user_id' });
+    User.belongsTo(models.Team, { foreignKey: 'team_id', as: 'team' });
   };
 
   return User;

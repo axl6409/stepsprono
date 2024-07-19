@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Player = sequelize.define('player', {
+  const Player = sequelize.define('Player', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -16,11 +16,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
+    }
+  }, {
+    tableName: 'players',
+    timestamps: true
   });
 
   Player.associate = (models) => {
-    Player.belongsToMany(models.team, { through: models.player_team_competition, foreignKey: 'player_id' });
-    Player.hasMany(models.bet, { foreignKey: 'player_goal' })
+    Player.belongsToMany(models.Team, { through: models.PlayerTeamCompetition, foreignKey: 'player_id' });
+    Player.hasMany(models.Bet, { foreignKey: 'player_goal' })
   };
 
   return Player;

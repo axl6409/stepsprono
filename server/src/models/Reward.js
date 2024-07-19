@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Reward = sequelize.define('reward', {
+  const Reward = sequelize.define('Reward', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -36,10 +36,23 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       field: 'active',
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
+    }
+  }, {
+    tableName: 'rewards',
+    timestamps: true
   });
 
   Reward.associate = function(models) {
-    Reward.belongsToMany(models.user, { through: models.user_reward, foreignKey: 'user_id' });
+    Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'user_id' });
   };
   return Reward;
 };

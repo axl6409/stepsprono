@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Bet = sequelize.define('bet', {
+  const Bet = sequelize.define('Bet', {
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -73,16 +73,29 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'points'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'bets',
+    timestamps: true
   });
 
   Bet.associate = (models) => {
-    Bet.belongsTo(models.user, { foreignKey: 'user_id' });
-    Bet.belongsTo(models.competition, { foreignKey: 'competition_id' });
-    Bet.belongsTo(models.season, { foreignKey: 'season_id' });
-    Bet.belongsTo(models.match, { foreignKey: 'match_id', as: 'MatchId' });
-    Bet.belongsTo(models.team, { foreignKey: 'winner_id' });
-    Bet.belongsTo(models.player, { foreignKey: 'player_goal', as: 'PlayerGoal' });
+    Bet.belongsTo(models.User, { foreignKey: 'user_id' });
+    Bet.belongsTo(models.Competition, { foreignKey: 'competition_id' });
+    Bet.belongsTo(models.Season, { foreignKey: 'season_id' });
+    Bet.belongsTo(models.Match, { foreignKey: 'match_id', as: 'MatchId' });
+    Bet.belongsTo(models.Team, { foreignKey: 'winner_id' });
+    Bet.belongsTo(models.Player, { foreignKey: 'player_goal', as: 'PlayerGoal' });
   };
 
   return Bet;

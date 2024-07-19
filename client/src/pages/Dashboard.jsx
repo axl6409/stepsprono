@@ -112,7 +112,8 @@ const Dashboard = ({ userId: propUserId }) => {
       </div>
     );
   }
-  const teamLogoUrl = profileUser.team?.logoUrl;
+
+  const teamLogoUrl = profileUser.team?.logo_url;
 
   return (
     <div className="text-center relative flex flex-col justify-center">

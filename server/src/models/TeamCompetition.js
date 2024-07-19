@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const TeamCompetition = sequelize.define('team_competition', {
+  const TeamCompetition = sequelize.define('TeamCompetition', {
     team_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -116,13 +116,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goal_difference'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'team_competitions',
+    timestamps: true
   });
 
   TeamCompetition.associate = (models) => {
-    TeamCompetition.belongsTo(models.team, { foreignKey: 'team_id' });
-    TeamCompetition.belongsTo(models.competition, { foreignKey: 'competition_id' });
-    TeamCompetition.belongsTo(models.season, { foreignKey: 'season_id' });
+    TeamCompetition.belongsTo(models.Team, { foreignKey: 'team_id' });
+    TeamCompetition.belongsTo(models.Competition, { foreignKey: 'competition_id' });
+    TeamCompetition.belongsTo(models.Season, { foreignKey: 'season_id' });
   };
 
   return TeamCompetition;

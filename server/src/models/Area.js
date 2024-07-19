@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Area = sequelize.define('area', {
+  const Area = sequelize.define('Area', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -15,10 +15,23 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'flag'
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
+    }
+  }, {
+    tableName: 'areas',
+    timestamps: true
   });
 
   Area.associate = (models) => {
-    Area.hasMany(models.competition, { foreignKey: 'area_id', as: 'competitions' });
+    Area.hasMany(models.Competition, { foreignKey: 'area_id', as: 'Competitions' });
   };
 
   return Area;

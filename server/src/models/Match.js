@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Match = sequelize.define('match', {
+  const Match = sequelize.define('Match', {
     utc_date: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -119,15 +119,28 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: true,
       field: 'scorers'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
     }
+  }, {
+    tableName: 'matchs',
+    timestamps: true
   });
 
   Match.associate = (models) => {
-    Match.belongsTo(models.team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
-    Match.belongsTo(models.team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
-    Match.hasMany(models.bet, { foreignKey: 'matchId', as: 'MatchId' })
-    Match.belongsTo(models.season, { foreignKey: 'season_id', as: 'Season' });
-    Match.belongsTo(models.competition, { foreignKey: 'competition_id', as: 'Competition' });
+    Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
+    Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
+    Match.hasMany(models.Bet, { foreignKey: 'matchId', as: 'MatchId' })
+    Match.belongsTo(models.Season, { foreignKey: 'season_id', as: 'Season' });
+    Match.belongsTo(models.Competition, { foreignKey: 'competition_id', as: 'Competition' });
   };
 
   return Match;

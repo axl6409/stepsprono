@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Team = sequelize.define('team', {
+  const Team = sequelize.define('Team', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -42,15 +42,28 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'venue_image'
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at'
+    }
+  }, {
+    tableName: 'teams',
+    timestamps: true
   });
 
   Team.associate = (models) => {
-    Team.hasMany(models.match, { as: 'homeMatches', foreignKey: 'home_team_id' });
-    Team.hasMany(models.match, { as: 'awayMatches', foreignKey: 'away_team_id' })
-    Team.hasMany(models.bet, { foreignKey: 'winner_id' })
-    Team.belongsToMany(models.player, { through: models.player_team_competition, foreignKey: 'team_id' });
-    Team.hasMany(models.team_competition, { as: 'TeamCompetition', foreignKey: 'team_id' });
-    Team.hasMany(models.user, { foreignKey: 'team_id', as: 'users' });
+    Team.hasMany(models.Match, { as: 'homeMatches', foreignKey: 'home_team_id' });
+    Team.hasMany(models.Match, { as: 'awayMatches', foreignKey: 'away_team_id' })
+    Team.hasMany(models.Bet, { foreignKey: 'winner_id' })
+    Team.belongsToMany(models.Player, { through: models.PlayerTeamCompetition, foreignKey: 'team_id' });
+    Team.hasMany(models.TeamCompetition, { as: 'TeamCompetition', foreignKey: 'team_id' });
+    Team.hasMany(models.User, { foreignKey: 'team_id', as: 'users' });
   };
 
   return Team;
