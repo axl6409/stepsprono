@@ -9,6 +9,7 @@ const getSequelizeInstance = function() {
     sequelize = new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
       protocol: 'postgres',
+      logging: console.log,
       dialectOptions: {
         ssl: {
           require: true,
@@ -25,6 +26,7 @@ const getSequelizeInstance = function() {
       host: process.env.DB_HOST,
       dialect: 'postgres',
       protocol: 'postgres',
+      logging: console.log,
       dialectOptions: {
         ssl: false
       },
