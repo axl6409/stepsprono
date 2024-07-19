@@ -107,18 +107,18 @@ module.exports = {
         await queryInterface.renameColumn('Competitions', 'area_id', 'areaId');
 
         // Matchs table
-        await queryInterface.renameColumn('Matchs', 'home_team_id', 'homeTeamId');
-        await queryInterface.renameColumn('Matchs', 'away_team_id', 'awayTeamId');
-        await queryInterface.renameColumn('Matchs', 'winner_id', 'winnerId');
-        await queryInterface.renameColumn('Matchs', 'goals_home', 'goalsHome');
-        await queryInterface.renameColumn('Matchs', 'goals_away', 'goalsAway');
-        await queryInterface.renameColumn('Matchs', 'score_full_time_home', 'scoreFullTimeHome');
-        await queryInterface.renameColumn('Matchs', 'score_full_time_away', 'scoreFullTimeAway');
-        await queryInterface.renameColumn('Matchs', 'score_half_time_home', 'scoreHalfTimeHome');
-        await queryInterface.renameColumn('Matchs', 'score_half_time_away', 'scoreHalfTimeAway');
-        await queryInterface.renameColumn('Matchs', 'score_extra_time_home', 'scoreExtraTimeHome');
-        await queryInterface.renameColumn('Matchs', 'score_extra_time_away', 'scoreExtraTimeAway');
-        await queryInterface.renameColumn('Matchs', 'score_penalty_home', 'scorePenaltyHome');
+        await queryInterface.renameColumn('Matches', 'home_team_id', 'homeTeamId');
+        await queryInterface.renameColumn('Matches', 'away_team_id', 'awayTeamId');
+        await queryInterface.renameColumn('Matches', 'winner_id', 'winnerId');
+        await queryInterface.renameColumn('Matches', 'goals_home', 'goalsHome');
+        await queryInterface.renameColumn('Matches', 'goals_away', 'goalsAway');
+        await queryInterface.renameColumn('Matches', 'score_full_time_home', 'scoreFullTimeHome');
+        await queryInterface.renameColumn('Matches', 'score_full_time_away', 'scoreFullTimeAway');
+        await queryInterface.renameColumn('Matches', 'score_half_time_home', 'scoreHalfTimeHome');
+        await queryInterface.renameColumn('Matches', 'score_half_time_away', 'scoreHalfTimeAway');
+        await queryInterface.renameColumn('Matches', 'score_extra_time_home', 'scoreExtraTimeHome');
+        await queryInterface.renameColumn('Matches', 'score_extra_time_away', 'scoreExtraTimeAway');
+        await queryInterface.renameColumn('Matches', 'score_penalty_home', 'scorePenaltyHome');
 
         // PlayerTeamCompetitions table
         await queryInterface.renameColumn('PlayerTeamCompetitions', 'player_id', 'playerId');
