@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const TeamCompetition = sequelize.define('TeamCompetition', {
-    teamId: {
+  const TeamCompetition = sequelize.define('team_competition', {
+    team_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'team_id'
     },
-    competitionId: {
+    competition_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'competition_id'
     },
-    seasonId: {
+    season_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -30,63 +30,64 @@ module.exports = (sequelize, DataTypes) => {
     position: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'position'
     },
-    playedTotal: {
+    played_total: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'played_total'
     },
-    playedHome: {
+    played_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'played_home'
     },
-    playedAway: {
+    played_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'played_away'
     },
-    winTotal: {
+    win_total: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'win_total'
     },
-    winHome: {
+    win_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'win_home'
     },
-    winAway: {
+    win_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'win_away'
     },
-    drawTotal: {
+    draw_total: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'draw_total'
     },
-    drawHome: {
+    draw_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'draw_home'
     },
-    drawAway: {
+    draw_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'draw_away'
     },
-    losesTotal: {
+    loses_total: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'loses_total'
     },
-    losesHome: {
+    loses_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'loses_home'
     },
-    losesAway: {
+    loses_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'loses_away'
@@ -94,34 +95,34 @@ module.exports = (sequelize, DataTypes) => {
     form: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'form'
     },
     points: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'points'
     },
-    goalsFor: {
+    goals_for: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goals_for'
     },
-    goalsAgainst: {
+    goals_against: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goals_against'
     },
-    goalDifference: {
+    goal_difference: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goal_difference'
     }
-  }, {
-    tableName: 'TeamCompetitions',
   });
 
   TeamCompetition.associate = (models) => {
-    TeamCompetition.belongsTo(models.Team, { foreignKey: 'teamId' });
-    TeamCompetition.belongsTo(models.Competition, { foreignKey: 'competitionId' });
-    TeamCompetition.belongsTo(models.Season, { foreignKey: 'seasonId' });
+    TeamCompetition.belongsTo(models.team, { foreignKey: 'team_id' });
+    TeamCompetition.belongsTo(models.competition, { foreignKey: 'competition_id' });
+    TeamCompetition.belongsTo(models.season, { foreignKey: 'season_id' });
   };
 
   return TeamCompetition;

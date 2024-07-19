@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Match = sequelize.define('Match', {
-    utcDate: {
+  const Match = sequelize.define('match', {
+    utc_date: {
       type: DataTypes.DATE,
       allowNull: false,
       field: 'user_id'
@@ -8,20 +8,24 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'status'
     },
     venue: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'venue'
     },
     matchday: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'matchday'
     },
     stage: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'stage'
     },
-    homeTeamId: {
+    home_team_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -30,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'home_team_id'
     },
-    awayTeamId: {
+    away_team_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -39,15 +43,25 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'away_team_id'
     },
-    league: {
+    competition_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Competitions',
+        key: 'id',
+      },
+      field: 'competition_id'
     },
-    season: {
+    season_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Seasons',
+        key: 'id',
+      },
+      field: 'season_id'
     },
-    winnerId: {
+    winner_id: {
       type: DataTypes.STRING,
       allowNull: true,
       references: {
@@ -56,47 +70,47 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'winner_id'
     },
-    goalsHome: {
+    goals_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goals_home'
     },
-    goalsAway: {
+    goals_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'goals_away'
     },
-    scoreFullTimeHome: {
+    score_full_time_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_full_time_home'
     },
-    scoreFullTimeAway: {
+    score_full_time_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_full_time_away'
     },
-    scoreHalfTimeHome: {
+    score_half_time_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_half_time_home'
     },
-    scoreHalfTimeAway: {
+    score_half_time_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_half_time_away'
     },
-    scoreExtraTimeHome: {
+    score_extra_time_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_extra_time_home'
     },
-    scoreExtraTimeAway: {
+    score_extra_time_away: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_extra_time_away'
     },
-    scorePenaltyHome: {
+    score_penalty_home: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'score_penalty_home'
@@ -104,15 +118,16 @@ module.exports = (sequelize, DataTypes) => {
     scorers: {
       type: DataTypes.JSON,
       allowNull: true,
+      field: 'scorers'
     }
-  }, {
-    tableName: 'Matchs',
   });
 
   Match.associate = (models) => {
-    Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
-    Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
-    Match.hasMany(models.Bet, { foreignKey: 'matchId', as: 'MatchId' })
+    Match.belongsTo(models.team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
+    Match.belongsTo(models.team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
+    Match.hasMany(models.bet, { foreignKey: 'matchId', as: 'MatchId' })
+    Match.belongsTo(models.season, { foreignKey: 'season_id', as: 'Season' });
+    Match.belongsTo(models.competition, { foreignKey: 'competition_id', as: 'Competition' });
   };
 
   return Match;

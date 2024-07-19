@@ -1,20 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
-  const Season = sequelize.define('Season', {
+  const Season = sequelize.define('season', {
     year: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'year'
     },
-    startDate: {
+    start_date: {
       type: DataTypes.DATE,
       allowNull: false,
       field: 'start_date'
     },
-    endDate: {
+    end_date: {
       type: DataTypes.DATE,
       allowNull: false,
       field: 'end_date'
     },
-    competitionId: {
+    competition_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'competition_id'
     },
-    winnerId: {
+    winner_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -36,20 +37,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+      field: 'current'
     },
-    currentMatchday: {
+    current_matchday: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
       field: 'current_matchday'
     }
-  }, {
-    tableName: 'Seasons',
   });
 
   Season.associate = (models) => {
-    Season.belongsTo(models.Competition, { foreignKey: 'competitionId' });
-    Season.belongsTo(models.Team, { foreignKey: 'winnerId' });
+    Season.belongsTo(models.competition, { foreignKey: 'competition_id' });
+    Season.belongsTo(models.team, { foreignKey: 'winner_id' });
   };
 
   return Season;

@@ -3,14 +3,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Bets', {
+    await queryInterface.createTable('bets', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
-      userId: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -21,7 +22,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      seasonId: {
+      season_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -32,7 +33,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      competitionId: {
+      competition_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -46,8 +47,9 @@ module.exports = {
       matchday: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        field: 'matchday'
       },
-      matchId: {
+      match_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -58,7 +60,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      winnerId: {
+      winner_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -69,17 +71,17 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      homeScore: {
+      home_score: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'home_score'
       },
-      awayScore: {
+      away_score: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'away_score'
       },
-      playerGoal: {
+      player_goal: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -93,14 +95,15 @@ module.exports = {
       points: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'points'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -110,6 +113,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Bets');
+    await queryInterface.dropTable('bets');
   }
 };

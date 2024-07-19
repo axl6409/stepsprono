@@ -3,59 +3,62 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Teams', {
+    await queryInterface.createTable('teams', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
+        field: 'name'
       },
       code: {
         type: Sequelize.STRING,
         allowNull: false,
+        field: 'code'
       },
-      logoUrl: {
+      logo_url: {
         type: Sequelize.STRING,
         allowNull: false,
         field: 'logo_url',
       },
-      venueName: {
+      venue_name: {
         type: Sequelize.STRING,
         allowNull: true,
         field: 'venue_name',
       },
-      venueAddress: {
+      venue_address: {
         type: Sequelize.STRING,
         allowNull: true,
         field: 'venue_address',
       },
-      venueCity: {
+      venue_city: {
         type: Sequelize.STRING,
         allowNull: true,
         field: 'venue_city',
       },
-      venueCapacity: {
+      venue_capacity: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'venue_capacity',
       },
-      venueImage: {
+      venue_image: {
         type: Sequelize.STRING,
         allowNull: true,
         field: 'venue_image',
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -65,6 +68,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Team');
+    await queryInterface.dropTable('teams');
   }
 };

@@ -3,29 +3,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('UserRewards', {
+    await queryInterface.createTable('user_rewards', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
-      userId: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         field: 'user_id',
       },
-      rewardId: {
+      reward_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         field: 'reward_id',
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         field: 'updated_at'
@@ -33,6 +34,6 @@ module.exports = {
     });
   },
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserRewards');
+    await queryInterface.dropTable('user_rewards');
   }
 }

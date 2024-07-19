@@ -3,28 +3,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Seasons', {
+    await queryInterface.createTable('seasons', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
       year: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        field: 'year'
       },
-      startDate: {
+      start_date: {
         type: Sequelize.DATE,
         allowNull: false,
         field: 'start_date'
       },
-      endDate: {
+      end_date: {
         type: Sequelize.DATE,
         allowNull: false,
         field: 'end_date'
       },
-      competitionId: {
+      competition_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Competitions',
@@ -35,7 +37,7 @@ module.exports = {
         onUpdate: 'RESTRICT',
         allowNull: false
       },
-      winnerId: {
+      winner_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Teams',
@@ -46,21 +48,23 @@ module.exports = {
       },
       current: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: true,
+        field: 'current'
       },
-      currentMatchday: {
+      current_matchday: {
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: 0,
         field: 'current_matchday'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -70,6 +74,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Season');
+    await queryInterface.dropTable('seasons');
   }
 };

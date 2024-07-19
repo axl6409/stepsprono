@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Bet = sequelize.define('Bet', {
-    userId: {
+  const Bet = sequelize.define('bet', {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'user_id'
     },
-    seasonId: {
+    season_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'season_id'
     },
-    competitionId: {
+    competition_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -30,8 +30,9 @@ module.exports = (sequelize, DataTypes) => {
     matchday: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'matchday'
     },
-    matchId: {
+    match_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -40,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'match_id'
     },
-    winnerId: {
+    winner_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -49,17 +50,17 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'winner_id'
     },
-    homeScore: {
+    home_score: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'home_score'
     },
-    awayScore: {
+    away_score: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'away_score'
     },
-    playerGoal: {
+    player_goal: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -71,18 +72,17 @@ module.exports = (sequelize, DataTypes) => {
     points: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'points'
     }
-  }, {
-    tableName: 'Bets',
   });
 
   Bet.associate = (models) => {
-    Bet.belongsTo(models.User, { foreignKey: 'userId' });
-    Bet.belongsTo(models.Competition, { foreignKey: 'competitionId' });
-    Bet.belongsTo(models.Season, { foreignKey: 'seasonId' });
-    Bet.belongsTo(models.Match, { foreignKey: 'matchId', as: 'MatchId' });
-    Bet.belongsTo(models.Team, { foreignKey: 'winnerId' });
-    Bet.belongsTo(models.Player, { foreignKey: 'playerGoal', as: 'PlayerGoal' });
+    Bet.belongsTo(models.user, { foreignKey: 'user_id' });
+    Bet.belongsTo(models.competition, { foreignKey: 'competition_id' });
+    Bet.belongsTo(models.season, { foreignKey: 'season_id' });
+    Bet.belongsTo(models.match, { foreignKey: 'match_id', as: 'MatchId' });
+    Bet.belongsTo(models.team, { foreignKey: 'winner_id' });
+    Bet.belongsTo(models.player, { foreignKey: 'player_goal', as: 'PlayerGoal' });
   };
 
   return Bet;

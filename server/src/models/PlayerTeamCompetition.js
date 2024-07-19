@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const PlayerTeamCompetition = sequelize.define('PlayerTeamCompetition', {
-    playerId: {
+  const PlayerTeamCompetition = sequelize.define('player_team_competition', {
+    player_id: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Players',
@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'player_id'
     },
-    teamId: {
+    team_id: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Teams',
@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'team_id'
     },
-    competitionId: {
+    competition_id: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Competitions',
@@ -24,14 +24,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'competition_id'
     }
-  }, {
-    tableName: 'PlayerTeamCompetitions',
   });
 
   PlayerTeamCompetition.associate = (models) => {
-    PlayerTeamCompetition.belongsTo(models.Player, { foreignKey: 'playerId' });
-    PlayerTeamCompetition.belongsTo(models.Team, { foreignKey: 'teamId' });
-    PlayerTeamCompetition.belongsTo(models.Competition, { foreignKey: 'competitionId' });
+    PlayerTeamCompetition.belongsTo(models.player, { foreignKey: 'player_id' });
+    PlayerTeamCompetition.belongsTo(models.team, { foreignKey: 'team_id' });
+    PlayerTeamCompetition.belongsTo(models.competition, { foreignKey: 'competition_id' });
   }
 
   return PlayerTeamCompetition;

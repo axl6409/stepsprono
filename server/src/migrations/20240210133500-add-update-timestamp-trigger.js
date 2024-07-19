@@ -7,19 +7,19 @@ module.exports = {
       CREATE OR REPLACE FUNCTION update_updated_at_column()
       RETURNS TRIGGER AS $$
       BEGIN
-         NEW."updatedAt" = NOW();
+         NEW."updated_at" = NOW();
          RETURN NEW;
       END;
       $$ language 'plpgsql';
 
       CREATE TRIGGER update_areas_updated_at BEFORE UPDATE
-      ON "Areas" FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+      ON "areas" FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
     `);
   },
 
   async down (queryInterface, Sequelize) {
     await queryInterface.sequelize.query(`
-      DROP TRIGGER IF EXISTS update_areas_updated_at ON "Areas";
+      DROP TRIGGER IF EXISTS update_areas_updated_at ON "areas";
       DROP FUNCTION IF EXISTS update_updated_at_column;
     `);
   }

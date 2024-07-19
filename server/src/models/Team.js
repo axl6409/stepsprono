@@ -1,55 +1,56 @@
 module.exports = (sequelize, DataTypes) => {
-  const Team = sequelize.define('Team', {
+  const Team = sequelize.define('team', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      field: 'name'
     },
     code: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
+      field: 'code'
     },
-    logoUrl: {
+    logo_url: {
       type: DataTypes.STRING,
       allowNull: false,
       field: 'logo_url'
     },
-    venueName: {
+    venue_name: {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'venue_name'
     },
-    venueAddress: {
+    venue_address: {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'venue_address'
     },
-    venueCity: {
+    venue_city: {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'venue_city'
     },
-    venueCapacity: {
+    venue_capacity: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'venue_capacity'
     },
-    venueImage: {
+    venue_image: {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'venue_image'
     },
-  }, {
-    tableName: 'Teams',
   });
 
   Team.associate = (models) => {
-    Team.hasMany(models.Match, { as: 'homeMatches', foreignKey: 'homeTeamId' });
-    Team.hasMany(models.Match, { as: 'awayMatches', foreignKey: 'awayTeamId' })
-    Team.hasMany(models.Bet, { foreignKey: 'winnerId' })
-    Team.belongsToMany(models.Player, { through: models.PlayerTeamCompetition, foreignKey: 'teamId' });
-    Team.hasMany(models.TeamCompetition, { as: 'TeamCompetition', foreignKey: 'teamId' });
-    Team.hasMany(models.User, { foreignKey: 'teamId', as: 'users' });
+    Team.hasMany(models.match, { as: 'homeMatches', foreignKey: 'home_team_id' });
+    Team.hasMany(models.match, { as: 'awayMatches', foreignKey: 'away_team_id' })
+    Team.hasMany(models.bet, { foreignKey: 'winner_id' })
+    Team.belongsToMany(models.player, { through: models.player_team_competition, foreignKey: 'team_id' });
+    Team.hasMany(models.team_competition, { as: 'TeamCompetition', foreignKey: 'team_id' });
+    Team.hasMany(models.user, { foreignKey: 'team_id', as: 'users' });
   };
 
   return Team;

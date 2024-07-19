@@ -3,18 +3,20 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Competitions', {
+    await queryInterface.createTable('competitions', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'name'
       },
-      areaId: {
+      area_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -27,19 +29,21 @@ module.exports = {
       },
       type: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'type'
       },
       emblem: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        field: 'emblem'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -49,6 +53,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Competitions');
+    await queryInterface.dropTable('competitions');
   }
 };

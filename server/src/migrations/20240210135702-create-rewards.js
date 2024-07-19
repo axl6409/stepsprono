@@ -11,49 +11,57 @@ module.exports = {
    * @return {Promise} A promise that resolves when the table is created
    */
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Rewards', {
+    await queryInterface.createTable('rewards', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'name'
       },
       slug: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        field: 'slug'
       },
       description: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'description'
       },
       image: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        field: 'image'
       },
       rank: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'rank'
       },
       type: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        field: 'type'
       },
       active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+        field: 'active'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -70,6 +78,6 @@ module.exports = {
    * @return {Promise} A promise that resolves when the table is dropped
    */
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Rewards');
+    await queryInterface.dropTable('rewards');
   }
 }

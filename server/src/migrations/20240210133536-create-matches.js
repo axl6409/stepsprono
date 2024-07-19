@@ -3,14 +3,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Matches', { // Assurez-vous que le nom de la table correspond à votre convention
+    await queryInterface.createTable('matchs', { // Assurez-vous que le nom de la table correspond à votre convention
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
-      utcDate: {
+      utc_date: {
         type: Sequelize.DATE,
         allowNull: false,
         field: 'utc_date'
@@ -18,20 +19,24 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
+        field: 'status'
       },
       venue: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'venue'
       },
       matchday: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'matchday'
       },
       stage: {
         type: Sequelize.STRING,
         allowNull: false,
+        field: 'stage'
       },
-      homeTeamId: {
+      home_team_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -42,7 +47,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      awayTeamId: {
+      away_team_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -53,7 +58,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      league: {
+      league_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -63,7 +68,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      season: {
+      season_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -73,7 +78,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      winnerId: {
+      winner_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -84,47 +89,47 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      goalsHome: {
+      goals_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'goals_home'
       },
-      goalsAway: {
+      goals_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'goals_away'
       },
-      scoreFullTimeHome: {
+      score_full_time_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_full_time_home'
       },
-      scoreFullTimeAway: {
+      score_full_time_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_full_time_away'
       },
-      scoreHalfTimeHome: {
+      score_half_time_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_half_time_home'
       },
-      scoreHalfTimeAway: {
+      score_half_time_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_half_time_away'
       },
-      scoreExtraTimeHome: {
+      score_extra_time_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_extra_time_home'
       },
-      scoreExtraTimeAway: {
+      score_extra_time_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_extra_time_away'
       },
-      scorePenaltyHome: {
+      score_penalty_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'score_penalty_home'
@@ -132,14 +137,15 @@ module.exports = {
       scorers: {
         type: Sequelize.JSON,
         allowNull: true,
+        field: 'scorers'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -149,6 +155,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Matches');
+    await queryInterface.dropTable('matchs');
   }
 };

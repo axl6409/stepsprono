@@ -3,14 +3,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('TeamCompetitions', {
+    await queryInterface.createTable('team_competitions', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        field: 'id'
       },
-      teamId: {
+      team_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -21,7 +22,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      competitionId: {
+      competition_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -32,7 +33,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      seasonId: {
+      season_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -46,63 +47,64 @@ module.exports = {
       position: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'position'
       },
-      playedTotal: {
+      played_total: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'played_total'
       },
-      playedHome: {
+      played_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'played_home'
       },
-      playedAway: {
+      played_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'played_away'
       },
-      winTotal: {
+      win_total: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'win_total'
       },
-      winHome: {
+      win_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'win_home'
       },
-      winAway: {
+      win_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'win_away'
       },
-      drawTotal: {
+      draw_total: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'draw_total'
       },
-      drawHome: {
+      draw_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'draw_home'
       },
-      drawAway: {
+      draw_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'draw_away'
       },
-      losesTotal: {
+      loses_total: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'loses_total'
       },
-      losesHome: {
+      loses_home: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'loses_home'
       },
-      losesAway: {
+      loses_away: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'loses_away'
@@ -110,33 +112,35 @@ module.exports = {
       form: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'form'
       },
       points: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'points'
       },
-      goalsFor: {
+      goals_for: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'goals_for'
       },
-      goalsAgainst: {
+      goals_against: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'goals_against'
       },
-      goalDifference: {
+      goal_difference: {
         type: Sequelize.INTEGER,
         allowNull: true,
         field: 'goal_difference'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         field: 'created_at'
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -146,6 +150,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('TeamCompetitions');
+    await queryInterface.dropTable('team_competitions');
   }
 };

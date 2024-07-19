@@ -7,8 +7,8 @@
  */
 module.exports = (sequelize, DataTypes) => {
 
-  const UserReward = sequelize.define('UserReward', {
-    userId: {
+  const UserReward = sequelize.define('user_reward', {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'user_id'
     },
-    rewardId: {
+    reward_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -26,8 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'reward_id'
     }
-  }, {
-    tableName: 'UserRewards',
   });
 
   /**
@@ -37,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
    * @return {void}
    */
   UserReward.associate = (models) => {
-    UserReward.belongsTo(models.User, { foreignKey: 'userId' });
-    UserReward.belongsTo(models.Reward, { foreignKey: 'rewardId' });
+    UserReward.belongsTo(models.user, { foreignKey: 'user_id' });
+    UserReward.belongsTo(models.reward, { foreignKey: 'reward_id' });
   }
 
   return UserReward
