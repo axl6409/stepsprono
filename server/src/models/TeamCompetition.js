@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Team',
         key: 'id'
-      }
+      },
+      field: 'team_id'
     },
     competitionId: {
       type: DataTypes.INTEGER,
@@ -14,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Competition',
         key: 'id'
-      }
+      },
+      field: 'competition_id'
     },
     seasonId: {
       type: DataTypes.INTEGER,
@@ -22,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Season',
         key: 'id'
-      }
+      },
+      field: 'season_id'
     },
     position: {
       type: DataTypes.INTEGER,
@@ -31,50 +34,62 @@ module.exports = (sequelize, DataTypes) => {
     playedTotal: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'played_total'
     },
     playedHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'played_home'
     },
     playedAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'played_away'
     },
     winTotal: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'win_total'
     },
     winHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'win_home'
     },
     winAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'win_away'
     },
     drawTotal: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'draw_total'
     },
     drawHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'draw_home'
     },
     drawAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'draw_away'
     },
     losesTotal: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'loses_total'
     },
     losesHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'loses_home'
     },
     losesAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'loses_away'
     },
     form: {
       type: DataTypes.STRING,
@@ -87,14 +102,17 @@ module.exports = (sequelize, DataTypes) => {
     goalsFor: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'goals_for'
     },
     goalsAgainst: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'goals_against'
     },
     goalDifference: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'goal_difference'
     }
   }, {
     tableName: 'TeamCompetitions',

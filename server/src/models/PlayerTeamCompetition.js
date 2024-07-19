@@ -5,21 +5,24 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Players',
         key: 'id',
-      }
+      },
+      field: 'player_id'
     },
     teamId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Teams',
         key: 'id',
-      }
+      },
+      field: 'team_id'
     },
     competitionId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Competitions',
         key: 'id',
-      }
+      },
+      field: 'competition_id'
     }
   }, {
     tableName: 'PlayerTeamCompetitions',

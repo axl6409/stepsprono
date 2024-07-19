@@ -12,26 +12,32 @@ module.exports = (sequelize, DataTypes) => {
     logoUrl: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'logo_url'
     },
     venueName: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'venue_name'
     },
     venueAddress: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'venue_address'
     },
     venueCity: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'venue_city'
     },
     venueCapacity: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'venue_capacity'
     },
     venueImage: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'venue_image'
     },
   }, {
     tableName: 'Teams',

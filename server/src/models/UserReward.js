@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Users',
         key: 'id',
-      }
+      },
+      field: 'user_id'
     },
     rewardId: {
       type: DataTypes.INTEGER,
@@ -22,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Rewards',
         key: 'id',
-      }
+      },
+      field: 'reward_id'
     }
   }, {
     tableName: 'UserRewards',

@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Area',
         key: 'id',
-      }
+      },
+      field: 'area_id'
     },
     type: {
       type: DataTypes.STRING,

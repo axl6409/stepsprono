@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     utcDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'user_id'
     },
     status: {
       type: DataTypes.STRING,
@@ -26,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Teams',
         key: 'id',
-      }
+      },
+      field: 'home_team_id'
     },
     awayTeamId: {
       type: DataTypes.INTEGER,
@@ -34,7 +36,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Teams',
         key: 'id',
-      }
+      },
+      field: 'away_team_id'
     },
     league: {
       type: DataTypes.INTEGER,
@@ -47,42 +50,56 @@ module.exports = (sequelize, DataTypes) => {
     winnerId: {
       type: DataTypes.STRING,
       allowNull: true,
+      references: {
+        model: 'Teams',
+        key: 'id',
+      },
+      field: 'winner_id'
     },
     goalsHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'goals_home'
     },
     goalsAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'goals_away'
     },
     scoreFullTimeHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_full_time_home'
     },
     scoreFullTimeAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_full_time_away'
     },
     scoreHalfTimeHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_half_time_home'
     },
     scoreHalfTimeAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_half_time_away'
     },
     scoreExtraTimeHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_extra_time_home'
     },
     scoreExtraTimeAway: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_extra_time_away'
     },
     scorePenaltyHome: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'score_penalty_home'
     },
     scorers: {
       type: DataTypes.JSON,

@@ -7,10 +7,12 @@ module.exports = (sequelize, DataTypes) => {
     startDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'start_date'
     },
     endDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'end_date'
     },
     competitionId: {
       type: DataTypes.INTEGER,
@@ -18,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Competitions',
         key: 'id',
-      }
+      },
+      field: 'competition_id'
     },
     winnerId: {
       type: DataTypes.INTEGER,
@@ -26,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Teams',
         key: 'id',
-      }
+      },
+      field: 'winner_id'
     },
     current: {
       type: DataTypes.BOOLEAN,
@@ -36,7 +40,8 @@ module.exports = (sequelize, DataTypes) => {
     currentMatchday: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0
+      defaultValue: 0,
+      field: 'current_matchday'
     }
   }, {
     tableName: 'Seasons',

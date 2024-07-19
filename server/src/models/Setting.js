@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     displayName: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'display_name',
     },
     type: {
       type: DataTypes.STRING,
@@ -24,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     activeOption: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'active_option',
     }
   }, {
     tableName: 'Settings',

@@ -24,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Team',
         key: 'id'
-      }
+      },
+      field: 'team_id'
     },
     status: {
       type: DataTypes.STRING,

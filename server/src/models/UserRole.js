@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Users',
         key: 'id',
-      }
+      },
+      field: 'user_id'
     },
     roleId: {
       type: DataTypes.INTEGER,
@@ -14,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Roles',
         key: 'id',
-      }
+      },
+      field: 'role_id'
     }
   }, {
     tableName: 'UserRoles',

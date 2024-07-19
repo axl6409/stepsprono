@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Users',
         key: 'id',
-      }
+      },
+      field: 'user_id'
     },
     seasonId: {
       type: DataTypes.INTEGER,
@@ -14,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Seasons',
         key: 'id',
-      }
+      },
+      field: 'season_id'
     },
     competitionId: {
       type: DataTypes.INTEGER,
@@ -22,7 +24,9 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Competitions',
         key: 'id',
-      }},
+      },
+      field: 'competition_id'
+    },
     matchday: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -33,7 +37,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Matches',
         key: 'id',
-      }
+      },
+      field: 'match_id'
     },
     winnerId: {
       type: DataTypes.INTEGER,
@@ -41,15 +46,18 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Teams',
         key: 'id',
-      }
+      },
+      field: 'winner_id'
     },
     homeScore: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'home_score'
     },
     awayScore: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'away_score'
     },
     playerGoal: {
       type: DataTypes.INTEGER,
@@ -57,7 +65,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Players',
         key: 'id',
-      }
+      },
+      field: 'player_goal'
     },
     points: {
       type: DataTypes.INTEGER,
