@@ -6,7 +6,7 @@ import navPronos from '../../assets/components/icons/nav-pronos.svg';
 import navRanking from '../../assets/components/icons/nav-classement.svg';
 import navStepsRanking from '../../assets/components/icons/nav-steps.svg';
 import navProfile from '../../assets/components/icons/nav-profil.svg';
-import navClose from '../../assets/components/icons/nav-cross.svg';
+import navClose from '../../assets/icons/nav-cross.svg';
 import navLogout from '../../assets/components/icons/nav-logout.svg';
 import navAdmin from '../../assets/components/icons/nav-admin.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

@@ -22,7 +22,7 @@ const RewardForm = ({ reward, onClose }) => {
                 description: reward.description,
                 image: reward.image,
                 rank: reward.rank,
-                type: reward.type
+                type: reward.type || 'trophy'
             });
         }
     }, [reward]);
@@ -60,6 +60,7 @@ const RewardForm = ({ reward, onClose }) => {
 
         try {
             if (reward) {
+                console.log(reward)
                 await axios.put(`${apiUrl}/api/rewards/${reward.id}`, data, {
                     headers: {
                         'Authorization': `Bearer ${token}`,

@@ -1,4 +1,7 @@
 const { Reward } = require('../models');
+const path = require('path');
+const {deleteFile} = require("../utils/utils");
+const logger = require("../utils/logger/logger");
 
 const getAllRewards = async () => {
   return await Reward.findAll();
@@ -37,9 +40,16 @@ const updateReward = async (id, data, file) => {
 };
 
 const deleteReward = async (id) => {
-  const reward = await Reward.findByPk(id);
-  if (!reward) throw new Error('Reward not found');
-  await reward.destroy();
+  try {
+    const reward = await Reward.findByPk(id);
+    if (!reward) throw new Error('Reward not found');
+    const imagePath = path.join(__dirname, '../../../client/src/assets/uploads/trophies', reward.image);
+    await reward.destroy();
+    if (reward.image) deleteFile(imagePath);
+  } catch (error) {
+    logger.error("Error deleting reward => ", error);
+    throw error;
+  }
 };
 
 const toggleActivation = async (id, active) => {

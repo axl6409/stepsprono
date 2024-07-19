@@ -1,6 +1,6 @@
 const multer = require('multer');
 const path = require('path');
-const { mkdirSync } = require('fs');
+const { mkdirSync, unlink } = require('fs');
 
 // Fonction pour générer une chaîne aléatoire
 function generateRandomString(length) {
@@ -38,11 +38,12 @@ const storage = multer.diskStorage({
       const userId = req.params.id || new Date().getTime();
       cb(null, 'img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
     } else if (fileType === 'trophy') {
-      const teamId = req.params.id || new Date().getTime();
-      cb(null, 'trophy_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
+      const trophyId = req.params.id || new Date().getTime();
+      cb(null, 'trophy_' + trophyId.toString() + '_' + randomString + path.extname(file.originalname));
     } else if (fileType === 'team') {
       const teamId = req.params.id || new Date().getTime();
       cb(null, 'team_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
+      console.log('File Name => ', file.originalname);
     } else {
       cb(null, randomString + path.extname(file.originalname));
     }
@@ -50,6 +51,16 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+function deleteFile(filePath) {
+  unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Erreur lors de la suppression du fichier : ${err}`);
+    } else {
+      console.log(`Fichier supprimé : ${filePath}`);
+    }
+  });
+}
 
 function pointsSum(points) {
   return points.reduce((a, b) => a + b, 0);
@@ -64,6 +75,7 @@ function extractMatchday(round) {
 module.exports = {
   generateRandomString,
   upload,
+  deleteFile,
   pointsSum,
   extractMatchday
 };

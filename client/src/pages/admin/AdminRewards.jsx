@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import arrowIcon from "../../assets/icons/arrow-left.svg";
+import penIcon from "../../assets/icons/pencil.svg";
+import navClose from "../../assets/icons/nav-cross.svg";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import RewardForm from '../../components/admin/RewardForm'; // Assurez-vous que le chemin est correct
 import { useCookies } from "react-cookie";
@@ -29,7 +31,8 @@ const AdminRewards = () => {
           'Authorization': `Bearer ${token}`,
         }
       });
-      setRewards(response.data);
+      const sortedRewards = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      setRewards(sortedRewards);
     } catch (error) {
       console.error('Erreur lors de la récupération des trophées:', error);
     }
@@ -59,6 +62,19 @@ const AdminRewards = () => {
     }
   };
 
+  const toggleActive = async (reward) => {
+    try {
+      await axios.put(`${apiUrl}/api/rewards/${reward.id}/activate`, { active: !reward.active }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      fetchRewards();
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du trophée:', error);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -66,54 +82,68 @@ const AdminRewards = () => {
   return (
       <div className="inline-block w-full h-auto py-20">
         <Link
-            to="/dashboard"
+            to="/admin"
             className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
         >
           <img src={arrowIcon} alt="Icône flèche" />
         </Link>
-        <h1 className="text-2xl font-bold mb-4">Administration des Trophées</h1>
+        <h1
+          className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Gestion des trophées
+          <span
+            className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des trophées</span>
+          <span
+            className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des trophées</span>
+        </h1>
         <button
-            onClick={() => { setSelectedReward(null); setShowForm(true); }}
-            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => {
+            setSelectedReward(null);
+            setShowForm(true);
+          }}
+          className="w-4/5 block relative my-8 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
         >
-          Ajouter un Trophée
+          <span
+            className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-medium transition -translate-y-1.5 group-hover:-translate-y-0">
+            Ajouter un Trophée
+          </span>
         </button>
-        <ul className="space-y-4">
+        <ul className="px-4">
           {rewards.map((reward) => (
-              <li key={reward.id} className="flex items-center space-x-4">
-                <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-12 h-12" />
-                <p className="flex-1">{reward.name}</p>
+            <li key={reward.id} className="flex flex-row flex-wrap justify-between items-center space-x-4">
+              <p className="w-full text-left font-sans font-medium">{reward.name}</p>
+              <div className="flex flex-col max-w-[50%]">
+                <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
+              </div>
+              <div className="flex flex-row justify-end max-w-[50%]">
                 <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded">
-                  Éditer
+                  <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
                 </button>
-                <button onClick={() => handleDelete(reward.id)} className="bg-red-500 text-white px-2 py-1 rounded">
-                  Supprimer
+                <button onClick={() => handleDelete(reward.id)} className="bg-red-500 text-white px-2 py-1 mx-2 rounded">
+                  <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>
                 </button>
-                <input
-                    type="checkbox"
-                    checked={reward.active}
-                    onChange={async () => {
-                      try {
-                        await axios.put(`${apiUrl}/rewards/${reward.id}`, { active: !reward.active });
-                        fetchRewards();
-                      } catch (error) {
-                        console.error('Erreur lors de la mise à jour du trophée:', error);
-                      }
-                    }}
-                    className="ml-2"
-                />
-              </li>
+                <button
+                  className={`w-14 h-7 flex items-center rounded-full border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
+                  onClick={() => toggleActive(reward)}
+                >
+                  <div
+                    className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-6' : ''}`}
+                  ></div>
+                </button>
+              </div>
+            </li>
           ))}
         </ul>
         {showForm && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-8 rounded shadow-lg">
-                <RewardForm reward={selectedReward} onClose={() => { setShowForm(false); fetchRewards(); }} />
-              </div>
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-8 rounded shadow-lg">
+              <RewardForm reward={selectedReward} onClose={() => {
+                setShowForm(false);
+                fetchRewards();
+              }}/>
             </div>
+          </div>
         )}
         {isModalOpen && (
-            <StatusModal message={statusMessage} status={status} closeModal={closeModal} />
+          <StatusModal message={statusMessage} status={status} closeModal={closeModal}/>
         )}
       </div>
   );

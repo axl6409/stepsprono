@@ -8,6 +8,7 @@ import {useCookies} from "react-cookie";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import axios from "axios";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Admin = () => {
@@ -82,17 +83,15 @@ const Admin = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto">
+    <div className="inline-block w-full h-auto py-20">
       {isModalOpen && (
         <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
       )}
       <Link
         to="/dashboard"
-        className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
-        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          <FontAwesomeIcon icon={faCaretLeft} />
-        </span>
+        <img src={arrowIcon} alt="Icône flèche" />
       </Link>
       <h1
         className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Administration
@@ -111,7 +110,7 @@ const Admin = () => {
               onClick={toggleDebugger}
             >
               <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform ${isDebuggerActive ? 'translate-x-6' : ''}`}></div>
+                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${isDebuggerActive ? 'translate-x-6' : ''}`}></div>
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 
-function getSequelizeInstance() {
+const getSequelizeInstance = function() {
   const env = process.env.NODE_ENV || 'development';
   const isProduction = env === 'production';
 
