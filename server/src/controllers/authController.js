@@ -15,6 +15,7 @@ router.post('/verifyToken', async (req, res) => {
   if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
   try {
     const payload = jwt.verify(token, secretKey);
+    logger.info("Payload => ", payload);
     const user = await User.findOne({ where: { id: payload.userId }, include: Role });
     if (!user) return res.status(401).json({ isAuthenticated: false });
 
