@@ -17,6 +17,7 @@ module.exports = {
           model: 'Users',
           key: 'id',
         },
+        field: 'user_id',
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -27,18 +28,21 @@ module.exports = {
           model: 'Roles',
           key: 'id',
         },
+        field: 'role_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },

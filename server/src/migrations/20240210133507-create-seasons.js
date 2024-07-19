@@ -16,11 +16,13 @@ module.exports = {
       },
       startDate: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+        field: 'start_date'
       },
       endDate: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+        field: 'end_date'
       },
       competitionId: {
         type: Sequelize.INTEGER,
@@ -28,6 +30,7 @@ module.exports = {
           model: 'Competitions',
           key: 'id'
         },
+        field: 'competition_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT',
         allowNull: false
@@ -38,6 +41,7 @@ module.exports = {
           model: 'Teams',
           key: 'id'
         },
+        field: 'winner_id',
         allowNull: true
       },
       current: {
@@ -47,17 +51,20 @@ module.exports = {
       currentMatchday: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        defaultValue: 0
+        defaultValue: 0,
+        field: 'current_matchday'
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },

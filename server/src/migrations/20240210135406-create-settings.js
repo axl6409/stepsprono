@@ -18,6 +18,7 @@ module.exports = {
       displayName: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'display_name',
       },
       type: {
         type: Sequelize.STRING,
@@ -34,16 +35,19 @@ module.exports = {
       activeOption: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'active_option',
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },

@@ -13,6 +13,7 @@ module.exports = {
       utcDate: {
         type: Sequelize.DATE,
         allowNull: false,
+        field: 'utc_date'
       },
       status: {
         type: Sequelize.STRING,
@@ -37,6 +38,7 @@ module.exports = {
           model: 'Teams',
           key: 'id',
         },
+        field: 'home_team_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
@@ -47,6 +49,7 @@ module.exports = {
           model: 'Teams',
           key: 'id',
         },
+        field: 'away_team_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
@@ -77,44 +80,54 @@ module.exports = {
           model: 'Teams',
           key: 'id',
         },
+        field: 'winner_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
       goalsHome: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'goals_home'
       },
       goalsAway: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'goals_away'
       },
       scoreFullTimeHome: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_full_time_home'
       },
       scoreFullTimeAway: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_full_time_away'
       },
       scoreHalfTimeHome: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_half_time_home'
       },
       scoreHalfTimeAway: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_half_time_away'
       },
       scoreExtraTimeHome: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_extra_time_home'
       },
       scoreExtraTimeAway: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_extra_time_away'
       },
       scorePenaltyHome: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'score_penalty_home'
       },
       scorers: {
         type: Sequelize.JSON,
@@ -123,12 +136,14 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },

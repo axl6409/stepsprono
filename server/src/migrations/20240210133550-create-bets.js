@@ -17,6 +17,7 @@ module.exports = {
           model: 'Users',
           key: 'id',
         },
+        field: 'user_id',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
@@ -27,6 +28,7 @@ module.exports = {
           model: 'Seasons',
           key: 'id',
         },
+        field: 'season_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
@@ -37,6 +39,7 @@ module.exports = {
           model: 'Competitions',
           key: 'id',
         },
+        field: 'competition_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
@@ -51,6 +54,7 @@ module.exports = {
           model: 'Matches',
           key: 'id',
         },
+        field: 'match_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
@@ -61,16 +65,19 @@ module.exports = {
           model: 'Teams',
           key: 'id',
         },
+        field: 'winner_id',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
       homeScore: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'home_score'
       },
       awayScore: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'away_score'
       },
       playerGoal: {
         type: Sequelize.INTEGER,
@@ -79,6 +86,7 @@ module.exports = {
           model: 'Players',
           key: 'id',
         },
+        field: 'player_goal',
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
@@ -89,12 +97,14 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },

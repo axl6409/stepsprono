@@ -22,36 +22,44 @@ module.exports = {
       logoUrl: {
         type: Sequelize.STRING,
         allowNull: false,
+        field: 'logo_url',
       },
       venueName: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'venue_name',
       },
       venueAddress: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'venue_address',
       },
       venueCity: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'venue_city',
       },
       venueCapacity: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        field: 'venue_capacity',
       },
       venueImage: {
         type: Sequelize.STRING,
         allowNull: true,
+        field: 'venue_image',
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     });
   },
