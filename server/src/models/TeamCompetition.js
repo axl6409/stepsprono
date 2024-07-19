@@ -96,6 +96,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     }
+  }, {
+    tableName: 'TeamCompetitions',
   });
 
   TeamCompetition.associate = (models) => {

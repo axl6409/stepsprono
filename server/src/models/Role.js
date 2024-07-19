@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
     }
+  }, {
+    tableName: 'Roles',
   });
 
   Role.associate = (models) => {

@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+  }, {
+    tableName: 'Areas',
   });
 
   Area.associate = (models) => {

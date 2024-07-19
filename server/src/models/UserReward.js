@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       }
     }
+  }, {
+    tableName: 'UserRewards',
   });
 
   /**

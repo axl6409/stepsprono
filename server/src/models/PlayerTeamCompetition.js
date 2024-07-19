@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       }
     }
+  }, {
+    tableName: 'PlayerTeamCompetitions',
   });
 
   PlayerTeamCompetition.associate = (models) => {

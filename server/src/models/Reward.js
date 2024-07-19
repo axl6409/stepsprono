@@ -29,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: true,
     },
+  }, {
+    tableName: 'Rewards',
   });
   Reward.associate = function(models) {
     Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'userId' });

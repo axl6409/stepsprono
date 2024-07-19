@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+  }, {
+    tableName: 'Competitions',
   });
 
   Competition.associate = (models) => {

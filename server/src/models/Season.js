@@ -38,6 +38,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       defaultValue: 0
     }
+  }, {
+    tableName: 'Seasons',
   });
 
   Season.associate = (models) => {
