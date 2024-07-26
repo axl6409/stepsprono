@@ -45,7 +45,7 @@ const UserMenu = () => {
   useEffect(() => {
     const debugCookie = cookies.debug === 'true';
     setDebugEnabled(debugCookie);
-  }, [])
+  }, [cookies])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -190,6 +190,7 @@ const UserMenu = () => {
                   </span>
                   <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
                 </Link>
+
                 {user && user.role === 'admin' && (
                   <Link
                     to="/admin"

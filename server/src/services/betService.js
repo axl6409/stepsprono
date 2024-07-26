@@ -52,8 +52,8 @@ const getWeekPoints = async (seasonId, userId) => {
     console.log('Matchdays for the week:', matchdays);
     const bets = await Bet.findAll({
       where: {
-        seasonId: seasonId,
-        userId: userId,
+        season_id: seasonId,
+        user_id: userId,
         matchday: {
           [Op.in]: matchdays
         },
@@ -80,8 +80,8 @@ const getMonthPoints = async (seasonId, userId) => {
     const matchdays = await getCurrentMonthMatchdays(seasonId);
     const bets = await Bet.findAll({
       where: {
-        seasonId: seasonId,
-        userId: userId,
+        season_id: seasonId,
+        user_id: userId,
         matchday: {
           [Op.in]: matchdays
         },
@@ -105,8 +105,8 @@ const getSeasonPoints = async (seasonId, userId) => {
   try {
     const bets = await Bet.findAll({
       where: {
-        seasonId: seasonId,
-        userId: userId,
+        season_id: seasonId,
+        user_id: userId,
         points: {
           [Op.not]: null
         }
@@ -152,7 +152,7 @@ const checkBetByMatchId = async (betIds) => {
 
     let betsUpdated = 0;
     for (const bet of bets) {
-      const match = await Match.findByPk(bet.matchId);
+      const match = await Match.findByPk(bet.match_id);
       if (!match) {
         return { success: false, message: "Match non trouvé." };
       }
@@ -160,17 +160,17 @@ const checkBetByMatchId = async (betIds) => {
         return { success: false, message: "Le match n'est pas fini." };
       }
       let points = 0;
-      if (bet.winnerId === match.winnerId) {
+      if (bet.winner_id === match.winner_id) {
         points += 1;
       }
-      if (bet.homeScore !== null && bet.awayScore !== null) {
-        if (match.goalsHome === bet.homeScore && match.goalsAway === bet.awayScore) {
+      if (bet.home_score !== null && bet.away_score !== null) {
+        if (match.goals_home === bet.home_score && match.goals_away === bet.away_score) {
           points += 3;
         }
       }
-      if (bet.playerGoal) {
+      if (bet.player_goal) {
         const matchScorers = JSON.parse(match.scorers || '[]');
-        const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.playerGoal);
+        const scorerFound = matchScorers.some(scorer => scorer.player_id === bet.player_goal);
         if (scorerFound) {
           points += 1;
         }
@@ -196,8 +196,8 @@ const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, w
     }
     const existingBet = await Bet.findOne({
       where: {
-        userId: userId,
-        matchId: matchId
+        user_id: userId,
+        match_id: matchId
       }
     });
     if (existingBet) {
@@ -208,21 +208,21 @@ const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, w
         throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
       }
     } else {
-      if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) || (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+      if ((winnerId === match.home_team_id && parseInt(homeScore) <= parseInt(awayScore)) || (winnerId === match.away_team_id && parseInt(awayScore) <= parseInt(homeScore))) {
         throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
       }
     }
     console.log("Scorer => ", scorer);
     const bet = await Bet.create({
-      userId,
-      seasonId,
-      competitionId,
-      matchday,
-      matchId,
-      winnerId,
-      homeScore,
-      awayScore,
-      playerGoal: scorer ? scorer : null
+      user_id: userId,
+      season_id: seasonId,
+      competition_id: competitionId,
+      matchday: matchday,
+      match_id: matchId,
+      winner_id: winnerId,
+      home_score: homeScore,
+      away_score: awayScore,
+      player_goal: scorer ? scorer : null
     });
     return bet;
   } catch (error) {
@@ -246,18 +246,18 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       throw new Error('Pronostic non trouvé');
     }
     const updatedFields = {};
-    if (winnerId !== undefined) updatedFields.winnerId = winnerId;
-    if (homeScore !== undefined) updatedFields.homeScore = homeScore;
-    if (awayScore !== undefined) updatedFields.awayScore = awayScore;
-    if (scorer !== undefined) updatedFields.playerGoal = scorer;
+    if (winnerId !== undefined) updatedFields.winner_id = winnerId;
+    if (homeScore !== undefined) updatedFields.home_score = homeScore;
+    if (awayScore !== undefined) updatedFields.away_score = awayScore;
+    if (scorer !== undefined) updatedFields.player_goal = scorer;
 
     if (winnerId === null) {
       if (homeScore !== awayScore) {
         throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
       }
     } else {
-      if ((winnerId === match.homeTeamId && parseInt(homeScore) <= parseInt(awayScore)) ||
-        (winnerId === match.awayTeamId && parseInt(awayScore) <= parseInt(homeScore))) {
+      if ((winnerId === match.home_team_id && parseInt(homeScore) <= parseInt(awayScore)) ||
+        (winnerId === match.away_team_id && parseInt(awayScore) <= parseInt(homeScore))) {
         throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
       }
     }

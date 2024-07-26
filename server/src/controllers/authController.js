@@ -23,7 +23,7 @@ router.post('/verifyToken', async (req, res) => {
 
     const userWithRole = {
       ...user.get({ plain: true }),
-      role: user.roles && user.roles.length > 0 ? user.roles[0].name : 'user',
+      role: user.Roles && user.Roles.length > 0 ? user.Roles[0].name : 'user',
     };
 
     res.json({ isAuthenticated: true, user: userWithRole });

@@ -28,7 +28,7 @@ const getCurrentWeekMatchdays = async () => {
     const monthDates = getWeekDateRange();
     const matchs = await Match.findAll({
       where: {
-        utcDate: {
+        utc_date: {
           [Op.gte]: monthDates.start,
           [Op.lte]: monthDates.end
         }
@@ -49,7 +49,7 @@ const getCurrentMonthMatchdays = async () => {
     const monthDates = getMonthDateRange();
     const matchs = await Match.findAll({
       where: {
-        utcDate: {
+        utc_date: {
           [Op.gte]: monthDates.start,
           [Op.lte]: monthDates.end
         }
@@ -98,20 +98,20 @@ async function updateSingleMatch(matchId) {
         fieldsToUpdate['status'] = apiMatchData.fixture.status.short
       }
       if (apiMatchData.teams.home.winner === true) {
-        fieldsToUpdate['winnerId'] = apiMatchData.teams.home.id
+        fieldsToUpdate['winner_id'] = apiMatchData.teams.home.id
       } else if (apiMatchData.teams.away.winner === true) {
-        fieldsToUpdate['winnerId'] = apiMatchData.teams.away.id
+        fieldsToUpdate['winner_id'] = apiMatchData.teams.away.id
       } else {
         fieldsToUpdate['winnerId'] = null
       }
-      if (dbMatchData['goalsHome'] !== apiMatchData.score.fulltime.home) {
-        fieldsToUpdate['goalsHome'] = apiMatchData.score.fulltime.home
+      if (dbMatchData['goals_home'] !== apiMatchData.score.fulltime.home) {
+        fieldsToUpdate['goals_home'] = apiMatchData.score.fulltime.home
       }
-      if (dbMatchData['goalsAway'] !== apiMatchData.score.fulltime.away) {
-        fieldsToUpdate['goalsAway'] = apiMatchData.score.fulltime.away
+      if (dbMatchData['goals_away'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['goals_away'] = apiMatchData.score.fulltime.away
       }
-      if (dbMatchData['scoreFullTimeHome'] !== apiMatchData.score.halftime.home) {
-        fieldsToUpdate['scoreFullTimeHome'] = apiMatchData.score.halftime.home
+      if (dbMatchData['score_full_time_home'] !== apiMatchData.score.halftime.home) {
+        fieldsToUpdate['score_full_time_home'] = apiMatchData.score.halftime.home
       }
       if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
         fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
@@ -191,25 +191,25 @@ async function updateMatches(competitionId = null) {
 
       await Match.upsert({
         id: match.fixture.id,
-        utcDate: match.fixture.date,
+        utc_date: match.fixture.date,
         status: match.fixture.status.short,
         venue: match.fixture.venue.name,
         matchday: matchDay,
         stage: stage,
-        homeTeamId: match.teams.home.id,
-        awayTeamId: match.teams.away.id,
-        league: competitionId,
+        home_team_id: match.teams.home.id,
+        away_team_id: match.teams.away.id,
+        competition_id: competitionId,
         season: seasonId,
-        winnerId: winner,
-        goalsHome: match.goals.home,
-        goalsAway: match.goals.away,
-        scoreFullTimeHome: match.score.fulltime.home,
-        scoreFullTimeAway: match.score.fulltime.away,
-        scoreHalfTimeHome: match.score.halftime.home,
-        scoreHalfTimeAway: match.score.halftime.away,
-        scoreExtraTimeHome: match.score.extratime.home,
-        scoreExtraTimeAway: match.score.extratime.away,
-        scorePenaltyHome: match.score.penalty.home,
+        winner_id: winner,
+        goals_home: match.goals.home,
+        goals_away: match.goals.away,
+        score_full_time_home: match.score.fulltime.home,
+        score_full_time_away: match.score.fulltime.away,
+        score_half_time_home: match.score.halftime.home,
+        score_half_time_away: match.score.halftime.away,
+        score_extra_time_home: match.score.extratime.home,
+        score_extra_time_away: match.score.extratime.away,
+        score_penalty_home: match.score.penalty.home,
       })
     }
   } catch (error) {

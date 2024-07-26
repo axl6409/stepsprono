@@ -177,7 +177,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
         }
       ],
       where: {
-        userId: req.params.id
+        user_id: req.params.id
       }
     });
     if (bets.length === 0) {

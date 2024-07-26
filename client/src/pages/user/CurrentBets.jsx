@@ -276,15 +276,15 @@ const CurrentBets = ({ user, token }) => {
                     <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
                     <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                       <div className="flex flex-col justify-evenly h-full">
-                        {bet.homeScore !== null && bet.awayScore !== null ? (
+                        {bet.home_score !== null && bet.away_score !== null ? (
                           <>
                             <div className="relative flex flex-row justify-center items-center">
-                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                    alt={bet.MatchId.HomeTeam.name}/>
                               <img className="h-[40px] relative z-[3]"
                                    src={vsIcon}
                                    alt=""/>
-                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                    alt={bet.MatchId.AwayTeam.name}/>
                             </div>
                           </>
@@ -300,12 +300,12 @@ const CurrentBets = ({ user, token }) => {
                     </div>
                     <div className="relative z-[2] w-[30%] py-2 border-r-2 border-black border-dotted">
                       <div className="h-full flex flex-row justify-center items-center">
-                        {bet.homeScore !== null && bet.awayScore !== null ? (
+                        {bet.home_score !== null && bet.away_score !== null ? (
                           <div>
                             <p className="font-rubik font-medium text-xl">
-                              {bet.homeScore} - {bet.awayScore}
+                              {bet.home_score} - {bet.away_score}
                             </p>
-                            {bet.playerGoal !== null && (
+                            {bet.PlayerGoal !== null && (
                               <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
                             )}
                           </div>

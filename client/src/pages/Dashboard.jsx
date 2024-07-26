@@ -131,7 +131,7 @@ const Dashboard = ({ userId: propUserId }) => {
             </span>
             <span
               className="block relative z-[3] w-full h-full border-2 border-black text-black p-2 pt-4 rounded-full text-center shadow-md bg-white">
-              <img className="mx-auto h-full" src={teamLogoUrl + ".svg"} alt=""/>
+              <img className="mx-auto h-full" src={apiUrl + "/uploads/teams/" + profileUser.team.id + "/" + teamLogoUrl} alt=""/>
               <span className="w-[13px] h-[13px] rounded-full absolute left-0.5 top-1/2 -rotate-12">
                 <img src={heartRed} alt=""/>
               </span>

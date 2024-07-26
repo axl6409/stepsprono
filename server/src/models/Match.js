@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     utc_date: {
       type: DataTypes.DATE,
       allowNull: false,
-      field: 'user_id'
+      field: 'utc_date'
     },
     status: {
       type: DataTypes.STRING,
@@ -136,9 +136,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Match.associate = (models) => {
-    Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'homeTeamId' });
-    Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'awayTeamId' });
-    Match.hasMany(models.Bet, { foreignKey: 'matchId', as: 'MatchId' })
+    Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'home_team_id' });
+    Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'away_team_id' });
+    Match.hasMany(models.Bet, { foreignKey: 'match_id', as: 'MatchId' })
     Match.belongsTo(models.Season, { foreignKey: 'season_id', as: 'Season' });
     Match.belongsTo(models.Competition, { foreignKey: 'competition_id', as: 'Competition' });
   };
