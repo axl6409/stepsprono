@@ -17,7 +17,7 @@ router.get('/player/:id', authenticateJWT, async (req, res) => {
     }
     const player = await PlayerTeamCompetition.findOne({
       where: {
-        playerId: playerId
+        player_id: playerId
       },
       include: [
         { model: Player, as: 'Player' },
@@ -36,11 +36,11 @@ router.get('/players', authenticateJWT, async (req, res) => {
     let queryCondition;
     if (teamId1 && teamId2) {
       queryCondition = {
-        teamId: [teamId1, teamId2]
+        team_id: [teamId1, teamId2]
       };
     } else if (teamId1 || teamId2) {
       queryCondition = {
-        teamId: teamId1 || teamId2
+        team_id: teamId1 || teamId2
       };
     } else {
       return res.status(400).send('Aucun identifiant d\'équipe fourni');

@@ -33,21 +33,21 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
 
   useEffect(() => {
     if (betDetails) {
-      setSelectedTeam(betDetails.winnerId)
-      setHomeScore(betDetails.homeScore)
-      setAwayScore(betDetails.awayScore)
-      setScorer(betDetails.playerGoal);
-      setValue('homeScore', betDetails.homeScore)
-      setValue('awayScore', betDetails.awayScore)
-      setValue('playerGoal', betDetails.playerGoal)
-      setValue('scorer', betDetails.playerGoal);
+      setSelectedTeam(betDetails.winner_id)
+      setHomeScore(betDetails.home_score)
+      setAwayScore(betDetails.away_score)
+      setScorer(betDetails.player_goal);
+      setValue('homeScore', betDetails.home_score)
+      setValue('awayScore', betDetails.away_score)
+      setValue('playerGoal', betDetails.player_goal)
+      setValue('scorer', betDetails.player_goal);
     }
   }, [betDetails]);
 
   useEffect(() => {
     const fetchSeasonId = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/seasons/current/${match.league}`, {
+        const response = await axios.get(`${apiUrl}/api/seasons/current/${match.competition_id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -122,15 +122,15 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     const playerGoal = data.scorer === "null" ? null : data.scorer;
     const payload = {
       ...data,
-      userId: userId,
-      seasonId: seasonId,
-      competitionId: match.league,
+      user_id: userId,
+      season_id: seasonId,
+      competition_id: match.league,
       matchday: match.matchday,
-      matchId: match.id,
-      winnerId: selectedTeam,
-      homeScore: data.homeScore ? data.homeScore : null,
-      awayScore: data.awayScore ? data.awayScore : null,
-      playerGoal: playerGoal ? playerGoal : null
+      match_id: match.id,
+      winner_id: selectedTeam,
+      home_score: data.homeScore ? data.homeScore : null,
+      away_score: data.awayScore ? data.awayScore : null,
+      player_goal: playerGoal ? playerGoal : null
     };
     try {
       if (match.id === lastMatch.id) {
@@ -175,14 +175,14 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
               <div className="relative h-[200px] flex flex-row justify-evenly">
                 <div className="w-3/5 h-full flex flex-col justify-start pt-4 clip-path-diagonal-left rounded-l-xl"
                      style={{backgroundColor: homeTeamColor}}>
-                  <img className="mx-auto object-contain block max-h-[120px] max-w-[150px]" src={match.HomeTeam.logoUrl + ".svg"}
+                  <img className="mx-auto object-contain block max-h-[120px] max-w-[150px]" src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url}
                        alt={`${match.HomeTeam.name} Logo`}/>
                 </div>
                 <img className="absolute z-[10] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src={vsIcon}
                      alt=""/>
                 <div className="w-3/5 h-full flex flex-col justify-end pb-4 clip-path-diagonal-right rounded-r-xl"
                      style={{backgroundColor: awayTeamColor}}>
-                  <img className="mx-auto object-contain max-h-[120px] max-w-[150px]" src={match.AwayTeam.logoUrl + ".svg"}
+                  <img className="mx-auto object-contain max-h-[120px] max-w-[150px]" src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
                        alt={`${match.AwayTeam.name} Logo`}/>
                 </div>
               </div>
@@ -274,8 +274,8 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                             <option key={1} value={''}>Aucun butteur</option>
                             {players.map((player, index) => {
                               return (
-                                <option key={`${player.playerId}-${index}`}
-                                        value={player.playerId}>{cleanPlayerName(player.Player.name)}</option>
+                                <option key={`${player.player_id}-${index}`}
+                                        value={player.player_id}>{cleanPlayerName(player.Player.name)}</option>
                               );
                             })}
                           </select>

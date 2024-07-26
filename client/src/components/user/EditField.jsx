@@ -30,9 +30,10 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
       axios.get(`${apiUrl}/api/teams`)
         .then(response => {
           setTeams(response.data.data)
-          const selectedTeam = response.data.data.find(team => team.teamId.toString() === user.teamId.toString());
+          const selectedTeam = response.data.data.find(team => team.team_id.toString() === user.team_id.toString());
+          console.log(selectedTeam)
           if (selectedTeam && selectedTeam.Team) {
-            setTeamLogo(selectedTeam.Team.logoUrl || "");
+            setTeamLogo(selectedTeam.Team.logo_url || "");
           }
         })
         .catch(error => console.error('Erreur lors de la récupération des équipes', error));
@@ -42,7 +43,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   const handleTeamChange = (event) => {
     const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
     setTeam(selectedTeam.Team.id);
-    setTeamLogo(selectedTeam.Team.logoUrl || '');
+    setTeamLogo(selectedTeam.Team.logo_url || '');
   };
 
   const handleSubmit = async (event) => {
@@ -53,7 +54,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
     const verifyCurrentPassword = async () => {
       try {
         const response = await axios.post(`${apiUrl}/api/user/verify-password`, {
-          userId: user.id,
+          user_id: user.id,
           currentPassword
         }, {
           headers: {
@@ -87,7 +88,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
         updateData = { currentPassword, newPassword };
         break;
       case 'team':
-        updateData['teamId'] = team;
+        updateData['team_id'] = team;
         break;
       default:
         break;
@@ -113,7 +114,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   };
 
   const handleSuccess = (message, timeout) => {
-    console.log("Success:", message); // Ajouté pour le débogage
+    console.log("Success:", message);
     setAlertMessage(message);
     setAlertType('success');
     setTimeout(() => {
@@ -122,7 +123,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   };
 
   const handleError = (message, timeout) => {
-    console.log("Error:", message); // Ajouté pour le débogage
+    console.log("Error:", message);
     setAlertMessage(message);
     setAlertType('error');
     setTimeout(() => {
@@ -243,7 +244,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
                     className="w-[100px] h-[100px] mx-auto relative z-[3] bg-white overflow-hidden rounded-full border-2 border-black p-0 flex flex-col justify-center">
                     {teamLogo ? (
                       <img
-                        src={teamLogo + ".svg"}
+                        src={apiUrl + "/uploads/teams/" + user.team_id + "/" + teamLogo}
                         alt="Logo de l'équipe"
                         className="w-auto h-[90%] mx-auto object-cover"
                       />

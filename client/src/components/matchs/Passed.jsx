@@ -56,7 +56,7 @@ const Passed = ({ token, user }) => {
               'Authorization': `Bearer ${token}`,
             }
           });
-          const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+          const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
           setMatchs(sortedMatchs);
           setIsLoading(false);
         } catch (error) {
@@ -96,20 +96,20 @@ const Passed = ({ token, user }) => {
   };
 
   const isBetPlaced = (matchId) => {
-    return bets.some(bet => bet.matchId === matchId);
+    return bets.some(bet => bet.match_id === matchId);
   };
 
   const isBetWin = (matchId) => {
     const match = matchs.find(match => match.id === matchId);
-    if (!match || match.winnerId === undefined) {
+    if (!match || match.winner_id === undefined) {
       return false;
     }
-    const bet = bets.find(b => b.matchId === matchId);
-    return bet && bet.winnerId === match.winnerId;
+    const bet = bets.find(b => b.match_id === matchId);
+    return bet && bet.winner_id === match.winner_id;
   };
 
   const getBetForMatch = (matchId) => {
-    return bets.find(bet => bet.matchId === matchId);
+    return bets.find(bet => bet.match_id === matchId);
   };
 
   const updateSlideClasses = () => {
@@ -200,37 +200,37 @@ const Passed = ({ token, user }) => {
                 <div
                   className="flex flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
                   key={match.id} data-match-id={match.id}>
-                  <div className="flex flex-col justify-evenly items-center w-[68%] px-4 py-2">
+                  <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
                     <div className="w-full flex flex-row justify-center">
                       <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
-                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goalsHome}</p>
+                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_home}</p>
                     </div>
                     <div className="w-full flex flex-row justify-center">
                       <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
-                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goalsAway}</p>
+                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_away}</p>
                     </div>
                   </div>
                   {bet ? (
                     <div className="pronostic-info w-[32%] border-l border-dashed border-black px-2 py-2">
-                      {bet.homeScore !== null && bet.awayScore !== null ? (
+                      {bet.home_score !== null && bet.away_score !== null ? (
                         <div className="h-full flex flex-col justify-center">
                           <div className="w-full my-1 flex flex-col justify-center">
                             <p
-                              className="font-title font-black text-xl mx-auto leading-5">{bet.homeScore}</p>
+                              className="font-title font-black text-xl mx-auto leading-5">{bet.home_score}</p>
                           </div>
                           <div className="w-full my-1 flex flex-col justify-center">
                             <p
-                              className="font-title font-black text-xl mx-auto leading-5">{bet.awayScore}</p>
+                              className="font-title font-black text-xl mx-auto leading-5">{bet.away_score}</p>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex flex-row justify-between">
-                          {bet.winnerId === match.HomeTeam.id ? (
-                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={match.HomeTeam.logoUrl + ".svg"} alt=""/>
-                          ) : bet.winnerId === null ? (
+                        <div className="flex flex-col justify-center h-full">
+                          {bet.winner_id === match.HomeTeam.id ? (
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url} alt={match.HomeTeam.name}/>
+                          ) : bet.winner_id === null ? (
                             <img className="max-w-[50px] max-h-[50px] block mx-auto" src={nullSymbol} alt=""/>
-                          ) : bet.winnerId === match.AwayTeam.id && (
-                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={match.AwayTeam.logoUrl + ".svg"} alt=""/>
+                          ) : bet.winner_id === match.AwayTeam.id && (
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url} alt={match.AwayTeam.name}/>
                           )}
                         </div>
                       )}

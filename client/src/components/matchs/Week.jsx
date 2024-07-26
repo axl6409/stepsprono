@@ -49,7 +49,7 @@ const Week = ({token, user}) => {
           }
         });
         const betsByMatchId = response.data.data.reduce((acc, bet) => {
-          acc[bet.matchId] = bet
+          acc[bet.match_id] = bet
           return acc
         }, {})
         setBets(betsByMatchId)
@@ -69,7 +69,7 @@ const Week = ({token, user}) => {
           }
         });
         const sortedMatchs = response.data.data.sort((a, b) => {
-          return new Date(a.utcDate) - new Date(b.utcDate);
+          return new Date(a.utc_date) - new Date(b.utc_date);
         })
         setMatchs(sortedMatchs)
         setLastMatch(sortedMatchs[sortedMatchs.length - 1])
@@ -107,7 +107,7 @@ const Week = ({token, user}) => {
 
   const canSubmitBet = (match) => {
     if (!match) return false;
-    const matchDate = moment(match.utcDate);
+    const matchDate = moment(match.utc_date);
     const isMatchInFuture = matchDate.isAfter(now);
     const hasBet = isBetPlaced(match.id);
     return isMatchInFuture && simulatedNow.isBefore(nextFridayAtNoon);
@@ -158,7 +158,7 @@ const Week = ({token, user}) => {
 
     const isOpen = now.isBefore(nextFridayAtNoon);
     const hasBet = isBetPlaced(currentMatch.id);
-    const isFutureMatch = moment(currentMatch.utcDate).isAfter(now);
+    const isFutureMatch = moment(currentMatch.utc_date).isAfter(now);
     // return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
     if (isOpen && isFutureMatch) {
       if (!hasBet) {
@@ -191,7 +191,7 @@ const Week = ({token, user}) => {
         }
       });
       const betsByMatchId = response.data.data.reduce((acc, bet) => {
-        acc[bet.matchId] = bet
+        acc[bet.match_id] = bet
         return acc
       }, {})
       setBets(betsByMatchId)
@@ -226,7 +226,7 @@ const Week = ({token, user}) => {
           className="mySwiper relative flex flex-col justify-start"
         >
           {matchs.length > 0 && matchs.map((match, index) => {
-            const matchDate = moment(match.utcDate)
+            const matchDate = moment(match.utc_date)
             const enableSubmit = canSubmitBet(match);
 
             return (

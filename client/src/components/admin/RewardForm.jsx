@@ -11,6 +11,7 @@ const RewardForm = ({ reward, onClose }) => {
         name: '',
         description: '',
         image: null,
+        slug: '',
         rank: 'bronze',
         type: 'trophy'
     });
@@ -21,18 +22,33 @@ const RewardForm = ({ reward, onClose }) => {
                 name: reward.name,
                 description: reward.description,
                 image: reward.image,
+                slug: reward.slug,
                 rank: reward.rank,
                 type: reward.type || 'trophy'
             });
         }
     }, [reward]);
 
+    const formatSlug = (value) => {
+        return value
+            .toLowerCase()
+            .replace(/\s+/g, '_') // Remplace les espaces par des tirets bas
+            .replace(/[^a-z0-9_]/g, ''); // Supprime les caractères non autorisés sauf les tirets bas
+    };
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
+        if (name === 'slug') {
+            setFormData({
+                ...formData,
+                [name]: formatSlug(value)
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: type === 'checkbox' ? checked : value
+            });
+        }
     };
 
     const handleFileChange = (e) => {
@@ -44,23 +60,19 @@ const RewardForm = ({ reward, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const formattedSlug = formatSlug(formData.slug);
         const data = new FormData();
         data.append('name', formData.name);
         data.append('description', formData.description);
+        data.append('slug', formattedSlug);
         data.append('rank', formData.rank);
         data.append('type', formData.type);
         if (formData.image) {
             data.append('image', formData.image);
         }
 
-        // Debugging: Log each item in FormData
-        for (let pair of data.entries()) {
-            console.log(pair[0]+ ', ' + pair[1]);
-        }
-
         try {
             if (reward) {
-                console.log(reward)
                 await axios.put(`${apiUrl}/api/rewards/${reward.id}`, data, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -97,6 +109,15 @@ const RewardForm = ({ reward, onClose }) => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Description"
+                required
+                className="w-full px-4 py-2 border rounded"
+            />
+            <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                placeholder="slug_du_trophee"
                 required
                 className="w-full px-4 py-2 border rounded"
             />
