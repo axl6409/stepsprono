@@ -110,27 +110,36 @@ async function updateSingleMatch(matchId) {
       if (dbMatchData['goals_away'] !== apiMatchData.score.fulltime.away) {
         fieldsToUpdate['goals_away'] = apiMatchData.score.fulltime.away
       }
-      if (dbMatchData['score_full_time_home'] !== apiMatchData.score.halftime.home) {
-        fieldsToUpdate['score_full_time_home'] = apiMatchData.score.halftime.home
+      if (dbMatchData['score_full_time_home'] !== apiMatchData.score.fulltime.home) {
+        fieldsToUpdate['score_full_time_home'] = apiMatchData.score.fulltime.home
       }
-      if (dbMatchData['scoreHalfTimeAway'] !== apiMatchData.score.fulltime.away) {
-        fieldsToUpdate['scoreHalfTimeAway'] = apiMatchData.score.fulltime.away
+      if (dbMatchData['score_full_time_away'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['score_full_time_away'] = apiMatchData.score.fulltime.away
       }
-      if (dbMatchData['scoreExtraTimeHome'] !== apiMatchData.score.extratime.home) {
-        fieldsToUpdate['scoreExtraTimeHome'] = apiMatchData.score.extratime.home
+      if (dbMatchData['score_half_time_home'] !== apiMatchData.score.fulltime.home) {
+        fieldsToUpdate['score_half_time_home'] = apiMatchData.score.fulltime.home
       }
-      if (dbMatchData['scoreExtraTimeAway'] !== apiMatchData.score.extratime.away) {
-        fieldsToUpdate['scoreExtraTimeAway'] = apiMatchData.score.extratime.away
+      if (dbMatchData['score_half_time_away'] !== apiMatchData.score.fulltime.away) {
+        fieldsToUpdate['score_half_time_away'] = apiMatchData.score.fulltime.away
       }
-      if (dbMatchData['scorePenaltyHome'] !== apiMatchData.score.penalty.home) {
-        fieldsToUpdate['scorePenaltyHome'] = apiMatchData.score.penalty.home
+      if (dbMatchData['score_extra_time_home'] !== apiMatchData.score.extratime.home) {
+        fieldsToUpdate['score_extra_time_home'] = apiMatchData.score.extratime.home
+      }
+      if (dbMatchData['score_extra_time_away'] !== apiMatchData.score.extratime.away) {
+        fieldsToUpdate['score_extra_time_away'] = apiMatchData.score.extratime.away
+      }
+      if (dbMatchData['score_penalty_home'] !== apiMatchData.score.penalty.home) {
+        fieldsToUpdate['score_penalty_home'] = apiMatchData.score.penalty.home
+      }
+      if (dbMatchData['score_extra_time_away'] !== apiMatchData.score.penalty.away) {
+        fieldsToUpdate['score_extra_time_away'] = apiMatchData.score.penalty.away
       }
       if (dbMatchData['scorers'] !== scorersJson) {
         fieldsToUpdate['scorers'] = scorersJson;
       }
 
       if (Object.keys(fieldsToUpdate).length > 0) {
-        fieldsToUpdate['updatedAt'] = new Date();
+        fieldsToUpdate['updated_at'] = new Date();
         await Match.update(fieldsToUpdate, {where: {id: matchId}});
       }
 
@@ -227,7 +236,7 @@ async function fetchWeekMatches() {
 
     const matches = await Match.findAll({
       where: {
-        utcDate: {
+        utc_date: {
           [Op.gte]: startDate,
           [Op.lte]: endDate
         },
@@ -237,7 +246,7 @@ async function fetchWeekMatches() {
       }
     });
     matches.forEach(match => {
-      const matchTime = new Date(match.utcDate)
+      const matchTime = new Date(match.utc_date)
       const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
       schedule.scheduleJob(updateTime, () => updateMatchStatusAndPredictions(match.id))
     });

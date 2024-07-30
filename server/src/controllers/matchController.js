@@ -57,7 +57,7 @@ router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
         [Sequelize.fn('DISTINCT', Sequelize.col('matchday')), 'matchday'],
       ],
       where: {
-        utcDate: {
+        utc_date: {
           [Op.lt]: currentDate
         }
       },
@@ -78,7 +78,7 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 
     const matchs = await Match.findAndCountAll({
       where: {
-        utcDate: {
+        utc_date: {
           [Op.gte]: startOfNextWeek,
           [Op.lte]: endOfNextWeek
         },
@@ -91,7 +91,7 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
         { model: Team, as: 'AwayTeam' }
       ],
       order: [
-        ['utcDate', 'ASC']
+        ['utc_date', 'ASC']
       ]
     });
 
@@ -117,7 +117,7 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
       where: {
-        utcDate: {
+        utc_date: {
           [Op.gte]: startOfCurrentWeek,
           [Op.lte]: endOfCurrentWeek
         },
@@ -127,7 +127,7 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
         { model: Team, as: 'AwayTeam' }
       ],
       order: [
-        ['utcDate', 'ASC']
+        ['utc_date', 'ASC']
       ]
     });
 

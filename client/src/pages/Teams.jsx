@@ -36,7 +36,7 @@ const Teams = () => {
         setTeams(response.data.data);
         const newTeamColors = {};
         response.data.data.forEach((team, index) => {
-          newTeamColors[team.teamId] = colors[index % colors.length];
+          newTeamColors[team.team_id] = colors[index % colors.length];
         });
         setTeamColors(newTeamColors);
       } catch (error) {
@@ -72,30 +72,30 @@ const Teams = () => {
       <div className="relative py-8 px-2 pt-0">
         <ul className="flex flex-col justify-start">
           {teams.map(team => (
-            <li className="flex flex-row justify-between" key={team.teamId}>
+            <li className="flex flex-row justify-between" key={team.team_id}>
               <div className="my-6 flex flex-col relative border-2 border-black rounded-xl bg-white shadow-flat-black w-full">
-                <div className="absolute z-[10] -top-5 left-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust" style={{backgroundColor: teamColors[team.teamId]}}>
+                <div className="absolute z-[10] -top-5 left-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust" style={{backgroundColor: teamColors[team.team_id]}}>
                   <p
                     className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] inline-block leading-[35px]">{team.position}</p>
                 </div>
-                <div className="flex flex-row justify-center items-center relative rounded-t-xl overflow-hidden z-[5] border-b border-black py-2" style={{backgroundColor: teamColors[team.teamId] + "60"}}>
+                <div className="flex flex-row justify-center items-center relative rounded-t-xl overflow-hidden z-[5] border-b border-black py-2" style={{backgroundColor: teamColors[team.team_id] + "60"}}>
                   <p className="name font-sans text-base font-bold">{team.Team.name}</p>
                 </div>
                 <div className="flex flex-row justify-between">
                   <div className="w-1/3 px-2 py-4">
-                    <p className="text-center text-xs font-rubik uppercase font-regular">Matchs <span className="font-black">{team.playedTotal}</span></p>
+                    <p className="text-center text-xs font-rubik uppercase font-regular">Matchs <span className="font-black">{team.played_total}</span></p>
                     <ul className="flex flex-row justify-center items-center mt-2">
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">MG</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.winTotal}</p>
+                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.win_total}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">MN</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.drawTotal}</p>
+                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.draw_total}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">MN</p>
-                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.losesTotal}</p>
+                        <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.loses_total}</p>
                       </li>
                     </ul>
                   </div>
@@ -104,15 +104,15 @@ const Teams = () => {
                     <ul className="flex flex-row justify-center items-center mt-2">
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BP</p>
-                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalsFor}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goals_for}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BC</p>
-                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalsAgainst}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goals_against}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BD</p>
-                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goalDifference}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goal_difference}</p>
                       </li>
                     </ul>
                   </div>
