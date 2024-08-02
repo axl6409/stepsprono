@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import rewardDefault from "/img/futbol-solid.svg";
+import hiddenTrophy from "../assets/components/icons/hidden-trophy.webp";
 import {UserContext} from "../contexts/UserContext.jsx";
 import {useCookies} from "react-cookie";
 import BackButton from "../components/nav/BackButton.jsx";
@@ -68,7 +69,7 @@ const Rewards = () => {
             className="w-[150px] flex flex-col items-center my-4"
           >
             <img
-              src={reward.image || rewardDefault}
+              src={apiUrl + "/uploads/trophies/" + reward.image || rewardDefault}
               alt={reward.name}
               className="w-full h-[150px] object-cover rounded-lg"
             />
