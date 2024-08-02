@@ -72,31 +72,35 @@ const UserRanking = ({ users, token }) => {
         <img className="absolute z-[1] bottom-16 left-4 w-4" src={blackStar} alt=""/>
         <img className="absolute z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
         <img className="absolute z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
-        <div className="relative z-[3] flex flex-col items-center order-1 -mr-6">
-          <p
-            className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
-          <div
-            className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-            <img src={updatedUsers[1]?.img || defaultUserImage} alt={updatedUsers[1]?.username}/>
-          </div>
-          <p className="font-bold">{updatedUsers[1]?.username}</p>
-          <p>{updatedUsers[1]?.points}</p>
-        </div>
-        <div className="relative z-[4] flex flex-col items-center order-2 transform -translate-y-4">
-          <img className="absolute -top-20 w-20" src={crown} alt=""/>
-          <img className="absolute z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
-          <div
-            className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
-            <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
-            <div className="overflow-hidden flex items-center rounded-full justify-center w-full h-full">
-              <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
+        <div className="relative z-[3] order-1 -mr-6">
+          <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative z-[20] group flex flex-col items-center">
+            <p className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
+            <div
+              className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
+              <img src={updatedUsers[1]?.img || defaultUserImage} alt={updatedUsers[1]?.username}/>
             </div>
-            <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
-          </div>
-          <p className="font-bold">{updatedUsers[0]?.username}</p>
-          <p>{updatedUsers[0]?.points}</p>
+            <p className="font-bold">{updatedUsers[1]?.username}</p>
+            <p>{updatedUsers[1]?.points}</p>
+          </Link>
         </div>
-        <div className="relative z-[2] flex flex-col items-center order-3 -ml-6">
+        <div className="relative z-[4]  order-2 transform -translate-y-4">
+          <Link to={`/dashboard/${updatedUsers[0]?.id}`} className="relative z-[20] group flex flex-col items-center">
+            <img className="absolute -top-20 w-20" src={crown} alt=""/>
+            <img className="absolute z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
+            <div
+              className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
+              <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
+              <div className="overflow-hidden flex items-center rounded-full justify-center w-full h-full">
+                <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
+              </div>
+              <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
+            </div>
+            <p className="font-bold">{updatedUsers[0]?.username}</p>
+            <p>{updatedUsers[0]?.points}</p>
+          </Link>
+        </div>
+        <div className="relative z-[2] order-3 -ml-6">
+          <Link to={`/dashboard/${updatedUsers[3]?.id}`} className="relative z-[20] group flex flex-col items-center">
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
@@ -104,7 +108,8 @@ const UserRanking = ({ users, token }) => {
             <img src={updatedUsers[2]?.img || defaultUserImage} alt={updatedUsers[2]?.username}/>
           </div>
           <p className="font-bold">{updatedUsers[2]?.username}</p>
-          <p>{updatedUsers[2]?.points}</p>
+            <p>{updatedUsers[2]?.points}</p>
+          </Link>
         </div>
       </div>
 

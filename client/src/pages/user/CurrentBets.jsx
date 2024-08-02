@@ -9,7 +9,7 @@ import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const CurrentBets = ({ user, token }) => {
+const CurrentBets = ({ loggedUser, user, token }) => {
   const [matchs, setMatchs] = useState([]);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
@@ -27,7 +27,8 @@ const CurrentBets = ({ user, token }) => {
         if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
           return;
         }
-        setMatchs(fetchedMatchs)
+        const sortedMatchs = fetchedMatchs.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
+        setMatchs(sortedMatchs)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -228,23 +229,25 @@ const CurrentBets = ({ user, token }) => {
           </p>
         </div>
       </div>
-      <div className="pt-8">
+      {loggedUser.id === user.id && (
+        <div className="pt-8">
         <Link
           to="/matchs"
           className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group">
           {matchs && matchs.length > 0 ? (
             <span
               className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">
-              Modifier mes pronos
-            </span>
+            Modifier mes pronos
+          </span>
           ) : (
             <span
               className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-medium transition -translate-y-1.5 group-hover:-translate-y-0">
-              Faire mes pronos
-            </span>
+            Faire mes pronos
+          </span>
           )}
         </Link>
-      </div>
+        </div>
+      )}
       {matchs && matchs.length > 0 && (
         <div
           className="relative my-[25%]">
