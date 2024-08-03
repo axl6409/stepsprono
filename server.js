@@ -40,6 +40,8 @@ const corsOptions = {
     'http://192.168.1.29:3001',
     'http://192.168.56.1:5173',
     'http://192.168.56.1:3001',
+    'http://192.168.15.250:5173',
+    'http://192.168.15.250:3001',
     'https://steps-prono-111820aa394d.herokuapp.com',
     'http://stepsprono.arsher-off.fr:5173',
     'http://stepsprono.arsher-off.fr:3001'

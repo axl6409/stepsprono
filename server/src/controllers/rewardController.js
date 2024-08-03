@@ -13,6 +13,15 @@ router.get('/rewards', authenticateJWT, async (req, res) => {
   }
 });
 
+router.get('/rewards/user/:id', authenticateJWT, async (req, res) => {
+  try {
+    const rewards = await rewardService.getUserRewards(req.params.id);
+    res.json(rewards);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la sélection des trophées', error: error.message });
+  }
+})
+
 router.post('/rewards', authenticateJWT, upload.single('image'), async (req, res) => {
   req.body.type = 'trophy';
   try {

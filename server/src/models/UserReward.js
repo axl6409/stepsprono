@@ -8,7 +8,7 @@
 module.exports = (sequelize, DataTypes) => {
 
   const UserReward = sequelize.define('UserReward', {
-    user_id: {
+    UserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {

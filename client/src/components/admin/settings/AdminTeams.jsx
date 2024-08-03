@@ -241,7 +241,7 @@ const AdminTeams = () => {
                   key={team.teamId}>
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-col w-1/2">
-                      <img className="block h-8 w-8 object-cover mx-auto" src={team.Team.logoUrl + ".svg"} alt={team.Team.name}/>
+                      <img className="block h-8 w-8 object-cover mx-auto" src={apiUrl + "/uploads/teams/" + team.Team.id + "/" + team.Team.logo_url} alt={team.Team.name}/>
                       <p
                         className="inline-block text-center font-sans text-sm font-bold leading-5 my-auto">{team.Team.name}</p>
                     </div>
@@ -249,7 +249,7 @@ const AdminTeams = () => {
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team datas</span>
                         <button
-                          onClick={() => updateTeamDatas(team.teamId)}
+                          onClick={() => updateTeamDatas(team.team_id)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span
@@ -261,7 +261,7 @@ const AdminTeams = () => {
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team ranking</span>
                         <button
-                          onClick={() => handleUpdateTeamRanking(team.teamId)}
+                          onClick={() => handleUpdateTeamRanking(team.team_id)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span
@@ -273,7 +273,7 @@ const AdminTeams = () => {
                       <div>
                         <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team players</span>
                         <button
-                          onClick={() => handleUpdateTeamPlayers(team.teamId)}
+                          onClick={() => handleUpdateTeamPlayers(team.team_id)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                         >
                           <span

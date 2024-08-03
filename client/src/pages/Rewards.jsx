@@ -27,29 +27,30 @@ const Rewards = () => {
           return;
         }
         setRewards(fetchedRewards)
-        console.log(fetchedRewards)
       } catch (error) {
         console.error('Erreur lors de la sélection des recompenses', error);
       }
     }
+
     const fetchUserRewards = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/user/${user.id}/rewards`, {
+        const response = await axios.get(`${apiUrl}/api/rewards/user/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        const fetchedRewards = response.data;
-        if (fetchedRewards.length === undefined || fetchedRewards.length === 0) {
+        const fetchedUserRewards = response.data;
+        if (fetchedUserRewards.length === undefined || fetchedUserRewards.length === 0) {
           return;
         }
-        setUserRewards(fetchedRewards)
+        setUserRewards(fetchedUserRewards)
       } catch (error) {
         console.error('Erreur lors de la sélection des recompenses', error);
       }
     };
     if (user) {
       fetchRewards()
+      fetchUserRewards()
     }
   }, [user, token]);
 
@@ -63,19 +64,27 @@ const Rewards = () => {
           className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Trophées</span>
       </h1>
       <div className="flex flex-row flex-wrap justify-around px-4">
-        {rewards.map((reward) => (
-          <div
-            key={reward.id}
-            className="w-[150px] flex flex-col items-center my-4"
-          >
-            <img
-              src={apiUrl + "/uploads/trophies/" + reward.image || rewardDefault}
-              alt={reward.name}
-              className="w-full h-[150px] object-cover rounded-lg"
-            />
-            <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
-          </div>
-        ))}
+        {rewards.map((reward) => {
+          const userHasReward = userRewards.some(userReward => userReward.reward_id === reward.id);
+          console.log(userRewards)
+          console.log(`Reward ID: ${reward.id}, User Has Reward: ${userHasReward}`);
+          const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.image}` : hiddenTrophy;
+          return (
+              <div
+                  key={reward.id}
+                  className="w-[150px] flex flex-col items-center my-4"
+              >
+                <img
+                    src={imageUrl}
+                    alt={reward.name}
+                    className="w-full h-[150px] object-cover rounded-lg"
+                />
+                {userHasReward && (
+                    <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+                )}
+              </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -43,12 +43,12 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
             id: team.team.id,
             name: team.team.name,
             code: team.team.code,
-            logoUrl: team.team.logo,
-            venueName: team.venue ? team.venue.name : null,
-            venueAddress: team.venue ? team.venue.address : null,
-            venueCity: team.venue ? team.venue.city : null,
-            venueCapacity: team.venue ? team.venue.capacity : null,
-            venueImage: team.venue && team.venue.image ? team.venue.image : null
+            logo_url: team.team.logo,
+            venue_name: team.venue ? team.venue.name : null,
+            venue_address: team.venue ? team.venue.address : null,
+            venue_city: team.venue ? team.venue.city : null,
+            venue_capacity: team.venue ? team.venue.capacity : null,
+            venue_image: team.venue && team.venue.image ? team.venue.image : null
           }));
           teams.push(...filteredTeams);
         }
@@ -60,18 +60,18 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
     }
 
     for (const team of teams) {
-      let logoUrl = team.logoUrl;
-      let venueImageUrl = team.venueImage;
+      let logoUrl = team.logo_url;
+      let venueImageUrl = team.venue_image;
       const existingTeam = await Team.findByPk(team.id);
       if (existingTeam) {
-        logoUrl = existingTeam.logoUrl || logoUrl;
-        venueImageUrl = existingTeam.venueImage || venueImageUrl;
+        logoUrl = existingTeam.logo_url || logoUrl;
+        venueImageUrl = existingTeam.venue_image || venueImageUrl;
       } else {
-        if (team.logoUrl) {
-          logoUrl = await downloadImage(team.logoUrl, team.id, 'logo');
+        if (team.logo_url) {
+          logoUrl = await downloadImage(team.logo_url, team.id, 'logo');
         }
-        if (team.venueImage) {
-          venueImageUrl = await downloadImage(team.venueImage, team.id, 'venue');
+        if (team.venue_image) {
+          venueImageUrl = await downloadImage(team.venue_image, team.id, 'venue');
         }
       }
 
@@ -79,12 +79,12 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
         id: team.id,
         name: team.name,
         code: team.code,
-        logoUrl: logoUrl,
-        venueName: team.venueName ? team.venueName : null,
-        venueAddress: team.venueAddress ? team.venueAddress : null,
-        venueCity: team.venueCity ? team.venueCity : null,
-        venueCapacity: team.venueCapacity ? team.venueCapacity : null,
-        venueImage: venueImageUrl,
+        logo_url: logoUrl,
+        venue_name: team.venue_name ? team.venue_name : null,
+        venue_address: team.venue_address ? team.venue_address : null,
+        venue_city: team.venue_city ? team.venue_city : null,
+        venue_capacity: team.venue_capacity ? team.venue_capacity : null,
+        venue_image: venueImageUrl,
       });
 
       if (updateStats) {
@@ -125,37 +125,44 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
       }
     };
     const statsResponse = await axios.request(teamStatsOptions);
-    const stats = statsResponse.data.response;
-    console.log("Stats => " + JSON.stringify(statsResponse));
-    console.log("Stats JSON => " + JSON.stringify(stats));
+    const leagueData = statsResponse.data.response[0];
+    if (!leagueData || !leagueData.league || !leagueData.league.standings) {
+      logger.error('No standings data found for the provided parameters');
+      return;
+    }
+    const stats = leagueData.league.standings[0][0];
+    if (!stats) {
+      logger.error('No statistics data found for the team');
+      return;
+    }
     const [teamCompetition, created] = await TeamCompetition.findOrCreate({
       where: {
-        teamId: teamID,
-        competitionId: competitionId,
-        seasonId: seasonId,
+        team_id: teamID,
+        competition_id: competitionId,
+        season_id: seasonId,
       },
       defaults: {
-        teamId: teamID,
-        competitionId: competitionId,
-        seasonId: seasonId,
+        team_id: teamID,
+        competition_id: competitionId,
+        season_id: seasonId,
         form: stats.form,
         position: stats.rank,
         points: stats.points,
-        playedTotal: stats.all.played,
-        playedHome: stats.home.played,
-        playedAway: stats.away.played,
-        winTotal: stats.all.win,
-        winHome: stats.home.win,
-        winAway: stats.away.win,
-        drawTotal: stats.all.draw,
-        drawHome: stats.home.draw,
-        drawAway: stats.away.draw,
-        losesTotal: stats.all.lose,
-        losesHome: stats.home.lose,
-        losesAway: stats.away.lose,
-        goalsFor: stats.all.goals.for,
-        goalsAgainst: stats.all.goals.against,
-        goalsDifference: stats.goalsDiff
+        played_total: stats.all.played,
+        played_home: stats.home.played,
+        played_away: stats.away.played,
+        win_total: stats.all.win,
+        win_home: stats.home.win,
+        win_away: stats.away.win,
+        draw_total: stats.all.draw,
+        draw_home: stats.home.draw,
+        draw_away: stats.away.draw,
+        loses_total: stats.all.lose,
+        loses_home: stats.home.lose,
+        loses_away: stats.away.lose,
+        goals_for: stats.all.goals.for,
+        goals_away: stats.all.goals.against,
+        goals_difference: stats.goalsDiff
       }
     });
 
@@ -164,21 +171,21 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
         form: stats.form,
         position: stats.rank,
         points: stats.points,
-        playedTotal: stats.all.played,
-        playedHome: stats.home.played,
-        playedAway: stats.away.played,
-        winTotal: stats.all.win,
-        winHome: stats.home.win,
-        winAway: stats.away.win,
-        drawTotal: stats.all.draw,
-        drawHome: stats.home.draw,
-        drawAway: stats.away.draw,
-        losesTotal: stats.all.lose,
-        losesHome: stats.home.lose,
-        losesAway: stats.away.lose,
-        goalsFor: stats.all.goals.for,
-        goalsAgainst: stats.all.goals.against,
-        goalsDifference: stats.goalsDiff
+        played_total: stats.all.played,
+        played_home: stats.home.played,
+        played_away: stats.away.played,
+        win_total: stats.all.win,
+        win_home: stats.home.win,
+        win_away: stats.away.win,
+        draw_total: stats.all.draw,
+        draw_home: stats.home.draw,
+        draw_away: stats.away.draw,
+        loses_total: stats.all.lose,
+        loses_home: stats.home.lose,
+        loses_away: stats.away.lose,
+        goals_for: stats.all.goals.for,
+        goals_against: stats.all.goals.against,
+        goals_difference: stats.goalsDiff
       });
     }
     logger.info(`Mise à jour des statistiques effectuées avec succès pour l'équipe ${teamID}`);

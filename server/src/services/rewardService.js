@@ -1,10 +1,24 @@
-const { Reward } = require('../models');
+const { Reward, UserReward } = require('../models');
 const path = require('path');
 const {deleteFile} = require("../utils/utils");
 const logger = require("../utils/logger/logger");
 
 const getAllRewards = async () => {
   return await Reward.findAll();
+};
+
+const getUserRewards = async (userId) => {
+  try {
+    const rewards = await UserReward.findAll({
+      where: {
+        user_id: userId
+      }
+    });
+    return rewards;
+  } catch (error) {
+    console.log("Error getting reward => ", error);
+    throw error;
+  }
 };
 
 const createReward = async (data, file) => {
@@ -43,9 +57,13 @@ const deleteReward = async (id) => {
   try {
     const reward = await Reward.findByPk(id);
     if (!reward) throw new Error('Reward not found');
-    const imagePath = path.join(__dirname, '../../../client/src/assets/uploads/trophies', reward.image);
+
+    if (reward.image) {
+      const imagePath = path.join(__dirname, '../../../client/src/assets/uploads/trophies', reward.image);
+      deleteFile(imagePath);
+    }
+
     await reward.destroy();
-    if (reward.image) deleteFile(imagePath);
   } catch (error) {
     logger.error("Error deleting reward => ", error);
     throw error;
@@ -62,6 +80,7 @@ const toggleActivation = async (id, active) => {
 
 module.exports = {
   getAllRewards,
+  getUserRewards,
   createReward,
   updateReward,
   deleteReward,

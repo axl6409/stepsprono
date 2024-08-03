@@ -343,15 +343,6 @@ router.post('/user/verify-password', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
   }
 });
-
-router.get('/user/:id/rewards', authenticateJWT, async (req, res) => {
-  try {
-    const rewards = await getRewards(req.params.id);
-    res.status(200).json({ rewards });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-})
 router.delete('/admin/user/delete/:id', authenticateJWT, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
