@@ -3,64 +3,22 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const {Match} = require("../models");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
 const {schedule} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
-const {getWeekDateRange, getMonthDateRange} = require("../services/appService");
+const {getWeekDateRange, getMonthDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 let cronTasks = [];
 
-const updateMatchStatusAndPredictions = async (matchIds) => {
+const updateMatchAndPredictions = async (matchIds) => {
   if (!Array.isArray(matchIds)) {
     matchIds = [matchIds];
   }
   for (const matchId of matchIds) {
     await updateSingleMatch(matchId);
-  }
-}
-
-const getCurrentWeekMatchdays = async () => {
-  try {
-    const matchdays = []
-    const monthDates = getWeekDateRange();
-    const matchs = await Match.findAll({
-      where: {
-        utc_date: {
-          [Op.gte]: monthDates.start,
-          [Op.lte]: monthDates.end
-        }
-      }
-    })
-    for (const match of matchs) {
-      matchdays.push(match.matchday)
-    }
-    return matchdays
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
-  }
-}
-
-const getCurrentMonthMatchdays = async () => {
-  try {
-    const matchdays = []
-    const monthDates = getMonthDateRange();
-    const matchs = await Match.findAll({
-      where: {
-        utc_date: {
-          [Op.gte]: monthDates.start,
-          [Op.lte]: monthDates.end
-        }
-      }
-    })
-    for (const match of matchs) {
-      matchdays.push(match.matchday)
-    }
-    return matchdays
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
   }
 }
 
@@ -151,12 +109,18 @@ async function updateSingleMatch(matchId) {
         }
       }
 
-      if (Object.keys(fieldsToUpdate).length > 0) {
+      const updatedMatchData = await Match.findByPk(matchId);
+      if (updatedMatchData.status === 'FT') {
         await checkBetByMatchId(matchId);
+        console.log('Pronostics vérifiés pour le match:', matchId);
+      } else {
+        console.log("Le statut du match n'est pas encore 'FT', vérification des pronostics annulée.");
       }
     }
+    logger.info("Match updated", matchId);
   } catch (error) {
     console.log('Erreur lors de la mise à jour du match et des pronostics:', error);
+    logger.error("Error updating match and bets:", error);
   }
 }
 
@@ -256,9 +220,7 @@ async function fetchWeekMatches() {
 }
 
 module.exports = {
-  getCurrentWeekMatchdays,
-  getCurrentMonthMatchdays,
-  updateMatchStatusAndPredictions,
+  updateMatchAndPredictions,
   updateSingleMatch,
   updateMatches,
   getMatchsCronTasks,

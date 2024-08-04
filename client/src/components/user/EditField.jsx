@@ -31,7 +31,6 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
         .then(response => {
           setTeams(response.data.data)
           const selectedTeam = response.data.data.find(team => team.team_id.toString() === user.team_id.toString());
-          console.log(selectedTeam)
           if (selectedTeam && selectedTeam.Team) {
             setTeamLogo(selectedTeam.Team.logo_url || "");
           }

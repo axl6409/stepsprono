@@ -57,22 +57,6 @@ const AdminMatchs = () => {
     }
   };
 
-  const handleUpdateDatas = async (matchId) => {
-    try {
-      const response = await axios.patch(`${apiUrl}/api/admin/matchs/datas/to-update/${matchId}`, null, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.status === 200) {
-        await fetchMatchs()
-        handleSuccess('Données des matchs mise à jour', 1500)
-      } else {
-        handleError('Erreur lors de la mise à jour des données des matchs', 1500)
-      }
-    } catch (error) {
-      handleError(error, 1500)
-    }
-  };
-
   const handleProgramMatchsTasks = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/admin/matchs/program-tasks`, {
@@ -157,10 +141,10 @@ const AdminMatchs = () => {
                   </div>
                   <div className="flex flex-row justify-between mb-2">
                     <div className="flex flex-row justify-between">
-                      <img className="inline-block h-12 w-auto my-auto" src={match.HomeTeam.logoUrl + ".svg"}
+                      <img className="inline-block h-12 w-auto my-auto" src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url}
                            alt={match.HomeTeam.name}/>
                       <span className="font-sans font-bold text-center block my-auto"> - </span>
-                      <img className="inline-block h-12 w-auto my-auto" src={match.AwayTeam.logoUrl + ".svg"}
+                      <img className="inline-block h-12 w-auto my-auto" src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
                            alt={match.AwayTeam.name}/>
                     </div>
                     <button
@@ -170,15 +154,6 @@ const AdminMatchs = () => {
                     <span
                       className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
                       <FontAwesomeIcon icon={faFlagCheckered} />
-                    </span>
-                    </button>
-                    <button
-                      onClick={() => handleUpdateDatas(match.id)}
-                      className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
-                    >
-                    <span
-                      className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                      <FontAwesomeIcon icon={faCloudArrowDown}/>
                     </span>
                     </button>
                   </div>

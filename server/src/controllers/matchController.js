@@ -9,9 +9,8 @@ const {Op, Sequelize} = require("sequelize");
 const cron = require("node-cron");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
 const {getMonthDateRange} = require("./appController");
-const {checkupBets} = require("../services/betService");
 const {schedule} = require("node-cron");
-const {updateSingleMatch, updateMatchStatusAndPredictions, updateMatches} = require("../services/matchService");
+const {updateSingleMatch, updateMatchAndPredictions, updateMatches} = require("../services/matchService");
 const {getCurrentMatchday} = require("../services/appService");
 const logger = require("../utils/logger/logger");
 const apiKey = process.env.FB_API_KEY;
@@ -184,7 +183,7 @@ router.patch('/admin/matchs/update/results/:id', authenticateJWT, async (req, re
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
     const match = await Match.findByPk(matchId);
     if (!match) return res.status(404).json({ error: 'Match non trouvé' });
-    await updateMatchStatusAndPredictions(matchId)
+    await updateMatchAndPredictions(matchId)
     res.status(200).json({ message: 'Match mis à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
@@ -205,23 +204,6 @@ router.get('/admin/matchs/datas/to-update', authenticateJWT, async (req, res) =>
     res.json({
       data: matchs.rows,
     });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-});
-router.patch('/admin/matchs/datas/to-update/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
-    const matchId = req.params.id
-    if (isNaN(matchId)) {
-      return res.status(400).json({ message: 'Identifiant de match non valide' });
-    }
-    const match = await Match.findByPk(matchId)
-    if (!match) return res.status(404).json({error: 'Match non trouvé' })
-    await updateMatchStatusAndPredictions(match.id)
-    res.status(200).json({ message: 'Match mis à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

@@ -4,7 +4,7 @@ const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const logger = require("../utils/logger/logger");
 const {Op} = require("sequelize");
-const {Season, Setting} = require("../models");
+const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
 const {checkSeasonRewards} = require("./rewardService");
 const moment = require("moment/moment");
@@ -40,6 +40,48 @@ const getMonthDateRange = () => {
   const start = now.clone().startOf('month');
   const end = now.clone().endOf('month');
   return { start: start, end: end };
+}
+
+const getCurrentWeekMatchdays = async () => {
+  try {
+    const matchdays = []
+    const monthDates = getWeekDateRange();
+    const matchs = await Match.findAll({
+      where: {
+        utc_date: {
+          [Op.gte]: monthDates.start,
+          [Op.lte]: monthDates.end
+        }
+      }
+    })
+    for (const match of matchs) {
+      matchdays.push(match.matchday)
+    }
+    return matchdays
+  } catch (error) {
+    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
+  }
+}
+
+const getCurrentMonthMatchdays = async () => {
+  try {
+    const matchdays = []
+    const monthDates = getMonthDateRange();
+    const matchs = await Match.findAll({
+      where: {
+        utc_date: {
+          [Op.gte]: monthDates.start,
+          [Op.lte]: monthDates.end
+        }
+      }
+    })
+    for (const match of matchs) {
+      matchdays.push(match.matchday)
+    }
+    return matchdays
+  } catch (error) {
+    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
+  }
 }
 
 const getCurrentMatchday = async () => {
@@ -95,6 +137,8 @@ module.exports = {
   getAPICallsCount,
   getWeekDateRange,
   getMonthDateRange,
+  getCurrentWeekMatchdays,
+  getCurrentMonthMatchdays,
   getCurrentMatchday,
   checkAndScheduleSeasonEndTasks,
   getSettlement,

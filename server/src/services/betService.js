@@ -1,19 +1,32 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team} = require("../models");
-const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("../services/matchService");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
 
 const checkupBets = async (betId) => {
-  if (betId) {
-    if (Array.isArray(betId)) {
-      for (const id of betId) {
-        await checkBetByMatchId(id)
+  try {
+    if (betId) {
+      if (Array.isArray(betId)) {
+        for (const id of betId) {
+          const result = await checkBetByMatchId(id);
+          if (!result.success) {
+            return { success: false, message: result.message };
+          }
+        }
+      } else {
+        const result = await checkBetByMatchId(betId);
+        if (!result.success) {
+          return { success: false, message: result.message };
+        }
       }
-    } else {
-      await checkBetByMatchId(betId)
+      return { success: true, message: "Pronostics vérifiés avec succès." };
     }
+    return { success: false, message: "Aucun identifiant de pronostic fourni." };
+  } catch (error) {
+    logger.info('Erreur lors de la vérification des pronostics:', error);
+    return { success: false, message: "Une erreur est survenue lors de la vérification des pronostics.", error: error.message };
   }
-}
+};
 
 const getNullBets = async () => {
   try {
@@ -127,36 +140,45 @@ const calculatePoints = (wins, draws, loses) => {
   return (wins * 3) + draws;
 }
 
-const checkBetByMatchId = async (betIds) => {
+const checkBetByMatchId = async (ids) => {
   try {
-    const whereClause = {
-      points: {
-        [Op.eq]: null
-      }
-    };
-    if (Array.isArray(betIds)) {
-      whereClause.id = {
-        [Op.in]: betIds
-      };
+    let bets;
+    if (Array.isArray(ids)) {
+      bets = await Bet.findAll({
+        where: {
+          [Op.or]: [
+            { match_id: { [Op.in]: ids } },
+            { id: { [Op.in]: ids } },
+          ],
+          points: { [Op.eq]: null }
+        }
+      });
     } else {
-      whereClause.id = betIds;
+      bets = await Bet.findAll({
+        where: {
+          [Op.or]: [
+            { match_id: ids },
+            { id: ids },
+          ],
+          points: { [Op.eq]: null }
+        }
+      });
     }
 
-    const bets = await Bet.findAll({
-      where: whereClause
-    });
-
     if (bets.length === 0) {
-      return { success: true, message: "Aucun pari à mettre à jour." };
+      logger.info("Aucun pronostic à mettre à jour.");
+      return { success: true, message: "Aucun pronostic à mettre à jour." };
     }
 
     let betsUpdated = 0;
     for (const bet of bets) {
       const match = await Match.findByPk(bet.match_id);
       if (!match) {
+        logger.info("Match non trouvé.");
         return { success: false, message: "Match non trouvé." };
       }
       if (match.status !== 'FT') {
+        logger.info("Le match n'est pas fini.");
         return { success: false, message: "Le match n'est pas fini." };
       }
       let points = 0;
@@ -178,10 +200,11 @@ const checkBetByMatchId = async (betIds) => {
       await Bet.update({ points }, { where: { id: bet.id } });
       betsUpdated++;
     }
-
+    logger.info("Pronostics mis à jour :", betsUpdated);
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
     console.log('Erreur lors de la mise à jour des pronostics :', error);
+    logger.error("Erreur lors de la mise à jour des pronostics :", error);
     return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
   }
 };

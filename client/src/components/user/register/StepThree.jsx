@@ -32,7 +32,6 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
 
   const handleTeamChange = (event) => {
     const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
-    console.log(selectedTeam)
     setTeam(selectedTeam.teamId);
     userData.teamId = selectedTeam.Team.id;
     setTeamLogo(selectedTeam.Team.logoUrl || '');
@@ -46,7 +45,7 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
     event.preventDefault();
     onFinish({ teamId: team });
   }
-  console.log(userData)
+
   return (
     <div
       className="step-three-container h-full relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-start py-8 px-8">

@@ -10,14 +10,11 @@ const { upload } = require('../utils/utils');
 const logger = require("../utils/logger/logger");
 const sharp = require("sharp");
 
-console.log({ User, Role });
-
 router.post('/verifyToken', async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
   try {
     const payload = jwt.verify(token, secretKey);
-    console.log("Payload => ", payload.userId);
     const user = await User.findOne({ where: { id: payload.userId }, include: Role });
     if (!user) return res.status(401).json({ isAuthenticated: false });
 

@@ -7,7 +7,7 @@ const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
 const {Role} = require("./server/src/models");
-const { runCronJob, createOrUpdateTeams, updateTeamStats, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers, checkupBets } = require("./server/cronJob");
+const { runCronJob, createOrUpdateTeams, updateTeamStats, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers } = require("./server/cronJob");
 const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
@@ -19,8 +19,8 @@ const path = require("path");
 
 const PORT = process.env.PORT || 3001
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '10mb' }))
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
 
 const corsOptions = {
   origin: [
@@ -83,7 +83,6 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 1 API requests by matchId
     // await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
     // Total => 0 API request
-    // await checkupBets()
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

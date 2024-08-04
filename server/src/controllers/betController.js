@@ -107,10 +107,12 @@ router.get('/admin/bets/unchecked', authenticateJWT, async (req, res) => {
 })
 router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
   try {
+    const betIds = req.body;
+    logger.info(betIds)
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    const bets = await checkupBets()
+    const bets = await checkupBets(betIds);
     if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
     res.status(200).json({ message: bets.message, datas: bets.updatedBets });
   } catch (error) {
@@ -123,7 +125,7 @@ router.patch('/admin/bets/checkup/:betId', authenticateJWT, async (req, res) => 
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    const bet = await checkBetByMatchId(betId)
+    const bet = await checkupBets(betId)
     if (bet.success === false) return res.status(403).json({ error: bet.error, message: bet.message });
     res.status(200).json({ message: bet.message, datas: bet.updatedBets });
   } catch (error) {

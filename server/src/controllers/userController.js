@@ -41,7 +41,6 @@ router.get('/admin/users', authenticateJWT, async (req, res) => {
       }]
     };
     const roles = req.query.roles;
-    console.log(roles);
     if (roles && roles.length > 0) {
       queryOptions.include[0].where.name = roles;
     }

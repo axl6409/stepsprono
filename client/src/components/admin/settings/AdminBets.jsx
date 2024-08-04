@@ -63,17 +63,18 @@ const AdminBets = () => {
 
   const handleUpdateAll = async () => {
     try {
-      const response = await axios.patch(`${apiUrl}/api/admin/teams/update-ranking/all`, null, {
+      const betIds = bets.map(bet => bet.id);
+      const response = await axios.patch(`${apiUrl}/api/admin/bets/checkup/all`, betIds, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
         fetchBetsUnchecked()
-        handleSuccess('Pronostic vérifié !', 1500)
+        handleSuccess('Pronostics vérifiés !', 1500)
       } else {
-        handleError('Erreur lors de la vérification du pronostic !', 1500)
+        handleError('Erreur lors de la vérification des pronostics !', 1500)
       }
     } catch (error) {
-      handleError('Erreur lors de la vérification du pronostic !' + error, 1500)
+      handleError('Erreur lors de la vérification des pronostics !' + error, 1500)
     }
   };
 

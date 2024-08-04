@@ -66,8 +66,6 @@ const Rewards = () => {
       <div className="flex flex-row flex-wrap justify-around px-4">
         {rewards.map((reward) => {
           const userHasReward = userRewards.some(userReward => userReward.reward_id === reward.id);
-          console.log(userRewards)
-          console.log(`Reward ID: ${reward.id}, User Has Reward: ${userHasReward}`);
           const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.image}` : hiddenTrophy;
           return (
               <div
