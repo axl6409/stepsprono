@@ -57,64 +57,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           }
         });
         const monthPoints = response.data;
-        // if (monthPoints.length === undefined || monthPoints.length === 0) {
-        //   return;
-        // }
+        if (monthPoints.length === undefined || monthPoints.length === 0) {
+          return;
+        }
         setMonthPoints(monthPoints.points)
-        if (user.id === 2) {
-          setMonthPoints(17)
-        }
-        if (user.id === 4) {
-          setMonthPoints(23)
-        }
-        if (user.id === 5) {
-          setMonthPoints(16)
-        }
-        if (user.id === 6) {
-          setMonthPoints(12)
-        }
-        if (user.id === 7) {
-          setMonthPoints(11)
-        }
-        if (user.id === 8) {
-          setMonthPoints(21)
-        }
-        if (user.id === 9) {
-          setMonthPoints(18)
-        }
-        if (user.id === 10) {
-          setMonthPoints(14)
-        }
-        if (user.id === 11) {
-          setMonthPoints(13)
-        }
-        if (user.id === 12) {
-          setMonthPoints(11)
-        }
-        if (user.id === 13) {
-          setMonthPoints(22)
-        }
-        if (user.id === 14) {
-          setMonthPoints(12)
-        }
-        if (user.id === 15) {
-          setMonthPoints(16)
-        }
-        if (user.id === 16) {
-          setMonthPoints(15)
-        }
-        if (user.id === 17) {
-          setMonthPoints(20)
-        }
-        if (user.id === 18) {
-          setMonthPoints(19)
-        }
-        if (user.id === 20) {
-          setMonthPoints(13)
-        }
-        if (user.id === 21) {
-          setMonthPoints(6)
-        }
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -131,60 +77,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           return;
         }
         setSeasonPoints(seasonPoints.points)
-        if (user.id === 2) {
-          setSeasonPoints(154)
-        }
-        if (user.id === 4) {
-          setSeasonPoints(162)
-        }
-        if (user.id === 5) {
-          setSeasonPoints(154)
-        }
-        if (user.id === 6) {
-          setSeasonPoints(163)
-        }
-        if (user.id === 7) {
-          setSeasonPoints(143)
-        }
-        if (user.id === 8) {
-          setSeasonPoints(173)
-        }
-        if (user.id === 9) {
-          setSeasonPoints(131)
-        }
-        if (user.id === 10) {
-          setSeasonPoints(146)
-        }
-        if (user.id === 11) {
-          setSeasonPoints(147)
-        }
-        if (user.id === 12) {
-          setSeasonPoints(152)
-        }
-        if (user.id === 13) {
-          setSeasonPoints(176)
-        }
-        if (user.id === 14) {
-          setSeasonPoints(166)
-        }
-        if (user.id === 15) {
-          setSeasonPoints(166)
-        }
-        if (user.id === 16) {
-          setSeasonPoints(162)
-        }
-        if (user.id === 17) {
-          setSeasonPoints(174)
-        }
-        if (user.id === 18) {
-          setSeasonPoints(148)
-        }
-        if (user.id === 20) {
-          setSeasonPoints(168)
-        }
-        if (user.id === 21) {
-          setSeasonPoints(148)
-        }
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }

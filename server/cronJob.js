@@ -27,7 +27,10 @@ const runCronJob = () => {
   cron.schedule('01 00 * * *', updateTeamStats)
   cron.schedule('01 00 * * *', updateMatches)
 
-  eventBus.emit("monthEnded")
+  cron.schedule('59 23 01 8 *', () => {
+    logger.info('Émission de l\'événement firstMonthEnded');
+    eventBus.emit('firstMonthEnded');
+  });
 }
 
 module.exports = { runCronJob };

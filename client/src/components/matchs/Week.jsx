@@ -31,7 +31,8 @@ const Week = ({token, user}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const now = moment();
   const swiperInstance = swiperRef.current?.swiper
-  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  // const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
+  const now = moment();
   const simulatedNow = now.day(1).hour(10).minute(0).second(0);
   const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
   const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
@@ -258,7 +259,7 @@ const Week = ({token, user}) => {
           </div>
         </Swiper>
         {icon ? (
-          <div className="relative z-[2] w-full flex flex-row justify-center text-black px-8 py-1 text-center">
+          <div className="relative z-[2] w-full flex flex-row justify-center text-black px-8 py-1 mt-8 text-center">
             <img src={checkedIcon} alt=""/>
           </div>
         ) : (

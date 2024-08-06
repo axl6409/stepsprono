@@ -97,23 +97,68 @@ const checkPhoenixTrophy = async () => {
         const existingReward = await UserReward.findOne({
           where: {
             user_id: user.id,
-            reward_id: Reward.id,
+            reward_id: 5,
           },
         });
 
         if (!existingReward) {
           await UserReward.create({
             user_id: user.id,
-            reward_id: Reward.id,
+            reward_id: 5,
             count: 1,
           });
 
           logger.info(`Trophée Le Phénix attribué à l'utilisateur ${user.username}`);
+        } else {
+          existingReward.count += 1;
+          await existingReward.save();
+          logger.info(`Trophée Le Phénix attribuite à l'utilisateur ${user.username}`);
         }
       }
     }
   } catch (error) {
     logger.error("Erreur lors de la vérification du trophée Le Phénix:", error);
+  }
+};
+
+const checkRisingStarTrophy = async () => {
+  try {
+    const startOfSeason = new Date();
+    startOfSeason.setMonth(startOfSeason.getMonth() - 1);
+
+    const endOfFirstMonth = new Date();
+    endOfFirstMonth.setMonth(startOfSeason.getMonth() + 1);
+
+    const users = await User.findAll();
+
+    for (const user of users) {
+      const rankAtEndOfFirstMonth = await getUserRank(user.id, endOfFirstMonth);
+
+      if (rankAtEndOfFirstMonth <= 3) {
+        const existingReward = await UserReward.findOne({
+          where: {
+            user_id: user.id,
+            reward_id: 6,
+          },
+        });
+
+        if (!existingReward) {
+          await UserReward.create({
+            user_id: user.id,
+            reward_id: 6,
+            count: 1,
+          });
+
+          logger.info(`Trophée L'Étoile Montante attribué à l'utilisateur ${user.username}`);
+        } else {
+          existingReward.count += 1;
+          await existingReward.save();
+          logger.info(`Trophée L'Étoile Montante attribuite à l'utilisateur ${user.username}`);
+        }
+      }
+    }
+  } catch (error) {
+    logger.error("Erreur lors de la vérification du trophée L'Étoile Montante:", error);
   }
 };
 
@@ -124,5 +169,6 @@ module.exports = {
   updateReward,
   deleteReward,
   toggleActivation,
-  checkPhoenixTrophy
+  checkPhoenixTrophy,
+  checkRisingStarTrophy
 };

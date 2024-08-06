@@ -15,8 +15,9 @@ const path = require("path");
 //   interval: '1d',
 //   path: path.join(__dirname, 'log'),
 // });
-
 const PORT = process.env.PORT || 3001
+
+require('./server/src/events/rewardsEvents');
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))

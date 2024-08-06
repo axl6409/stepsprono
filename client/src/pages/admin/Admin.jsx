@@ -23,59 +23,6 @@ const Admin = () => {
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
 
-  if (!user || user.role !== 'admin') {
-    return <Navigate to={'/'} replace />
-  }
-
-  useEffect(() => {
-    const getNullBets = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/bets/get-null/all`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        const fetchedBets = response.data.bets;
-        if (fetchedBets !== true) {
-          setNullBets(fetchedBets)
-          return;
-        }
-        setNullBets(fetchedBets);
-      } catch (error) {
-        console.error('Erreur lors de la recuperation des paris nuls:', error);
-      }
-    }
-    getNullBets()
-  },[userRequests, nullBets])
-
-  const checkBets = async () => {
-    try {
-      const response = await axios.patch(`${apiUrl}/api/admin/bets/checkup/all`, null, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.status === 200) {
-        setNullBets(false);
-        setUpdateStatus(true);
-        setUpdateMessage("Pronostics mis à jour !");
-        setIsModalOpen(true)
-        setTimeout(function () {
-          closeModal()
-        }, 1500)
-      } else {
-        console.log(response.data)
-        setNullBets(true);
-        setUpdateStatus(false);
-        setUpdateMessage(response.data.error + ' : ' + response.data.message);
-        setIsModalOpen(true)
-      }
-    } catch (error) {
-      setNullBets(true);
-      setUpdateStatus(false);
-      setUpdateMessage('Erreur lors de la mise à jour des pronostics : ' + error.response.data.message);
-      setIsModalOpen(true)
-    }
-  }
-
   const closeModal = () => {
     setUpdateStatus(false);
     setUpdateMessage('');

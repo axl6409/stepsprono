@@ -69,12 +69,13 @@ async function checkAndAddNewSeason(competitionId) {
       const nextSeason = seasons.response[0].seasons[0]
       await Season.create({
         year: nextSeason.year,
-        startDate: nextSeason.start,
-        endDate: nextSeason.end,
-        competitionId: competitionId,
-        winnerId: null,
+        start_date: nextSeason.start,
+        end_date: nextSeason.end,
+        competition_id: competitionId,
+        winner_id: null,
         current: nextSeason.current,
-        currentMatchday: 1,
+        current_matchday: 1,
+        scheduled: false,
       });
       return { message: 'Nouvelle saison ajoutée avec succès.' };
     } else {

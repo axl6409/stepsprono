@@ -3,7 +3,7 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const logger = require("../utils/logger/logger");
-const {Op} = require("sequelize");
+const { Op, fn, col, literal } = require('sequelize');
 const { User, Bet } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
@@ -13,13 +13,14 @@ const getUserRank = async (userId, date) => {
         const pointsAtDate = await Bet.findAll({
             where: {
                 createdAt: {
-                    [Op.lte]: date
-                }
+                    [Op.lte]: date,
+                },
             },
-            attributes: ['user_id', [sequelize.fn('SUM', sequelize.col('points')), 'totalPoints']],
+            attributes: ['user_id', [fn('SUM', col('points')), 'points']],
             group: ['user_id'],
-            order: [[sequelize.literal('totalPoints'), 'DESC']]
+            order: [[literal('points'), 'DESC']],
         });
+
         const rankedUsers = pointsAtDate.map((entry) => entry.user_id);
         const userRank = rankedUsers.indexOf(userId) + 1;
         return userRank;

@@ -45,6 +45,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       field: 'current_matchday'
     },
+    scheduled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'scheduled'
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
