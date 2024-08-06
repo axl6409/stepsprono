@@ -6,8 +6,7 @@ const cors = require('cors')
 const apiRoutes = require('./server/src/routes/api')
 const sequelize = require('./server/database');
 const models = require('./server/src/models')
-const {Role} = require("./server/src/models");
-const { runCronJob, createOrUpdateTeams, updateTeamStats, updateMatches, fetchWeekMatches, updateMatchStatusAndPredictions, updatePlayers } = require("./server/cronJob");
+const { runCronJob } = require("./server/cronJob");
 const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
@@ -54,7 +53,6 @@ app.use(cors(corsOptions));
 // app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use('/api', apiRoutes);
-
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'client', 'src', 'assets', 'uploads')));
 
@@ -68,8 +66,9 @@ app.listen(PORT, '0.0.0.0', async () => {
     await models.sequelize.authenticate()
     console.log('Connection to the database has been established successfully')
     await sequelize.sync({ force: false })
-    console.log('Database synchronized.')
-    // runCronJob()
+    console.log('Database synchronized')
+    runCronJob()
+    console.log('Cron job started')
     // Total => 18 * 2 => 36 API requests
     // await createOrUpdateTeams( 79, 2023, 61, false, false )
     // Total => 1 API request
@@ -81,7 +80,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     // Total => 18 API requests
     // await updatePlayers([111,112,116], 61)
     // Total => 1 API requests by matchId
-    // await updateMatchStatusAndPredictions([1045118, 1045123, 1045119])
+    // await updateMatchAndPredictions([1045118, 1045123, 1045119])
     // Total => 0 API request
   } catch (error) {
     console.log('Unable to connect to the database: ', error)

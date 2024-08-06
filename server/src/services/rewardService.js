@@ -1,7 +1,8 @@
-const { Reward, UserReward } = require('../models');
+const { User, Reward, UserReward } = require('../models');
 const path = require('path');
 const {deleteFile} = require("../utils/utils");
 const logger = require("../utils/logger/logger");
+const {getUserRank} = require("./userService");
 
 const getAllRewards = async () => {
   return await Reward.findAll();
@@ -80,11 +81,48 @@ const toggleActivation = async (id, active) => {
   return reward;
 };
 
+const checkPhoenixTrophy = async () => {
+  try {
+    const endOfLastMonth = new Date();
+    endOfLastMonth.setMonth(endOfLastMonth.getMonth() - 1);
+
+    const endOfCurrentMonth = new Date();
+    const users = await User.findAll();
+
+    for (const user of users) {
+      const lastMonthRank = await getUserRank(user.id, endOfLastMonth);
+      const currentMonthRank = await getUserRank(user.id, endOfCurrentMonth);
+
+      if (lastMonthRank === users.length && currentMonthRank === 1) {
+        const existingReward = await UserReward.findOne({
+          where: {
+            user_id: user.id,
+            reward_id: Reward.id,
+          },
+        });
+
+        if (!existingReward) {
+          await UserReward.create({
+            user_id: user.id,
+            reward_id: Reward.id,
+            count: 1,
+          });
+
+          logger.info(`Trophée Le Phénix attribué à l'utilisateur ${user.username}`);
+        }
+      }
+    }
+  } catch (error) {
+    logger.error("Erreur lors de la vérification du trophée Le Phénix:", error);
+  }
+};
+
 module.exports = {
   getAllRewards,
   getUserRewards,
   createReward,
   updateReward,
   deleteReward,
-  toggleActivation
+  toggleActivation,
+  checkPhoenixTrophy
 };

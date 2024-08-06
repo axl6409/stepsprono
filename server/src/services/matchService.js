@@ -212,7 +212,7 @@ async function fetchWeekMatches() {
     matches.forEach(match => {
       const matchTime = new Date(match.utc_date)
       const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
-      schedule.scheduleJob(updateTime, () => updateMatchStatusAndPredictions(match.id))
+      schedule.scheduleJob(updateTime, () => updateMatchAndPredictions(match.id))
     });
   } catch (error) {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);
