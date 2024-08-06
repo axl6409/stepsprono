@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, {useState, useEffect} from 'react'
 import axios from 'axios'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {
@@ -6,22 +6,15 @@ import {
   faMinusCircle,
   faTimesCircle
 } from "@fortawesome/free-solid-svg-icons"
-import {UserContext} from "../contexts/UserContext.jsx"
-import {Link, useNavigate} from "react-router-dom"
+import {Link} from "react-router-dom"
 import arrowIcon from "../assets/icons/arrow-left.svg";
 
 const Teams = () => {
-  const { user, setUser } = useContext(UserContext)
   const [teams, setTeams] = useState([])
-  const [leagues, setLeagues] = useState([])
-  const [selectedLeague, setSelectedLeague] = useState(null)
-  const [isListOpen, setIsListOpen] = useState(false)
   const token = localStorage.getItem('token') || cookies.token
-  const navigate = useNavigate()
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
   const [teamColors, setTeamColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
-  const [cardColor, setCardColor] = useState('');
 
   useEffect(() => {
 
@@ -45,6 +38,7 @@ const Teams = () => {
     }
     fetchTeams()
   }, [token]);
+
   const getResultIcon = (result) => {
     switch (result) {
       case 'W': return <FontAwesomeIcon icon={faCircleCheck} className="text-green-medium block rounded-full shadow-flat-black-adjust" />
@@ -94,7 +88,7 @@ const Teams = () => {
                         <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.draw_total}</p>
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
-                        <p className="font-rubik text-xs h-1/2 font-medium leading-5">MN</p>
+                        <p className="font-rubik text-xs h-1/2 font-medium leading-5">MP</p>
                         <p className="font-rubik h-1/2 text-sm leading-5 font-black">{team.loses_total}</p>
                       </li>
                     </ul>

@@ -8,7 +8,7 @@
 module.exports = (sequelize, DataTypes) => {
 
   const UserReward = sequelize.define('UserReward', {
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       },
       field: 'reward_id'
+    },
+    count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: 'count'
     },
     createdAt: {
       type: DataTypes.DATE,

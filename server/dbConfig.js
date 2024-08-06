@@ -31,8 +31,8 @@ const getSequelizeInstance = function() {
         ssl: false
       },
       define: {
-        underscored: false,
-        freezeTableName: false,
+        underscored: true,
+        freezeTableName: true,
       }
     });
   }

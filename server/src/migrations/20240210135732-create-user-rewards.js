@@ -21,6 +21,11 @@ module.exports = {
         allowNull: false,
         field: 'reward_id',
       },
+      count: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'count'
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

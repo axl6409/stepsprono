@@ -23,10 +23,11 @@ const getUserRewards = async (userId) => {
 
 const createReward = async (data, file) => {
   try {
-    const { name, description, rank } = data;
+    const { name, description, slug, rank } = data;
     const reward = await Reward.create({
       name,
       description,
+      slug,
       rank,
       image: file ? file.filename : null,
       active: data.active !== undefined ? data.active : true,
@@ -43,9 +44,10 @@ const updateReward = async (id, data, file) => {
   const reward = await Reward.findByPk(id);
   if (!reward) throw new Error('Reward not found');
 
-  const { name, description, rank } = data;
+  const { name, description, slug, rank } = data;
   reward.name = name;
   reward.description = description;
+  reward.slug = slug;
   reward.rank = rank;
   if (file) reward.image = file.filename;
 

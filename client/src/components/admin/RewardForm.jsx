@@ -10,7 +10,7 @@ const RewardForm = ({ reward, onClose }) => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        image: null,
+        image: "",
         slug: '',
         rank: 'bronze',
         type: 'trophy'
@@ -32,8 +32,8 @@ const RewardForm = ({ reward, onClose }) => {
     const formatSlug = (value) => {
         return value
             .toLowerCase()
-            .replace(/\s+/g, '_') // Remplace les espaces par des tirets bas
-            .replace(/[^a-z0-9_]/g, ''); // Supprime les caractères non autorisés sauf les tirets bas
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '')
     };
 
     const handleChange = (e) => {

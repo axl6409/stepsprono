@@ -12,7 +12,6 @@ router.get('/rewards', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des trophées', error: error.message });
   }
 });
-
 router.get('/rewards/user/:id', authenticateJWT, async (req, res) => {
   try {
     const rewards = await rewardService.getUserRewards(req.params.id);
@@ -21,7 +20,6 @@ router.get('/rewards/user/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la sélection des trophées', error: error.message });
   }
 })
-
 router.post('/rewards', authenticateJWT, upload.single('image'), async (req, res) => {
   req.body.type = 'trophy';
   try {
@@ -31,7 +29,6 @@ router.post('/rewards', authenticateJWT, upload.single('image'), async (req, res
     res.status(500).json({ message: 'Erreur lors de la création du trophée', error: error.message });
   }
 });
-
 router.put('/rewards/:id', authenticateJWT, upload.single('image'), async (req, res) => {
   req.body.type = 'trophy';
   try {
@@ -41,7 +38,6 @@ router.put('/rewards/:id', authenticateJWT, upload.single('image'), async (req, 
     res.status(500).json({ message: 'Erreur lors de la mise à jour du trophée', error: error.message });
   }
 });
-
 router.delete('/rewards/:id', authenticateJWT, async (req, res) => {
   try {
     await rewardService.deleteReward(req.params.id);
@@ -50,7 +46,6 @@ router.delete('/rewards/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression du trophée', error: error.message });
   }
 });
-
 router.put('/rewards/:id/activate', authenticateJWT, async (req, res) => {
   try {
     const reward = await rewardService.toggleActivation(req.params.id, req.body.active);
