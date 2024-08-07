@@ -9,103 +9,117 @@ const apiBaseUrl = process.env.FB_API_URL;
 
 const updatePlayers = async function (teamIds = [], competitionId = null) {
   try {
-    const seasonYear = await getCurrentSeasonYear(competitionId);
-    logger.info(`Année de la saison courante : ${seasonYear}`);
     for (const teamId of teamIds) {
       logger.info(`Traitement de l'équipe ID : ${teamId}`);
-      let currentPage = 1;
-      let totalPages = 0;
-      let apiPlayers = [];
 
-      do {
-        const options = {
-          method: 'GET',
-          url: `${apiBaseUrl}players/`,
-          params: {
-            team: `${teamId}`,
-            season: seasonYear,
-            page: currentPage
-          },
-          headers: {
-            'X-RapidAPI-Key': apiKey,
-            'X-RapidAPI-Host': apiHost
-          }
-        };
-        const response = await axios.request(options);
+      // Nouvelle requête pour récupérer les joueurs
+      const options = {
+        method: "GET",
+        url: `${apiBaseUrl}players/squads`,
+        params: {
+          team: `${teamId}`,
+        },
+        headers: {
+          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Host": apiHost,
+        },
+      };
 
-        logger.info(`Réponse de l'API pour l'équipe ${teamId}, page ${currentPage}:`, response.data);
+      const response = await axios.request(options);
+      const apiPlayers = response.data.response[0].players;
 
-        apiPlayers = apiPlayers.concat(response.data.response);
-        totalPages = response.data.paging.total;
-        currentPage++;
-      } while (currentPage <= totalPages);
+      const apiPlayerIds = apiPlayers.map((player) => player.id);
+      logger.info(
+          `IDs des joueurs récupérés pour l'équipe ${teamId}:`,
+          apiPlayerIds
+      );
 
-      const apiPlayerIds = apiPlayers.map(player => player.player.id);
-      logger.info(`IDs des joueurs récupérés pour l'équipe ${teamId}:`, apiPlayerIds);
-
-      // Log current players in the database for the team
       const currentPlayers = await PlayerTeamCompetition.findAll({
         where: {
           team_id: teamId,
-          competition_id: competitionId
-        }
+          competition_id: competitionId,
+        },
       });
-      logger.info(`IDs des joueurs actuels dans la base de données pour l'équipe ${teamId}:`, currentPlayers.map(cp => cp.player_id));
+
+      logger.info(
+          `IDs des joueurs actuels dans la base de données pour l'équipe ${teamId}:`,
+          currentPlayers.map((cp) => cp.player_id)
+      );
 
       for (const apiPlayer of apiPlayers) {
         const [player, created] = await Player.findOrCreate({
-          where: { id: apiPlayer.player.id },
+          where: { id: apiPlayer.id },
           defaults: {
-            name: apiPlayer.player.name,
-            firstname: apiPlayer.player.firstname,
-            lastname: apiPlayer.player.lastname,
-            photo: apiPlayer.player.photo
-          }
+            name: apiPlayer.name,
+            age: apiPlayer.age,
+            photo: apiPlayer.photo,
+          },
         });
 
         if (!created) {
           await player.update({
-            name: apiPlayer.player.name,
-            firstname: apiPlayer.player.firstname,
-            lastname: apiPlayer.player.lastname,
-            photo: apiPlayer.player.photo
+            name: apiPlayer.name,
+            age: apiPlayer.age,
+            photo: apiPlayer.photo,
           });
         }
 
-        // Use findOrCreate to avoid duplicate key errors
-        const [association, assocCreated] = await PlayerTeamCompetition.findOrCreate({
+        // Vérifier si l'association existe déjà avant de la créer
+        const existingAssociation = await PlayerTeamCompetition.findOne({
           where: {
             player_id: player.id,
             team_id: teamId,
-            competition_id: competitionId
+            competition_id: competitionId,
           },
-          defaults: {
-            player_id: player.id,
-            team_id: teamId,
-            competition_id: competitionId
-          }
         });
 
-        if (!assocCreated) {
-          logger.info(`Association déjà existante pour le joueur ID: ${player.id}, équipe ID: ${teamId}, compétition ID: ${competitionId}`);
+        if (!existingAssociation) {
+          try {
+            await PlayerTeamCompetition.create({
+              player_id: player.id,
+              team_id: teamId,
+              competition_id: competitionId,
+            });
+            logger.info(
+                `Association créée pour le joueur ID: ${player.id}, équipe ID: ${teamId}, compétition ID: ${competitionId}`
+            );
+          } catch (error) {
+            if (error.name === "SequelizeUniqueConstraintError") {
+              logger.warn(
+                  `Contrainte d'unicité violée pour le joueur ID: ${player.id}, équipe ID: ${teamId}, compétition ID: ${competitionId}`
+              );
+            } else {
+              throw error;
+            }
+          }
+        } else {
+          logger.info(
+              `Association déjà existante pour le joueur ID: ${player.id}, équipe ID: ${teamId}, compétition ID: ${competitionId}`
+          );
         }
       }
 
-      const playersToRemove = currentPlayers.filter(cp => !apiPlayerIds.includes(cp.player_id));
-      logger.info(`Suppression des associations pour les joueurs:`, playersToRemove.map(pr => pr.player_id));
+      // Supprimer les associations pour les joueurs qui ne sont plus dans l'équipe
+      const playersToRemove = currentPlayers.filter(
+          (cp) => !apiPlayerIds.includes(cp.player_id)
+      );
 
-      // Remove associations for players no longer in the team
+      logger.info(
+          `Suppression des associations pour les joueurs:`,
+          playersToRemove.map((pr) => pr.player_id)
+      );
+
       await PlayerTeamCompetition.destroy({
         where: {
           team_id: teamId,
           competition_id: competitionId,
           player_id: {
-            [Op.notIn]: apiPlayerIds
-          }
-        }
+            [Op.notIn]: apiPlayerIds,
+          },
+        },
       });
     }
-    logger.info(`Mise à jour des joueurs effectuées avec succès`);
+    logger.info(`Mise à jour des joueurs effectuée avec succès`);
   } catch (error) {
     logger.error(`Erreur lors de la récupération des joueurs: `, error);
   }
