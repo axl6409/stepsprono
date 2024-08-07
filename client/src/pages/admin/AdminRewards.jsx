@@ -5,7 +5,7 @@ import arrowIcon from "../../assets/icons/arrow-left.svg";
 import penIcon from "../../assets/icons/pencil.svg";
 import navClose from "../../assets/icons/nav-cross.svg";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
-import RewardForm from '../../components/admin/RewardForm'; // Assurez-vous que le chemin est correct
+import RewardForm from '../../components/admin/RewardForm';
 import { useCookies } from "react-cookie";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

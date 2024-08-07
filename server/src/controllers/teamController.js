@@ -23,7 +23,7 @@ router.get('/teams', async (req, res) => {
         required: true
       }],
       order: [
-        [sortBy, 'ASC']
+        [sortBy, order]
       ],
     });
     res.json({
