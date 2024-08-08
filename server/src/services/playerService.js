@@ -12,7 +12,6 @@ const updatePlayers = async function (teamIds = [], competitionId = null) {
     for (const teamId of teamIds) {
       logger.info(`Traitement de l'équipe ID : ${teamId}`);
 
-      // Nouvelle requête pour récupérer les joueurs
       const options = {
         method: "GET",
         url: `${apiBaseUrl}players/squads`,

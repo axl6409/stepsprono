@@ -117,10 +117,36 @@ const Teams = () => {
                 </div>
                 <div className="py-2 border-t border-black">
                   <ul className="flex flex-row justify-center">
-                    {team.form.slice(-5).split('').map((result, index) => (
-                      <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black"
-                          key={index}>{getResultIcon(result)}</li>
-                    ))}
+                    {team.form ? (
+                      team.form.slice(-5).split('').map((result, index) => (
+                        <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black" key={index}>
+                          {getResultIcon(result)}
+                        </li>
+                      ))
+                    ) : (
+                        <>
+                          <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black">
+                            <FontAwesomeIcon icon={faMinusCircle}
+                                             className="text-slate-200 block rounded-full shadow-flat-black-adjust"/>
+                          </li>
+                          <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black">
+                            <FontAwesomeIcon icon={faMinusCircle}
+                                             className="text-slate-200 block rounded-full shadow-flat-black-adjust"/>
+                          </li>
+                          <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black">
+                            <FontAwesomeIcon icon={faMinusCircle}
+                                             className="text-slate-200 block rounded-full shadow-flat-black-adjust"/>
+                          </li>
+                          <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black">
+                            <FontAwesomeIcon icon={faMinusCircle}
+                                             className="text-slate-200 block rounded-full shadow-flat-black-adjust"/>
+                          </li>
+                          <li className="mx-2 text-lg rounded-full bg-black h-fit border border-black">
+                            <FontAwesomeIcon icon={faMinusCircle}
+                                             className="text-slate-200 block rounded-full shadow-flat-black-adjust"/>
+                          </li>
+                        </>
+                    )}
                   </ul>
                 </div>
               </div>

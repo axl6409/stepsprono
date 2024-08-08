@@ -6,12 +6,39 @@ const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
 const {updateTeamStats, createOrUpdateTeams} = require("../services/teamService");
-const {getCurrentSeasonYear} = require("../services/seasonService");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
 router.get('/teams', async (req, res) => {
+  try {
+    const sortBy = req.query.sortBy || 'position';
+    const order = req.query.order || 'ASC';
+    const currentSeason = await getCurrentSeasonId(61);
+
+    const teams = await TeamCompetition.findAndCountAll({
+      where: {
+        season_id: currentSeason
+      },
+      include: [{
+        model: Team,
+        as: 'Team',
+        required: true
+      }],
+      order: [
+        [sortBy, order]
+      ],
+    });
+    res.json({
+      data: teams.rows,
+      totalCount: teams.count,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des équipes' , error: error.message });
+  }
+})
+router.get('/teams/all', async (req, res) => {
   try {
     const sortBy = req.query.sortBy || 'position';
     const order = req.query.order || 'ASC';

@@ -64,7 +64,6 @@ router.post('/players/update', authenticateJWT, async (req, res) => {
   if (!teamId) {
     return res.status(400).json({ message: 'Aucun identifiant d\'équipe fourni' });
   }
-
   try {
     await updatePlayers([teamId], 61);
     res.status(200).json({ message: 'Mise à jour des joueurs réussie' });

@@ -3,7 +3,7 @@ const router = express.Router()
 const axios = require("axios");
 const {authenticateJWT} = require("../middlewares/auth");
 const {Competition} = require("../models");
-const {getCompetitionsByCountry} = require("../services/competitionService");
+const {getCompetitionsByCountry, updateCompetitionTeamsNewSeason} = require("../services/competitionService");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -25,6 +25,18 @@ router.get('/competitions/by-country/:code', authenticateJWT, async (req, res) =
     res.status(500).json({ error: 'Erreur lors de la récupération des compétitions', message: error.message })
   }
 })
-
+router.post('/admin/competition/update-teams-new-season', authenticateJWT, async(req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+  const { competitionId } = req.body;
+  if (!competitionId) {
+    return res.status(400).json({ message: 'Aucun identifiant de competition fourni' });
+  }
+  try {
+    await updateCompetitionTeamsNewSeason(competitionId);
+    res.status(200).json({ message: 'Mise à jour des équipes pour la nouvelle saison réussie' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la mise à jour des données', message: error.message })
+  }
+})
 
 module.exports = router
