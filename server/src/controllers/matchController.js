@@ -111,7 +111,8 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
-    const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
+    // const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
+    const now = moment();
     const startOfCurrentWeek = now.tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
@@ -131,7 +132,7 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     });
 
     if (matchs.count === 0) {
-      return res.status(404).json({ message: 'Aucun match trouvé pour cette semaine' });
+      return res.status(200).json({ message: 'Aucun match trouvé pour cette semaine' });
     }
 
     res.json({

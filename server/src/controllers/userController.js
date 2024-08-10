@@ -141,7 +141,8 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+    // const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
+    const now = moment();
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
@@ -199,125 +200,11 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
       return res.json({ points: weekPoints });
     } else if (filter === 'month') {
       const seasonId = await getCurrentSeasonId(61);
-      // const monthPoints = await getMonthPoints(seasonId, userId);
-      let monthPoints = 0;
-      switch (userId) {
-        case 2:
-          monthPoints = 17;
-          break;
-        case 4:
-          monthPoints = 23;
-          break;
-        case 5:
-          monthPoints = 16;
-          break;
-        case 6:
-          monthPoints = 12;
-          break;
-        case 7:
-          monthPoints = 11;
-          break;
-        case 8:
-          monthPoints = 21;
-          break;
-        case 9:
-          monthPoints = 18;
-          break;
-        case 10:
-          monthPoints = 14;
-          break;
-        case 11:
-          monthPoints = 13;
-          break;
-        case 12:
-          monthPoints = 11;
-          break;
-        case 13:
-          monthPoints = 22;
-          break;
-        case 14:
-          monthPoints = 12;
-          break;
-        case 15:
-          monthPoints = 16;
-          break;
-        case 16:
-          monthPoints = 15;
-          break;
-        case 17:
-          monthPoints = 20;
-          break;
-        case 18:
-          monthPoints = 19;
-          break;
-        case 20:
-          monthPoints = 13;
-          break;
-        case 21:
-          monthPoints = 6;
-          break;
-      }
+      const monthPoints = await getMonthPoints(seasonId, userId);
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
       const seasonId = await getCurrentSeasonId(61);
-      // const seasonPoints = await getSeasonPoints(seasonId, userId);
-      let seasonPoints = 0;
-      switch (userId) {
-        case 2:
-          seasonPoints = 154;
-          break;
-        case 4:
-          seasonPoints = 162;
-          break;
-        case 5:
-          seasonPoints = 154;
-          break;
-        case 6:
-          seasonPoints = 163;
-          break;
-        case 7:
-          seasonPoints = 143;
-          break;
-        case 8:
-          seasonPoints = 173;
-          break;
-        case 9:
-          seasonPoints = 131;
-          break;
-        case 10:
-          seasonPoints = 146;
-          break;
-        case 11:
-          seasonPoints = 147;
-          break;
-        case 12:
-          seasonPoints = 152;
-          break;
-        case 13:
-          seasonPoints = 176;
-          break;
-        case 14:
-          seasonPoints = 166;
-          break;
-        case 15:
-          seasonPoints = 166;
-          break;
-        case 16:
-          seasonPoints = 162;
-          break;
-        case 17:
-          seasonPoints = 174;
-          break;
-        case 18:
-          seasonPoints = 148;
-          break;
-        case 20:
-          seasonPoints = 168;
-          break;
-        case 21:
-          seasonPoints = 148;
-          break;
-      }
+      const seasonPoints = await getSeasonPoints(seasonId, userId);
       return res.json({ points: seasonPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });

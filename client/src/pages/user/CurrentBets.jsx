@@ -11,6 +11,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
   const [matchs, setMatchs] = useState([]);
+  const [noMatches, setNoMatches] = useState(false);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
   const [seasonPoints, setSeasonPoints] = useState(0);
@@ -25,6 +26,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         });
         const fetchedMatchs = response.data;
         if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
+          setNoMatches(true);
           return;
         }
         const sortedMatchs = fetchedMatchs.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
@@ -122,117 +124,132 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
       </div>
       {loggedUser.id === user.id && (
-        <div className="pt-8">
-        <Link
-          to="/matchs"
-          className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group">
-          {matchs && matchs.length > 0 ? (
-            <span
-              className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">
-            Modifier mes pronos
-          </span>
-          ) : (
-            <span
-              className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-medium transition -translate-y-1.5 group-hover:-translate-y-0">
-            Faire mes pronos
-          </span>
-          )}
-        </Link>
-        </div>
-      )}
-      {matchs && matchs.length > 0 && (
-        <div
-          className="relative my-[25%]">
-          <h2 className={`relative mb-12 w-fit mx-auto`}>
-            <span
-              className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
-            <span
-              className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
-            <span
-              className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
-          </h2>
-          <div className="w-full px-2">
-            <div className="flex flex-col w-full">
-              <div className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
-                <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
-                  <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
-                  <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
-                </div>
-                <div scope="col" className="py-0.5 px-1 w-[20%]">
-                  <p className="font-rubik font-medium text-xxs uppercase">Points</p>
-                </div>
+          <div className="pt-8">
+            {noMatches ? (
+              <div
+                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+                <span
+                    className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+                >
+                  Pronostics Fermés
+                </span>
               </div>
-              <div className={`flex flex-col mt-2 `}>
-                {matchs.map((bet, index) => (
-                  <div key={index}
-                       className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
-                    <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
-                    <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
-                      <div className="flex flex-col justify-evenly h-full">
-                        {bet.home_score !== null && bet.away_score !== null ? (
-                          <>
-                            <div className="relative flex flex-row justify-center items-center">
-                              <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
-                                   alt={bet.MatchId.HomeTeam.name}/>
-                              <img className="h-[40px] relative z-[3]"
-                                   src={vsIcon}
-                                   alt=""/>
-                              <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
-                                   alt={bet.MatchId.AwayTeam.name}/>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
-                            <p
-                              className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="relative z-[2] w-[30%] py-2 border-r-2 border-black border-dotted">
-                      <div className="h-full flex flex-row justify-center items-center">
-                        {bet.home_score !== null && bet.away_score !== null ? (
-                          <div>
-                            <p className="font-rubik font-medium text-xl">
-                              {bet.home_score} - {bet.away_score}
-                            </p>
-                            {bet.PlayerGoal !== null && (
-                              <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
-                            )}
-                          </div>
-                        ) : (
-                          bet.winnerId === bet.MatchId.HomeTeam.id ? (
-                            <img className="h-auto w-8" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
-                                 alt={bet.MatchId.HomeTeam.name}/>
-                          ) : bet.winnerId === bet.MatchId.AwayTeam.id ? (
-                            <img className="h-auto w-8" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
-                                 alt={bet.MatchId.AwayTeam.name}/>
-                          ) : (
-                            <img className="h-auto w-8" src={nullSymbol}
-                                 alt="symbole match null"/>
-                          )
-                        )}
-                      </div>
-                    </div>
-                    <div className="w-[20%] flex flex-col justify-center items-center py-2">
-                      {bet.points === null ? (
-                        <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
-                      ) : bet.points === 0 ? (
-                        <p className="font-rubik font-medium text-xl">{bet.points}</p>
-                      ) : (
-                        <p className="font-rubik font-medium text-xl">{bet.points}</p>
-                      )}
-                    </div>
+            ) : (
+              <Link
+                  to="/matchs"
+                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+              >
+                <span
+                    className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                >
+                  {matchs.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                </span>
+              </Link>
+            )}
+          </div>
+      )}
+      {noMatches ? (
+          <div className="relative my-[25%]">
+            <p className="text-center text-lg font-medium mt-4">
+              Aucun matchs et pronostics pour cette semaine.
+            </p>
+          </div>
+      ) : (
+          matchs && matchs.length > 0 && (
+              <div
+                  className="relative my-[25%]">
+                <h2 className={`relative mb-12 w-fit mx-auto`}>
+              <span
+                  className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
+                  <span
+                      className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+                  <span
+                      className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+                </h2>
+                <div className="w-full px-2">
+                  <div className="flex flex-col w-full">
+                    <div
+                        className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
+                      <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
+                        <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
                   </div>
-                ))}
+                  <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
+                    <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
+                  </div>
+                  <div scope="col" className="py-0.5 px-1 w-[20%]">
+                    <p className="font-rubik font-medium text-xxs uppercase">Points</p>
+                  </div>
+                </div>
+                <div className={`flex flex-col mt-2 `}>
+                  {matchs.map((bet, index) => (
+                    <div key={index}
+                         className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
+                      <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
+                      <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
+                        <div className="flex flex-col justify-evenly h-full">
+                          {bet.home_score !== null && bet.away_score !== null ? (
+                            <>
+                              <div className="relative flex flex-row justify-center items-center">
+                                <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
+                                     alt={bet.MatchId.HomeTeam.name}/>
+                                <img className="h-[40px] relative z-[3]"
+                                     src={vsIcon}
+                                     alt=""/>
+                                <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                     alt={bet.MatchId.AwayTeam.name}/>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <p
+                                className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
+                              <p
+                                className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="relative z-[2] w-[30%] py-2 border-r-2 border-black border-dotted">
+                        <div className="h-full flex flex-row justify-center items-center">
+                          {bet.home_score !== null && bet.away_score !== null ? (
+                            <div>
+                              <p className="font-rubik font-medium text-xl">
+                                {bet.home_score} - {bet.away_score}
+                              </p>
+                              {bet.PlayerGoal !== null && (
+                                <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
+                              )}
+                            </div>
+                          ) : (
+                            bet.winnerId === bet.MatchId.HomeTeam.id ? (
+                              <img className="h-auto w-8" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.HomeTeam.name}/>
+                            ) : bet.winnerId === bet.MatchId.AwayTeam.id ? (
+                              <img className="h-auto w-8" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                                   alt={bet.MatchId.AwayTeam.name}/>
+                            ) : (
+                              <img className="h-auto w-8" src={nullSymbol}
+                                   alt="symbole match null"/>
+                            )
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-[20%] flex flex-col justify-center items-center py-2">
+                        {bet.points === null ? (
+                          <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
+                        ) : bet.points === 0 ? (
+                          <p className="font-rubik font-medium text-xl">{bet.points}</p>
+                        ) : (
+                          <p className="font-rubik font-medium text-xl">{bet.points}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )
       )}
     </div>
   );
