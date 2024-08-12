@@ -16,9 +16,9 @@ const getSequelizeInstance = function() {
         ssl: {
           require: true,
           rejectUnauthorized: false,
-          ca: fs.readFileSync(path.resolve(__dirname, '/path/to/your/ca.pem')).toString(),
-          key: fs.readFileSync(path.resolve(__dirname, '/path/to/your/client-key.pem')).toString(),
-          cert: fs.readFileSync(path.resolve(__dirname, '/path/to/your/client-cert.pem')).toString()
+          ca: fs.readFileSync(path.resolve(__dirname, 'ssl/server.crt')).toString(),
+          key: fs.readFileSync(path.resolve(__dirname, 'ssl/server.key')).toString(),
+          cert: fs.readFileSync(path.resolve(__dirname, 'ssl/server.crt')).toString()
         }
       },
       define: {
