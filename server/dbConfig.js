@@ -1,4 +1,6 @@
 const { Sequelize } = require('sequelize');
+const fs = require('fs');
+const path = require('path');
 
 const getSequelizeInstance = function() {
   const env = process.env.NODE_ENV || 'development';
@@ -13,7 +15,10 @@ const getSequelizeInstance = function() {
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false
+          rejectUnauthorized: false,
+          ca: fs.readFileSync(path.resolve(__dirname, '/path/to/your/ca.pem')).toString(),
+          key: fs.readFileSync(path.resolve(__dirname, '/path/to/your/client-key.pem')).toString(),
+          cert: fs.readFileSync(path.resolve(__dirname, '/path/to/your/client-cert.pem')).toString()
         }
       },
       define: {
