@@ -24,10 +24,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
 
 const corsOptions = {
   origin: [
-    'http://localhost:3001',
-    'http://localhost:5173',
     'https://stepsprono.fr',
-    'https://dev.stepsprono.fr',
   ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
