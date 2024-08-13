@@ -11,10 +11,10 @@ const morgan = require('morgan')
 const logger = require('./server/src/utils/logger/logger');
 const rfs = require('rotating-file-stream');
 const path = require("path");
-// const accessLogStream = rfs.createStream('access.log', {
-//   interval: '1d',
-//   path: path.join(__dirname, 'log'),
-// });
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
+  path: path.join(__dirname, 'log'),
+});
 const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
@@ -24,34 +24,17 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
 
 const corsOptions = {
   origin: [
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:3001',
-    'http://localhost:5173',
     'http://localhost:3001',
-    'http://192.168.128.61:5173',
-    'http://192.168.128.61:3001',
-    'http://192.168.1.21:5173',
-    'http://192.168.1.21:3001',
-    'http://192.168.1.22:5173',
-    'http://192.168.1.22:3001',
-    'http://192.168.1.23:5173',
-    'http://192.168.1.23:3001',
-    'http://192.168.1.29:5173',
-    'http://192.168.1.29:3001',
-    'http://192.168.56.1:5173',
-    'http://192.168.56.1:3001',
-    'http://192.168.15.250:5173',
-    'http://192.168.15.250:3001',
-    'https://steps-prono-111820aa394d.herokuapp.com',
-    'http://stepsprono.arsher-off.fr:5173',
-    'http://stepsprono.arsher-off.fr:3001'
+    'http://localhost:5173',
+    'https://stepsprono.fr',
+    'https://dev.stepsprono.fr',
   ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
 
 app.use(cors(corsOptions));
-// app.use(morgan('combined', { stream: accessLogStream }));
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use('/api', apiRoutes);
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
@@ -70,19 +53,6 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Database synchronized')
     runCronJob()
     console.log('Cron job started')
-    // Total => 18 * 2 => 36 API requests
-    // await createOrUpdateTeams( 79, 2023, 61, false, false )
-    // Total => 1 API request
-    // await updateMatches(61)
-    // Total => 1 API request
-    // await updateTeamStats(null, 61)
-    // Total => 1 API request
-    // await fetchWeekMatches()
-    // Total => 18 API requests
-    // await updatePlayers([111,112,116], 61)
-    // Total => 1 API requests by matchId
-    // await updateMatchAndPredictions([1045118, 1045123, 1045119])
-    // Total => 0 API request
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }
