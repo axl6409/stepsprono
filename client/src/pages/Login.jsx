@@ -21,6 +21,8 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
+  console.log(apiUrl)
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
