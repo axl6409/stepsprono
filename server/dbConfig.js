@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const getSequelizeInstance = function() {
-  const env = process.env.NODE_ENV || 'development';
+  const env = process.env.NODE_ENV;
   const isProduction = env === 'production';
 
   let sequelize;
