@@ -5,7 +5,7 @@ import path from 'path';
 export default defineConfig(({ mode }) => {
   const root = path.resolve(__dirname, '../');
   const env = loadEnv(mode, root, '');
-  console.log(env.VITE_API_URL)
+
   return {
     plugins: [react()],
     resolve: {
