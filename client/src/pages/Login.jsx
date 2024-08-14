@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CookiesProvider, useCookies } from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
 import background from "../assets/components/background-hexagon-large.png";
-const apiUrl = process.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 console.log(apiUrl)
 import arrowLeft from "../assets/icons/arrow-left.svg";
 import userIcon from "../assets/icons/user.svg";
