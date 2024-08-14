@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CookiesProvider, useCookies } from "react-cookie";
 import {UserContext} from "../contexts/UserContext.jsx";
 import background from "../assets/components/background-hexagon-large.png";
+console.log(import.meta.env);
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log("API URL:", apiUrl);
 import arrowLeft from "../assets/icons/arrow-left.svg";
@@ -21,8 +22,6 @@ const Login = () => {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-
-  console.log(apiUrl)
 
   const handleChange = (e) => {
     setFormData({
