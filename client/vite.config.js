@@ -1,11 +1,11 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 
 export default defineConfig(({ mode }) => {
-  const root = path.resolve(__dirname, '../');
-  const env = loadEnv(mode, root, 'VITE_');
-  console.log('Loaded environment variables:', env);
+  const env = loadEnv(mode, process.cwd(), '');
+
+  console.log('ENV variables:', env);  // Pour vérifier que les variables sont bien chargées
+
   return {
     plugins: [react()],
     resolve: {
