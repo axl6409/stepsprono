@@ -4,8 +4,8 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const root = path.resolve(__dirname, '../');
-  const env = loadEnv(mode, root, '');
-
+  const env = loadEnv(mode, root, 'VITE_');
+  console.log('Loaded environment variables:', env);
   return {
     plugins: [react()],
     resolve: {
