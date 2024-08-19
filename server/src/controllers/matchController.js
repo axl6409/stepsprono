@@ -224,5 +224,21 @@ router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
+router.patch('/admin/matchs/:id/require-details', authenticateJWT, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé' });
+
+    const matchId = req.params.id;
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Match non trouvé' });
+
+    match.require_details = req.body.require_details;
+    await match.save();
+
+    res.status(200).json({ message: 'Field updated successfully', match });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
 
 module.exports = router

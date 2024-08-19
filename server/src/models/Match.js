@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       field: 'stage'
     },
+    require_details: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'require_details'
+    },
     home_team_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

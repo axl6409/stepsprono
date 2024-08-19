@@ -50,7 +50,9 @@ const Register = () => {
       formData.append('email', userData.email);
       formData.append('password', userData.password);
       formData.append('username', userData.username);
-      formData.append('teamId', userData.teamId);
+      if (userData.teamId) {
+        formData.append('teamId', userData.teamId);
+      }
       if (userData.profilePic) {
         formData.append('profilePic', userData.profilePic);
       }

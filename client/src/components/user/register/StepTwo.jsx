@@ -112,7 +112,7 @@ const StepTwo = ({ onPrevious, onNext }) => {
           <div className="absolute right-2 top-2">
             <button
               className="relative block w-fit rounded-full mt-2 ml-2 before:content-[''] before:absolute before:z-[1] before:w-[30px] before:h-[30px] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
-              type="submit" disabled={!username || !profilePic}>
+              type="submit" disabled={!username}>
               <img
                 className="relative z-[2] w-[30px] h-[30px] rotate-180 block border-2 border-black text-black uppercase font-regular text-l font-roboto px-1 py-1 rounded-full text-center shadow-md bg-white transition -translate-y-0.5 group-hover:-translate-y-0"
                 src={arrowLeft} alt="Suivant"/>

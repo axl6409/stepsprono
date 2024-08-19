@@ -31,13 +31,15 @@ router.post('/verifyToken', async (req, res) => {
 router.post('/register', upload.single('profilePic'), async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    let img = req.file || null
+    let img = null
+    const teamId = req.body.teamId || null;
+
     logger.info('Request body:', req.body);
     logger.info('File:', req.file);
 
     const usernameExists = await User.findOne({ where: { username } });
     const emailExists = await User.findOne({ where: { email } });
-    const teamId = req.body.teamId || null;
+
     if (usernameExists || emailExists) {
       return res.status(400).json({ error: 'Le nom d’utilisateur ou l\'email est déjà utilisé.' });
     }
@@ -72,13 +74,18 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
       status: 'pending'
     });
 
-    const [userRole, created] = await Role.findOrCreate({ where: { name: 'visitor' } });
-    await user.addRole(userRole);
+    const userRole = await Role.findOne({ where: { name: 'visitor' } });
+    if (!userRole) {
+      throw new Error("Le rôle 'visitor' n'existe pas dans la base de données");
+    }
+    const now = new Date();
+    await user.setRoles([userRole], { through: { createdAt: now, updatedAt: now } })
 
     const token = jwt.sign({ userId: user.id, role: userRole.name }, secretKey, { expiresIn: '365d' });
     logger.info('Utilisateur enregistré avec succès', user);
     res.status(201).json({ message: 'Utilisateur créé avec succès', user, token });
   } catch (error) {
+    logger.error('Erreur lors de la création de l\'utilisateur:', error);
     res.status(500).json({ message: 'Erreur lors de la création de l’utilisateur', error });
   }
 })
