@@ -65,6 +65,32 @@ const AdminCompetitions = () => {
         }
     };
 
+    const updateAllMatchs = async (competitionId) => {
+      try {
+        const response = await axios.patch(`${apiUrl}/api/admin/matchs/update-all`, {
+          competitionId,
+        }, {
+          headers: {'Authorization': `Bearer ${token}`}
+        });
+        if (response.status === 200) {
+          setUpdateStatus(true);
+          setUpdateMessage('Matchs mis à jour !');
+          setIsModalOpen(true)
+          setTimeout(function () {
+            closeModal()
+          }, 1500)
+        } else {
+          setUpdateStatus(false);
+          setUpdateMessage('Erreur lors de la mise à jour des matchs : ' + response.data.message);
+          setIsModalOpen(true)
+        }
+      } catch (error) {
+        setUpdateStatus(false);
+        console.log(error)
+        setUpdateMessage('Erreur lors de la mise à jour des matchs : ' + error.response.data.message);
+      }
+    };
+
   const closeModal = () => {
     setUpdateStatus(false);
     setUpdateMessage('');
@@ -99,25 +125,32 @@ const AdminCompetitions = () => {
                           <div className="relative z-[2] my-4">
                               <h2 className="font-title uppercase text-xl3 font-bold">{competition.name}</h2>
                           </div>
-                          <div className="relative z-[2]  flex flex-col justify-start">
-                              <div className="flex flex-row justify-between items-center my-2">
-                                  <p className="w-2/3">Mettre a jour les infos de la ligue</p>
-                                  <button className="border border-black rounded-xl px-8 py-2">
-                                      <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
-                                  </button>
-                              </div>
-                              <div className="flex flex-row justify-between items-center my-2">
-                                  <p className="w-2/3">Mettre a jour les équipes</p>
-                                  <button onClick={() => handleUpdateCompetitionTeamsNewSeason(competition.id)}
-                                          className="border border-black rounded-xl px-8 py-2">
-                                      <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
-                                  </button>
-                              </div>
+                        <div className="relative z-[2]  flex flex-col justify-start">
+                          <div className="flex flex-row justify-between items-center my-2">
+                            <p className="w-2/3">Mettre a jour les infos de la ligue</p>
+                            <button className="border border-black rounded-xl px-8 py-2">
+                              <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
+                            </button>
                           </div>
+                          <div className="flex flex-row justify-between items-center my-2">
+                            <p className="w-2/3">Mettre a jour les équipes</p>
+                            <button onClick={() => handleUpdateCompetitionTeamsNewSeason(competition.id)}
+                                    className="border border-black rounded-xl px-8 py-2">
+                              <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
+                            </button>
+                          </div>
+                          <div className="flex flex-row justify-between items-center my-2">
+                            <p className="w-2/3">Mettre a jour les matchs</p>
+                            <button onClick={() => updateAllMatchs(competition.id)}
+                                    className="border border-black rounded-xl px-8 py-2">
+                              <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                   ))
               ) : (
-                  <p>Aucune competition</p>
+                <p>Aucune competition</p>
               )}
             </div>
           </div>

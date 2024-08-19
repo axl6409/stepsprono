@@ -3,6 +3,10 @@ const router = express.Router()
 const axios = require("axios");
 const logger = require("../utils/logger/logger");
 const {authenticateJWT} = require("../middlewares/auth");
+const fs = require('fs');
+const { mkdirSync, readdirSync, unlinkSync } = require('fs');
+const { promisify } = require('util');
+const moveFile = promisify(fs.rename);
 const { User, Team, Role, Bet, Match, Player} = require("../models");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
@@ -80,7 +84,6 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
   }
 })
 router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
-  console.log(req.body.type)
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
@@ -94,20 +97,34 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
       const userDirectory = path.dirname(imagePath);
+      const tempDirectory = path.join(userDirectory, '..', 'temp');
+
+      mkdirSync(tempDirectory, { recursive: true });
 
       await sharp(imagePath)
-          .resize(120, 120)
-          .toFile(`${userDirectory}/${baseName}_120x120${path.extname(imagePath)}`);
+        .resize(120, 120)
+        .toFile(`${tempDirectory}/${baseName}_120x120${path.extname(imagePath)}`);
 
       await sharp(imagePath)
-          .resize(450, 450)
-          .toFile(`${userDirectory}/${baseName}_450x450${path.extname(imagePath)}`);
+        .resize(450, 450)
+        .toFile(`${tempDirectory}/${baseName}_450x450${path.extname(imagePath)}`);
 
       await sharp(imagePath)
-          .resize(450)
-          .toFile(`${userDirectory}/${baseName}_450xAuto${path.extname(imagePath)}`);
+        .resize(450)
+        .toFile(`${tempDirectory}/${baseName}_450xAuto${path.extname(imagePath)}`);
+
+      const originalFileName = `${baseName}${path.extname(imagePath)}`;
+      const originalFilePath = path.join(tempDirectory, originalFileName);
+      await moveFile(imagePath, originalFilePath);
 
       deleteFilesInDirectory(userDirectory);
+
+      const tempFiles = readdirSync(tempDirectory);
+      for (const file of tempFiles) {
+        await moveFile(path.join(tempDirectory, file), path.join(userDirectory, file));
+      }
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
 
       user.img = path.basename(req.file.path);
     }

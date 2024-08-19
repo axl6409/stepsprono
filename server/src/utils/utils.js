@@ -55,7 +55,6 @@ const storage = multer.diskStorage({
     } else if (fileType === 'team') {
       const teamId = req.params.id || new Date().getTime();
       cb(null, 'team_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
-      console.log('File Name => ', file.originalname);
     } else {
       cb(null, randomString + path.extname(file.originalname));
     }

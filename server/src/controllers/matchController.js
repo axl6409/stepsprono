@@ -111,8 +111,8 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
-    // const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
-    const now = moment();
+    const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    // const now = moment();
     const startOfCurrentWeek = now.tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
@@ -214,7 +214,11 @@ router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
-    await updateMatches()
+    const { competitionId } = req.body;
+    if (!competitionId) {
+      return res.status(400).json({ message: 'Aucun identifiant de competition fourni' });
+    }
+    await updateMatches(competitionId)
     res.status(200).json({ message: 'Matchs mis à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });

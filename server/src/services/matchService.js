@@ -147,6 +147,7 @@ async function updateMatches(competitionId = null) {
     const response = await axios.request(options);
     const matches = response.data.response;
     const bar = new ProgressBar(':bar :percent', { total: matches.length });
+
     for (const match of matches) {
       let winner = null
       if (match.teams.home.winner === true) {
@@ -172,7 +173,7 @@ async function updateMatches(competitionId = null) {
         home_team_id: match.teams.home.id,
         away_team_id: match.teams.away.id,
         competition_id: competitionId,
-        season: seasonId,
+        season_id: seasonId,
         winner_id: winner,
         goals_home: match.goals.home,
         goals_away: match.goals.away,
@@ -192,8 +193,9 @@ async function updateMatches(competitionId = null) {
 
 async function fetchWeekMatches() {
   try {
-    const startOfWeek = moment().startOf('isoWeek').tz("Europe/Paris");
-    const endOfWeek = moment().endOf('isoWeek').tz("Europe/Paris");
+    const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    const startOfWeek = simNow.startOf('isoWeek').tz("Europe/Paris");
+    const endOfWeek = simNow.endOf('isoWeek').tz("Europe/Paris");
 
     const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
     const endDate = endOfWeek.format('YYYY-MM-DD 23:59:59');
