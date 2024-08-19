@@ -98,7 +98,6 @@ const StepTwo = ({ onPrevious, onNext }) => {
               className="hidden"
               ref={fileInputRef}
               onChange={handleFileChange}
-              required
             />
           </label>
           <div className="absolute left-2 top-2">

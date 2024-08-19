@@ -38,7 +38,7 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
   };
 
   const isFormValid = () => {
-    return userData.email && userData.password && userData.username && userData.profilePic && userData.teamId;
+    return userData.email && userData.password && userData.username;
   };
 
   const handleSubmit = (event) => {
@@ -106,7 +106,7 @@ const StepThree = ({ userData, onPrevious, onFinish }) => {
             <img src={heartRed} alt="" className="absolute z-[6] bottom-1 left-4"/>
           </div>
           <select className="p-1 border border-black rounded-md font-rubik underline mt-6" onChange={handleTeamChange}
-                  value={team} required>
+                  value={team}>
             <option value="">Choisis</option>
             {teams.map((team) => (
               <option key={team.id} value={team.Team.id}>{team.Team.name}</option>

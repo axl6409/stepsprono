@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {UserContext} from "../../contexts/UserContext.jsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import {
-  faPen,
-} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import iconUser from "../../assets/components/user/icon-user-purple-border.png";
@@ -31,6 +27,7 @@ const UserSettings = (props) => {
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      console.log("Selected file type: profile"); // Ajoutez cette ligne pour vérifier
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
@@ -39,8 +36,8 @@ const UserSettings = (props) => {
       setSelectedImage(file);
 
       const formData = new FormData();
-      formData.append('avatar', file);
       formData.append('type', 'profile');
+      formData.append('avatar', file);
       try {
         const response = await axios.put(`${apiUrl}/api/user/update/${user.id}`, formData, {
           headers: {
@@ -70,8 +67,10 @@ const UserSettings = (props) => {
         </h1>
         <div>
           <div className="profile-picture mt-4 w-fit mx-auto">
-            <img src={previewImage} alt="Profil" className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>
-            <div className="file-upload-wrapper relative inline-block mt-4 cursor-pointer group">
+            <img
+              src={user.img ? (apiUrl + "/uploads/users/" + user.id + "/" + user.img) : defaultUserImage}
+              alt="Profil"
+              className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>            <div className="file-upload-wrapper relative inline-block mt-4 cursor-pointer group">
               <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" onChange={handleImageChange}  type="file" accept="image/*"/>
               <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center transition-all duration-300 ease-in-out group-hover:bg-grey-medium group-hover:text-white">
                 Changer la photo

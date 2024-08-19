@@ -30,18 +30,14 @@ router.post('/verifyToken', async (req, res) => {
 });
 router.post('/register', upload.single('profilePic'), async (req, res) => {
   try {
-    const { username, email, password, teamId } = req.body;
-    let img = req.file
+    const { username, email, password } = req.body;
+    let img = req.file || null
     logger.info('Request body:', req.body);
     logger.info('File:', req.file);
 
-    if (!teamId) {
-      return res.status(400).json({ error: 'L\'ID de l\'équipe est manquant.' });
-    }
-
     const usernameExists = await User.findOne({ where: { username } });
     const emailExists = await User.findOne({ where: { email } });
-
+    const teamId = req.body.teamId || null;
     if (usernameExists || emailExists) {
       return res.status(400).json({ error: 'Le nom d’utilisateur ou l\'email est déjà utilisé.' });
     }

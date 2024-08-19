@@ -11,6 +11,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
   const [matchs, setMatchs] = useState([]);
+  const [bets, setBets] = useState([]);
   const [noMatches, setNoMatches] = useState(false);
   const [weekPoints, setWeekPoints] = useState(0);
   const [monthPoints, setMonthPoints] = useState(0);
@@ -24,13 +25,9 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        const fetchedMatchs = response.data;
-        if (!Array.isArray(fetchedMatchs) || fetchedMatchs.length === 0) {
-          setNoMatches(true);
-          return;
-        }
-        const sortedMatchs = fetchedMatchs.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
-        setMatchs(sortedMatchs)
+        const currentBets = response.data;
+        const sortedBets = currentBets.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
+        setBets(sortedBets)
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -83,7 +80,28 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         console.error('Erreur lors de la récupération des paris', error);
       }
     };
+
+    const fetchMatchs = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        const sortedMatchs = response.data.data
+        console.log(sortedMatchs)
+        if (sortedMatchs.length === 0) {
+          setNoMatches(true);
+          return;
+        }
+        setMatchs(sortedMatchs)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des matchs :', error);
+      }
+    }
+
     if (user && token) {
+      fetchMatchs()
       fetchLastBets()
       fetchWeekPoints()
       fetchMonthBets()
@@ -155,7 +173,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
       ) : (
-          matchs && matchs.length > 0 && (
+        bets && bets.length > 0 && (
               <div
                   className="relative my-[25%]">
                 <h2 className={`relative mb-12 w-fit mx-auto`}>
@@ -181,7 +199,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                   </div>
                 </div>
                 <div className={`flex flex-col mt-2 `}>
-                  {matchs.map((bet, index) => (
+                  {bets.map((bet, index) => (
                     <div key={index}
                          className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
                       <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
