@@ -64,7 +64,7 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
         .resize(450)
         .toFile(`${path.dirname(imagePath)}/${baseName}_450xAuto${path.extname(imagePath)}`);
 
-      img = req.file.path.split('client')[1]
+      img = path.basename(req.file.path);
     }
 
     const user = await User.create({

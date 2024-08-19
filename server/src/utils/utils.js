@@ -1,10 +1,22 @@
 const multer = require('multer');
 const path = require('path');
-const { mkdirSync, unlink } = require('fs');
+const { mkdirSync, unlink, readdirSync, unlinkSync } = require('fs');
+const logger = require("./logger/logger");
 
-// Fonction pour générer une chaîne aléatoire
 function generateRandomString(length) {
   return Math.random().toString(36).substring(2, 2 + length);
+}
+
+function deleteFilesInDirectory(directoryPath) {
+  try {
+    const files = readdirSync(directoryPath);
+    for (const file of files) {
+      unlinkSync(path.join(directoryPath, file));
+    }
+    console.log(`Tous les fichiers dans ${directoryPath} ont été supprimés.`);
+  } catch (error) {
+    console.error(`Erreur lors de la suppression des fichiers dans ${directoryPath} : ${error}`);
+  }
 }
 
 // Configuration de stockage Multer
@@ -74,6 +86,7 @@ function extractMatchday(round) {
 
 module.exports = {
   generateRandomString,
+  deleteFilesInDirectory,
   upload,
   deleteFile,
   pointsSum,

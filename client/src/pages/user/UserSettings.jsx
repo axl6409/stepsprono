@@ -40,6 +40,7 @@ const UserSettings = (props) => {
 
       const formData = new FormData();
       formData.append('avatar', file);
+      formData.append('type', 'profile');
       try {
         const response = await axios.put(`${apiUrl}/api/user/update/${user.id}`, formData, {
           headers: {
@@ -70,10 +71,9 @@ const UserSettings = (props) => {
         <div>
           <div className="profile-picture mt-4 w-fit mx-auto">
             <img src={previewImage} alt="Profil" className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>
-            <div className="file-upload-wrapper relative inline-block mt-4">
-              {/* onChange={handleImageChange} */}
-              <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" type="file" accept="image/*"/>
-              <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center hover:bg-grey-medium">
+            <div className="file-upload-wrapper relative inline-block mt-4 cursor-pointer group">
+              <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" onChange={handleImageChange}  type="file" accept="image/*"/>
+              <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center transition-all duration-300 ease-in-out group-hover:bg-grey-medium group-hover:text-white">
                 Changer la photo
               </label>
             </div>

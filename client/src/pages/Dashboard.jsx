@@ -105,7 +105,7 @@ const Dashboard = ({ userId: propUserId }) => {
     );
   }
 
-  if (!profileUser) {
+  if (!isLoading && !profileUser) {
     return (
       <div className="text-center flex flex-col justify-center">
         <span className="text-3xl font-black uppercase">Utilisateur introuvable</span>

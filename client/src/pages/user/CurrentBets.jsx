@@ -95,7 +95,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
     <div>
       <div
         className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full border-2 border-black">
-        <img className="w-full h-full object-cover" src={user.img} alt="Image de profil"/>
+        <img className="w-full h-full object-cover" src={apiUrl + "/uploads/users/" + user.id + "/" + user.img} alt="Image de profil"/>
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div

@@ -12,7 +12,7 @@ const bcrypt = require("bcrypt");
 const path = require("path");
 const sharp = require("sharp");
 const multer = require("multer");
-const { upload } = require('../utils/utils');
+const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
@@ -80,45 +80,49 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
   }
 })
 router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
+  console.log(req.body.type)
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password, roleName, teamId } = req.body
-    if (username) user.username = username
-    if (email) user.email = email
-    if (password) user.password = await bcrypt.hash(password, 10)
-    if (teamId) user.teamId = teamId
+    const { username, email, password, roleName, teamId } = req.body;
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (password) user.password = await bcrypt.hash(password, 10);
+    if (teamId) user.teamId = teamId;
     if (req.file) {
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
-      // Créer des variations redimensionnées
-      await sharp(imagePath)
-        .resize(120, 120)
-        .toFile(`${path.dirname(imagePath)}/${baseName}_120x120${path.extname(imagePath)}`);
+      const userDirectory = path.dirname(imagePath);
 
       await sharp(imagePath)
-        .resize(450, 450)
-        .toFile(`${path.dirname(imagePath)}/${baseName}_450x450${path.extname(imagePath)}`);
+          .resize(120, 120)
+          .toFile(`${userDirectory}/${baseName}_120x120${path.extname(imagePath)}`);
 
       await sharp(imagePath)
-        .resize(450)
-        .toFile(`${path.dirname(imagePath)}/${baseName}_450xAuto${path.extname(imagePath)}`);
+          .resize(450, 450)
+          .toFile(`${userDirectory}/${baseName}_450x450${path.extname(imagePath)}`);
 
-      user.img = req.file.path.split('client')[1]
+      await sharp(imagePath)
+          .resize(450)
+          .toFile(`${userDirectory}/${baseName}_450xAuto${path.extname(imagePath)}`);
+
+      deleteFilesInDirectory(userDirectory);
+
+      user.img = path.basename(req.file.path);
     }
     if (roleName) {
       const role = await Role.findOne({ where: { name: roleName } });
       if (role) {
-        await user.setRoles([role])
-        user.status = 'approved'
+        await user.setRoles([role]);
+        user.status = 'approved';
       }
     }
 
-    await user.save()
-    res.status(200).json(user)
+    await user.save();
+    res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: 'Impossible de mettre à jour l\'utilisateur' + error, });
+    res.status(400).json({ error: "Impossible de mettre à jour l'utilisateur" + error });
   }
 });
 router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {

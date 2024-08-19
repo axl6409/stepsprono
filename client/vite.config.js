@@ -4,8 +4,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
-  console.log('ENV variables:', env);  // Pour vérifier que les variables sont bien chargées
-
   return {
     plugins: [react()],
     resolve: {
