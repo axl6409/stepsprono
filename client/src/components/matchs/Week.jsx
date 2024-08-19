@@ -18,7 +18,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const Week = ({token, user}) => {
   const [matchs, setMatchs] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState('');
+  const [alertType, setAlertType] = useState(null);
   const swiperRef = useRef(null);
   const formRefs = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -119,14 +119,18 @@ const Week = ({token, user}) => {
     return canSubmitBet(match) && isBetPlaced(match.id);
   };
 
-  const handleGlobalSubmit = () => {
+  const handleGlobalSubmit = async () => {
     const currentIndex = swiperRef.current?.swiper.activeIndex;
     if (currentIndex !== undefined) {
       const currentMatch = matchs[currentIndex];
       const currentFormComponent = formRefs.current[currentIndex];
       if (currentFormComponent && currentMatch && (isMatchEditable(currentMatch) || !isBetPlaced(currentMatch.id))) {
-        currentFormComponent.triggerSubmit();
-        handleError('Prono enregistré', 3000)
+        try {
+          await currentFormComponent.triggerSubmit();
+          handleSuccess('Prono enregistré', 3000)
+        } catch (e) {
+          handleError('Prono refusé');
+        }
       } else {
         handleError('Prono refusé', 3000)
       }

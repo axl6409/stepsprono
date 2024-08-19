@@ -48,7 +48,6 @@ router.get('/bets/get-null/all', authenticateJWT, async (req, res) => {
 router.post('/bet/add', authenticateJWT, async (req, res) => {
   try {
     const bet = await createBet(req.body);
-    logger.info(req.body)
     res.status(200).json(bet);
   } catch (error) {
     if (error.message === 'Match non trouvé' || error.message === 'Un prono existe déjà pour ce match') {

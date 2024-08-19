@@ -58,7 +58,6 @@ const updatePlayers = async function (teamIds = [], competitionId = null) {
         if (!created) {
           await player.update({
             name: apiPlayer.name,
-            age: apiPlayer.age,
             photo: apiPlayer.photo,
           });
         }

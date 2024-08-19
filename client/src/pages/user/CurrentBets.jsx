@@ -246,11 +246,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                               )}
                             </div>
                           ) : (
-                            bet.winnerId === bet.MatchId.HomeTeam.id ? (
-                              <img className="h-auto w-8" src={bet.MatchId.HomeTeam.logoUrl + ".svg"}
+                            bet.winner_id === bet.MatchId.HomeTeam.id ? (
+                              <img className="h-auto w-8" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                    alt={bet.MatchId.HomeTeam.name}/>
-                            ) : bet.winnerId === bet.MatchId.AwayTeam.id ? (
-                              <img className="h-auto w-8" src={bet.MatchId.AwayTeam.logoUrl + ".svg"}
+                            ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
+                              <img className="h-auto w-8" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                    alt={bet.MatchId.AwayTeam.name}/>
                             ) : (
                               <img className="h-auto w-8" src={nullSymbol}

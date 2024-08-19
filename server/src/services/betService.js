@@ -212,6 +212,7 @@ const checkBetByMatchId = async (ids) => {
 
 const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   try {
+    logger.info('DATAS =>', { userId, matchday, matchId, winnerId, homeScore, awayScore, scorer });
     const match = await Match.findOne({
       where: {id: matchId},
     });
@@ -237,18 +238,8 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
       }
     }
     const competitionId = 61
-    const seasonId = await getCurrentSeasonId(61);
-    logger.info("Infos => ",{
-      user_id: userId,
-      season_id: seasonId,
-      competition_id: competitionId,
-      matchday: matchday,
-      match_id: matchId,
-      winner_id: winnerId,
-      home_score: homeScore,
-      away_score: awayScore,
-      player_goal: scorer ? scorer : null
-    })
+    const seasonId = await getCurrentSeasonId(competitionId);
+
     console.log("Scorer => ", scorer);
     const bet = await Bet.create({
       user_id: userId,

@@ -193,6 +193,7 @@ const AdminPlayers = () => {
                     Mettre à jour les joueurs
                 </button>
                 <div className="mt-4 flex flex-row flex-wrap justify-evenly items-center">
+                    {console.log(players)}
                     {players.length > 0 ? (
                         players.map(player => (
                             <div key={player.Player.id}
