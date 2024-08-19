@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import CurrentBets from "./user/CurrentBets.jsx";
 import Loader from "../components/partials/Loader.jsx";
+import defaultTeamImage from "../assets/components/icons/hidden-trophy.webp";
 import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextTeam from "../assets/components/texts/equipe-de-coeur.svg";
@@ -133,8 +134,10 @@ const Dashboard = ({ userId: propUserId }) => {
             </span>
               <span
                 className="block relative z-[3] w-full h-full border-2 border-black text-black p-2 pt-4 rounded-full text-center shadow-md bg-white">
-              <img className="mx-auto h-full" src={apiUrl + "/uploads/teams/" + profileUser.team_id + "/" + teamLogoUrl}
-                   alt=""/>
+              <img
+                className="mx-auto h-full"
+                src={profileUser.team_id ? `${apiUrl}/uploads/teams/${profileUser.team_id}/${teamLogoUrl}` : defaultTeamImage}
+                alt=""/>
               <span className="w-[13px] h-[13px] rounded-full absolute left-0.5 top-1/2 -rotate-12">
                 <img src={heartRed} alt=""/>
               </span>

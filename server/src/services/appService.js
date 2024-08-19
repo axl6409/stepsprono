@@ -130,7 +130,11 @@ const checkAndScheduleSeasonEndTasks = async () => {
 };
 
 const getSettlement = async () => {
-  return await Setting.findOne({where: {key: 'regulation'}})
+  try {
+    return await Setting.findOne({where: {key: 'regulation'}})
+  } catch (error) {
+    logger.error('getSettlement ERROR: ', error)
+  }
 }
 
 module.exports = {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import weekPointsImage from "../../assets/components/dashboard/points-de-la-semaine.svg";
 import monthPointsImage from "../../assets/components/dashboard/points-du-mois.svg";
 import seasonPointsImage from "../../assets/components/dashboard/points-de-la-saison.svg";
@@ -113,7 +114,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
     <div>
       <div
         className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full border-2 border-black">
-        <img className="w-full h-full object-cover" src={apiUrl + "/uploads/users/" + user.id + "/" + user.img} alt="Image de profil"/>
+        <img
+          className="w-full h-full object-cover"
+          src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
+          alt="Image de profil"
+        />
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
