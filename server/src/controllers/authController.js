@@ -72,8 +72,8 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
       status: 'pending'
     });
 
-    const [userRole, created] = await Role.findOrCreate({ where: { name: 'visitor' } });
-    await user.addRole(userRole);
+    const [userRole, created] = await Role.findOne({ where: { name: 'visitor' } });
+    await user.setRoles(userRole);
 
     const token = jwt.sign({ userId: user.id, role: userRole.name }, secretKey, { expiresIn: '365d' });
     logger.info('Utilisateur enregistré avec succès', user);
