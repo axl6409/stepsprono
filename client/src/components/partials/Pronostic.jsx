@@ -241,49 +241,46 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                 </label>
               </div>
               {/*{match && match.id === lastMatch.id && (*/}
-              {match && match.id && (
-                <>
-                  <div className="flex flex-row justify-between items-center">
-                    <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
-                      <p className="font-roboto text-sm font-regular">Score</p>
-                      <label className="flex flex-col w-fit max-w-[35px]">
-                        <input
-                          className="border border-black text-rubik font-black text-base text-center rounded-xl"
-                          type="number"
-                          {...register("homeScore")}
-                          onChange={(e) => setHomeScore(e.target.value)}
-                        />
-                      </label>
-                      <label className="flex flex-col w-fit max-w-[35px]">
-                        <input
-                          className="border border-black text-rubik font-black text-base text-center rounded-xl"
-                          type="number"
-                          {...register("awayScore")}
-                          onChange={(e) => setAwayScore(e.target.value)}
-                        />
-                      </label>
-                    </div>
-                    <div className="flex flex-row justify-evenly my-2 w-1/2">
-                      {( players.length > 0) && (
-                        <label className="flex flex-col w-11/12 ml-auto text-center">
-                          <select
-                            className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
-                            {...register("scorer")}
-                            onChange={(e) => setScorer(e.target.value)}
-                          >
-                            <option key={1} value={''}>Aucun butteur</option>
-                            {players.map((player, index) => {
-                              return (
-                                <option key={`${player.player_id}-${index}`}
-                                        value={player.player_id}>{cleanPlayerName(player.Player.name)}</option>
-                              );
-                            })}
-                          </select>
-                        </label>
-                      )}
-                    </div>
+              {(match.require_details || match.id === lastMatch.id) && (
+                <div className="flex flex-row justify-between items-center">
+                  <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
+                    <p className="font-roboto text-sm font-regular">Score</p>
+                    <label className="flex flex-col w-fit max-w-[35px]">
+                      <input
+                        className="border border-black text-rubik font-black text-base text-center rounded-xl"
+                        type="number"
+                        {...register("homeScore")}
+                        onChange={(e) => setHomeScore(e.target.value)}
+                      />
+                    </label>
+                    <label className="flex flex-col w-fit max-w-[35px]">
+                      <input
+                        className="border border-black text-rubik font-black text-base text-center rounded-xl"
+                        type="number"
+                        {...register("awayScore")}
+                        onChange={(e) => setAwayScore(e.target.value)}
+                      />
+                    </label>
                   </div>
-                </>
+                  {players.length > 0 && (
+                    <div className="flex flex-row justify-evenly my-2 w-1/2">
+                      <label className="flex flex-col w-11/12 ml-auto text-center">
+                        <select
+                          className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
+                          {...register("scorer")}
+                          onChange={(e) => setScorer(e.target.value)}
+                        >
+                          <option key={1} value={''}>Aucun buteur</option>
+                          {players.map((player, index) => (
+                            <option key={`${player.player_id}-${index}`} value={player.player_id}>
+                              {cleanPlayerName(player.Player.name)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  )}
+                </div>
               )}
             </form>
           )}
