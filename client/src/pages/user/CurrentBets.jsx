@@ -27,8 +27,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           }
         });
         const currentBets = response.data;
-        const sortedBets = currentBets.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
-        setBets(sortedBets)
+        if (Array.isArray(currentBets)) {
+          const sortedBets = currentBets.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
+          setBets(sortedBets);
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -165,7 +167,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 <span
                     className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
                 >
-                  {matchs.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                  {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
                 </span>
               </Link>
             )}

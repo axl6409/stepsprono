@@ -2,6 +2,7 @@ const {Op} = require("sequelize");
 const {Bet, Match, Team} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
+const {getCurrentSeasonId} = require("./seasonService");
 
 const checkupBets = async (betId) => {
   try {
@@ -209,7 +210,7 @@ const checkBetByMatchId = async (ids) => {
   }
 };
 
-const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
+const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   try {
     const match = await Match.findOne({
       where: {id: matchId},
@@ -235,6 +236,19 @@ const createBet = async ({ userId, seasonId, competitionId, matchday, matchId, w
         throw new Error('Le score doit être en rapport avec l\'équipe gagnante désignée');
       }
     }
+    const competitionId = 61
+    const seasonId = await getCurrentSeasonId(61);
+    logger.info("Infos => ",{
+      user_id: userId,
+      season_id: seasonId,
+      competition_id: competitionId,
+      matchday: matchday,
+      match_id: matchId,
+      winner_id: winnerId,
+      home_score: homeScore,
+      away_score: awayScore,
+      player_goal: scorer ? scorer : null
+    })
     console.log("Scorer => ", scorer);
     const bet = await Bet.create({
       user_id: userId,

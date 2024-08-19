@@ -77,7 +77,7 @@ const UserRanking = ({ users, token }) => {
             <p className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
             <div
               className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-              <img src={updatedUsers[1]?.img || defaultUserImage} alt={updatedUsers[1]?.username}/>
+              <img src={updatedUsers[1]?.img ? `${apiUrl}/uploads/users/${updatedUsers[1].id}/${updatedUsers[1].img}` : defaultUserImage} alt={updatedUsers[1]?.username}/>
             </div>
             <p className="font-bold">{updatedUsers[1]?.username}</p>
             <p>{updatedUsers[1]?.points}</p>
@@ -91,7 +91,7 @@ const UserRanking = ({ users, token }) => {
               className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
               <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
               <div className="overflow-hidden flex items-center rounded-full justify-center w-full h-full">
-                <img className="z-[2]" src={updatedUsers[0]?.img || defaultUserImage} alt={updatedUsers[0]?.username}/>
+                <img className="z-[2]" src={updatedUsers[0]?.img ? `${apiUrl}/uploads/users/${updatedUsers[0].id}/${updatedUsers[0].img}` : defaultUserImage} alt={updatedUsers[0]?.username}/>
               </div>
               <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
             </div>
@@ -105,7 +105,7 @@ const UserRanking = ({ users, token }) => {
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
             className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-            <img src={updatedUsers[2]?.img || defaultUserImage} alt={updatedUsers[2]?.username}/>
+            <img src={updatedUsers[2]?.img ? `${apiUrl}/uploads/users/${updatedUsers[2].id}/${updatedUsers[1].img}` : defaultUserImage} alt={updatedUsers[2]?.username}/>
           </div>
           <p className="font-bold">{updatedUsers[2]?.username}</p>
             <p>{updatedUsers[2]?.points}</p>
@@ -148,7 +148,7 @@ const UserRanking = ({ users, token }) => {
               <Link to={`/dashboard/${user.id}`}
                     className="relative z-[20] group flex flex-row justify-between">
                 <div className="w-14 bg-grey-light rounded-r-xl">
-                  <img className="object-center object-cover" src={user.img || defaultUserImage} alt={user.username}/>
+                  <img className="object-center object-cover" src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage} alt={user.username}/>
                 </div>
                 <p className="font-title text-black text-xl font-bold h-fit my-auto w-3/5 pl-6 pr-2">
                   <span className="inline-block mr-2">{user.username}</span>

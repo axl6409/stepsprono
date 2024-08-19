@@ -162,8 +162,8 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    // const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 });
-    const now = moment();
+    const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    // const now = moment();
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
@@ -202,7 +202,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       }
     });
     if (bets.length === 0) {
-      res.json({ message: 'Aucun pari pour la semaine en cours' })
+      res.status(404).json({ message: 'Aucun pari pour la semaine en cours' })
     } else {
       res.json(bets)
     }

@@ -87,8 +87,13 @@ async function fetchTeamsFromApi(competitionId, seasonYear) {
   return response.data.response;
 }
 
+async function getCurrentSeasonId(competitionId) {
+
+}
+
 
 module.exports = {
   updateCompetitionTeamsNewSeason,
   fetchTeamsFromApi,
+  getCurrentSeasonId
 }
