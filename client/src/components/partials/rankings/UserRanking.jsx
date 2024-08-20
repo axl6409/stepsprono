@@ -100,12 +100,12 @@ const UserRanking = ({ users, token }) => {
           </Link>
         </div>
         <div className="relative z-[2] order-3 -ml-6">
-          <Link to={`/dashboard/${updatedUsers[3]?.id}`} className="relative z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative z-[20] group flex flex-col items-center">
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
             className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-            <img src={updatedUsers[2]?.img ? `${apiUrl}/uploads/users/${updatedUsers[2].id}/${updatedUsers[1].img}` : defaultUserImage} alt={updatedUsers[2]?.username}/>
+            <img src={updatedUsers[2]?.img ? `${apiUrl}/uploads/users/${updatedUsers[2].id}/${updatedUsers[2].img}` : defaultUserImage} alt={updatedUsers[2]?.username}/>
           </div>
           <p className="font-bold">{updatedUsers[2]?.username}</p>
             <p>{updatedUsers[2]?.points}</p>

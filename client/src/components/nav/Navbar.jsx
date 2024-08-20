@@ -50,45 +50,39 @@ const UserMenu = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const dayOfWeek = now.getDay();
-      const nextFriday = new Date();
-      nextFriday.setDate(now.getDate() + (5 - now.getDay() + 7) % 7 + 1);
-      nextFriday.setHours(12, 0, 0, 0);
-      const endFriday = new Date(nextFriday.getTime());
-      endFriday.setHours(23, 59, 59, 999);
-      const lastMonday = new Date(now);
-      lastMonday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-      lastMonday.setHours(0, 0, 0, 0);
+      const firstMatchDay = new Date();
+      firstMatchDay.setHours(0, 0, 0, 0); // Minuit le jour du premier match
 
-      const timeLeft = endFriday - now;
+      const midday = new Date(firstMatchDay);
+      midday.setHours(12, 0, 0, 0); // 12h00 le jour du premier match
 
-      if (timeLeft > 0 && now >= nextFriday) {
-        const totalSeconds = Math.floor(timeLeft / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
+      if (now >= firstMatchDay && now < midday) {
+        const timeLeft = midday - now;
+        const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+        const seconds = Math.floor((timeLeft / 1000) % 60);
 
-        const formattedTime = {hours: hours, minutes: minutes, seconds: seconds, expired: false};
         setCountdown({
-          countdown: formattedTime,
+          hours,
+          minutes,
+          seconds,
           expired: false,
           hidden: false
         });
-      } else if (now >= lastMonday && now <= nextFriday) {
-        setCountdown({
-          expired: true,
-          hidden: true
-        });
-      } else {
+      } else if (now >= midday && now <= midday.setDate(midday.getDate() + 6)) {
         setCountdown({
           expired: true,
           hidden: false
+        });
+      } else {
+        setCountdown({
+          hidden: true
         });
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [])
+  }, []);
 
   const handleLogout = () => {
     logout();

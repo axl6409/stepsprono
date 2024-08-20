@@ -128,6 +128,7 @@ const Week = ({token, user}) => {
         try {
           await currentFormComponent.triggerSubmit();
           handleSuccess('Prono enregistré', 3000)
+          swiperInstance.slideNext()
         } catch (e) {
           handleError('Prono refusé');
         }
@@ -142,7 +143,6 @@ const Week = ({token, user}) => {
     setAlertType('success');
     setTimeout(() => {
       setAlertMessage('')
-      swiperInstance.slideNext()
     }, timeout);
   };
 
