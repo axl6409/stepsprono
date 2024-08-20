@@ -28,7 +28,7 @@ const getAPICallsCount = async () => {
 
 const getWeekDateRange = () => {
   const moment = require('moment');
-  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 }); // Simulated date
   const start = now.clone().startOf('isoWeek');
   const end = now.clone().endOf('isoWeek');
   return { start: start, end: end };
@@ -36,7 +36,7 @@ const getWeekDateRange = () => {
 
 const getMonthDateRange = () => {
   const moment = require('moment');
-  const now = moment().set({ 'year': 2024, 'month': 4, 'date': 13 }); // Simulated date
+  const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 }); // Simulated date
   const start = now.clone().startOf('month');
   const end = now.clone().endOf('month');
   return { start: start, end: end };
@@ -45,12 +45,12 @@ const getMonthDateRange = () => {
 const getCurrentWeekMatchdays = async () => {
   try {
     const matchdays = []
-    const monthDates = getWeekDateRange();
+    const weekDates = getWeekDateRange();
     const matchs = await Match.findAll({
       where: {
         utc_date: {
-          [Op.gte]: monthDates.start,
-          [Op.lte]: monthDates.end
+          [Op.gte]: weekDates.start,
+          [Op.lte]: weekDates.end
         }
       }
     })

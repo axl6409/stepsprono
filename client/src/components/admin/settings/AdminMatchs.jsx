@@ -37,7 +37,10 @@ const AdminMatchs = () => {
           'Authorization': `Bearer ${token}`,
         }
       });
-      setMatchs(response.data.data);
+      const uncheckedMatchs = response.data.data;
+      console.log(uncheckedMatchs)
+      const sortedMatchs = uncheckedMatchs.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
+      setMatchs(sortedMatchs);
     } catch (error) {
       console.error('Erreur lors de la récupération des matchs :', error);
     }
@@ -122,11 +125,11 @@ const AdminMatchs = () => {
       <div className="py-3.5 px-2 mt-8 bg-black relative">
         <p
           className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Matchs
-          à mettre à jour</p>
+          non commencés</p>
         <ul className="flex flex-col justify-start">
           {matchs.length ? (
             matchs.map(match => {
-              const utcDate = moment(match.utcDate)
+              const utcDate = moment(match.utc_date)
               return (
                 <li
                   className="relative flex flex-col justify-between border-2 border-black bg-white rounded-xl py-1 px-4 pt-4 h-fit shadow-flat-black my-4 shadow-flat-purple"

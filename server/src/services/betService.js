@@ -193,7 +193,9 @@ const checkBetByMatchId = async (ids) => {
       }
       if (bet.player_goal) {
         const matchScorers = JSON.parse(match.scorers || '[]');
-        const scorerFound = matchScorers.some(scorer => scorer.player_id === bet.player_goal);
+        const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.player_goal);
+        logger.info("matchScorers:", matchScorers);
+        logger.info("scorerFound:", scorerFound);
         if (scorerFound) {
           points += 1;
         }

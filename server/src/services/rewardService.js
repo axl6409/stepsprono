@@ -81,6 +81,9 @@ const toggleActivation = async (id, active) => {
   return reward;
 };
 
+// **************************
+// Trophies attribution Logic
+// **************************
 const checkPhoenixTrophy = async () => {
   try {
     const endOfLastMonth = new Date();

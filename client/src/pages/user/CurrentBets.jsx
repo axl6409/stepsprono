@@ -53,7 +53,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         console.error('Erreur lors de la sélection des points de la semaine', error);
       }
     }
-    const fetchMonthBets = async () => {
+    const fetchMonthPoints = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/month`, {
           headers: {
@@ -61,7 +61,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           }
         });
         const monthPoints = response.data;
-        if (monthPoints.length === undefined || monthPoints.length === 0) {
+        if (monthPoints.points === undefined) {
           return;
         }
         setMonthPoints(monthPoints.points)
@@ -94,7 +94,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           }
         });
         const sortedMatchs = response.data.data
-        console.log(sortedMatchs)
         if (sortedMatchs.length === 0) {
           setNoMatches(true);
           return;
@@ -117,7 +116,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       fetchMatchs()
       fetchLastBets()
       fetchWeekPoints()
-      fetchMonthBets()
+      fetchMonthPoints()
       fetchSeasonPoints()
     }
   }, [user, token]);
@@ -190,7 +189,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
       ) : (
-        !canDisplayBets ? (
+        !canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative my-[25%]">
             <p className="text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉

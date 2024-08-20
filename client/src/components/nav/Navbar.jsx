@@ -18,6 +18,7 @@ import {
 import {UserContext} from "../../contexts/UserContext.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import {useCookies} from "react-cookie";
+import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
@@ -31,6 +32,7 @@ const UserMenu = () => {
   const [debugEnabled, setDebugEnabled] = useState(false);
   const [countdown, setCountdown] = useState({});
   const [cronTasks, setCronTasks] = useState([]);
+  const [firstMatchDate, setFirstMatchDate] = useState(null);
   let cleanImageUrl = '/src/assets/react.svg'
 
   if (isAuthenticated && user) {
@@ -48,15 +50,48 @@ const UserMenu = () => {
   }, [cookies])
 
   useEffect(() => {
+    // Récupérer la date du premier match de la semaine
+    const fetchFirstMatchDate = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        const matchs = response.data.data;
+        console.log(matchs)
+        if (matchs.length > 0) {
+          const firstMatch = new Date(matchs[0].utc_date);
+          setFirstMatchDate(firstMatch);
+        } else {
+          setFirstMatchDate(null);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des matchs :", error);
+      }
+    };
+
+    fetchFirstMatchDate();
+  }, [cookies.token]);
+
+  useEffect(() => {
+    if (!firstMatchDate) return;
+
     const interval = setInterval(() => {
       const now = new Date();
-      const firstMatchDay = new Date();
+
+      const firstMatchDay = new Date(firstMatchDate);
       firstMatchDay.setHours(0, 0, 0, 0); // Minuit le jour du premier match
 
       const midday = new Date(firstMatchDay);
       midday.setHours(12, 0, 0, 0); // 12h00 le jour du premier match
 
+      const endOfWeek = new Date(firstMatchDay);
+      endOfWeek.setDate(firstMatchDay.getDate() + 6); // Dimanche
+      endOfWeek.setHours(23, 59, 59, 999);
+
       if (now >= firstMatchDay && now < midday) {
+        // Affichage du compte à rebours
         const timeLeft = midday - now;
         const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
@@ -69,12 +104,14 @@ const UserMenu = () => {
           expired: false,
           hidden: false
         });
-      } else if (now >= midday && now <= midday.setDate(midday.getDate() + 6)) {
+      } else if (now >= midday && now <= endOfWeek) {
+        // Affichage du message "pronostics fermés"
         setCountdown({
           expired: true,
           hidden: false
         });
       } else {
+        // Ne pas afficher la popup
         setCountdown({
           hidden: true
         });
@@ -82,7 +119,7 @@ const UserMenu = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [firstMatchDate]);
 
   const handleLogout = () => {
     logout();
@@ -205,15 +242,15 @@ const UserMenu = () => {
     </header>
       {isAuthenticated && user && user.role !== 'visitor' && (
         <div id="countdownPoup"
-             className={`${countdown.hidden ? `` : ``} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
-            {!countdown.expired && (
-              <p className="font-sans text-sm text-white font-bold">Fin des pronostic dans :</p>
-            )}
-            <p className="font-sans text-sm text-white text-center">
-              {!countdown.expired ? (
-                <>
-                  <span
-                    className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+             className={`${countdown.hidden ? 'hidden' : ''} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
+          {!countdown.expired && (
+            <p className="font-sans text-sm text-white font-bold">Fin des pronostics dans :</p>
+          )}
+          <p className="font-sans text-sm text-white text-center">
+            {!countdown.expired ? (
+              <>
+                <span
+                  className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
                 <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
                 <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
               </>
