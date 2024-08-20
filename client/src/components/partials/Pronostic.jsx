@@ -66,39 +66,44 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     const fetchPlayers = async () => {
       try {
         const params = new URLSearchParams();
-        if (selectedTeam === null) {
+
+        // Vérifie si l'équipe non sélectionnée a un score non nul
+        const otherTeamScore = selectedTeam === match.HomeTeam.id ? awayScore : homeScore;
+        const showBothTeams = otherTeamScore > 0;
+
+        // Si aucune équipe n'est sélectionnée ou si le score de l'autre équipe est non nul, affiche les joueurs des deux équipes
+        if (selectedTeam === null || showBothTeams) {
           params.append('teamId1', match.HomeTeam.id);
           params.append('teamId2', match.AwayTeam.id);
         } else if (selectedTeam) {
-          if (homeScore > 0 || awayScore > 0) {
-            params.append('teamId1', match.HomeTeam.id);
-            params.append('teamId2', match.AwayTeam.id);
-          } else {
-            params.append('teamId1', selectedTeam);
-          }
+          params.append('teamId1', selectedTeam);
         } else {
           return;
         }
+
         const url = `${apiUrl}/api/players?${params.toString()}`;
         const response = await axios.get(url, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
         });
+
         const sortedPlayers = response.data.sort((a, b) => {
           if (a.Player.name < b.Player.name) return -1;
           if (a.Player.name > b.Player.name) return 1;
           return 0;
         });
+
         setPlayers(sortedPlayers);
       } catch (error) {
         console.error('Erreur lors de la récupération des joueurs :', error);
       }
     }
+
     if (match) {
       fetchPlayers();
     }
-  }, [match, selectedTeam, token])
+  }, [match, selectedTeam, homeScore, awayScore, token]);
 
   useEffect(() => {
     const initialHomeColor = colors[Math.floor(Math.random() * colors.length)];
@@ -158,8 +163,16 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     }
   };
 
+  // const cleanPlayerName = (name) => {
+  //   return name.replace(/^[A-Z]\. /, '');
+  // };
+
   const cleanPlayerName = (name) => {
-    return name.replace(/^[A-Z]\. /, '');
+    const parts = name.split(' ');
+    if (parts.length === 2) {
+      return `${parts[1]} .${parts[0][0]}`;
+    }
+    return name;
   };
 
   return (
@@ -244,18 +257,20 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
                     <p className="font-roboto text-sm font-regular">Score</p>
-                    <label className="flex flex-col w-fit max-w-[35px]">
+                    <label className="flex flex-col w-fit max-w-[40px]">
                       <input
                         className="border border-black text-rubik font-black text-base text-center rounded-xl"
                         type="number"
+                        min="0"
                         {...register("homeScore")}
                         onChange={(e) => setHomeScore(e.target.value)}
                       />
                     </label>
-                    <label className="flex flex-col w-fit max-w-[35px]">
+                    <label className="flex flex-col w-fit max-w-[40px]">
                       <input
                         className="border border-black text-rubik font-black text-base text-center rounded-xl"
                         type="number"
+                        min="0"
                         {...register("awayScore")}
                         onChange={(e) => setAwayScore(e.target.value)}
                       />

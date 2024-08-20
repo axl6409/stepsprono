@@ -17,6 +17,7 @@ const AdminPlayers = () => {
     const token = localStorage.getItem('token') || cookies.token;
     const [teams, setTeams] = useState([]);
     const [players, setPlayers] = useState([]);
+    const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -110,6 +111,7 @@ const AdminPlayers = () => {
     const updatePlayers = async () => {
         if (!selectedTeam) return;
         try {
+            const selectedIndex = teams.findIndex(team => team.team_id === selectedTeam.team_id);
             setIsLoading(true);
             await axios.post(`${apiUrl}/api/players/update`, { teamId: selectedTeam.team_id }, {
                 headers: {
@@ -123,6 +125,10 @@ const AdminPlayers = () => {
             });
             setPlayers(response.data || []);
             setIsLoading(false);
+            if (swiperRef.current && swiperRef.current.swiper) {
+                swiperRef.current.swiper.slideTo(selectedIndex);
+                handleTeamChange(teams[selectedIndex]);
+            }
         } catch (error) {
             console.error('Erreur lors de la mise à jour des joueurs :', error);
             setError(error);
@@ -131,7 +137,7 @@ const AdminPlayers = () => {
     };
 
     if (error) return <p>Erreur : {error.message}</p>;
-
+    console.log(players)
     return (
         isLoading ? (
             <p>Chargement...</p>
@@ -193,11 +199,11 @@ const AdminPlayers = () => {
                     Mettre à jour les joueurs
                 </button>
                 <div className="mt-4 flex flex-row flex-wrap justify-evenly items-center">
-                    {console.log(players)}
                     {players.length > 0 ? (
                         players.map(player => (
                             <div key={player.Player.id}
                                  className="flex flex-col items-center justify-between w-[100px] h-full my-8 p-4 border border-black rounded-lg shadow">
+                                <p>{player.Player.id}</p>
                                 <img src={player.Player.photo} alt={player.Player.name}
                                      className="w-10 h-10 rounded-full"/>
                                 <span>{player.Player.name}</span>
