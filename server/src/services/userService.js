@@ -30,6 +30,25 @@ const getUserRank = async (userId, date) => {
     }
 };
 
+const getUserPointsForWeek = async (userId, startOfWeek, endOfWeek) => {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        user_id: userId,
+        createdAt: {
+          [Op.between]: [startOfWeek, endOfWeek],
+        },
+      },
+    });
+    const points = bets.reduce((total, bet) => total + bet.points, 0);
+    return points;
+  } catch (error) {
+    console.error("Erreur lors de la sélection des points:", error);
+    throw error;
+  }
+}
+
 module.exports = {
-    getUserRank
+    getUserRank,
+    getUserPointsForWeek
 }
