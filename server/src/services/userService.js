@@ -40,8 +40,7 @@ const getUserPointsForWeek = async (userId, startOfWeek, endOfWeek) => {
         },
       },
     });
-    const points = bets.reduce((total, bet) => total + bet.points, 0);
-    return points;
+    return bets.reduce((total, bet) => total + bet.points, 0);
   } catch (error) {
     console.error("Erreur lors de la sélection des points:", error);
     throw error;

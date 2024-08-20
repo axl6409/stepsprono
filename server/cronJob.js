@@ -9,9 +9,12 @@ const { updateMatches, fetchWeekMatches } = require('./src/services/matchService
 const logger = require("./src/utils/logger/logger");
 
 const runCronJob = () => {
-  cron.schedule('01 00 * * 0', () => {
+  // Every day at 23:59
+  cron.schedule('59 23 * * 0', () => {
     eventBus.emit('weekEnded');
   })
+
+  // Every day at 00:00
   cron.schedule('0 0 * * *', () => {
     const tomorrow = moment().add(1, 'days')
     if (tomorrow.date() === 1) {
@@ -24,10 +27,14 @@ const runCronJob = () => {
       logger.info('Season Rewards : Success');
     })
   })
-  cron.schedule('01 00 * * *', updateTeamStats)
-  cron.schedule('01 00 * * *', updateMatches)
+  // Every day at 01:00
+  cron.schedule('01 00 * * *', () => {
+    updateTeamStats()
+    updateMatches()
+  })
 
-  cron.schedule('59 23 01 8 *', () => {
+  // At 23:59 on day-of-month 1 in August.
+  cron.schedule('00 00 01 8 *', () => {
     logger.info('Émission de l\'événement firstMonthEnded');
     eventBus.emit('firstMonthEnded');
   });

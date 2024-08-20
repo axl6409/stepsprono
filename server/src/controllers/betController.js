@@ -5,6 +5,7 @@ const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
 const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId} = require("../services/betService");
 const logger = require("../utils/logger/logger");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
@@ -61,14 +62,18 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
 })
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
-
+  let seasonId = req.query.seasonId;
+  if (!seasonId) {
+    seasonId = await getCurrentSeasonId(61);
+  }
   try {
     const bets = await Bet.findAll({
       where: {
         user_id: req.params.id,
         match_id: {
           [Op.in]: matchIds
-        }
+        },
+        ...(seasonId && { season_id: seasonId }),
       },
     });
     res.json({

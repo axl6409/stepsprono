@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import penIcon from "../../assets/icons/pencil.svg";
 import navClose from "../../assets/icons/nav-cross.svg";
+import userAdd from "../../assets/icons/user-add.svg";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import UserSelectionModal from '../../components/admin/UserSelectionModal.jsx';
 import RewardForm from '../../components/admin/RewardForm';
 import { useCookies } from "react-cookie";
 
@@ -19,6 +21,8 @@ const AdminRewards = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRewardForUser, setSelectedRewardForUser] = useState(null);
+  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(false);
 
   useEffect(() => {
     fetchRewards();
@@ -79,6 +83,16 @@ const AdminRewards = () => {
     setIsModalOpen(false);
   };
 
+  const openUserSelectionModal = (reward) => {
+    setSelectedRewardForUser(reward);
+    setIsUserSelectionModalOpen(true);
+  };
+
+  const closeUserSelectionModal = () => {
+    setIsUserSelectionModalOpen(false);
+    setSelectedRewardForUser(null);
+  };
+
   return (
       <div className="inline-block w-full h-auto py-20">
         <Link
@@ -117,11 +131,16 @@ const AdminRewards = () => {
                 <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded">
                   <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
                 </button>
-                <button onClick={() => handleDelete(reward.id)} className="bg-red-500 text-white px-2 py-1 mx-2 rounded">
+                <button onClick={() => handleDelete(reward.id)}
+                        className="bg-red-500 text-white px-2 py-1 mx-2 rounded">
                   <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>
                 </button>
+                <button onClick={() => openUserSelectionModal(reward)}
+                        className="bg-green-500 text-white px-2 py-1 rounded">
+                  <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
+                </button>
                 <button
-                  className={`w-14 h-7 flex items-center rounded-full border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
+                  className={`w-14 h-7 flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
                   onClick={() => toggleActive(reward)}
                 >
                   <div
@@ -132,6 +151,9 @@ const AdminRewards = () => {
             </li>
           ))}
         </ul>
+        {isUserSelectionModalOpen && (
+          <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal} />
+        )}
         {showForm && (
           <div className="fixed z-[10] inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-8 rounded shadow-lg">

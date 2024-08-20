@@ -17,6 +17,8 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const Passed = ({ token, user }) => {
   const [matchs, setMatchs] = useState([]);
   const [matchdays, setMatchdays] = useState([]);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const [selectedMatchday, setSelectedMatchday] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,37 +27,63 @@ const Passed = ({ token, user }) => {
   const isVisitor = user.role === 'visitor';
 
   useEffect(() => {
-    const fetchMatchdays = async () => {
+    const fetchSeasons = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/matchs/days/passed`, {
+        const response = await axios.get(`${apiUrl}/api/seasons/61`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
         });
-        const days = response.data;
-        setMatchdays(days);
-        setIsLoading(false);
-        if (days.length > 0) {
-          setSelectedMatchday(days[0])
+        const seasonsData = response.data;
+        console.log(seasonsData)
+        setSeasons(seasonsData);
+        if (seasonsData.length > 0) {
+          const currentSeason = seasonsData.find(season => season.current) || seasonsData[0];
+          setSelectedSeason(currentSeason);
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des journées :', error);
+        console.error('Erreur lors de la récupération des saisons :', error);
         setError(error);
-        setIsLoading(false);
       }
     };
-    fetchMatchdays();
+    fetchSeasons();
   }, [token]);
 
   useEffect(() => {
-    if (selectedMatchday) {
-      const fetchMatchs = async () => {
+    if (selectedSeason) {
+      const fetchMatchdays = async () => {
         try {
-          const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}`, {
+          const response = await axios.get(`${apiUrl}/api/matchs/days/passed?seasonId=${selectedSeason.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
           });
+          const days = response.data;
+          setMatchdays(days);
+          setIsLoading(false);
+          if (days.length > 0) {
+            setSelectedMatchday(days[0])
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des journées :', error);
+          setError(error);
+          setIsLoading(false);
+        }
+      };
+      fetchMatchdays();
+    }
+  }, [selectedSeason, token]);
+
+  useEffect(() => {
+    if (selectedMatchday && selectedSeason) {
+      const fetchMatchs = async () => {
+        try {
+          const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}?seasonId=${selectedSeason.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+          console.log(response.data)
           const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
           setMatchs(sortedMatchs);
           setIsLoading(false);
@@ -67,14 +95,14 @@ const Passed = ({ token, user }) => {
       }
       fetchMatchs();
     }
-  }, [selectedMatchday, token]);
+  }, [selectedMatchday, selectedSeason, token]);
 
   useEffect(() => {
     if (matchs.length > 0) {
       const fetchBets = async () => {
         const matchIds = matchs.map(match => match.id);
         try {
-          const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, { matchIds }, {
+          const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}?seasonId=${selectedSeason.id}`, { matchIds }, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -89,7 +117,13 @@ const Passed = ({ token, user }) => {
       }
       fetchBets();
     }
-  }, [matchs, token, user]);
+  }, [matchs, selectedSeason, token, user]);
+
+  const handleSeasonChange = (event) => {
+    const selectedSeasonId = event.target.value;
+    const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
+    setSelectedSeason(season);
+  };
 
   const handleMatchdayChange = (day) => {
     setSelectedMatchday(day);
@@ -130,8 +164,10 @@ const Passed = ({ token, user }) => {
 
   const handleSlideChange = (swiper) => {
     const day = matchdays[swiper.activeIndex];
-    handleMatchdayChange(day);
-    updateSlideClasses();
+    if (selectedMatchday !== day) {
+      handleMatchdayChange(day);
+      updateSlideClasses();
+    }
   };
 
   const handleSlideClick = (day, index) => {
@@ -177,15 +213,28 @@ const Passed = ({ token, user }) => {
               </div>
             </SwiperSlide>
           ))}
-          <div className="swiper-button-prev overflow-visible mt-0 absolute shadow-md h-full w-8 left-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+          <div
+            className="swiper-button-prev overflow-visible mt-0 absolute shadow-md h-full w-8 left-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
             <img src={SwiperArrow} alt=""/>
           </div>
-          <div className="swiper-button-next overflow-visible mt-0 absolute shadow-md h-full w-8 right-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white focus:scla">
+          <div
+            className="swiper-button-next overflow-visible mt-0 absolute shadow-md h-full w-8 right-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white focus:scla">
             <img className="rotate-180" src={SwiperArrow} alt=""/>
           </div>
         </Swiper>
         <div className="mt-4">
           <div className="flex flex-row justify-end border-t border-b border-black">
+            <div className="flex justify-end">
+              <label className="opacity-0 h-0 w-0">Saison :</label>
+              <select value={selectedSeason?.id || ''} onChange={handleSeasonChange}
+                      className="border-y-0 border-x border-black px-2 py-1">
+                {seasons.map(season => (
+                  <option key={season.id} value={season.id}>
+                    {season.year}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="w-2/3 px-4">
               <p className="font-roboto text-sm uppercase text-black text-right">Match</p>
             </div>
@@ -202,11 +251,13 @@ const Passed = ({ token, user }) => {
                   key={match.id} data-match-id={match.id}>
                   <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
                     <div className="w-full flex flex-row justify-center">
-                      <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
+                      <p
+                        className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
                       <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_home}</p>
                     </div>
                     <div className="w-full flex flex-row justify-center">
-                      <p className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
+                      <p
+                        className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
                       <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_away}</p>
                     </div>
                   </div>
@@ -226,17 +277,22 @@ const Passed = ({ token, user }) => {
                       ) : (
                         <div className="flex flex-col justify-center h-full">
                           {bet.winner_id === match.HomeTeam.id ? (
-                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url} alt={match.HomeTeam.name}/>
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto"
+                                 src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url}
+                                 alt={match.HomeTeam.name}/>
                           ) : bet.winner_id === null ? (
                             <img className="max-w-[50px] max-h-[50px] block mx-auto" src={nullSymbol} alt=""/>
                           ) : bet.winner_id === match.AwayTeam.id && (
-                            <img className="max-w-[50px] max-h-[50px] block mx-auto" src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url} alt={match.AwayTeam.name}/>
+                            <img className="max-w-[50px] max-h-[50px] block mx-auto"
+                                 src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
+                                 alt={match.AwayTeam.name}/>
                           )}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="pronostic-info flex flex-col justify-center w-[32%] border-l border-dashed border-black px-2 py-2">
+                    <div
+                      className="pronostic-info flex flex-col justify-center w-[32%] border-l border-dashed border-black px-2 py-2">
                       <p className="name font-sans text-base font-bold capitalize">???</p>
                     </div>
                   )}

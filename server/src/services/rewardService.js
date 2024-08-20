@@ -81,6 +81,33 @@ const toggleActivation = async (id, active) => {
   return reward;
 };
 
+const assignReward = async (data) => {
+  try {
+    const { user_id, reward_id, count } = data;
+    const existingReward = await UserReward.findOne({
+      where: {
+        user_id: user_id,
+        reward_id: reward_id,
+      },
+    });
+    if (!existingReward) {
+      await UserReward.create({
+        user_id,
+        reward_id,
+        count
+      });
+      logger.info(`Trophée Massacre ! attribué à l'utilisateur ${topUser.username}`);
+    } else {
+      existingReward.count += 1;
+      await existingReward.save();
+      logger.info(`Trophée Massacre ! réattribué à l'utilisateur ${topUser.username}`);
+    }
+  } catch (error) {
+    logger.warn("Error assigning reward => ", error);
+    throw error;
+  }
+};
+
 // **************************
 // Trophies attribution Logic
 // **************************
@@ -174,7 +201,7 @@ const checkMassacreTrophy = async () => {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
 
     const users = await User.findAll();
-    let topUser = null;
+    let topUsers = [];
     let maxPoints = 0;
 
     for (const user of users) {
@@ -182,34 +209,92 @@ const checkMassacreTrophy = async () => {
 
       if (userPoints > maxPoints) {
         maxPoints = userPoints;
-        topUser = user;
+        topUsers = [user];
+      } else if (userPoints === maxPoints) {
+        topUsers.push(user);
       }
     }
 
-    if (topUser) {
-      const existingReward = await UserReward.findOne({
-        where: {
-          user_id: topUser.id,
-          reward_id: 30,
-        },
-      });
+    if (topUsers.length > 0) {
+      for (const topUser of topUsers) {
+        logger.info('Top User ID => ' + topUser.id);
 
-      if (!existingReward) {
-        await UserReward.create({
-          user_id: topUser.id,
-          reward_id: 30,
-          count: 1,
+        const existingReward = await UserReward.findOne({
+          where: {
+            user_id: topUser.id,
+            reward_id: 30,
+          },
         });
 
-        logger.info(`Trophée Massacre ! attribué à l'utilisateur ${topUser.username}`);
-      } else {
-        existingReward.count += 1;
-        await existingReward.save();
-        logger.info(`Trophée Massacre ! réattribué à l'utilisateur ${topUser.username}`);
+        if (!existingReward) {
+          await UserReward.create({
+            user_id: topUser.id,
+            reward_id: 30,
+            count: 1,
+          });
+          logger.info(`Trophée Massacre ! attribué à l'utilisateur ${topUser.username}`);
+        } else {
+          existingReward.count += 1;
+          await existingReward.save();
+          logger.info(`Trophée Massacre ! réattribué à l'utilisateur ${topUser.username}`);
+        }
       }
     }
   } catch (error) {
     logger.error("Erreur lors de la vérification du trophée Massacre ! :", error);
+  }
+};
+
+const checkKhalassTrophy = async () => {
+  try {
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+    const endOfWeek = new Date();
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const users = await User.findAll();
+    let bottomUsers = [];
+    let minPoints = Infinity;
+
+    for (const user of users) {
+      const userPoints = await getUserPointsForWeek(user.id, startOfWeek, endOfWeek);
+
+      if (userPoints < minPoints) {
+        minPoints = userPoints;
+        bottomUsers = [user];
+      } else if (userPoints === minPoints) {
+        bottomUsers.push(user);
+      }
+    }
+
+    if (bottomUsers.length > 0) {
+      for (const bottomUser of bottomUsers) {
+        logger.info('Bottom User ID => ' + bottomUser.id);
+
+        const existingReward = await UserReward.findOne({
+          where: {
+            user_id: bottomUser.id,
+            reward_id: 31,
+          },
+        });
+
+        if (!existingReward) {
+          await UserReward.create({
+            user_id: bottomUser.id,
+            reward_id: 31,
+            count: 1,
+          });
+          logger.info(`Trophée Underdog attribué à l'utilisateur ${bottomUser.username}`);
+        } else {
+          existingReward.count += 1;
+          await existingReward.save();
+          logger.info(`Trophée Underdog réattribué à l'utilisateur ${bottomUser.username}`);
+        }
+      }
+    }
+  } catch (error) {
+    logger.error("Erreur lors de la vérification du trophée Underdog ! :", error);
   }
 };
 
@@ -220,7 +305,9 @@ module.exports = {
   updateReward,
   deleteReward,
   toggleActivation,
+  assignReward,
   checkPhoenixTrophy,
   checkRisingStarTrophy,
   checkMassacreTrophy,
+  checkKhalassTrophy,
 };

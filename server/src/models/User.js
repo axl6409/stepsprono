@@ -54,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.belongsToMany(models.Role, { through: models.UserRole, foreignKey: 'user_id' });
     User.hasMany(models.Bet, { foreignKey: 'user_id' });
+    User.belongsToMany(models.Reward, { through: models.UserReward, foreignKey: 'user_id' });
     User.belongsTo(models.Team, { foreignKey: 'team_id', as: 'team' });
   };
 
