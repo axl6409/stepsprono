@@ -44,6 +44,9 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.2"
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
+    "sequelize-cli": "^6.6.2",
+    "sinon": "^18.0.0"
   }
 }

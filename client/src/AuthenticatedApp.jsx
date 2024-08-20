@@ -29,6 +29,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import {AppContext} from "./contexts/AppContext.jsx";
 import AdminSeasons from "./components/admin/settings/AdminSeasons.jsx";
+import AdminEvents from "./components/admin/settings/AdminEvents.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -132,6 +133,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
             <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
             <Route path="/admin/bets" element={<ProtectedRoute component={AdminBets} />} />
+            <Route path="/admin/events" element={<ProtectedRoute component={AdminEvents} />} />
           </Routes>
         </AnimatePresence>
       </div>

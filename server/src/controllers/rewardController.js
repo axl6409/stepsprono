@@ -54,5 +54,13 @@ router.put('/rewards/:id/activate', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la mise à jour du statut du trophée', error: error.message });
   }
 });
+router.post('/rewards/attribute', authenticateJWT, async (req, res) => {
+  try {
+    const reward = await rewardService.assignReward(req.body);
+    res.status(201).json(reward);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de l\'attribution du trophée', error: error.message });
+  }
+});
 
 module.exports = router;

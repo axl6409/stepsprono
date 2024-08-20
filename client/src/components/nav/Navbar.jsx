@@ -59,7 +59,6 @@ const UserMenu = () => {
           }
         });
         const matchs = response.data.data;
-        console.log(matchs)
         if (matchs.length > 0) {
           const firstMatch = new Date(matchs[0].utc_date);
           setFirstMatchDate(firstMatch);

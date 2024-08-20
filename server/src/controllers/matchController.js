@@ -28,10 +28,15 @@ router.get('/match/:matchId', authenticateJWT, async (req, res) => {
 router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
   try {
     let matchday = parseInt(req.params.matchday) || 1;
-    const currentDate = new Date()
+    let seasonId = req.query.seasonId;
+    if (!seasonId) {
+      seasonId = await getCurrentSeasonId(61);
+    }
+    logger.info(matchday)
     const matchs = await Match.findAndCountAll({
       where: {
         matchday: matchday,
+        season_id: seasonId,
         status: {
           [Op.or]: ["FT", "AET", "PEN"]
         },
@@ -50,6 +55,7 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   try {
+    const { seasonId } = req.query;
     const currentDate = new Date();
     const matchdays = await Match.findAll({
       attributes: [
@@ -58,7 +64,8 @@ router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
       where: {
         utc_date: {
           [Op.lt]: currentDate
-        }
+        },
+        season_id: seasonId
       },
       order: [
         ['matchday', 'ASC']
