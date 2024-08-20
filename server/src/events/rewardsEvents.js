@@ -1,9 +1,16 @@
 const eventBus = require('./eventBus');
 const rewardService = require('../services/rewardService');
 const logger = require('../utils/logger/logger');
+const {checkMassacreTrophy} = require("../services/rewardService");
 
-eventBus.on('weekEnded', () => {
+eventBus.on('weekEnded', async () => {
   logger.info('Week ended')
+  logger.info('Début de la vérification du trophée Massacre !');
+  await checkMassacreTrophy()
+  logger.info('Vérification du trophée Massacre ! terminée');
+})
+eventBus.on('lastMatchWeekUpdated', async () => {
+  logger.info('Last match week updated')
 })
 eventBus.on('matchUpdated', (matchId, userId) => {
   logger.info('Match updated', matchId, userId)

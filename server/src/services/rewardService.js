@@ -2,7 +2,7 @@ const { User, Reward, UserReward } = require('../models');
 const path = require('path');
 const {deleteFile} = require("../utils/utils");
 const logger = require("../utils/logger/logger");
-const {getUserRank} = require("./userService");
+const {getUserRank, getUserPointsForWeek} = require("./userService");
 
 const getAllRewards = async () => {
   return await Reward.findAll();
@@ -165,6 +165,54 @@ const checkRisingStarTrophy = async () => {
   }
 };
 
+const checkMassacreTrophy = async () => {
+  try {
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+    const endOfWeek = new Date();
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const users = await User.findAll();
+    let topUser = null;
+    let maxPoints = 0;
+
+    for (const user of users) {
+      const userPoints = await getUserPointsForWeek(user.id, startOfWeek, endOfWeek);
+
+      if (userPoints > maxPoints) {
+        maxPoints = userPoints;
+        topUser = user;
+      }
+    }
+
+    if (topUser) {
+      const existingReward = await UserReward.findOne({
+        where: {
+          user_id: topUser.id,
+          reward_id: 30,
+        },
+      });
+
+      if (!existingReward) {
+        await UserReward.create({
+          user_id: topUser.id,
+          reward_id: 30,
+          count: 1,
+        });
+
+        logger.info(`Trophée Massacre ! attribué à l'utilisateur ${topUser.username}`);
+      } else {
+        existingReward.count += 1;
+        await existingReward.save();
+        logger.info(`Trophée Massacre ! réattribué à l'utilisateur ${topUser.username}`);
+      }
+    }
+  } catch (error) {
+    logger.error("Erreur lors de la vérification du trophée Massacre ! :", error);
+  }
+};
+
 module.exports = {
   getAllRewards,
   getUserRewards,
@@ -173,5 +221,6 @@ module.exports = {
   deleteReward,
   toggleActivation,
   checkPhoenixTrophy,
-  checkRisingStarTrophy
+  checkRisingStarTrophy,
+  checkMassacreTrophy,
 };
