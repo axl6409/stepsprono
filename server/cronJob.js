@@ -22,6 +22,7 @@ const runCronJob = () => {
     }
     fetchWeekMatches().then(r => {
       logger.info('Week Matches Fetched : Success');
+      eventBus.emit('betsClosed');
     })
     checkAndScheduleSeasonEndTasks().then(r => {
       logger.info('Season Rewards : Success');

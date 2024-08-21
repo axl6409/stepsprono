@@ -11,7 +11,6 @@ const RewardForm = ({ reward, onClose }) => {
         name: '',
         description: '',
         image: "",
-        slug: '',
         rank: 'bronze',
         type: 'trophy'
     });
@@ -60,11 +59,9 @@ const RewardForm = ({ reward, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formattedSlug = formatSlug(formData.slug);
         const data = new FormData();
         data.append('name', formData.name);
         data.append('description', formData.description);
-        data.append('slug', formattedSlug);
         data.append('rank', formData.rank);
         data.append('type', formData.type);
         if (formData.image) {
@@ -109,15 +106,6 @@ const RewardForm = ({ reward, onClose }) => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Description"
-                required
-                className="w-full px-4 py-2 border rounded"
-            />
-            <input
-                type="text"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                placeholder="slug_du_trophee"
                 required
                 className="w-full px-4 py-2 border rounded"
             />

@@ -34,12 +34,18 @@ const AdminEvents = () => {
         setUpdateStatus(false);
         setUpdateMessage('Erreur lors du déclenchement de l\'évènement : ' + response.data.message);
         setIsModalOpen(true)
+        setTimeout(function () {
+          closeModal()
+        }, 2500)
       }
     } catch (error) {
       setUpdateStatus(false);
       console.log(error)
       setUpdateMessage('Erreur lors du déclenchement de l\'évènement : ' + error.response.data.message);
       setIsModalOpen(true)
+      setTimeout(function () {
+        closeModal()
+      }, 2500)
     } finally {
       setButtonActive(true);
       setTimeout(() => {

@@ -140,7 +140,7 @@ const AdminRewards = () => {
                   <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
                 </button>
                 <button
-                  className={`w-14 h-7 flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
+                  className={`w-[70px] h-[27px] flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
                   onClick={() => toggleActive(reward)}
                 >
                   <div

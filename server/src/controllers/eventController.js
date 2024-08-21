@@ -2,7 +2,7 @@ const axios = require("axios");
 const moment = require("moment-timezone");
 const express = require('express')
 const {authenticateJWT} = require("../middlewares/auth");
-const {checkTripleMenaceTrophy} = require("../services/rewardService");
+const {checkMilestoneTrophies} = require("../services/rewardService");
 const router = express.Router()
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
@@ -12,7 +12,7 @@ router.post('/admin/events/:eventName', authenticateJWT, async (req, res) => {
   try {
     const eventName = req.params.eventName;
     if (eventName === 'testEvent') {
-      const Challenger = await checkTripleMenaceTrophy();
+      const Challenger = await checkMilestoneTrophies();
       res.send({Challenger});
     }
   } catch (e) {

@@ -5,6 +5,14 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
+const getCurrentSeason = async () => {
+  return await Season.findOne({
+    where: {
+      current: true,
+    }
+  });
+}
+
 async function updateSeasons() {
   try {
     const options = {
@@ -45,6 +53,24 @@ async function getCurrentSeasonYear(competitionId = null) {
     console.log('Erreur lors de la récupération des données:', error);
   }
 }
+
+const getSeasonDates = async (seasonYear) => {
+  const season = await Season.findOne({
+    where: {
+      year: seasonYear
+    },
+    attributes: ['start_date', 'end_date']
+  });
+
+  if (!season) {
+    throw new Error(`Saison introuvable pour l'année ${seasonYear}`);
+  }
+
+  return {
+    startDate: season.start_date,
+    endDate: season.end_date
+  };
+};
 
 async function checkAndAddNewSeason(competitionId) {
   try {
@@ -89,8 +115,10 @@ async function checkAndAddNewSeason(competitionId) {
 
 
 module.exports = {
+  getCurrentSeason,
   updateSeasons,
   getCurrentSeasonId,
   getCurrentSeasonYear,
   checkAndAddNewSeason,
+  getSeasonDates
 };

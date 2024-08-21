@@ -8,6 +8,7 @@ const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
 const moment = require("moment/moment");
 const eventBus = require("../events/eventBus");
+const {getSeasonDates} = require("./seasonService");
 
 const getAPICallsCount = async () => {
   try {
@@ -25,6 +26,51 @@ const getAPICallsCount = async () => {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
 }
+
+const getStartAndEndOfCurrentWeek = () => {
+  const startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+  return { startDate: startOfWeek, endDate: endOfWeek };
+}
+
+const getStartAndEndOfCurrentMonth = () => {
+  const currentMonth = new Date();
+  const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+  return { startOfMonth, endOfMonth };
+};
+
+const getFirstDaysOfCurrentAndPreviousMonth = () => {
+  const currentMonth = new Date();
+  const firstDayCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const firstDayPreviousMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+
+  return {
+    firstDayCurrentMonth,
+    firstDayPreviousMonth
+  };
+};
+
+const getSeasonStartDate = (seasonYear) => {
+  const startDate = Season.findOne({
+    where: {
+      year: seasonYear
+    }
+  })
+  return startDate.start_date;
+};
+
+const getMidSeasonDate = async (seasonYear) => {
+  const { startDate, endDate } = await getSeasonDates(seasonYear);
+
+  const midSeasonTimestamp = startDate.getTime() + (endDate.getTime() - startDate.getTime()) / 2;
+  return new Date(midSeasonTimestamp);
+};
 
 const getWeekDateRange = () => {
   const moment = require('moment');
@@ -46,6 +92,10 @@ const getMonthDateRange = () => {
 
 const getPeriodMatchdays = async (startDate, endDate) => {
   try {
+    if (!(startDate instanceof Date) || isNaN(startDate.getTime()) || !(endDate instanceof Date) || isNaN(endDate.getTime())) {
+      throw new Error("Dates invalides fournies à getPeriodMatchdays");
+    }
+
     const matchdays = new Set();
     const matchs = await Match.findAll({
       where: {
@@ -223,5 +273,10 @@ module.exports = {
   getCurrentMatchday,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
-  scheduleTaskForEndOfMonthMatch
+  scheduleTaskForEndOfMonthMatch,
+  getStartAndEndOfCurrentWeek,
+  getStartAndEndOfCurrentMonth,
+  getFirstDaysOfCurrentAndPreviousMonth,
+  getSeasonStartDate,
+  getMidSeasonDate
 }
