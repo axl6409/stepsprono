@@ -15,6 +15,7 @@ const {getStartAndEndOfCurrentWeek, getFirstDaysOfCurrentAndPreviousMonth, getSe
   getStartAndEndOfCurrentMonth
 } = require("./appService");
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
+const {Op} = require("sequelize");
 
 const getAllRewards = async () => {
   return await Reward.findAll();
@@ -99,8 +100,8 @@ const assignReward = async (data) => {
     const existingReward = await UserReward.findOne({
       where: {
         user_id: user_id,
-        reward_id: reward_id,
-      },
+        reward_id: reward_id
+      }
     });
     if (!existingReward) {
       await UserReward.create({
@@ -108,14 +109,44 @@ const assignReward = async (data) => {
         reward_id,
         count
       });
-      logger.info(`Trophée Massacre ! attribué à l'utilisateur ${topUser.username}`);
+      logger.info(`Trophée attribué à l'utilisateur ${user_id}`);
     } else {
+      console.log(`Avant incrémentation : ${JSON.stringify(existingReward)}`);
       existingReward.count += 1;
       await existingReward.save();
-      logger.info(`Trophée Massacre ! réattribué à l'utilisateur ${topUser.username}`);
+      console.log(`Après incrémentation : ${JSON.stringify(existingReward)}`);
+      logger.info(`Trophée réattribué à l'utilisateur ${user_id}`);
     }
   } catch (error) {
     logger.warn("Error assigning reward => ", error);
+    throw error;
+  }
+};
+
+const removeReward = async (data) => {
+  try {
+    const { user_id, reward_id } = data;
+    const existingReward = await UserReward.findOne({
+      where: {
+        user_id: user_id,
+        reward_id: reward_id,
+      },
+    });
+
+    if (!existingReward) {
+      throw new Error(`L'utilisateur ${user_id} n'a pas ce trophée.`);
+    } else {
+      if (existingReward.count > 1) {
+        existingReward.count -= 1;
+        await existingReward.save();
+        logger.info(`Trophée retiré à l'utilisateur ${user_id}, il en reste ${existingReward.count}.`);
+      } else {
+        await existingReward.destroy();
+        logger.info(`Trophée entièrement retiré à l'utilisateur ${user_id}.`);
+      }
+    }
+  } catch (error) {
+    logger.warn("Erreur lors du retrait du trophée => ", error);
     throw error;
   }
 };
@@ -1778,6 +1809,7 @@ module.exports = {
   deleteReward,
   toggleActivation,
   assignReward,
+  removeReward,
   checkSeasonRewards,
   checkPhoenixTrophy,
   checkRisingStarTrophy,

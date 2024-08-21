@@ -30,7 +30,8 @@ const UserSelectionModal = ({ reward, onClose }) => {
 
   const handleAssignReward = async () => {
     try {
-      await axios.post(`${apiUrl}/api/admin/reward/attribute`, {
+      console.log(reward.id)
+      await axios.post(`${apiUrl}/api/admin/rewards/attribute`, {
         user_id: selectedUserId,
         reward_id: reward.id,
         count: 1
@@ -42,6 +43,23 @@ const UserSelectionModal = ({ reward, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Erreur lors de l\'attribution du trophée:', error);
+    }
+  };
+
+  const handleRemoveReward = async () => {
+    try {
+      await axios.post(`${apiUrl}/api/admin/rewards/remove`, {
+        user_id: selectedUserId,
+        reward_id: reward.id,
+        count: 1
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      onClose();
+    } catch (error) {
+      console.error('Erreur lors du retrait du trophée:', error);
     }
   };
 
@@ -60,12 +78,17 @@ const UserSelectionModal = ({ reward, onClose }) => {
           ))}
         </select>
         <div className="flex justify-between">
-          <button onClick={handleAssignReward} className="bg-green-500 text-white px-4 py-2 rounded">
-            Attribuer
-          </button>
-          <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">
-            Annuler
-          </button>
+          <div className="flex justify-between">
+            <button onClick={handleAssignReward} className="bg-green-500 text-white px-4 py-2 rounded">
+              Attribuer
+            </button>
+            <button onClick={handleRemoveReward} className="bg-red-500 text-white px-4 py-2 rounded">
+              Retirer
+            </button>
+            <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">
+              Annuler
+            </button>
+          </div>
         </div>
       </div>
     </div>

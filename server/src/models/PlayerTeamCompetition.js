@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     player_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Players',
+        model: 'Player',
         key: 'id',
       },
       field: 'player_id'
@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     team_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Teams',
+        model: 'Team',
         key: 'id',
       },
       field: 'team_id'

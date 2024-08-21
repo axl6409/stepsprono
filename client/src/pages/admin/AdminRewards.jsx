@@ -123,6 +123,7 @@ const AdminRewards = () => {
         <ul className="px-4">
           {rewards.map((reward) => (
             <li key={reward.id} className="flex flex-row flex-wrap justify-between items-center space-x-4">
+              <p>{reward.id}</p>
               <p className="w-full text-left font-sans font-medium">{reward.name}</p>
               <div className="flex flex-col max-w-[50%]">
                 <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
@@ -141,7 +142,7 @@ const AdminRewards = () => {
                 </button>
                 <button
                   className={`w-[70px] h-[27px] flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
-                  onClick={() => toggleActive(reward)}
+                  onClick={() => toggleActive(reward.id)}
                 >
                   <div
                     className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-6' : ''}`}

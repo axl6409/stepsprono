@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Reward.associate = function(models) {
-    Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'user_id' });
+    Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'reward_id' });
   };
   return Reward;
 };
