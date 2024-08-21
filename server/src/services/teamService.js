@@ -77,9 +77,6 @@ const updateRank = async (teamId = null, competitionId = null, seasonYear = null
 }
 
 async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = null, updateInfos = true, updateStats = true) {
-  if (typeof teamIDs === 'number') {
-    teamIDs = [teamIDs];
-  }
   if (!season) {
     console.log('Please provide a season number');
     return 'Please provide a season number';
@@ -88,10 +85,17 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
     console.log('Please provide a competition id');
     return 'Please provide a competition id';
   }
+
+  let teamsId = Array.isArray(teamIDs) ? teamIDs : [teamIDs];
+
+  if (teamsId.length === 0) {
+    teamsId = await getAllTeams();
+  }
+
   try {
     let teams = [];
     if (updateInfos) {
-      for (const teamID of teamIDs) {
+      for (const teamID of teamsId) {
         const teamInfosOptions = {
           method: 'GET',
           url: apiBaseUrl + 'teams',
@@ -105,6 +109,7 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
             'X-RapidAPI-Host': apiHost
           }
         };
+
         const teamResponse = await axios.request(teamInfosOptions);
         if (teamResponse.data.results > 0) {
           const filteredTeams = teamResponse.data.response.map(team => ({
@@ -123,7 +128,7 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
       }
     } else {
       teams = await Team.findAll({
-        where: teamIDs.length ? { id: teamIDs } : undefined,
+        where: teamsId.length ? { id: teamsId } : undefined,
       });
     }
 
@@ -148,10 +153,10 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
         name: team.name,
         code: team.code,
         logo_url: logoUrl,
-        venue_name: team.venue_name ? team.venue_name : null,
-        venue_address: team.venue_address ? team.venue_address : null,
-        venue_city: team.venue_city ? team.venue_city : null,
-        venue_capacity: team.venue_capacity ? team.venue_capacity : null,
+        venue_name: team.venue_name || null,
+        venue_address: team.venue_address || null,
+        venue_city: team.venue_city || null,
+        venue_capacity: team.venue_capacity || null,
         venue_image: venueImageUrl,
       });
 
@@ -261,6 +266,7 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
 }
 
 module.exports = {
+  getAllTeams,
   createOrUpdateTeams,
   updateTeamStats,
 }

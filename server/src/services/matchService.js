@@ -11,6 +11,8 @@ const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
 const {getWeekDateRange, getMonthDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
+const {createOrUpdateTeams} = require("./teamService");
+const eventBus = require("../events/eventBus");
 let cronTasks = [];
 
 const updateMatchAndPredictions = async (matchIds) => {
@@ -113,6 +115,7 @@ async function updateSingleMatch(matchId) {
       if (updatedMatchData.status === 'FT') {
         await checkBetByMatchId(matchId);
         console.log('Pronostics vérifiés pour le match:', matchId);
+        eventBus.emit('matchUpdated', { matchId });
       } else {
         console.log("Le statut du match n'est pas encore 'FT', vérification des pronostics annulée.");
       }
@@ -215,7 +218,10 @@ async function fetchWeekMatches() {
     matches.forEach(match => {
       const matchTime = new Date(match.utc_date)
       const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
-      schedule.scheduleJob(updateTime, () => updateMatchAndPredictions(match.id))
+      schedule.scheduleJob(updateTime, () => {
+        updateMatchAndPredictions(match.id)
+        createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true)
+      })
     });
   } catch (error) {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);

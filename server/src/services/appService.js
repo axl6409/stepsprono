@@ -183,7 +183,6 @@ const checkAndScheduleSeasonEndTasks = async () => {
 
     seasons.forEach(season => {
       schedule.scheduleJob(season.endDate, async () => {
-        // Logique à exécuter à la fin de la saison
         logger.info(`Exécution de la tâche [SeasonEnded] pour la saison ${season.id}`);
         eventBus.emit('seasonEnded', season.id);
         await Season.update(
@@ -263,6 +262,57 @@ const scheduleTaskForEndOfMonthMatch = async () => {
   }
 };
 
+const getFirstMatchOfCurrentWeek = async () => {
+  try {
+    const currentDate = new Date();
+
+    const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6));
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const firstMatch = await Match.findOne({
+      where: {
+        utc_date: {
+          [Op.gte]: startOfWeek,
+          [Op.lte]: endOfWeek,
+        },
+      },
+      order: [['utc_date', 'ASC']],
+    });
+
+    return firstMatch ? firstMatch.utc_date : null;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du premier match de la semaine en cours:", error);
+    throw error;
+  }
+};
+
+const scheduleBetsCloseEvent = async () => {
+  try {
+    const firstMatchDate = await getFirstMatchOfCurrentWeek();
+
+    if (!firstMatchDate) {
+      console.log("Aucun match trouvé pour cette semaine.");
+      return;
+    }
+
+    const betsCloseTime = new Date(firstMatchDate);
+    betsCloseTime.setHours(12, 0, 0, 0);
+
+    schedule.scheduleJob(betsCloseTime, () => {
+      console.log("Événement betsClose déclenché à 12h le jour du premier match.");
+      eventBus.emit('betsClosed');
+    });
+
+    console.log(`Événement betsClose planifié pour le ${betsCloseTime}.`);
+  } catch (error) {
+    console.error("Erreur lors de la planification de l'événement betsClose:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getAPICallsCount,
   getWeekDateRange,
@@ -278,5 +328,7 @@ module.exports = {
   getStartAndEndOfCurrentMonth,
   getFirstDaysOfCurrentAndPreviousMonth,
   getSeasonStartDate,
-  getMidSeasonDate
+  getMidSeasonDate,
+  getFirstMatchOfCurrentWeek,
+  scheduleBetsCloseEvent
 }

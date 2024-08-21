@@ -44,9 +44,7 @@ eventBus.on('weekEnded', async () => {
   logger.info('Vérification du trophée BlackCat terminée');
   logger.info('# Event => weekEnded || Rewards check ends #');
 })
-eventBus.on('lastMatchWeekUpdated', async () => {
-  logger.info('Last match week updated')
-})
+
 eventBus.on('matchUpdated', async (matchId) => {
   logger.info('# Event => matchUpdated || Rewards check begins #');
   logger.info('Match updated', matchId)
@@ -107,10 +105,6 @@ eventBus.on('monthEnded', async () => {
   await checkEternalSecondTrophy();
   logger.info('Vérification du trophée EternalSecond terminée');
   logger.info('# Event => monthEnded || Rewards check ends #');
-})
-
-eventBus.on('seasonRewards', () => {
-  logger.info('Season rewards check begins')
 })
 
 eventBus.on('seasonEnded', async () => {
