@@ -10,33 +10,44 @@ const bcrypt = require('bcrypt');
 const { getPeriodMatchdays } = require("./appService");
 
 /**
- * Retrieves the rank of a user based on their points accumulated up to a specific date.
+ * Retrieves the rank of a user within a specified period based on the total points earned from bets.
  *
  * @param {number} userId - The ID of the user.
- * @param {Date} date - The date up to which the points are considered.
- * @return {Promise<number>} The rank of the user, starting from 1.
- * @throws {Error} If there is an error retrieving the rank.
+ * @param {string} startDate - The start date of the period in the format 'YYYY-MM-DD'.
+ * @param {string} endDate - The end date of the period in the format 'YYYY-MM-DD'.
+ * @return {Promise<number>} A promise that resolves to the rank of the user within the specified period.
+ * @throws {Error} If there is an error retrieving the matchdays or calculating the ranking.
  */
-const getUserRank = async (userId, date) => {
-    try {
-        const pointsAtDate = await Bet.findAll({
-            where: {
-                createdAt: {
-                    [Op.lte]: date,
-                },
-            },
-            attributes: ['user_id', [fn('SUM', col('points')), 'points']],
-            group: ['user_id'],
-            order: [[literal('points'), 'DESC']],
-        });
+const getUserRank = async (userId, startDate, endDate) => {
+  try {
+    const matchdays = await getPeriodMatchdays(startDate, endDate);
 
-        const rankedUsers = pointsAtDate.map((entry) => entry.user_id);
-        const userRank = rankedUsers.indexOf(userId) + 1;
-        return userRank;
-    } catch (error) {
-        console.error("Erreur lors de la récupération du classement:", error);
-        throw error;
+    if (matchdays.length === 0) {
+      throw new Error("Aucun jour de match trouvé pour la période donnée.");
     }
+
+    const pointsAtDate = await Bet.findAll({
+      where: {
+        matchday: {
+          [Op.in]: matchdays
+        },
+      },
+      attributes: ['user_id', [fn('SUM', col('points')), 'points']],
+      group: ['user_id'],
+      order: [[literal('points'), 'DESC']],
+    });
+
+    if (!pointsAtDate.length) {
+      throw new Error("Aucun pari trouvé pour la période donnée.");
+    }
+
+    const rankedUsers = pointsAtDate.map((entry) => entry.user_id);
+    const userRank = rankedUsers.indexOf(userId) + 1;
+    return { userRank, pointsAtDate };
+  } catch (error) {
+    console.error("Erreur lors de la récupération du classement:", error);
+    throw error;
+  }
 };
 
 /**

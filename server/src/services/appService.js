@@ -56,8 +56,8 @@ const getFirstDaysOfCurrentAndPreviousMonth = () => {
   };
 };
 
-const getSeasonStartDate = (seasonYear) => {
-  const startDate = Season.findOne({
+const getSeasonStartDate = async (seasonYear) => {
+  const startDate = await Season.findOne({
     where: {
       year: seasonYear
     }

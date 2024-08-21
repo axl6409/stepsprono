@@ -191,40 +191,54 @@ const checkPhoenixTrophy = async () => {
  */
 const checkRisingStarTrophy = async () => {
   try {
-    const startOfSeason = new Date();
-    startOfSeason.setMonth(startOfSeason.getMonth() - 1);
-
-    const endOfFirstMonth = new Date();
-    endOfFirstMonth.setMonth(startOfSeason.getMonth() + 1);
+    const currentSeason = await getCurrentSeasonYear(61);
+    const seasonStartDate = await getSeasonStartDate(currentSeason);
+    const endOfFirstMonth = new Date(seasonStartDate);
+    endOfFirstMonth.setMonth(endOfFirstMonth.getMonth() + 1);
 
     const users = await User.findAll();
 
+    let highestPoints = 0;
+    let topUsers = [];
+
     for (const user of users) {
-      const rankAtEndOfFirstMonth = await getUserRank(user.id, endOfFirstMonth);
+      const { userRank, pointsAtDate } = await getUserRank(user.id, seasonStartDate, endOfFirstMonth);
 
-      if (rankAtEndOfFirstMonth <= 3) {
-        const existingReward = await UserReward.findOne({
-          where: {
-            user_id: user.id,
-            reward_id: 6,
-          },
-        });
+      if (userRank === 1) {
+        const userPoints = pointsAtDate.find((entry) => entry.user_id === user.id).dataValues.points;
 
-        if (!existingReward) {
-          await UserReward.create({
-            user_id: user.id,
-            reward_id: 6,
-            count: 1,
-          });
-
-          logger.info(`Trophée L'Étoile Montante attribué à l'utilisateur ${user.username}`);
-        } else {
-          existingReward.count += 1;
-          await existingReward.save();
-          logger.info(`Trophée L'Étoile Montante attribuite à l'utilisateur ${user.username}`);
+        if (userPoints > highestPoints) {
+          highestPoints = userPoints;
+          topUsers = [user];
+        } else if (userPoints === highestPoints) {
+          topUsers.push(user);
         }
       }
     }
+
+    // Attribution du trophée
+    for (const user of topUsers) {
+      const existingReward = await UserReward.findOne({
+        where: {
+          user_id: user.id,
+          reward_id: 6,
+        },
+      });
+
+      if (!existingReward) {
+        await UserReward.create({
+          user_id: user.id,
+          reward_id: 6,
+          count: 1,
+        });
+        logger.info(`Trophée L'Étoile Montante attribué à l'utilisateur ${user.username}`);
+      } else {
+        existingReward.count += 1;
+        await existingReward.save();
+        logger.info(`Trophée L'Étoile Montante réattribué à l'utilisateur ${user.username}`);
+      }
+    }
+
   } catch (error) {
     logger.error("Erreur lors de la vérification du trophée L'Étoile Montante:", error);
   }
@@ -844,6 +858,12 @@ const checkTripleMenaceTrophy = async () => {
  */
 const checkTripleLooserTrophy = async () => {
   try {
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+    const endOfWeek = new Date();
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
     const users = await User.findAll();
 
     for (const user of users) {
