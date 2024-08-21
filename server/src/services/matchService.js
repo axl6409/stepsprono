@@ -6,6 +6,7 @@ const {Match} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
+const { sequelize } = require('../models');
 const {schedule} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
@@ -228,10 +229,53 @@ async function fetchWeekMatches() {
   }
 }
 
+async function updateRequireDetails() {
+  try {
+    const lastMatches = await sequelize.query(
+      `
+      SELECT m.id
+      FROM matchs m
+      INNER JOIN (
+        SELECT competition_id, season_id, matchday, MAX(utc_date) as latest_utc_date
+        FROM matchs
+        WHERE status = 'NS'
+        GROUP BY competition_id, season_id, matchday
+      ) groupedMatches 
+      ON m.competition_id = groupedMatches.competition_id
+      AND m.season_id = groupedMatches.season_id
+      AND m.matchday = groupedMatches.matchday
+      AND m.utc_date = groupedMatches.latest_utc_date
+      AND m.status = 'NS'
+      `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const matchIds = lastMatches.map(match => match.id);
+
+    await Match.update(
+      { require_details: true },
+      {
+        where: {
+          id: {
+            [Op.in]: matchIds
+          }
+        }
+      }
+    );
+
+    console.log(`${matchIds.length} matches have been updated with require_details set to true.`);
+  } catch (error) {
+    console.error('An error occurred while updating the matches:', error);
+  }
+}
+
 module.exports = {
   updateMatchAndPredictions,
   updateSingleMatch,
   updateMatches,
   getMatchsCronTasks,
-  fetchWeekMatches
+  fetchWeekMatches,
+  updateRequireDetails
 };

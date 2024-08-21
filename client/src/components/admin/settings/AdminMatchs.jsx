@@ -78,6 +78,21 @@ const AdminMatchs = () => {
     }
   }
 
+  const handleUpdateRequireDetails = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/admin/matchs/update-require-details`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        handleSuccess('Détails requis mis à jour !', 1500);
+      } else {
+        handleError('Erreur lors de la mise à jour des détails requis', 1500);
+      }
+    } catch (error) {
+      handleError(error.message, 1500);
+    }
+  };
+
   const handleSuccess = (message, timeout) => {
     setAlertMessage(message);
     setAlertType('success');
@@ -117,6 +132,13 @@ const AdminMatchs = () => {
       >
         <span
           className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">Tâches auto matchs update</span>
+      </button>
+      <button
+        onClick={handleUpdateRequireDetails}
+        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-blue before:border-black before:border-2 group"
+      >
+        <span
+          className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">Mise à jour des détails requis</span>
       </button>
       <div>
         <h1>Gestion des matchs de la semaine</h1>

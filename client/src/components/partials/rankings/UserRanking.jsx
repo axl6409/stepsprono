@@ -141,14 +141,21 @@ const UserRanking = ({ users, token }) => {
 
       <div className="relative z-[20] flex flex-col justify-start">
         <ul className="px-6">
-          {updatedUsers.slice(3).map(user => (
+          {updatedUsers.slice(3).map((user, index) => (
             <li
-              className="relative rounded-xl overflow-hidden my-2 border-2 border-black bg-white h-fit shadow-flat-black"
+              className="relative rounded-xl my-2 border-2 border-black bg-white h-fit shadow-flat-black"
               key={user.id}>
+              <div
+                className="absolute z-[25] bg-white -top-3 -left-4 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
+                <p
+                  className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{index + 4}</p>
+              </div>
               <Link to={`/dashboard/${user.id}`}
-                    className="relative z-[20] group flex flex-row justify-between">
+                    className="relative z-[20] group flex flex-row overflow-hidden rounded-xl justify-between">
                 <div className="w-14 bg-grey-light rounded-r-xl">
-                  <img className="object-center object-cover" src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage} alt={user.username}/>
+                  <img className="object-center object-cover"
+                       src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
+                       alt={user.username}/>
                 </div>
                 <p className="font-title text-black text-xl font-bold h-fit my-auto w-3/5 pl-6 pr-2">
                   <span className="inline-block mr-2">{user.username}</span>

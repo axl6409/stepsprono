@@ -106,7 +106,7 @@ const Teams = () => {
                       </li>
                       <li className="w-auto min-w-[30px] border border-black rounded p-0.5 text-center mx-1">
                         <p className="font-rubik text-xs h-1/2 font-medium leading-5">BD</p>
-                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goals_difference}</p>
+                        <p className="font-rubik h-1/2 text-[90%] leading-5 font-black">{team.goal_difference}</p>
                       </li>
                     </ul>
                   </div>

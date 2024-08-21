@@ -6,6 +6,7 @@ import { UserContext } from "../contexts/UserContext.jsx";
 import { useCookies } from "react-cookie";
 import { useParams } from "react-router-dom";
 import BackButton from "../components/nav/BackButton.jsx";
+import RewardPopup from "../components/partials/modals/RewardPopup.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -15,6 +16,7 @@ const Rewards = () => {
   const token = localStorage.getItem('token') || cookies.token;
   const [rewards, setRewards] = useState([]);
   const [userRewards, setUserRewards] = useState([]);
+  const [selectedReward, setSelectedReward] = useState(null);
 
   const { userId } = useParams();
 
@@ -59,12 +61,18 @@ const Rewards = () => {
     }
   }, [user, userId, token]);
 
-  // Trier les récompenses pour afficher d'abord celles remportées par l'utilisateur
   const sortedRewards = rewards.sort((a, b) => {
     const aUserHasReward = userRewards.some(userReward => userReward.reward_id === a.id);
     const bUserHasReward = userRewards.some(userReward => userReward.reward_id === b.id);
-    return bUserHasReward - aUserHasReward; // Met les récompenses remportées en premier
+    return bUserHasReward - aUserHasReward;
   });
+
+  const handleRewardClick = (reward) => {
+    const userHasReward = userRewards.some(userReward => userReward.reward_id === reward.id);
+    if (userHasReward) {
+      setSelectedReward(reward);
+    }
+  };
 
   return (
       <div className="text-center relative py-10 flex flex-col justify-center">
@@ -82,30 +90,39 @@ const Rewards = () => {
             const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.image}` : hiddenTrophy;
             const rewardCount = userHasReward ? userReward.count : " ";
             return (
-                <div
-                    key={reward.id}
-                    className="w-[150px] flex flex-col items-center my-4"
-                >
-                  <div className="relative">
-                    <img
-                        src={imageUrl}
-                        alt={reward.name}
-                        className="w-full h-[150px] object-cover rounded-lg"
-                    />
-                    {userHasReward && (
-                        <div
-                            className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
-                          <p className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
-                        </div>
-                    )}
-                  </div>
+              <div
+                key={reward.id}
+                className="w-[150px] flex flex-col items-center my-4 cursor-pointer"
+                onClick={() => handleRewardClick(reward)}
+              >
+                <div className="relative">
+                  <img
+                    src={imageUrl}
+                    alt={reward.name}
+                    className="w-full h-[150px] object-cover rounded-lg"
+                  />
                   {userHasReward && (
-                      <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+                    <div
+                      className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
+                      <p
+                        className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
+                    </div>
                   )}
                 </div>
+                {userHasReward && (
+                  <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+                )}
+              </div>
             );
           })}
         </div>
+        {selectedReward && (
+          <RewardPopup
+            reward={selectedReward}
+            apiUrl={apiUrl}
+            onClose={() => setSelectedReward(null)}
+          />
+        )}
       </div>
   );
 };

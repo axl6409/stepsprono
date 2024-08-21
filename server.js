@@ -18,6 +18,7 @@ const accessLogStream = rfs.createStream('access.log', {
 const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
+const {updateRequireDetails} = require("./server/src/services/matchService");
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))

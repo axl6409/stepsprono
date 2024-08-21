@@ -10,7 +10,7 @@ const cron = require("node-cron");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
 const {getMonthDateRange} = require("./appController");
 const {schedule} = require("node-cron");
-const {updateSingleMatch, updateMatchAndPredictions, updateMatches} = require("../services/matchService");
+const {updateSingleMatch, updateMatchAndPredictions, updateMatches, updateRequireDetails} = require("../services/matchService");
 const {getCurrentMatchday} = require("../services/appService");
 const logger = require("../utils/logger/logger");
 const apiKey = process.env.FB_API_KEY;
@@ -246,6 +246,14 @@ router.patch('/admin/matchs/:id/require-details', authenticateJWT, async (req, r
     res.status(200).json({ message: 'Field updated successfully', match });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+router.post('/admin/matchs/update-require-details', authenticateJWT, async (req, res) => {
+  try {
+    await updateRequireDetails();
+    res.status(200).json({ message: 'Mise à jour réussie' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la mise à jour', error: error.message });
   }
 });
 
