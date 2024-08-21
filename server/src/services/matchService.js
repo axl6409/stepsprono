@@ -193,9 +193,10 @@ async function updateMatches(competitionId = null) {
 
 async function fetchWeekMatches() {
   try {
-    const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-    const startOfWeek = simNow.startOf('isoWeek').tz("Europe/Paris");
-    const endOfWeek = simNow.endOf('isoWeek').tz("Europe/Paris");
+    // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    const now = moment();
+    const startOfWeek = now.startOf('isoWeek').tz("Europe/Paris");
+    const endOfWeek = now.endOf('isoWeek').tz("Europe/Paris");
 
     const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
     const endDate = endOfWeek.format('YYYY-MM-DD 23:59:59');

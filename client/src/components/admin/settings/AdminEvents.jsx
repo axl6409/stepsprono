@@ -84,12 +84,12 @@ const AdminEvents = () => {
       <div className="flex flex-col justify-start items-center">
         <div className="flex flex-row justify-between items-center">
           <p className="btn btn-primary w-4/5">
-            Déclancher l'évènement <strong>weekEnded</strong>
+            Déclancher l'évènement <strong>testEvent</strong>
           </p>
           <div>
             <button
               className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerEvent('weekEnded')}
+              onClick={() => triggerEvent('testEvent')}
             >
               <div
                 className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>

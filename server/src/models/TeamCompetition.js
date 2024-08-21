@@ -112,10 +112,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'goals_against'
     },
-    goal_difference: {
+    goals_difference: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      field: 'goal_difference'
+      field: 'goals_difference'
     },
     createdAt: {
       type: DataTypes.DATE,
