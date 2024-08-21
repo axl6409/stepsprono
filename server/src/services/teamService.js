@@ -8,6 +8,74 @@ const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonSe
 const logger = require("../utils/logger/logger");
 const {calculatePoints} = require("./betService");
 
+async function getAllTeams() {
+  try {
+    return await TeamCompetition.findAll()
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des équipes: ', error);
+  }
+}
+
+const updateRank = async (teamId = null, competitionId = null, seasonYear = null) => {
+  try {
+    if (!competitionId) {
+      competitionId = 61;
+    }
+    if (!seasonYear) {
+      seasonYear = await getCurrentSeasonYear(competitionId)
+    }
+    const seasonId = await getCurrentSeasonId(competitionId);
+    let teamsId = [teamId]
+    if (teamsId.length === 0) {
+      teamsId = await getAllTeams()
+    }
+    for (const team of teamsId) {
+      const teamStatsOptions = {
+        method: 'GET',
+        url: apiBaseUrl + 'standings',
+        params: {
+          league: competitionId,
+          season: seasonYear,
+          team: team
+        },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
+      };
+      const apiResponse = await axios.request(teamStatsOptions);
+      const leagueData = apiResponse.data.response[0];
+      if (!leagueData || !leagueData.league || !leagueData.league.standings) {
+        logger.error('No standings data found for the provided parameters');
+        return;
+      }
+      const stats = leagueData.league.standings[0][0];
+      if (!stats) {
+        logger.error('No statistics data found for the team');
+        return;
+      }
+      const [teamCompetition] = await TeamCompetition.find({
+        where: {
+          team_id: team,
+          competition_id: competitionId,
+          season_id: seasonId,
+        },
+      });
+
+      if (teamCompetition) {
+        await teamCompetition.update({
+          position: stats.rank,
+        });
+        logger.info('Classement mis à jour');
+      } else {
+        logger.error('Team not reachable in the database');
+      }
+    }
+  } catch (error) {
+    logger.error('Erreur lors de la mise à jour du classement: ', error);
+  }
+}
+
 async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = null, updateInfos = true, updateStats = true) {
   if (typeof teamIDs === 'number') {
     teamIDs = [teamIDs];
@@ -98,13 +166,11 @@ async function createOrUpdateTeams(teamIDs = [], season = null, competitionId = 
 
 async function updateTeamStats(competitionId = null, teamID = null, seasonYear = null) {
   try {
-    if (!seasonYear) {
-      console.log('Please provide a season number');
-      return 'Please provide a season number';
-    }
     if (!competitionId) {
-      console.log('Please provide a competition id');
-      return 'Please provide a competition id';
+      competitionId = 61;
+    }
+    if (!seasonYear) {
+      seasonYear = await getCurrentSeasonYear(competitionId)
     }
     const seasonId = await getCurrentSeasonId(competitionId);
     if (!seasonId || !competitionId || !teamID) {
@@ -165,8 +231,8 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
         goals_difference: stats.goalsDiff
       }
     });
-
     if (!created) {
+      const goalsDiff = stats.all.goals.for - stats.all.goals.against
       await teamCompetition.update({
         form: stats.form,
         position: stats.rank,
@@ -185,7 +251,7 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
         loses_away: stats.away.lose,
         goals_for: stats.all.goals.for,
         goals_against: stats.all.goals.against,
-        goals_difference: stats.goalsDiff
+        goals_difference: goalsDiff
       });
     }
     logger.info(`Mise à jour des statistiques effectuées avec succès pour l'équipe ${teamID}`);

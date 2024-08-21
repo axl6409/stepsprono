@@ -4,7 +4,7 @@ const moment = require("moment");
 const { createOrUpdateTeams, updateTeamStats } = require('./src/services/teamService')
 const { updateMatchAndPredictions } = require('./src/services/matchService')
 const { updatePlayers } = require('./src/controllers/playerController')
-const { checkAndScheduleSeasonEndTasks } = require("./src/services/appService");
+const { checkAndScheduleSeasonEndTasks, scheduleTaskForEndOfMonthMatch} = require("./src/services/appService");
 const { updateMatches, fetchWeekMatches } = require('./src/services/matchService');
 const logger = require("./src/utils/logger/logger");
 
@@ -27,11 +27,18 @@ const runCronJob = () => {
       logger.info('Season Rewards : Success');
     })
   })
+
   // Every day at 01:00
   cron.schedule('01 00 * * *', () => {
     updateTeamStats()
     updateMatches()
   })
+
+  // Every month on 1st
+  cron.schedule('0 0 1 * *', async () => {
+    console.log('Execution des tâches de fin de mois.');
+    await scheduleTaskForEndOfMonthMatch();
+  });
 
   // At 23:59 on day-of-month 1 in August.
   cron.schedule('00 00 01 8 *', () => {
@@ -40,4 +47,6 @@ const runCronJob = () => {
   });
 }
 
-module.exports = { runCronJob };
+module.exports = {
+  runCronJob,
+};

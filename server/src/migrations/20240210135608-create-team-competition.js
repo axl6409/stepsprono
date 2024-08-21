@@ -129,10 +129,10 @@ module.exports = {
         allowNull: true,
         field: 'goals_against'
       },
-      goal_difference: {
+      goals_difference: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        field: 'goal_difference'
+        field: 'goals_difference'
       },
       created_at: {
         allowNull: false,
