@@ -240,4 +240,16 @@ body {
     opacity: 1;
 }
 
+@keyframes rotateClockIcon {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate-animation {
+    animation: rotateClockIcon 2s ease-in-out infinite;
+}
 

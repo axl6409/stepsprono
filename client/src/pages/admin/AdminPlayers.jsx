@@ -4,11 +4,12 @@ import "swiper/css";
 import 'swiper/css/navigation';
 import axios from "axios";
 import { Navigation } from 'swiper/modules';
-import SwiperArrow from "../../../assets/icons/swiper-arrow.svg";
-import PlayerForm from "../PlayerForm.jsx";
+import SwiperArrow from "../../assets/icons/swiper-arrow.svg";
+import PlayerForm from "../../components/admin/PlayerForm.jsx";
 import { useCookies } from "react-cookie";
 import { Link } from "react-router-dom";
-import arrowIcon from "../../../assets/icons/arrow-left.svg";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
+import penIcon from "../../assets/icons/pencil.svg";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -136,6 +137,12 @@ const AdminPlayers = () => {
         }
     };
 
+    function decodeHtml(html) {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
+
     if (error) return <p>Erreur : {error.message}</p>;
     console.log(players)
     return (
@@ -201,20 +208,18 @@ const AdminPlayers = () => {
                 <div className="mt-4 flex flex-row flex-wrap justify-evenly items-center">
                     {players.length > 0 ? (
                         players.map(player => (
-                            <div key={player.Player.id}
-                                 className="flex flex-col items-center justify-between w-[100px] h-full my-8 p-4 border border-black rounded-lg shadow">
-                                <p>{player.Player.id}</p>
-                                <img src={player.Player.photo} alt={player.Player.name}
-                                     className="w-10 h-10 rounded-full"/>
-                                <span>{player.Player.name}</span>
-                                <button onClick={() => openPlayerForm(player.Player.id)}
-                                        className="px-3 py-1 bg-blue-500 text-white rounded">
-                                    Modifier
-                                </button>
-                            </div>
+                          <div key={player.Player.id}
+                               className="relative flex flex-row items-center justify-between w-11/12 h-auto my-1 p-4 border border-black rounded-lg shadow-flat-black">
+                              <span className="w-1/5 font-roboto font-bold text-xs bg-black text-white px-2 py-1 text-center">{player.Player.id}</span>
+                              <p className="w-3/5 font-sans font-medium text-base">{decodeHtml(player.Player.name)}</p>
+                              <button onClick={() => openPlayerForm(player.Player.id)}
+                                      className="bg-yellow-500 h-[35px] w-[35px] text-white px-2 py-1 border border-black rounded-full shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none">
+                                  <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
+                              </button>
+                          </div>
                         ))
                     ) : (
-                        <p>Sélectionnez une équipe pour voir ses joueurs.</p>
+                      <p>Sélectionnez une équipe pour voir ses joueurs.</p>
                     )}
                 </div>
                 {selectedPlayer && (

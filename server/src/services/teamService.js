@@ -233,7 +233,7 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
         loses_away: stats.away.lose,
         goals_for: stats.all.goals.for,
         goals_away: stats.all.goals.against,
-        goal_difference: (stats.all.goals.for - stats.all.goals.against)
+        goals_difference: (stats.all.goals.for - stats.all.goals.against)
       }
     });
     if (!created) {
@@ -256,7 +256,7 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
         loses_away: stats.away.lose,
         goals_for: stats.all.goals.for,
         goals_against: stats.all.goals.against,
-        goal_difference: (stats.all.goals.for - stats.all.goals.against)
+        goals_difference: (stats.all.goals.for - stats.all.goals.against)
       });
     }
     logger.info(`Mise à jour des statistiques effectuées avec succès pour l'équipe ${teamID}`);

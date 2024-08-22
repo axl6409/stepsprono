@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
-import {UserContext} from "../../../contexts/UserContext.jsx";
+import {UserContext} from "../../contexts/UserContext.jsx";
 import {Link, Navigate, useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -13,9 +13,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import moment from "moment";
-import ConfirmationModal from "../../partials/modals/ConfirmationModal.jsx";
-import StatusModal from "../../partials/modals/StatusModal.jsx";
-import {AppContext} from "../../../contexts/AppContext.jsx";
+import ConfirmationModal from "../../components/partials/modals/ConfirmationModal.jsx";
+import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminTeams = () => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useCookies } from "react-cookie";
-import UserRanking from "../components/partials/rankings/UserRanking.jsx";
+import UserRanking from "../components/user/UserRanking.jsx";
 import arrowIcon from "../assets/icons/arrow-left.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 

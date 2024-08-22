@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useCookies } from "react-cookie";
 import axios from "axios";
-import StatusModal from "../../partials/modals/StatusModal.jsx";
-import arrowIcon from "../../../assets/icons/arrow-left.svg";
+import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
 import {Link} from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 

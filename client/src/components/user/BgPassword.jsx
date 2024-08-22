@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import iconMDPOpacity from '../../../assets/components/user/icon-mdp-yellow-opacity.png';
+import iconMDPOpacity from '../../assets/components/user/icon-mdp-yellow-opacity.png';
 
 const BgPassword = () => {
 

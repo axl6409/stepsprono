@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Loader from "../Loader.jsx";
-import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
-import crown from "../../../assets/components/ranking/crown.svg";
-import crownOpacity from "../../../assets/components/ranking/crown-opacity.svg";
-import purpleStar from "../../../assets/components/ranking/purple-star.svg";
-import purpleStarOpacity from "../../../assets/components/ranking/purple-star-opacity.svg";
-import yellowStar from "../../../assets/components/ranking/yellow-star.svg";
-import blackStar from "../../../assets/components/ranking/black-star.svg";
-import purpleFlower from "../../../assets/components/ranking/purple-flower.svg";
-import flowerYellowOpacity from "../../../assets/components/ranking/flower-yellow-opacity.png";
+import Loader from "../partials/Loader.jsx";
+import defaultUserImage from "../../assets/components/user/default-user-profile.png";
+import crown from "../../assets/components/ranking/crown.svg";
+import crownOpacity from "../../assets/components/ranking/crown-opacity.svg";
+import purpleStar from "../../assets/components/ranking/purple-star.svg";
+import purpleStarOpacity from "../../assets/components/ranking/purple-star-opacity.svg";
+import yellowStar from "../../assets/components/ranking/yellow-star.svg";
+import blackStar from "../../assets/components/ranking/black-star.svg";
+import purpleFlower from "../../assets/components/ranking/purple-flower.svg";
+import flowerYellowOpacity from "../../assets/components/ranking/flower-yellow-opacity.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = ({ users, token }) => {
@@ -143,10 +143,10 @@ const UserRanking = ({ users, token }) => {
         <ul className="px-6">
           {updatedUsers.slice(3).map((user, index) => (
             <li
-              className="relative rounded-xl my-2 border-2 border-black bg-white h-fit shadow-flat-black"
+              className="relative rounded-xl mt-2 mb-4 border-2 border-black bg-white h-fit shadow-flat-black"
               key={user.id}>
               <div
-                className="absolute z-[25] bg-white -top-3 -left-4 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
+                className="absolute z-[25] bg-white -top-3 -left-4 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust">
                 <p
                   className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{index + 4}</p>
               </div>

@@ -27,7 +27,6 @@ const UserSettings = (props) => {
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log("Selected file type: profile"); // Ajoutez cette ligne pour vérifier
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
@@ -59,6 +58,16 @@ const UserSettings = (props) => {
         className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
         <img src={arrowIcon} alt="Icône flèche" />
+      </Link>
+      <Link
+        to="/reglement"
+        className="w-fit block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+      >
+        <span
+          className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-medium transition -translate-y-1.5 group-hover:-translate-y-0"
+        >
+          Règlement
+        </span>
       </Link>
       <div className="relative">
         <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>{user.username}
