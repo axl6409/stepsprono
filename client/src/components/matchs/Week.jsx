@@ -5,7 +5,7 @@ import 'swiper/css/effect-cube';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import axios from "axios";
-import Pronostic from "../partials/Pronostic.jsx";
+import Pronostic from "./Pronostic.jsx";
 import {EffectCards, Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css/effect-cards';
 import moment from "moment";

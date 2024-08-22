@@ -14,22 +14,22 @@ import Teams from "./pages/Teams.jsx";
 import TeamPlayers from "./pages/TeamPlayers.jsx";
 import UserSettings from "./pages/user/UserSettings.jsx";
 import Admin from "./pages/admin/Admin.jsx";
-import Users from "./pages/admin/Users.jsx";
 import EditUser from "./components/admin/EditUser.jsx";
 import EditField from "./components/user/EditField.jsx";
 import Settings from "./pages/admin/Settings.jsx";
 import AdminRewards from "./pages/admin/AdminRewards.jsx";
-import AdminTeams from "./components/admin/settings/AdminTeams.jsx";
-import AdminMatchs from "./components/admin/settings/AdminMatchs.jsx";
-import AdminPlayers from "./components/admin/settings/AdminPlayers.jsx";
-import AdminCompetitions from "./components/admin/settings/AdminCompetitions.jsx";
-import AdminBets from "./components/admin/settings/AdminBets.jsx";
+import AdminTeams from "./pages/admin/AdminTeams.jsx";
+import AdminMatchs from "./pages/admin/AdminMatchs.jsx";
+import AdminPlayers from "./pages/admin/AdminPlayers.jsx";
+import AdminCompetitions from "./pages/admin/AdminCompetitions.jsx";
+import AdminBets from "./pages/admin/AdminBets.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import {AppContext} from "./contexts/AppContext.jsx";
-import AdminSeasons from "./components/admin/settings/AdminSeasons.jsx";
-import AdminEvents from "./components/admin/settings/AdminEvents.jsx";
+import AdminSeasons from "./pages/admin/AdminSeasons.jsx";
+import AdminEvents from "./pages/admin/AdminEvents.jsx";
+import AdminUsers from "./pages/admin/AdminUsers.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -123,7 +123,7 @@ const AuthenticatedApp = () => {
               <ProtectedRoute component={() => <UserSettings user={user} token={token} setUser={setUser} />} />
             } />
             <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
-            <Route path="/admin/users" element={<ProtectedRoute component={Users} />} />
+            <Route path="/admin/users" element={<ProtectedRoute component={AdminUsers} />} />
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser}/>} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />

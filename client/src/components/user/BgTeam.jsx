@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import iconTeamOpacity from '../../../assets/components/user/icon-heart-red-opacity.png';
+import iconTeamOpacity from '../../assets/components/user/icon-heart-red-opacity.png';
 
 const BgTeam = () => {
 

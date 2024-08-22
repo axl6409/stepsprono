@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import iconMailOpacity from '../../../assets/components/user/icon-mail-green-opacity.png';
+import iconMailOpacity from '../../assets/components/user/icon-mail-green-opacity.png';
 
 const BgEmail = () => {
 

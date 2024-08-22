@@ -167,6 +167,12 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
   //   return name.replace(/^[A-Z]\. /, '');
   // };
 
+  function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
   const cleanPlayerName = (name) => {
     const parts = name.split(' ');
     if (parts.length === 2) {
@@ -252,7 +258,6 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   </div>
                 </label>
               </div>
-              {/*{match && match.id === lastMatch.id && (*/}
               {(match.require_details || match.id === lastMatch.id) && (
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
@@ -287,7 +292,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                           <option key={1} value={''}>Aucun buteur</option>
                           {players.map((player, index) => (
                             <option key={`${player.player_id}-${index}`} value={player.player_id}>
-                              {cleanPlayerName(player.Player.name)}
+                              {cleanPlayerName(decodeHtml(player.Player.name))}
                             </option>
                           ))}
                         </select>

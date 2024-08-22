@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
 import {Link} from "react-router-dom";
 import axios from "axios";
-import arrowIcon from "../../../assets/icons/arrow-left.svg";
-import downloadIcon from "../../../assets/icons/download-icon.svg";
-import Loader from "../../partials/Loader.jsx";
-import AlertModal from "../../partials/modals/AlertModal.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
+import downloadIcon from "../../assets/icons/download-icon.svg";
+import Loader from "../../components/partials/Loader.jsx";
+import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminEvents = () => {

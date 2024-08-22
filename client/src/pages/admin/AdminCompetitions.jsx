@@ -2,8 +2,8 @@ import React, {useContext, useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
 import {Link} from "react-router-dom";
 import axios from "axios";
-import arrowIcon from "../../../assets/icons/arrow-left.svg";
-import downloadIcon from "../../../assets/icons/download-icon.svg";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
+import downloadIcon from "../../assets/icons/download-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminCompetitions = () => {

@@ -3,10 +3,10 @@ import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
-import BgUser from "../partials/user/BgUser.jsx";
-import BgEmail from "../partials/user/BgEmail.jsx";
-import BgPassword from "../partials/user/BgPassword.jsx";
-import BgTeam from "../partials/user/BgTeam.jsx";
+import BgUser from "./BgUser.jsx";
+import BgEmail from "./BgEmail.jsx";
+import BgPassword from "./BgPassword.jsx";
+import BgTeam from "./BgTeam.jsx";
 import BackButton from "../nav/BackButton.jsx";
 import AlertModal from "../partials/modals/AlertModal.jsx";
 

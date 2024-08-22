@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import iconUserOpacity from '../../../assets/components/user/icon-user-purple-opacity.png';
+import iconUserOpacity from '../../assets/components/user/icon-user-purple-opacity.png';
 
 const BgUser = () => {
 

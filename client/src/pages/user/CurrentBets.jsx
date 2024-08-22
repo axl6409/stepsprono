@@ -19,6 +19,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   const [monthPoints, setMonthPoints] = useState(0);
   const [seasonPoints, setSeasonPoints] = useState(0);
   const [canDisplayBets, setCanDisplayBets] = useState(false);
+  const [betColors, setBetColors] = useState({});
+  const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
   useEffect(() => {
     const fetchLastBets = async () => {
@@ -33,6 +35,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           const sortedBets = currentBets.sort((a, b) => new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date));
           setBets(sortedBets);
         }
+        const newBetColors = {};
+        response.data.forEach((bet, index) => {
+          newBetColors[bet.id] = colors[index % colors.length];
+        });
+        setBetColors(newBetColors);
       } catch (error) {
         console.error('Erreur lors de la récupération des paris', error);
       }
@@ -200,17 +207,17 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 <div
                     className="relative my-[25%]">
                   <h2 className={`relative mb-12 w-fit mx-auto`}>
-                <span
-                    className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
                     <span
-                        className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+                      className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
                     <span
-                        className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+                      className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+                    <span
+                      className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
                   </h2>
                   <div className="w-full px-2">
                     <div className="flex flex-col w-full">
                       <div
-                          className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
+                        className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
                         <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
                           <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
                     </div>
@@ -224,8 +231,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                   <div className={`flex flex-col mt-2 `}>
                     {bets.map((bet, index) => (
                       <div key={index}
-                           className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
-                        <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
+                         className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
+                          <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20" style={{color: betColors[bet.id]}}>{index + 1}</p>
                         <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                           <div className="flex flex-col justify-evenly h-full">
                             {bet.home_score !== null && bet.away_score !== null ? (
@@ -277,7 +284,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         </div>
                         <div className="w-[20%] flex flex-col justify-center items-center py-2">
                           {bet.points === null ? (
-                            <img className="bblock mx-auto" src={clockIcon} alt="icone d'horloge"/>
+                            <img className="block mx-auto rotate-animation" style={{ animationDelay: `${index * 0.2}s` }} src={clockIcon} alt="icone d'horloge"/>
                           ) : bet.points === 0 ? (
                             <p className="font-rubik font-medium text-xl">{bet.points}</p>
                           ) : (
