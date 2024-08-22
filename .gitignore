@@ -16,7 +16,7 @@ Dockerfile.save
 docker-compose.yml
 ssl/
 wait-for-it.sh
-/client/src/assets/uploads/trophies
+/client/src/assets/uploads/
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
 
