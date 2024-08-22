@@ -25,7 +25,6 @@ const Dashboard = ({ userId: propUserId }) => {
   const [cookies, setCookie] = useCookies(["user"]);
   const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token
-  const [isLoading, setIsLoading] = useState(true);
   const [animateTitle, setAnimateTitle] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
@@ -33,7 +32,6 @@ const Dashboard = ({ userId: propUserId }) => {
 
   useEffect(() => {
     const fetchProfileUser = async () => {
-      setIsLoading(true)
       try {
         const response = await axios.get(`${apiUrl}/api/user/${userId}`, {
           headers: {
@@ -43,15 +41,12 @@ const Dashboard = ({ userId: propUserId }) => {
         setProfileUser(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l’utilisateur', error);
-      } finally {
-        setIsLoading(false)
       }
     };
     if (userId) {
       fetchProfileUser()
     } else {
       setProfileUser(user)
-      setIsLoading(false)
     }
   }, [userId, user, token]);
 
@@ -98,15 +93,7 @@ const Dashboard = ({ userId: propUserId }) => {
     setIsModalOpen(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="text-center flex flex-col justify-center">
-        <Loader />
-      </div>
-    );
-  }
-
-  if (!isLoading && !profileUser) {
+  if (!profileUser) {
     return (
       <div className="text-center flex flex-col justify-center">
         <span className="text-3xl font-black uppercase">Utilisateur introuvable</span>

@@ -184,7 +184,8 @@ body {
     background-position: center;
     left: 43%;
     transform-origin: 50%;
-    animation: circle .5s alternate infinite ease;
+    animation: circle .8s alternate infinite ease-in-out;
+    will-change: transform, top, height, border-radius;
 }
 @keyframes circle {
     0%{
@@ -193,7 +194,7 @@ body {
         border-radius: 50px 50px 25px 25px;
         transform: scaleX(1.7);
     }
-    40%{
+    50%{
         height: 20px;
         border-radius: 50%;
         transform: scaleX(1);
@@ -213,14 +214,15 @@ body {
     z-index: -1;
     left: 43%;
     filter: blur(1px);
-    animation: shadow .5s alternate infinite ease;
+    animation: shadow .8s alternate infinite ease-in-out;
+    will-change: transform, opacity;
 }
 
 @keyframes shadow {
     0%{
         transform: scaleX(1.5);
     }
-    40%{
+    50%{
         transform: scaleX(1);
         opacity: .7;
     }
@@ -249,7 +251,20 @@ body {
     }
 }
 
-.rotate-animation {
+.rotate-clock-animation {
     animation: rotateClockIcon 2s ease-in-out infinite;
+}
+
+@keyframes rotateSimple {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate-animation {
+    animation: rotateSimple 30s linear infinite;
 }
 

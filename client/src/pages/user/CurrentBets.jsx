@@ -9,6 +9,9 @@ import {Link} from "react-router-dom";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
+import WeekPoints from "../../components/svg/WeekPoints.jsx";
+import MonthPoints from "../../components/svg/MonthPoints.jsx";
+import SeasonPoints from "../../components/svg/SeasonPoints.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -141,7 +144,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
           className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
-          <img src={monthPointsImage} alt="Points du mois"/>
+          <MonthPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
             {monthPoints}
@@ -149,7 +152,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div
           className="h-fit flex flex-col w-1/3 max-w-[120px] relative mt-12">
-          <img src={weekPointsImage} alt="Points de la semaine"/>
+          <WeekPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {weekPoints}
@@ -157,7 +160,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div
           className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
-          <img src={seasonPointsImage} alt="Points de la saison"/>
+          <SeasonPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {seasonPoints}
@@ -284,7 +287,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         </div>
                         <div className="w-[20%] flex flex-col justify-center items-center py-2">
                           {bet.points === null ? (
-                            <img className="block mx-auto rotate-animation" style={{ animationDelay: `${index * 0.2}s` }} src={clockIcon} alt="icone d'horloge"/>
+                            <img className="block mx-auto rotate-clock-animation" style={{ animationDelay: `${index * 0.2}s` }} src={clockIcon} alt="icone d'horloge"/>
                           ) : bet.points === 0 ? (
                             <p className="font-rubik font-medium text-xl">{bet.points}</p>
                           ) : (
