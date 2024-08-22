@@ -32,6 +32,14 @@ export const AppProvider = ({ children }) => {
     setCookie('debug', isDebuggerActive, { path: '/' });
   }, [isDebuggerActive, setCookie]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const fetchAPICalls = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/app/calls`, {
@@ -95,7 +103,7 @@ export const AppProvider = ({ children }) => {
   }
 
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownPopupOpen, toggleCountDownModal, menuOpen, setMenuOpen, matchsCronTasks, fetchMatchsCronJobs }}>
+    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownPopupOpen, toggleCountDownModal, menuOpen, setMenuOpen, matchsCronTasks, fetchMatchsCronJobs, isLoading, setIsLoading }}>
       {children}
     </AppContext.Provider>
   );

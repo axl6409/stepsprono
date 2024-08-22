@@ -22,20 +22,21 @@ const runCronJob = () => {
     eventBus.emit('weekEnded');
   })
 
-  // Every day at 23:00
-  cron.schedule('00 23 * * *', async () => {
+  // Every monday at 0:00
+  cron.schedule('0 0 * * 1', async () => {
+    await fetchWeekMatches().then(r => {
+      logger.info('Week Matches Fetched : Success');
+    })
+  })
+
+  // Every day at 23:30
+  cron.schedule('30 23 * * *', async () => {
     const tomorrow = moment().add(1, 'days')
     if (tomorrow.date() === 1) {
       eventBus.emit('monthEnded');
     }
-    await fetchWeekMatches().then(r => {
-      logger.info('Week Matches Fetched : Success');
-    })
-    await checkAndScheduleSeasonEndTasks().then(r => {
-      logger.info('Season Rewards : Success');
-    })
     await scheduleBetsCloseEvent().then(r => {
-      logger.info('Bets Closed : Success');
+      logger.info('Program bets closed : Success');
     })
   })
 
@@ -66,9 +67,12 @@ const runCronJob = () => {
   });
 
   // At 23:59 on day-of-month 1 in September.
-  cron.schedule('00 00 01 8 *', () => {
+  cron.schedule('00 00 01 8 *', async () => {
     logger.info('Émission de l\'événement firstMonthEnded');
     eventBus.emit('firstMonthEnded');
+    await checkAndScheduleSeasonEndTasks().then(r => {
+      logger.info('Season Rewards : Success');
+    })
   });
 }
 
