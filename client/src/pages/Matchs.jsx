@@ -6,9 +6,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import arrowIcon from "../assets/icons/arrow-left.svg";
 import Passed from "../components/matchs/Passed.jsx";
+import {useCookies} from "react-cookie";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
+import Pronostic from "../components/matchs/Pronostic.jsx";
 
 const Matchs = () => {
   const { user, setUser } = useContext(UserContext)
+  const [cookies, setCookie] = useCookies(["user"]);
   const [matchs, setMatchs] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
@@ -27,13 +31,7 @@ const Matchs = () => {
       >
         <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1
-        className={`font-black mt-0 uppercase relative w-fit mx-auto text-xl5`}>Pronostics
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Pronostics</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Pronostics</span>
-      </h1>
+      <AnimatedTitle title={"Pronostics"} />
       <div className="px-4 relative">
         <Week token={token} user={user}/>
       </div>

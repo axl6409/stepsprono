@@ -171,7 +171,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           <div className="pt-8">
             {noMatches ? (
               <div
-                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
                 <span
                     className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
                 >
@@ -181,7 +181,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             ) : (
               <Link
                   to="/matchs"
-                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
               >
                 <span
                     className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"

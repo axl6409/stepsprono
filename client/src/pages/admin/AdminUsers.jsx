@@ -7,6 +7,7 @@ import {Link, useLocation} from "react-router-dom";
 import ConfirmationModal from "../../components/partials/modals/ConfirmationModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import Loader from "../../components/partials/Loader.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
@@ -80,15 +81,12 @@ const AdminUsers = () => {
     isLoading ? (
       <Loader />
     ) : (
-      <div className="inline-block w-full h-auto">
+      <div className="inline-block w-full h-auto py-12">
         <Link
           to="/admin"
-          className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+          className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
         >
-        <span
-          className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          <FontAwesomeIcon icon={faCaretLeft}/>
-        </span>
+          <img src={arrowIcon} alt="Icône flèche"/>
         </Link>
         <h1
           className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Gestion des

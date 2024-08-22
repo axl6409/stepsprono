@@ -5,6 +5,7 @@ import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import {useCookies} from "react-cookie";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Reglement = () => {
@@ -32,16 +33,11 @@ const Reglement = () => {
 
   return (
     <div className="reglement-container px-8 py-12">
-      <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>RÈGLEMENT INTÉRIEUR
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">RÈGLEMENT INTÉRIEUR</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">RÈGLEMENT INTÉRIEUR</span>
-      </h1>
+      <AnimatedTitle title={"RÈGLEMENT INTÉRIEUR"} />
       <div className="my-12" dangerouslySetInnerHTML={{__html: reglement}}/>
       <Link
         to="/dashboard"
-        className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
       >
         <span
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"

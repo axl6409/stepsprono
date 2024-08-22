@@ -136,7 +136,7 @@ const UserMenu = () => {
       <nav className="px-2 py-2 relative z-[10]">
         {user && (
           <button
-            className="relative z-[80] w-[60px] h-[60px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            className="relative z-[80] w-[60px] h-[60px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
             onClick={toggleMenu}
           >
             <span
@@ -150,7 +150,7 @@ const UserMenu = () => {
             <>
               <div className="flex flex-row justify-between">
                 <button
-                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
                   onClick={toggleMenu}
                 >
                   <span
@@ -160,7 +160,7 @@ const UserMenu = () => {
                 </button>
                 <Link
                   to="/"
-                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+                  className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
                   onClick={handleLogout}
                 >
                   <span

@@ -16,6 +16,7 @@ import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextTeam from "../assets/components/texts/equipe-de-coeur.svg";
 import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = ({ userId: propUserId }) => {
@@ -111,10 +112,10 @@ const Dashboard = ({ userId: propUserId }) => {
       <div className="flex flex-row justify-between px-4 py-2 mb-4">
         {userId === user.id ? (
           <Link
-            className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
             to={`/settings/team`}>
             <div
-              className="relative w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span
               className="absolute top-1.5 left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTeam} alt=""/>
@@ -136,9 +137,9 @@ const Dashboard = ({ userId: propUserId }) => {
           </Link>
         ) : (
           <div
-            className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
+            className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
             <div
-              className="relative w-full h-full transition -translate-y-1 -translate-x-0.5">
+              className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5">
             <span
               className="absolute top-1.5 left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTeam} alt=""/>
@@ -158,10 +159,10 @@ const Dashboard = ({ userId: propUserId }) => {
           </div>
         )}
         <Link
-          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+          className="relative block top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
           to={`/rewards/${userId}`}>
           <div
-            className="relative w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span
               className="absolute top-1.5 left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTrophies} alt=""/>
@@ -176,14 +177,7 @@ const Dashboard = ({ userId: propUserId }) => {
         </Link>
       </div>
 
-
-      <h1
-        className={`font-black my-8 mt-0 uppercase transition-all duration-500 ease-in-out relative w-fit mx-auto ${animateTitle ? 'title-animated' : 'text-base'}`}>{profileUser.username}
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] transition-all opacity-0 duration-400 ease-in-out translate-x-0.5 translate-y-0.5">{profileUser.username}</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] transition-all opacity-0 duration-300 ease-in-out translate-x-1 translate-y-1">{profileUser.username}</span>
-      </h1>
+      <AnimatedTitle title={profileUser.username} animate={false}/>
 
       <div>
         {isAuthenticated && profileUser && profileUser.role !== 'visitor' ? (
