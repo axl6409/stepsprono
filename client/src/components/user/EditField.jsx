@@ -9,6 +9,7 @@ import BgPassword from "./BgPassword.jsx";
 import BgTeam from "./BgTeam.jsx";
 import BackButton from "../nav/BackButton.jsx";
 import AlertModal from "../partials/modals/AlertModal.jsx";
+import SimpleTitle from "../partials/SimpleTitle.jsx";
 
 const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = "text" }) => {
   const history = useNavigate();
@@ -33,6 +34,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
           const selectedTeam = response.data.data.find(team => team.team_id.toString() === user.team_id.toString());
           if (selectedTeam && selectedTeam.Team) {
             setTeamLogo(selectedTeam.Team.logo_url || "");
+            setTeam(selectedTeam.Team.id.toString());
           }
         })
         .catch(error => console.error('Erreur lors de la récupération des équipes', error));
@@ -40,9 +42,15 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   }, [fieldName, apiUrl, user.teamId]);
 
   const handleTeamChange = (event) => {
-    const selectedTeam = teams.find(team => team.Team.id.toString() === event.target.value);
-    setTeam(selectedTeam.Team.id);
-    setTeamLogo(selectedTeam.Team.logo_url || '');
+    const selectedTeamId = event.target.value;
+    const selectedTeam = teams.find(team => team.Team.id.toString() === selectedTeamId);
+    setTeam(selectedTeamId);
+
+    if (selectedTeam && selectedTeam.Team.logo_url) {
+      setTeamLogo(selectedTeam.Team.logo_url);
+    } else {
+      setTeamLogo('');
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -53,7 +61,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
     const verifyCurrentPassword = async () => {
       try {
         const response = await axios.post(`${apiUrl}/api/user/verify-password`, {
-          user_id: user.id,
+          userId: user.id,
           currentPassword
         }, {
           headers: {
@@ -104,6 +112,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
         }
       );
       setUser(response.data);
+      setTeam(response.data.team_id || team);
       setLoading(false);
       handleSuccess('Mise à jour effectuée', 2000);
     } catch (error) {
@@ -147,10 +156,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
       <BackButton />
       <div className="relative z-[3]">
         <AlertModal message={alertMessage} type={alertType} />
-        <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>{title}
-          <span className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">{title}</span>
-          <span className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">{title}</span>
-        </h1>
+        <SimpleTitle title={title} />
         <div className="px-8 mt-12">
           <div className="border border-black shadow-flat-black px-4 py-8 rounded-xl bg-white">
             <div className="mb-4">
@@ -242,7 +248,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
                     className="w-[100px] h-[100px] mx-auto relative z-[3] bg-white overflow-hidden rounded-full border-2 border-black p-0 flex flex-col justify-center">
                     {teamLogo ? (
                       <img
-                        src={apiUrl + "/uploads/teams/" + user.team_id + "/" + teamLogo}
+                        src={apiUrl + "/uploads/teams/" + team + "/" + teamLogo}
                         alt="Logo de l'équipe"
                         className="w-auto h-[90%] mx-auto object-cover"
                       />

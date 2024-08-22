@@ -9,6 +9,7 @@ import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import UserSelectionModal from '../../components/admin/UserSelectionModal.jsx';
 import RewardForm from '../../components/admin/RewardForm';
 import { useCookies } from "react-cookie";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -101,19 +102,13 @@ const AdminRewards = () => {
         >
           <img src={arrowIcon} alt="Icône flèche" />
         </Link>
-        <h1
-          className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Gestion des trophées
-          <span
-            className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des trophées</span>
-          <span
-            className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des trophées</span>
-        </h1>
+        <SimpleTitle title={"Gestion des trophées"} />
         <button
           onClick={() => {
             setSelectedReward(null);
             setShowForm(true);
           }}
-          className="w-4/5 block relative my-8 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+          className="w-4/5 block relative my-8 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
         >
           <span
             className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-medium transition -translate-y-1.5 group-hover:-translate-y-0">
@@ -122,22 +117,24 @@ const AdminRewards = () => {
         </button>
         <ul className="px-4">
           {rewards.map((reward) => (
-            <li key={reward.id} className="flex flex-row flex-wrap justify-between items-center space-x-4">
-              <p>{reward.id}</p>
-              <p className="w-full text-left font-sans font-medium">{reward.name}</p>
+            <li key={reward.id} className="relative border-2 border-black shadow-flat-black rounded my-6 py-2 px-4 flex flex-row flex-wrap justify-between items-center space-x-4">
+              <p className="absolute -top-3 -left-3 font-roboto text-center before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:translate-x-0.5 before:translate-y-0.5 before:border-black before:border group">
+                <span className="relative block z-[2] text-white bg-black rounded-full font-[100%] w-[25px] h-[25px]">{reward.id}</span>
+              </p>
+              <p className="w-full font-roboto text-base text-center font-medium">{reward.name}</p>
               <div className="flex flex-col max-w-[50%]">
                 <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
               </div>
               <div className="flex flex-row justify-end max-w-[50%]">
-                <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded">
+                <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
                 </button>
                 <button onClick={() => handleDelete(reward.id)}
-                        className="bg-red-500 text-white px-2 py-1 mx-2 rounded">
+                        className="bg-red-500 text-white px-2 py-1 mx-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>
                 </button>
                 <button onClick={() => openUserSelectionModal(reward)}
-                        className="bg-green-500 text-white px-2 py-1 rounded">
+                        className="bg-green-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
                 </button>
                 <button

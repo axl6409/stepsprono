@@ -73,15 +73,42 @@ const EditUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (showPasswordFields) {
+      if (userEdited.password !== userEdited.confirmPassword) {
+        setUpdateStatus(false);
+        setUpdateMessage('Les mots de passe ne correspondent pas');
+        setIsModalOpen(true);
+        return;
+      }
+
+      const response = await axios.post(`${apiUrl}/api/user/check-password`, {
+        userId: id,
+        newPassword: userEdited.password
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.data.samePassword) {
+        setUpdateStatus(false);
+        setUpdateMessage('Le nouveau mot de passe ne peut pas être le même que l\'ancien');
+        setIsModalOpen(true);
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append('username', userEdited.username);
     formData.append('email', userEdited.email);
     formData.append('roleName', selectedRole);
+
     if (showPasswordFields) {
       formData.append('password', userEdited.password);
       formData.append('confirmPassword', userEdited.confirmPassword);
     }
+
     if (userEdited.avatar) {
+      formData.append('type', 'profile');
       formData.append('avatar', userEdited.avatar);
     }
 
@@ -92,26 +119,28 @@ const EditUser = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
+
       if (response.status === 200) {
         setUpdateStatus(true);
-        setUpdateMessage('Utilisateur modifié avec succès');
-        setIsModalOpen(true)
-        refreshUserRequests()
+        setUpdateMessage('Utilisateur modifié avec succès');
+        setIsModalOpen(true);
+        refreshUserRequests();
         setTimeout(function () {
-          closeModal()
-          history.back()
-        }, 1500)
+          closeModal();
+          history.back();
+        }, 1500);
       } else {
         setUpdateStatus(false);
         setUpdateMessage('Erreur lors de la mise à jour de l\'utilisateur');
-        setIsModalOpen(true)
+        setIsModalOpen(true);
       }
     } catch (error) {
       setUpdateStatus(false);
       setUpdateMessage('Erreur côté serveur lors de l\'envoi des informations de l\'utilisateur');
-      setIsModalOpen(true)
+      setIsModalOpen(true);
     }
   };
+
 
   const closeModal = () => {
     setUpdateStatus(false);
@@ -192,7 +221,7 @@ const EditUser = () => {
                    onChange={handleFileChange}/>
             {userEdited.avatarUrl && <div
               className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black">
-              <img src={userEdited.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto"/></div>}
+              <img src={apiUrl + "/uploads/users/" + userEdited.id + "/" + userEdited.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto"/></div>}
           </div>
           <button
             type="submit"

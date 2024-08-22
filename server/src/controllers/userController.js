@@ -88,11 +88,11 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    const { username, email, password, roleName, teamId } = req.body;
+    const { username, email, password, roleName, team_id } = req.body;
+    if (team_id) user.team_id = team_id;
     if (username) user.username = username;
     if (email) user.email = email;
     if (password) user.password = await bcrypt.hash(password, 10);
-    if (teamId) user.teamId = teamId;
     if (req.file) {
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
@@ -233,6 +233,23 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
   } catch (error) {
     console.error('Impossible de récupérer les pronostics:', error);
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
+  }
+});
+router.post('/user/check-password', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ samePassword: true, error: 'Le nouveau mot de passe ne peut pas être le même que l\'ancien' });
+    }
+
+    res.status(200).json({ samePassword: false, message: 'Le nouveau mot de passe est différent de l\'ancien' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
   }
 });
 router.post('/user/verify-password', authenticateJWT, async (req, res) => {

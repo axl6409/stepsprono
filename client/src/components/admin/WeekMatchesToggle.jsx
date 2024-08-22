@@ -64,6 +64,7 @@ const WeekMatchesToggle = ({ token }) => {
               {/*    className="inline-block bg-white shadow-flat-black text-black px-1 pb-0.5 font-title leading-4 font-medium text-sm mx-0.5 border-2 border-black">{match.utc_date.format('ss')}</span>*/}
               {/*</p>*/}
             </div>
+            {console.log(match.require_details)}
             <div className="flex flex-row justify-between mb-2">
               <div className="flex flex-row justify-between">
                 <img className="inline-block h-12 w-auto my-auto"

@@ -9,6 +9,7 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 import axios from "axios";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Admin = () => {
@@ -40,13 +41,7 @@ const Admin = () => {
       >
         <img src={arrowIcon} alt="Icône flèche" />
       </Link>
-      <h1
-        className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Administration
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Administration</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Administration</span>
-      </h1>
+      <SimpleTitle title={"Administration"} />
       <div className="py-4 block">
         <div
           className="w-[90%] h-full flex flex-row justify-between items-center bg-flat-blue border-2 border-black mx-auto shadow-flat-black-adjust py-2 px-8">

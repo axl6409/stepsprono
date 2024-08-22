@@ -4,9 +4,11 @@ import rewardDefault from "/img/futbol-solid.svg";
 import hiddenTrophy from "../assets/components/icons/hidden-trophy.webp";
 import { UserContext } from "../contexts/UserContext.jsx";
 import { useCookies } from "react-cookie";
-import { useParams } from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import BackButton from "../components/nav/BackButton.jsx";
 import RewardPopup from "../components/partials/modals/RewardPopup.jsx";
+import arrowIcon from "../assets/icons/arrow-left.svg";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -76,13 +78,13 @@ const Rewards = () => {
 
   return (
       <div className="text-center relative py-10 flex flex-col justify-center">
-        <BackButton />
-        <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Trophées
-          <span
-              className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Trophées</span>
-          <span
-              className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Trophées</span>
-        </h1>
+        <Link
+          to="/dashboard"
+          className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+        >
+          <img src={arrowIcon} alt="Icône flèche"/>
+        </Link>
+        <AnimatedTitle title={"Trophées"} animate={false}/>
         <div className="flex flex-row flex-wrap justify-around px-4">
           {sortedRewards.map((reward) => {
             const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);

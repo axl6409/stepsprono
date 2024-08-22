@@ -1,8 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {UserContext} from "../contexts/UserContext.jsx";
 import Passed from "../components/matchs/Passed.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
+import arrowIcon from "../assets/icons/arrow-left.svg";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 
 const MatchsHistory = () => {
   const { user, setUser } = useContext(UserContext)
@@ -18,14 +20,13 @@ const MatchsHistory = () => {
 
   return (
     <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20">
-      <BackButton />
-      <h1
-        className={`font-black mt-0 uppercase relative w-fit mx-auto text-xl5`}>Historique
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Historique</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Historique</span>
-      </h1>
+      <Link
+        to="/dashboard"
+        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+      >
+        <img src={arrowIcon} alt="Icône flèche"/>
+      </Link>
+      <AnimatedTitle title={"Historique"} animate={false}/>
       <div className="relative">
         <Passed token={token} user={user}/>
       </div>

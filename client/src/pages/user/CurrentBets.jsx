@@ -134,7 +134,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   return (
     <div>
       <div
-        className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full border-2 border-black">
+        className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
         <img
           className="w-full h-full object-cover"
           src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
@@ -206,7 +206,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
           ) : (
-          bets && bets.length > 0 && (
+            bets && bets.length > 0 && (
                 <div
                     className="relative my-[25%]">
                   <h2 className={`relative mb-12 w-fit mx-auto`}>
@@ -234,7 +234,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                   <div className={`flex flex-col mt-2 `}>
                     {bets.map((bet, index) => (
                       <div key={index}
-                         className="relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
+                         className="relative bg-white min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
                           <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20" style={{color: betColors[bet.id]}}>{index + 1}</p>
                         <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                           <div className="flex flex-col justify-evenly h-full">
