@@ -8,9 +8,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import {Link} from "react-router-dom"
 import arrowIcon from "../assets/icons/arrow-left.svg";
+import {useCookies} from "react-cookie";
+import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
+import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 
 const Teams = () => {
   const [teams, setTeams] = useState([])
+  const [cookies, setCookie] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
   const [teamColors, setTeamColors] = useState({});
@@ -56,13 +60,7 @@ const Teams = () => {
       >
         <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1
-        className={`font-black mb-12 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Classement Ligue 1
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Classement Ligue 1</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Classement Ligue 1</span>
-      </h1>
+      <SimpleTitle title={"Classement Ligue 1"} />
       <div className="relative py-8 px-2 pt-0">
         <ul className="flex flex-col justify-start">
           {teams.map(team => (

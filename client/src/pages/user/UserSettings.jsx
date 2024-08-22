@@ -14,6 +14,7 @@ import iconHeartBg from "../../assets/components/user/icon-heart-red-opacity.png
 import iconTrophees from "../../assets/components/user/icon-trophees-color-border.png";
 import iconTropheesBg from "../../assets/components/user/icon-trophees-star-opacity.png";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
+import AnimatedTitle from "../../components/partials/AnimatedTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserSettings = (props) => {
@@ -61,7 +62,7 @@ const UserSettings = (props) => {
       </Link>
       <Link
         to="/reglement"
-        className="w-fit block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        className="w-fit block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
       >
         <span
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-medium transition -translate-y-1.5 group-hover:-translate-y-0"
@@ -70,10 +71,7 @@ const UserSettings = (props) => {
         </span>
       </Link>
       <div className="relative">
-        <h1 className={`font-black mb-8 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>{user.username}
-          <span className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">{user.username}</span>
-          <span className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">{user.username}</span>
-        </h1>
+        <AnimatedTitle title={user.username} />
         <div>
           <div className="profile-picture mt-4 w-fit mx-auto">
             <img

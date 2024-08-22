@@ -178,8 +178,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
                 </>
               )}
             </div>
-            {/* handleSubmit */}
-            <form onSubmit="">
+            <form onSubmit={handleSubmit}>
               {fieldName === 'username' && (
                 <>
                   <label className="inline-block opacity-0 h-0 w-0 overflow-hidden" htmlFor="username">{fieldLabel}</label>

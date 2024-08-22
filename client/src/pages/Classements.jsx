@@ -4,6 +4,7 @@ import axios from "axios";
 import { useCookies } from "react-cookie";
 import UserRanking from "../components/user/UserRanking.jsx";
 import arrowIcon from "../assets/icons/arrow-left.svg";
+import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Classements = () => {
@@ -43,14 +44,9 @@ const Classements = () => {
       >
         <img src={arrowIcon} alt="Icône flèche" />
       </Link>
-      <h1
-        className={`font-black mb-32 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>Classement Steps
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Classement Steps</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Classement Steps</span>
-      </h1>
-
+      <div className="mb-32">
+        <SimpleTitle title={"Classement Steps"} />
+      </div>
       <UserRanking users={Array.isArray(users) ? users : []} token={token} />
     </div>
   );

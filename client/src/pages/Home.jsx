@@ -19,14 +19,14 @@ const Home = () => {
           <>
             <Link
               to="/login"
-              className="w-4/5 relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-purple-soft before:border-black before:border group"
+              className="w-4/5 relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-purple-soft before:border-black before:border group"
             >
               <span
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Connexion</span>
             </Link>
             <Link
               to="/register"
-              className="w-4/5 relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-medium before:border-black before:border group"
+              className="w-4/5 hidden relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-medium before:border-black before:border group"
             >
               <span
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-white transition -translate-y-2 group-hover:-translate-y-0">Inscription</span>
