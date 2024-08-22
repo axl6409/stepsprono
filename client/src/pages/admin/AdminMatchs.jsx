@@ -12,6 +12,7 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import WeekMatchesToggle from "../../components/admin/WeekMatchesToggle.jsx";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminMatchs = () => {
@@ -118,24 +119,17 @@ const AdminMatchs = () => {
       >
         <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1
-        className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Gestion des
-        matchs
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des matchs</span>
-        <span
-          className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des matchs</span>
-      </h1>
+      <SimpleTitle title={"Données des matchs"} />
       <button
         onClick={() => handleProgramMatchsTasks()}
-        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
       >
         <span
           className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">Tâches auto matchs update</span>
       </button>
       <button
         onClick={handleUpdateRequireDetails}
-        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:rounded-full before:bg-blue before:border-black before:border-2 group"
+        className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
       >
         <span
           className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 rounded-full text-center text-xs shadow-md bg-white transition -translate-y-1.5 group-hover:-translate-y-0">Mise à jour des détails requis</span>

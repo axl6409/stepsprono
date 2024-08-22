@@ -14,6 +14,8 @@ import axios from "axios";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import arrowIcon from "../../assets/icons/arrow-left.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminBets = () => {
@@ -95,20 +97,15 @@ const AdminBets = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto">
+    <div className="inline-block w-full h-auto py-20">
       <AlertModal message={alertMessage} type={alertType} />
       <Link
         to="/admin"
-        className="w-fit block relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[-1] before:inset-0 before:bg-green-lime before:border-black before:border-2 group"
+        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
-        <span className="relative z-[2] w-full block border-2 border-black text-black px-3 py-1 text-center shadow-md bg-white transition -translate-y-1 translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          <FontAwesomeIcon icon={faCaretLeft} />
-        </span>
+        <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1 className="text-3xl font-black my-8 uppercase relative mx-auto text-center w-fit">Données des pronostics
-        <span className="absolute left-0 bottom-0 text-flat-purple z-[-1] text-center transition-all duration-700 ease-in-out delay-500 -translate-x-0.5 translate-y-0.5">Données des pronostics</span>
-        <span className="absolute left-0 bottom-0 text-green-lime z-[-2] text-center transition-all duration-700 ease-in-out delay-700 -translate-x-1 translate-y-1">Données des pronostics</span>
-      </h1>
+      <SimpleTitle title={"Données des pronostics"} />
       <div className="pb-3.5 pt-6 px-2 bg-black relative">
         <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Pronostics non-vérifiés</p>
         <div className="w-fit absolute -top-5 right-2.5 rounded-full flex flex-row">
@@ -148,7 +145,7 @@ const AdminBets = () => {
                     </div>
                     <div className="flex flex-row w-1/2">
                       <div>
-                        <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">update team datas</span>
+                        <span className="text-xxxs font-sans font-bold leading-[12px] inline-block text-center">check bet</span>
                         <button
                           onClick={() => handleUpdateSingleBet(bet.id)}
                           className="relative my-2 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"

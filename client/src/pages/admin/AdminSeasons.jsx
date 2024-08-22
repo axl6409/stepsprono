@@ -4,6 +4,7 @@ import axios from "axios";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import {Link} from "react-router-dom";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminSeasons = () => {
@@ -45,13 +46,7 @@ const AdminSeasons = () => {
         {isModalOpen && (
             <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
         )}
-        <h1
-            className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>Gestion des saisons
-          <span
-              className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des saisons</span>
-          <span
-              className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des saisons</span>
-        </h1>
+        <SimpleTitle title={"Données des saisons"} />
         <div className="flex flex-col justify-start items-center">
           <div className="flex flex-row justify-between items-center">
             <p className="btn btn-primary w-4/5">

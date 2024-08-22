@@ -6,6 +6,7 @@ import arrowIcon from "../../assets/icons/arrow-left.svg";
 import downloadIcon from "../../assets/icons/download-icon.svg";
 import Loader from "../../components/partials/Loader.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminEvents = () => {
@@ -81,12 +82,7 @@ const AdminEvents = () => {
       >
         <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
-      <h1 className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>
-        Gestion des évènements
-        <span
-          className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des évènements</span>
-        <span className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des évènements</span>
-      </h1>
+      <SimpleTitle title={"Gestion des évènements"} />
       <div className="flex flex-col justify-start items-center">
         <div className="flex flex-row justify-between items-center">
           <p className="btn btn-primary w-4/5">

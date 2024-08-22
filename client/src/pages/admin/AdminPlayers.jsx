@@ -10,6 +10,7 @@ import { useCookies } from "react-cookie";
 import { Link } from "react-router-dom";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import penIcon from "../../assets/icons/pencil.svg";
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -156,12 +157,7 @@ const AdminPlayers = () => {
                 >
                     <img src={arrowIcon} alt="Icône flèche"/>
                 </Link>
-                <h1 className={`font-black mb-12 text-center relative w-fit mx-auto text-xl4 leading-[50px]`}>
-                    Gestion des joueurs
-                    <span
-                        className="absolute left-0 top-0 right-0 text-purple-soft z-[-1] translate-x-0.5 translate-y-0.5">Gestion des joueurs</span>
-                    <span className="absolute left-0 top-0 right-0 text-green-soft z-[-2] translate-x-1 translate-y-1">Gestion des joueurs</span>
-                </h1>
+                <SimpleTitle title={"Données des joueurs"} />
                 <Swiper
                     slidesPerView={5}
                     spaceBetween={10}
