@@ -92,7 +92,9 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
     if (team_id) user.team_id = team_id;
     if (username) user.username = username;
     if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
     if (req.file) {
       const imagePath = req.file.path;
       const baseName = path.basename(imagePath, path.extname(imagePath));
@@ -135,7 +137,6 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
         user.status = 'approved';
       }
     }
-
     await user.save();
     res.status(200).json(user);
   } catch (error) {
