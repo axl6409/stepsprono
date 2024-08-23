@@ -112,10 +112,14 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         const firstMatch = sortedMatchs[0];
         const firstMatchDate = moment(firstMatch.utc_date);
         const now = moment();
-        if (now.isSame(firstMatchDate, 'day') && now.hour() >= 12) {
-          setCanDisplayBets(true);
+        if (now.isSame(firstMatchDate, 'day')) {
+          if (now.hour() < 12) {
+            setCanDisplayBets(true);
+          } else {
+            setCanDisplayBets(false);
+          }
         } else {
-          setCanDisplayBets(false);
+          setCanDisplayBets(true);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
@@ -168,36 +172,45 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
       </div>
       {loggedUser.id === user.id && (
-          <div className="pt-8">
-            {noMatches ? (
-              <div
-                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
-                <span
-                    className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
-                >
-                  Pronostics Fermés
-                </span>
-              </div>
-            ) : (
-              <Link
-                  to="/matchs"
-                  className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        <div className="pt-8">
+          {noMatches ? (
+            <div
+              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+              <span
+                className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
               >
-                <span
-                    className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
-                >
-                  {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
-                </span>
-              </Link>
-            )}
-          </div>
+                Aucun match cette semaine
+              </span>
+            </div>
+          ) : canDisplayBets ? (
+            <Link
+              to="/matchs"
+              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+            >
+              <span
+                className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+              >
+                {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+              </span>
+            </Link>
+          ) : (
+            <div
+              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+              <span
+                className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+              >
+                Pronostics Fermés
+              </span>
+            </div>
+          )}
+        </div>
       )}
       {noMatches ? (
-          <div className="relative my-[25%]">
-            <p className="text-center text-lg font-medium mt-4">
-              Aucun matchs et pronostics pour cette semaine.
-            </p>
-          </div>
+        <div className="relative my-[25%]">
+          <p className="text-center text-lg font-medium mt-4">
+            Aucun matchs et pronostics pour cette semaine.
+          </p>
+        </div>
       ) : (
         !canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative my-[25%]">
@@ -205,24 +218,24 @@ const CurrentBets = ({ loggedUser, user, token }) => {
               Attends la fin des pronos pour voir les siens 😉
             </p>
           </div>
-          ) : (
-            bets && bets.length > 0 && (
-                <div
-                    className="relative my-[25%]">
-                  <h2 className={`relative mb-12 w-fit mx-auto`}>
+        ) : (
+          bets && bets.length > 0 && (
+            <div
+              className="relative my-[25%]">
+              <h2 className={`relative mb-12 w-fit mx-auto`}>
                     <span
                       className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
-                    <span
-                      className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
-                    <span
-                      className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
-                  </h2>
-                  <div className="w-full px-2">
-                    <div className="flex flex-col w-full">
-                      <div
-                        className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
-                        <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
-                          <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
+                <span
+                  className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+                <span
+                  className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+              </h2>
+              <div className="w-full px-2">
+                <div className="flex flex-col w-full">
+                  <div
+                    className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
+                    <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
+                      <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
                     </div>
                     <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
                       <p className="font-rubik font-medium text-xxs uppercase">Prono</p>

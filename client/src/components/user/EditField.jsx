@@ -92,7 +92,7 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
           setLoading(false);
           return;
         }
-        updateData = { currentPassword, newPassword };
+        updateData = { currentPassword, password: newPassword };
         break;
       case 'team':
         updateData['team_id'] = team;
