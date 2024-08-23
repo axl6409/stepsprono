@@ -212,7 +212,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
       ) : (
-        !canDisplayBets && loggedUser.id !== user.id ? (
+        canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative my-[25%]">
             <p className="text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
