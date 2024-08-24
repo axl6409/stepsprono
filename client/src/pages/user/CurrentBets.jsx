@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
-import weekPointsImage from "../../assets/components/dashboard/points-de-la-semaine.svg";
-import monthPointsImage from "../../assets/components/dashboard/points-du-mois.svg";
-import seasonPointsImage from "../../assets/components/dashboard/points-de-la-saison.svg";
+import weekPointsShape from "../../assets/components/dashboard/week/week-points-shape.png";
+import weekPointsText from "../../assets/components/dashboard/week/week-points-txt.png";
+import monthPointsShape from "../../assets/components/dashboard/month/month-points-shape.png";
+import monthPointsText from "../../assets/components/dashboard/month/month-points-txt.png";
+import seasonPointsShape from "../../assets/components/dashboard/season/season-points-shape.png";
+import seasonPointsText from "../../assets/components/dashboard/season/season-points-txt.png";
 import {Link} from "react-router-dom";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
@@ -144,7 +147,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
           className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
-          <MonthPoints />
+          {/*<MonthPoints />*/}
+          <div className="w-full relative">
+            <img className="block" src={monthPointsShape} alt=""/>
+            <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={monthPointsText} alt=""/>
+          </div>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
             {monthPoints}
@@ -152,7 +159,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div
           className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12">
-          <WeekPoints />
+          {/*<WeekPoints/>*/}
+          <div className="w-full relative">
+            <img className="block" src={weekPointsShape} alt=""/>
+            <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={weekPointsText} alt=""/>
+          </div>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {weekPoints}
@@ -160,7 +171,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div
           className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
-          <SeasonPoints />
+          {/*<SeasonPoints/>*/}
+          <div className="w-full relative">
+            <img className="block" src={seasonPointsShape} alt=""/>
+            <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={seasonPointsText} alt=""/>
+          </div>
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {seasonPoints}
