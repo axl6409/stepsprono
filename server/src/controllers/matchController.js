@@ -186,6 +186,32 @@ router.get('/admin/matchs/no-results', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
+router.get('/admin/matchs/no-checked', authenticateJWT, async (req, res) => {
+  try {
+    const now = moment().toISOString();
+
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utc_date: {
+          [Op.lt]: now,
+        },
+        status: 'NS',
+        scorers: null
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+
+    res.status(200).json({
+      data: matchs.rows,
+      count: matchs.count
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
+  }
+});
 router.patch('/admin/matchs/update/results/:id', authenticateJWT, async (req, res) => {
   try {
     const matchId = req.params.id;
