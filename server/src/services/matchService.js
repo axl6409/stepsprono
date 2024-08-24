@@ -7,7 +7,7 @@ const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
 const { sequelize } = require('../models');
-const {schedule} = require("node-schedule");
+const {schedule, scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
 const {getWeekDateRange, getMonthDateRange} = require("./appService");
@@ -115,7 +115,7 @@ async function updateSingleMatch(matchId) {
       const updatedMatchData = await Match.findByPk(matchId);
       if (updatedMatchData.status === 'FT') {
         await checkBetByMatchId(matchId);
-        console.log('Pronostics vérifiés pour le match:', matchId);
+        logger.info(`Pronostics vérifiés pour le match: ${matchId}`);
         eventBus.emit('matchUpdated', { matchId });
       } else {
         console.log("Le statut du match n'est pas encore 'FT', vérification des pronostics annulée.");
@@ -219,10 +219,11 @@ async function fetchWeekMatches() {
     matches.forEach(match => {
       const matchTime = new Date(match.utc_date)
       const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
-      schedule.scheduleJob(updateTime, () => {
+      scheduleJob(updateTime, () => {
         updateMatchAndPredictions(match.id)
         createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true)
       })
+      logger.info(`[CRON]=> updateMatchAndPredictions : ${match.id} |AT| : ${match.utc_date}`);
     });
   } catch (error) {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);

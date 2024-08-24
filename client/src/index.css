@@ -184,7 +184,7 @@ body {
     background-position: center;
     left: 43%;
     transform-origin: 50%;
-    animation: circle .8s alternate infinite ease-in-out;
+    animation: circle .5s alternate infinite ease-in-out;
     will-change: transform, top, height, border-radius;
 }
 @keyframes circle {
@@ -192,12 +192,12 @@ body {
         top: 60px;
         height: 5px;
         border-radius: 50px 50px 25px 25px;
-        transform: scaleX(1.7);
+        transform: scaleX(1.4);
     }
     50%{
         height: 20px;
         border-radius: 50%;
-        transform: scaleX(1);
+        transform: scaleX(1.1);
     }
     100%{
         top: 0;
@@ -213,8 +213,8 @@ body {
     transform-origin: 50%;
     z-index: -1;
     left: 43%;
-    filter: blur(1px);
-    animation: shadow .8s alternate infinite ease-in-out;
+    filter: blur(2px);
+    animation: shadow .5s alternate infinite ease-in-out;
     will-change: transform, opacity;
 }
 

@@ -140,7 +140,7 @@ const UserRanking = ({ users, token }) => {
       </div>
 
       <div className="relative z-[20] flex flex-col justify-start">
-        <ul className="px-6">
+        <ul className="px-4">
           {updatedUsers.slice(3).map((user, index) => (
             <li
               className="relative rounded-xl mt-2 mb-4 border-2 border-black bg-white h-fit shadow-flat-black"

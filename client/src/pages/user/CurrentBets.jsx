@@ -109,17 +109,13 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           return;
         }
         setMatchs(sortedMatchs)
-        const firstMatch = sortedMatchs[0];
-        const firstMatchDate = moment(firstMatch.utc_date);
+        const firstMatchDate = moment(sortedMatchs[0].utc_date);
+        const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
         const now = moment();
-        if (now.isSame(firstMatchDate, 'day')) {
-          if (now.hour() < 12) {
-            setCanDisplayBets(true);
-          } else {
-            setCanDisplayBets(false);
-          }
-        } else {
+        if (now.isBefore(firstMatchDate.clone().hour(12))) {
           setCanDisplayBets(true);
+        } else if (now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek)) {
+          setCanDisplayBets(false);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
@@ -147,7 +143,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
-          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
           <MonthPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
@@ -155,7 +151,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-1/3 max-w-[120px] relative mt-12">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12">
           <WeekPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
@@ -163,7 +159,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-1/3 max-w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
           <SeasonPoints />
           <p
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">

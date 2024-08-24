@@ -18,7 +18,7 @@ const accessLogStream = rfs.createStream('access.log', {
 const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
-const {updateRequireDetails} = require("./server/src/services/matchService");
+const {updateRequireDetails, fetchWeekMatches} = require("./server/src/services/matchService");
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
@@ -55,6 +55,9 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('Database synchronized')
     runCronJob()
     console.log('Cron job started')
+    await fetchWeekMatches().then(r => {
+      logger.info('Week Matches Fetched : Success');
+    })
   } catch (error) {
     console.log('Unable to connect to the database: ', error)
   }

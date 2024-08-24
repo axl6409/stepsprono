@@ -203,10 +203,9 @@ const checkBetByMatchId = async (ids) => {
       await Bet.update({ points }, { where: { id: bet.id } });
       betsUpdated++;
     }
-    logger.info("Pronostics mis à jour :", betsUpdated);
+    logger.info(`Pronostics mis à jour : ${betsUpdated}`);
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
-    console.log('Erreur lors de la mise à jour des pronostics :', error);
     logger.error("Erreur lors de la mise à jour des pronostics :", error);
     return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
   }

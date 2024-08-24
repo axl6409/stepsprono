@@ -20,6 +20,7 @@ import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = ({ userId: propUserId }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
   const { userId: paramUserId } = useParams();
   const userId = paramUserId || propUserId;
@@ -42,12 +43,15 @@ const Dashboard = ({ userId: propUserId }) => {
         setProfileUser(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des données de l’utilisateur', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     if (userId) {
       fetchProfileUser()
     } else {
       setProfileUser(user)
+      setIsLoading(false);
     }
   }, [userId, user, token]);
 
@@ -93,6 +97,14 @@ const Dashboard = ({ userId: propUserId }) => {
     setUpdateMessage('');
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center flex flex-col justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   if (!profileUser) {
     return (
