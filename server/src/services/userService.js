@@ -601,7 +601,14 @@ const checkIncorrectMatchFullPrediction = async (userId, startOfWeek, endOfWeek)
 
     const incorrectWinner = bet.winner_id !== match.winner_id;
     const incorrectScore = bet.home_score !== match.score_full_time_home || bet.away_score !== match.score_full_time_away;
-    const incorrectScorer = !match.scorers || !match.scorers.some(scorer => scorer.player_id === bet.player_goal);
+    let scorers = match.scorers;
+    if (typeof scorers === 'string') {
+      scorers = JSON.parse(scorers);
+    }
+    let incorrectScorer = false;
+    if (Array.isArray(scorers)) {
+      incorrectScorer = scorers.some(scorer => scorer.player_id !== bet.player_goal)
+    }
 
     return incorrectWinner && incorrectScore && incorrectScorer;
   } catch (error) {

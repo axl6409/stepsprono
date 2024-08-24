@@ -124,7 +124,7 @@ const Dashboard = ({ userId: propUserId }) => {
       <div className="flex flex-row justify-between px-4 py-2 mb-4">
         {userId === user.id ? (
           <Link
-            className="relative block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
             to={`/settings/team`}>
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
@@ -149,7 +149,7 @@ const Dashboard = ({ userId: propUserId }) => {
           </Link>
         ) : (
           <div
-            className="relative block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
+            className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5">
             <span
@@ -171,7 +171,7 @@ const Dashboard = ({ userId: propUserId }) => {
           </div>
         )}
         <Link
-          className="relative block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+          className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
           to={`/rewards/${userId}`}>
           <div
             className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
@@ -198,7 +198,7 @@ const Dashboard = ({ userId: propUserId }) => {
           </>
         ) : (
           <>
-            <div className="px-4">
+            <div className="px-4 fade-in">
               <p className="font-rubik font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
               {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
                 <button

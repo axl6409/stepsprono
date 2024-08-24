@@ -237,7 +237,6 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
       }
     });
     if (!created) {
-      const goalsDiff = stats.all.goals.for - stats.all.goals.against
       await teamCompetition.update({
         form: stats.form,
         position: stats.rank,

@@ -137,7 +137,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   return (
     <div>
       <div
-        className="flex flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
+        className="flex fade-in flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
         <img
           className="w-full h-full object-cover"
           src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
@@ -146,7 +146,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div
-          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in">
           {/*<MonthPoints />*/}
           <div className="w-full relative">
             <img className="block" src={monthPointsShape} alt=""/>
@@ -158,7 +158,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12 fade-in">
           {/*<WeekPoints/>*/}
           <div className="w-full relative">
             <img className="block" src={weekPointsShape} alt=""/>
@@ -170,7 +170,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
         <div
-          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative">
+          className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in">
           {/*<SeasonPoints/>*/}
           <div className="w-full relative">
             <img className="block" src={seasonPointsShape} alt=""/>
@@ -186,7 +186,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         <div className="pt-8">
           {noMatches ? (
             <div
-              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+              className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
               <span
                 className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
               >
@@ -196,7 +196,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           ) : canDisplayBets ? (
             <Link
               to="/matchs"
-              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+              className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
             >
               <span
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
@@ -206,7 +206,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </Link>
           ) : (
             <div
-              className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+              className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
               <span
                 className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
               >
@@ -217,14 +217,14 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
       )}
       {noMatches ? (
-        <div className="relative my-[25%]">
+        <div className="relative fade-in my-[25%]">
           <p className="text-center text-lg font-medium mt-4">
             Aucun matchs et pronostics pour cette semaine.
           </p>
         </div>
       ) : (
         canDisplayBets && loggedUser.id !== user.id ? (
-          <div className="relative my-[25%]">
+          <div className="relative fade-in my-[25%]">
             <p className="text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
             </p>
@@ -233,7 +233,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           bets && bets.length > 0 && (
             <div
               className="relative my-[25%]">
-              <h2 className={`relative mb-12 w-fit mx-auto`}>
+              <h2 className={`relative fade-in mb-12 w-fit mx-auto`}>
                     <span
                       className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
                 <span
@@ -241,7 +241,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 <span
                   className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
               </h2>
-              <div className="w-full px-2">
+              <div className="w-full fade-in px-2">
                 <div className="flex flex-col w-full">
                   <div
                     className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">

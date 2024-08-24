@@ -24,7 +24,7 @@ async function updateSeasons() {
   }
 }
 
-async function getCurrentSeasonId(competitionId = null) {
+async function getCurrentSeasonId(competitionId) {
   try {
     if (!competitionId) return "Please provide a competition id";
     const currentSeason = await Season.findOne({
@@ -39,7 +39,7 @@ async function getCurrentSeasonId(competitionId = null) {
   }
 }
 
-async function getCurrentSeasonYear(competitionId = null) {
+async function getCurrentSeasonYear(competitionId) {
   try {
     if (!competitionId) return "Please provide a competition id";
     const currentSeason = await Season.findOne({
@@ -48,6 +48,7 @@ async function getCurrentSeasonYear(competitionId = null) {
         current: true,
       }
     });
+    console.log(competitionId)
     return currentSeason.year;
   } catch (error) {
     console.log('Erreur lors de la récupération des données:', error);

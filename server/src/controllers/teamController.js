@@ -115,12 +115,13 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
     const teamId = req.params.id
+    const season = await getCurrentSeasonYear(61)
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
     }
     const team = await Team.findByPk(teamId)
     if (!team) return res.status(404).json({error: 'Équipe non trouvé' })
-    await updateTeamStats(team.id, 61)
+    await updateTeamStats(61, team.id, season)
     res.status(200).json({ message: 'Équipe mise à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });

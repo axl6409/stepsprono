@@ -268,3 +268,29 @@ body {
     animation: rotateSimple 30s linear infinite;
 }
 
+.fade-in {
+    -webkit-animation: fade-in 0.5s ease-in-out both;
+    animation: fade-in 0.5s ease-in-out both;
+}
+
+/**
+ * ----------------------------------------
+ * animation fade-in
+ * ----------------------------------------
+ */
+@-webkit-keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
