@@ -132,7 +132,7 @@ const AdminTeams = () => {
 
   const updateTeamsDatas = async () => {
     try {
-      const response = await axios.patch(`${apiUrl}/api/admin/teams/update-datas/`, null, {
+      const response = await axios.patch(`${apiUrl}/api/admin/teams/update-datas/all`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
@@ -209,7 +209,7 @@ const AdminTeams = () => {
         <div className="w-fit absolute -top-5 right-2.5 rounded-full flex flex-row">
           <button
             onClick={() => updateTeamsDatas()}
-            className="relative hidden m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
           >
             <span
               className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
@@ -231,11 +231,11 @@ const AdminTeams = () => {
 
         <ul className="flex flex-col justify-start">
           {teams.length ? (
-            teams.map(team => {
+            teams.map((team, index) => {
               return (
                 <li
                   className="relative flex flex-col justify-between border-2 border-black bg-white rounded-xl py-2 px-4 h-fit shadow-flat-black my-2 shadow-flat-purple"
-                  key={team.teamId}>
+                  key={index}>
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-col w-1/2">
                       <img className="block h-8 w-8 object-cover mx-auto" src={apiUrl + "/uploads/teams/" + team.Team.id + "/" + team.Team.logo_url} alt={team.Team.name}/>

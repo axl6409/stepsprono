@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Creates the 'bets' table in the database.
+   *
+   * @param {Object} queryInterface - The query interface object for interacting with the database.
+   * @param {Object} Sequelize - The Sequelize object for defining the table schema.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('bets', {
       id: {
@@ -112,6 +119,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Asynchronously brings down changes to the database schema.
+   *
+   * @param {Object} queryInterface - Interface for making changes to the database schema
+   * @param {Object} Sequelize - Sequelize object for data type definitions
+   * @return {Promise} A promise that resolves when the table is dropped
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('bets');
   }

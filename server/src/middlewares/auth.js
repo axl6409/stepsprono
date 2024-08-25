@@ -1,6 +1,14 @@
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.SECRET_KEY
 
+/**
+ * Authenticates the request using a JSON Web Token (JWT) in the Authorization header.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @return {Object|undefined} The response object with an error message if the token is missing or invalid, otherwise it calls the next middleware function.
+ */
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -25,6 +33,25 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
+/**
+ * Checks if the user making the request is an admin. If the user is an admin,
+ * it calls the next middleware function. Otherwise, it returns a JSON response
+ * with a 403 status code and a message indicating that the user is not authorized
+ * to access the resource.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @return {Object|undefined} The response object with an error message if the user is not an admin, otherwise it calls the next middleware function.
+ */
+const checkAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur pour accéder à cette ressource.' });
+};
+
 module.exports = {
-  authenticateJWT
+  authenticateJWT,
+  checkAdmin
 };

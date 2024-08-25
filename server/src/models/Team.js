@@ -1,3 +1,10 @@
+/**
+ * Defines the Team model for the Sequelize ORM.
+ *
+ * @param {Object} sequelize - The Sequelize instance.
+ * @param {Object} DataTypes - The Sequelize DataTypes object.
+ * @return {Object} The defined Team model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Team = sequelize.define('Team', {
     name: {
@@ -57,6 +64,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Team model with other models.
+   *
+   * @param {Object} models - The models object.
+   * @return {void}
+   */
   Team.associate = (models) => {
     Team.hasMany(models.Match, { as: 'homeMatches', foreignKey: 'home_team_id' });
     Team.hasMany(models.Match, { as: 'awayMatches', foreignKey: 'away_team_id' })

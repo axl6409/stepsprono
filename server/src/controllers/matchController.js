@@ -1,22 +1,14 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT} = require("../middlewares/auth");
-const axios = require("axios");
-const ProgressBar = require("progress");
-const {Match, Bet, Team} = require("../models");
+const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
+const {Match, Team} = require("../models");
 const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
-const cron = require("node-cron");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
-const {getMonthDateRange} = require("./appController");
-const {schedule} = require("node-cron");
-const {updateSingleMatch, updateMatchAndPredictions, updateMatches, updateRequireDetails} = require("../services/matchService");
-const {getCurrentMatchday} = require("../services/appService");
+const {getCurrentSeasonId} = require("../services/seasonService");
+const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
-const apiKey = process.env.FB_API_KEY;
-const apiHost = process.env.FB_API_HOST;
-const apiBaseUrl = process.env.FB_API_URL;
 
+/* PUBLIC - GET */
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
     const match = await Match.findByPk(req.params.matchId);
@@ -153,21 +145,9 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 })
-router.delete('/admin/matchs/delete/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
-    const matchId = req.params.id;
-    const match = await Match.findByPk(matchId);
-    if (!match) return res.status(404).json({ error: 'Équipe non trouvée' });
-
-    await match.destroy();
-    res.status(200).json({ message: 'Équipe supprimée avec succès' });
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
-  }
-});
-router.get('/admin/matchs/no-results', authenticateJWT, async (req, res) => {
+/* ADMIN - GET */
+router.get('/admin/matchs/no-results', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const matchs = await Match.findAndCountAll({
       where: {
@@ -186,45 +166,18 @@ router.get('/admin/matchs/no-results', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.get('/admin/matchs/no-checked', authenticateJWT, async (req, res) => {
+router.get('/admin/matchs/no-checked', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    const now = moment().toISOString();
-
-    const matchs = await Match.findAndCountAll({
-      where: {
-        utc_date: {
-          [Op.lt]: now,
-        },
-        status: 'NS',
-        scorers: null
-      },
-      include: [
-        { model: Team, as: 'HomeTeam' },
-        { model: Team, as: 'AwayTeam' }
-      ]
-    });
-
+    const matchs = await fetchMatchsNoChecked()
     res.status(200).json({
-      data: matchs.rows,
+      data: matchs.data,
       count: matchs.count
     });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 });
-router.patch('/admin/matchs/update/results/:id', authenticateJWT, async (req, res) => {
-  try {
-    const matchId = req.params.id;
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
-    const match = await Match.findByPk(matchId);
-    if (!match) return res.status(404).json({ error: 'Match non trouvé' });
-    await updateMatchAndPredictions(matchId)
-    res.status(200).json({ message: 'Match mis à jour avec succès' });
-  } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-})
-router.get('/admin/matchs/datas/to-update', authenticateJWT, async (req, res) => {
+router.get('/admin/matchs/datas/to-update', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const matchs = await Match.findAndCountAll({
       where: {
@@ -243,7 +196,21 @@ router.get('/admin/matchs/datas/to-update', authenticateJWT, async (req, res) =>
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
+
+/* ADMIN - PATCH */
+router.patch('/admin/matchs/update/results/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const matchId = req.params.id;
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Match non trouvé' });
+    await updateMatchAndPredictions(matchId)
+    res.status(200).json({ message: 'Match mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/admin/matchs/update-all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -258,7 +225,7 @@ router.patch('/admin/matchs/update-all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/matchs/:id/require-details', authenticateJWT, async (req, res) => {
+router.patch('/admin/matchs/:id/require-details', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé' });
 
@@ -274,12 +241,30 @@ router.patch('/admin/matchs/:id/require-details', authenticateJWT, async (req, r
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 });
-router.post('/admin/matchs/update-require-details', authenticateJWT, async (req, res) => {
+
+/* ADMIN - POST */
+router.post('/admin/matchs/update-require-details', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     await updateRequireDetails();
     res.status(200).json({ message: 'Mise à jour réussie' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la mise à jour', error: error.message });
+  }
+});
+
+/* ADMIN - DELETE */
+router.delete('/admin/matchs/delete/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+
+    const matchId = req.params.id;
+    const match = await Match.findByPk(matchId);
+    if (!match) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await match.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
   }
 });
 

@@ -26,7 +26,6 @@ const AdminCompetitions = () => {
           }
         });
         const competitionsData = response.data;
-        console.log(competitionsData)
         setCompetitions(competitionsData);
         setIsLoading(false);
       } catch (error) {

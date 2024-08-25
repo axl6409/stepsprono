@@ -8,6 +8,13 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
+/**
+ * Updates the players in the database based on the provided team IDs and competition ID.
+ *
+ * @param {Array} teamIds - An array of team IDs to update players for. If empty, all teams will be updated.
+ * @param {string|null} competitionId - The ID of the competition to update players for. If null, all competitions will be updated.
+ * @return {Promise<void>} A promise that resolves when the players have been successfully updated.
+ */
 const updatePlayers = async function (teamIds = [], competitionId = null) {
   const transaction = await sequelize.transaction();
   try {
@@ -106,6 +113,13 @@ const updatePlayers = async function (teamIds = [], competitionId = null) {
   }
 };
 
+/**
+ * Retrieves players by team ID.
+ *
+ * @param {string} teamId - The ID of the team to retrieve players for.
+ * @return {Promise<Array<PlayerTeamCompetition>>} A promise that resolves to an array of PlayerTeamCompetition objects representing the players associated with the given team ID.
+ * @throws {Error} If there is an error retrieving the players.
+ */
 const getPlayersByTeamId = async (teamId) => {
   try {
     if (!teamId) {
@@ -128,6 +142,13 @@ const getPlayersByTeamId = async (teamId) => {
   }
 }
 
+/**
+ * Retrieves a player by their ID.
+ *
+ * @param {string} id - The ID of the player to retrieve.
+ * @return {Promise<Player|undefined>} A promise that resolves to the player object if found, or undefined if not found.
+ * @throws {Error} If there is an error retrieving the player.
+ */
 const getPlayerById = async (id) => {
   try {
     if (!id) {

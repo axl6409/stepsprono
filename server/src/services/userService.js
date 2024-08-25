@@ -599,6 +599,10 @@ const checkIncorrectMatchFullPrediction = async (userId, startOfWeek, endOfWeek)
 
     const match = bet.MatchId;
 
+    if (!bet.MatchId.require_details) {
+      return false;
+    }
+
     const incorrectWinner = bet.winner_id !== match.winner_id;
     const incorrectScore = bet.home_score !== match.score_full_time_home || bet.away_score !== match.score_full_time_away;
     let scorers = match.scorers;

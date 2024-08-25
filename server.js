@@ -50,16 +50,16 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on port ${PORT}`);
   try {
     await models.sequelize.authenticate()
-    console.log('Connection to the database has been established successfully')
+    console.log('[START] => Connection to the database has been established successfully')
     await sequelize.sync({ force: false })
-    console.log('Database synchronized')
+    console.log('[START] => Database synchronized')
     runCronJob()
-    console.log('Cron job started')
+    console.log('[START] => Cron job started')
     await fetchWeekMatches().then(r => {
-      logger.info('Week Matches Fetched : Success');
+      logger.info('[START] => Week Matches Fetched : Success');
     })
   } catch (error) {
-    console.log('Unable to connect to the database: ', error)
+    console.log('[START] => Unable to connect to the database: ', error)
   }
 })
 

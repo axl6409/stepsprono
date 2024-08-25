@@ -1,4 +1,4 @@
-const { User, Match, Bet, Reward, UserReward } = require('../models');
+const { User, Reward, UserReward } = require('../models');
 const path = require('path');
 const {deleteFile} = require("../utils/utils");
 const logger = require("../utils/logger/logger");
@@ -17,10 +17,22 @@ const {getStartAndEndOfCurrentWeek, getFirstDaysOfCurrentAndPreviousMonth, getSe
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
 const {Op} = require("sequelize");
 
+/**
+ * Retrieves all rewards from the database.
+ *
+ * @return {Promise<Array<Reward>>} A promise that resolves to an array of Reward objects.
+ */
 const getAllRewards = async () => {
   return await Reward.findAll();
 };
 
+/**
+ * Retrieves all rewards for a given user from the database.
+ *
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<Array<UserReward>>} A promise that resolves to an array of UserReward objects.
+ * @throws {Error} If there is an error retrieving the rewards.
+ */
 const getUserRewards = async (userId) => {
   try {
     const rewards = await UserReward.findAll({
@@ -35,6 +47,14 @@ const getUserRewards = async (userId) => {
   }
 };
 
+/**
+ * Creates a new reward in the database with the provided data and file.
+ *
+ * @param {Object} data - The data for the reward.
+ * @param {Object} file - The file for the reward (optional).
+ * @return {Promise<Object>} The created reward object.
+ * @throws {Error} If there is an error creating the reward.
+ */
 const createReward = async (data, file) => {
   try {
     const { name, description, slug, rank } = data;
@@ -54,6 +74,15 @@ const createReward = async (data, file) => {
   }
 };
 
+/**
+ * Updates a reward in the database with the provided data and file.
+ *
+ * @param {number} id - The ID of the reward to update.
+ * @param {Object} data - The data for the reward.
+ * @param {Object} file - The file for the reward (optional).
+ * @return {Promise<Object>} The updated reward object.
+ * @throws {Error} If the reward is not found.
+ */
 const updateReward = async (id, data, file) => {
   const reward = await Reward.findByPk(id);
   if (!reward) throw new Error('Reward not found');
@@ -69,6 +98,13 @@ const updateReward = async (id, data, file) => {
   return reward;
 };
 
+/**
+ * Deletes a reward from the database.
+ *
+ * @param {number} id - The ID of the reward to delete.
+ * @return {Promise<void>} - A promise that resolves when the reward is deleted.
+ * @throws {Error} - If the reward is not found.
+ */
 const deleteReward = async (id) => {
   try {
     const reward = await Reward.findByPk(id);
@@ -86,6 +122,14 @@ const deleteReward = async (id) => {
   }
 };
 
+/**
+ * Toggles the activation status of a reward in the database.
+ *
+ * @param {number} id - The ID of the reward to toggle activation for.
+ * @param {boolean} active - The new activation status of the reward.
+ * @return {Promise<Object>} The updated reward object.
+ * @throws {Error} If the reward is not found.
+ */
 const toggleActivation = async (id, active) => {
   const reward = await Reward.findByPk(id);
   if (!reward) throw new Error('Reward not found');
@@ -94,6 +138,16 @@ const toggleActivation = async (id, active) => {
   return reward;
 };
 
+/**
+ * Assigns a reward to a user. If the reward already exists for the user, increments the count.
+ *
+ * @param {Object} data - The data object containing user_id, reward_id, and count.
+ * @param {number} data.user_id - The ID of the user to assign the reward to.
+ * @param {number} data.reward_id - The ID of the reward to assign.
+ * @param {number} data.count - The count of the reward to assign.
+ * @return {Promise<void>} - A promise that resolves when the reward is assigned or incremented.
+ * @throws {Error} - If an error occurs while assigning the reward.
+ */
 const assignReward = async (data) => {
   try {
     const { user_id, reward_id, count } = data;
@@ -123,6 +177,16 @@ const assignReward = async (data) => {
   }
 };
 
+/**
+ * Removes a reward from a user. If the reward exists and has a count greater than 1, decrements the count.
+ * If the reward exists and has a count of 1, deletes the reward.
+ *
+ * @param {Object} data - The data object containing user_id and reward_id.
+ * @param {number} data.user_id - The ID of the user to remove the reward from.
+ * @param {number} data.reward_id - The ID of the reward to remove.
+ * @return {Promise<void>} - A promise that resolves when the reward is removed or decremented.
+ * @throws {Error} - If the user does not have the reward or an error occurs while removing the reward.
+ */
 const removeReward = async (data) => {
   try {
     const { user_id, reward_id } = data;
@@ -150,10 +214,6 @@ const removeReward = async (data) => {
     throw error;
   }
 };
-
-const checkSeasonRewards = async () => {
-
-}
 
 // **************************
 // Trophies attribution Logic
@@ -1810,7 +1870,6 @@ module.exports = {
   toggleActivation,
   assignReward,
   removeReward,
-  checkSeasonRewards,
   checkPhoenixTrophy,
   checkRisingStarTrophy,
   checkMassacreTrophy,

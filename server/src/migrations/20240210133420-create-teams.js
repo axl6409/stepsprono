@@ -2,6 +2,14 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+
+  /**
+   * Creates the 'teams' table in the database with the specified columns.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize ORM.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('teams', {
       id: {
@@ -67,6 +75,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Asynchronously drops the 'teams' table from the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize ORM.
+   * @return {Promise<void>} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('teams');
   }

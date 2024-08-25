@@ -3,7 +3,18 @@ const {Bet, Match, Team} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
+const eventBus = require("../events/eventBus");
 
+/**
+ * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
+ * If a single ID is provided, checks that ID. Returns a success message if all bets are verified successfully,
+ * or an error message if there is an issue with any of the bets. If no bet IDs are provided, returns an error message.
+ *
+ * @param {number|Array<number>} betId - The ID(s) of the bet(s) to check. Can be a single number or an array of numbers.
+ * @return {Promise<Object>} An object with a success property (true if all bets are verified successfully, false otherwise),
+ * a message property (a success message if all bets are verified successfully, an error message otherwise),
+ * and an error property (the error message if there is an issue with any of the bets, undefined otherwise).
+ */
 const checkupBets = async (betId) => {
   try {
     if (betId) {
@@ -29,6 +40,11 @@ const checkupBets = async (betId) => {
   }
 };
 
+/**
+ * Retrieves all bets with null points from the database, along with their associated match and teams.
+ *
+ * @return {Promise<Array<Object>>} An array of bet objects with null points, each containing a match object and its associated teams. Returns an empty array if there was an error.
+ */
 const getNullBets = async () => {
   try {
     return await Bet.findAll({
@@ -60,6 +76,13 @@ const getNullBets = async () => {
   }
 }
 
+/**
+ * Retrieves the total points earned by a user for a specific week of a season.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<number>} The total points earned by the user for the week. Returns 0 if there was an error.
+ */
 const getWeekPoints = async (seasonId, userId) => {
   try {
     const matchdays = await getCurrentWeekMatchdays(seasonId);
@@ -89,6 +112,13 @@ const getWeekPoints = async (seasonId, userId) => {
   }
 }
 
+/**
+ * Retrieves the total points earned by a user for a specific month of a season.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<number>} The total points earned by the user for the month. Returns 0 if there was an error.
+ */
 const getMonthPoints = async (seasonId, userId) => {
   try {
     const matchdays = await getCurrentMonthMatchdays(seasonId);
@@ -115,6 +145,13 @@ const getMonthPoints = async (seasonId, userId) => {
   }
 }
 
+/**
+ * Retrieves the total points earned by a user for a specific season.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<number>} The total points earned by the user for the season. Returns 0 if there was an error.
+ */
 const getSeasonPoints = async (seasonId, userId) => {
   try {
     const bets = await Bet.findAll({
@@ -137,10 +174,32 @@ const getSeasonPoints = async (seasonId, userId) => {
   }
 }
 
+/**
+ * Calculates the total points based on the number of wins, draws, and losses.
+ *
+ * @param {number} wins - The number of wins.
+ * @param {number} draws - The number of draws.
+ * @param {number} loses - The number of losses.
+ * @return {number} The total points.
+ */
 const calculatePoints = (wins, draws, loses) => {
   return (wins * 3) + draws;
 }
 
+/**
+ * Updates a bet with the given parameters.
+ *
+ * @param {Object} options - The options for updating the bet.
+ * @param {string} options.id - The ID of the bet to update.
+ * @param {string} options.userId - The ID of the user making the bet.
+ * @param {string} options.matchId - The ID of the match associated with the bet.
+ * @param {string|null} options.winnerId - The ID of the winning team, or null for a draw.
+ * @param {number|null} options.homeScore - The score of the home team, or null if not applicable.
+ * @param {number|null} options.awayScore - The score of the away team, or null if not applicable.
+ * @param {string|null} options.scorer - The ID of the scorer, or null if not applicable.
+ * @throws {Error} If the match is not found, or if the updated bet is invalid.
+ * @return {Promise<Object>} The updated bet object.
+ */
 const checkBetByMatchId = async (ids) => {
   try {
     let bets;
@@ -204,6 +263,7 @@ const checkBetByMatchId = async (ids) => {
       betsUpdated++;
     }
     logger.info(`Pronostics mis à jour : ${betsUpdated}`);
+    eventBus.emit('betsChecked');
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
     logger.error("Erreur lors de la mise à jour des pronostics :", error);
@@ -211,6 +271,20 @@ const checkBetByMatchId = async (ids) => {
   }
 };
 
+/**
+ * Creates a bet with the given parameters.
+ *
+ * @param {Object} options - The options for creating the bet.
+ * @param {string} options.userId - The ID of the user making the bet.
+ * @param {number} options.matchday - The matchday of the bet.
+ * @param {string} options.matchId - The ID of the match associated with the bet.
+ * @param {string|null} options.winnerId - The ID of the winning team, or null for a draw.
+ * @param {number|null} options.homeScore - The score of the home team, or null if not applicable.
+ * @param {number|null} options.awayScore - The score of the away team, or null if not applicable.
+ * @param {string|null} options.scorer - The ID of the scorer, or null if not applicable.
+ * @throws {Error} If the match is not found, or if the created bet is invalid.
+ * @return {Promise<Object>} The created bet object.
+ */
 const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   try {
     logger.info('DATAS =>', { userId, matchday, matchId, winnerId, homeScore, awayScore, scorer });
@@ -260,6 +334,20 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
   }
 };
 
+/**
+ * Updates a bet with the given parameters.
+ *
+ * @param {Object} options - The options for updating the bet.
+ * @param {string} options.id - The ID of the bet to update.
+ * @param {string} options.userId - The ID of the user making the bet.
+ * @param {string} options.matchId - The ID of the match associated with the bet.
+ * @param {string|null} options.winnerId - The ID of the winning team, or null for a draw.
+ * @param {number|null} options.homeScore - The score of the home team, or null if not applicable.
+ * @param {number|null} options.awayScore - The score of the away team, or null if not applicable.
+ * @param {string|null} options.scorer - The ID of the scorer, or null if not applicable.
+ * @throws {Error} If the match is not found, or if the updated bet is invalid.
+ * @return {Promise<Object>} The updated bet object.
+ */
 const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer }) => {
   logger.info('updateBet', { id, userId, matchId, winnerId, homeScore, awayScore, scorer });
   try {

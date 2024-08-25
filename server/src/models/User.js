@@ -1,3 +1,10 @@
+/**
+ * Defines the User model for Sequelize and sets up associations with other models.
+ *
+ * @param {Object} sequelize - The Sequelize instance.
+ * @param {Object} DataTypes - The Sequelize DataTypes object.
+ * @return {Object} The User model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: {
@@ -51,6 +58,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the User model with other models.
+   *
+   * @param {Object} models - The Sequelize models object.
+   * @return {void} This function does not return anything.
+   */
   User.associate = (models) => {
     User.belongsToMany(models.Role, { through: models.UserRole, foreignKey: 'user_id' });
     User.hasMany(models.Bet, { foreignKey: 'user_id' });

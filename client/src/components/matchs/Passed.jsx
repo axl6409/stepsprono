@@ -35,7 +35,6 @@ const Passed = ({ token, user }) => {
           }
         });
         const seasonsData = response.data;
-        console.log(seasonsData)
         setSeasons(seasonsData);
         if (seasonsData.length > 0) {
           const currentSeason = seasonsData.find(season => season.current) || seasonsData[0];
@@ -83,7 +82,6 @@ const Passed = ({ token, user }) => {
               'Authorization': `Bearer ${token}`,
             }
           });
-          console.log(response.data)
           const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
           setMatchs(sortedMatchs);
           setIsLoading(false);

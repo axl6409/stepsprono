@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Asynchronously creates the 'players' table in the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('players', {
       id: {
@@ -46,6 +53,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Asynchronously drops the 'players' table from the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('players');
   }

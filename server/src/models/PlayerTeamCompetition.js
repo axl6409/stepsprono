@@ -1,3 +1,10 @@
+/**
+ * Defines the PlayerTeamCompetition model in Sequelize.
+ *
+ * @param {Object} sequelize - The Sequelize instance.
+ * @param {Object} DataTypes - The Sequelize DataTypes object.
+ * @return {Object} The PlayerTeamCompetition model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const PlayerTeamCompetition = sequelize.define('PlayerTeamCompetition', {
     player_id: {
@@ -39,6 +46,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the PlayerTeamCompetition model with the Player, Team, and Competition models.
+   *
+   * @param {Object} models - The Sequelize models object.
+   * @return {void}
+   */
   PlayerTeamCompetition.associate = (models) => {
     PlayerTeamCompetition.belongsTo(models.Player, { foreignKey: 'player_id' });
     PlayerTeamCompetition.belongsTo(models.Team, { foreignKey: 'team_id' });

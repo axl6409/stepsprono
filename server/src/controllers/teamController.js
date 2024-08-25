@@ -1,16 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT} = require("../middlewares/auth");
-const axios = require("axios");
+const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
-const {updateTeamStats, createOrUpdateTeams} = require("../services/teamService");
+const {updateTeamStats, createOrUpdateTeams, updateAllTeamsStats} = require("../services/teamService");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
-const apiKey = process.env.FB_API_KEY;
-const apiHost = process.env.FB_API_HOST;
-const apiBaseUrl = process.env.FB_API_URL;
 
+/* PUBLIC - GET */
 router.get('/teams', async (req, res) => {
   try {
     const sortBy = req.query.sortBy || 'position';
@@ -69,33 +66,26 @@ router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 });
-router.patch('/admin/teams/update-ranking/all', authenticateJWT, async (req, res) => {
+
+/* ADMIN - PATCH */
+router.patch('/admin/teams/update-ranking/all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
     await updateTeamStats()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-datas/', authenticateJWT, async (req, res) => {
+router.patch('/admin/teams/update-datas/all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
-    await createOrUpdateTeams()
+    await updateAllTeamsStats()
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) => {
+router.patch('/admin/teams/update-datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
     const teamId = req.params.id
     const season = await getCurrentSeasonYear(61)
     if (isNaN(teamId)) {
@@ -109,11 +99,8 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, async (req, res) 
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res) => {
+router.patch('/admin/teams/update-ranking/:id', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
     const teamId = req.params.id
     const season = await getCurrentSeasonYear(61)
     if (isNaN(teamId)) {
@@ -127,12 +114,9 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, async (req, res
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res) => {
+router.patch('/admin/teams/update-players/:id', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     logger.info(req.user)
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
     const teamId = req.params.id
     if (isNaN(teamId)) {
       return res.status(400).json({ message: 'Identifiant d\'équipe non valide' });
@@ -145,10 +129,10 @@ router.patch('/admin/teams/update-players/:id', authenticateJWT, async (req, res
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.delete('/admin/teams/delete/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
+/* ADMIN - DELETE */
+router.delete('/admin/teams/delete/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
     const teamId = req.params.id;
     const team = await Team.findByPk(teamId);
     if (!team) return res.status(404).json({ error: 'Équipe non trouvée' });

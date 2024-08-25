@@ -1,3 +1,10 @@
+/**
+ * Defines the Reward model and its associations with User model.
+ *
+ * @param {Object} sequelize - The Sequelize object
+ * @param {Object} DataTypes - The data types object
+ * @return {Object} The defined Reward model
+ */
 module.exports = (sequelize, DataTypes) => {
   const Reward = sequelize.define('Reward', {
     name: {
@@ -51,6 +58,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Reward model with the User model through the UserReward model.
+   *
+   * @param {Object} models - The Sequelize models object
+   * @return {void}
+   */
   Reward.associate = function(models) {
     Reward.belongsToMany(models.User, { through: models.UserReward, foreignKey: 'reward_id' });
   };

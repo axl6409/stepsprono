@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT} = require("../middlewares/auth")
+const {authenticateJWT, checkAdmin} = require("../middlewares/auth")
 const {Team, Player, PlayerTeamCompetition} = require("../models")
 const axios = require("axios")
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService")
@@ -10,6 +10,7 @@ const apiKey = process.env.FB_API_KEY
 const apiHost = process.env.FB_API_HOST
 const apiBaseUrl = process.env.FB_API_URL
 
+/* PUBLIC - GET */
 router.get('/player/:id', authenticateJWT, async (req, res) => {
   try {
     const playerId = req.params.id;
@@ -59,7 +60,9 @@ router.get('/players', authenticateJWT, async (req, res) => {
     res.status(500).send('Erreur interne du serveur');
   }
 })
-router.post('/players/update', authenticateJWT, async (req, res) => {
+
+/* ADMIN - POST */
+router.post('/admin/players/update', authenticateJWT, checkAdmin, async (req, res) => {
   const { teamId } = req.body;
   if (!teamId) {
     return res.status(400).json({ message: 'Aucun identifiant d\'équipe fourni' });

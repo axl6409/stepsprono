@@ -39,7 +39,6 @@ const AdminMatchs = () => {
         }
       });
       const uncheckedMatchs = response.data.data;
-      console.log(uncheckedMatchs)
       const sortedMatchs = uncheckedMatchs.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
       setMatchs(sortedMatchs);
     } catch (error) {

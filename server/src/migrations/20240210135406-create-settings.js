@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Creates a new table named 'settings' in the database using the provided queryInterface and Sequelize.
+   *
+   * @param {Object} queryInterface - The query interface object used to interact with the database.
+   * @param {Object} Sequelize - The Sequelize object used to define the table schema.
+   * @return {Promise<void>} A promise that resolves when the table is successfully created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('settings', {
       id: {
@@ -57,6 +64,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Drops the 'settings' table from the database.
+   *
+   * @param {Object} queryInterface - The query interface object used to interact with the database.
+   * @param {Object} Sequelize - The Sequelize object used to define the table schema.
+   * @return {Promise<void>} A promise that resolves when the table is successfully dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('settings');
   }

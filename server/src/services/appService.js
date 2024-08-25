@@ -10,6 +10,12 @@ const moment = require("moment/moment");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates} = require("./seasonService");
 
+/**
+ * Retrieves the number of API calls made by the server.
+ *
+ * @return {Promise<Object>} A promise that resolves to an object containing the number of API calls made by the server.
+ * @throws {Error} If there is an error retrieving the API calls.
+ */
 const getAPICallsCount = async () => {
   try {
     const options = {
@@ -27,6 +33,12 @@ const getAPICallsCount = async () => {
   }
 }
 
+/**
+ * Returns the start and end dates of the current week.
+ *
+ * @return {Object} An object with `startDate` and `endDate` properties,
+ * representing the start and end dates of the current week respectively.
+ */
 const getStartAndEndOfCurrentWeek = () => {
   const startOfWeek = new Date();
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
@@ -37,6 +49,12 @@ const getStartAndEndOfCurrentWeek = () => {
   return { startDate: startOfWeek, endDate: endOfWeek };
 }
 
+/**
+ * Returns the start and end dates of the current month.
+ *
+ * @return {Object} An object with `startOfMonth` and `endOfMonth` properties,
+ * representing the start and end dates of the current month respectively.
+ */
 const getStartAndEndOfCurrentMonth = () => {
   const currentMonth = new Date();
   const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -45,6 +63,12 @@ const getStartAndEndOfCurrentMonth = () => {
   return { startOfMonth, endOfMonth };
 };
 
+/**
+ * Returns an object containing the first day of the current month and the first day of the previous month.
+ *
+ * @return {Object} An object with `firstDayCurrentMonth` and `firstDayPreviousMonth` properties,
+ * representing the first day of the current month and the first day of the previous month respectively.
+ */
 const getFirstDaysOfCurrentAndPreviousMonth = () => {
   const currentMonth = new Date();
   const firstDayCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -56,6 +80,12 @@ const getFirstDaysOfCurrentAndPreviousMonth = () => {
   };
 };
 
+/**
+ * Retrieves the start date of a season.
+ *
+ * @param {number} seasonYear - The year of the season.
+ * @return {Promise<Date>} A Promise that resolves to the start date of the season.
+ */
 const getSeasonStartDate = async (seasonYear) => {
   const startDate = await Season.findOne({
     where: {
@@ -65,6 +95,12 @@ const getSeasonStartDate = async (seasonYear) => {
   return startDate.start_date;
 };
 
+/**
+ * Retrieves the mid-season date for a given season year.
+ *
+ * @param {number} seasonYear - The year of the season.
+ * @return {Promise<Date>} A Promise that resolves to the mid-season date.
+ */
 const getMidSeasonDate = async (seasonYear) => {
   const { startDate, endDate } = await getSeasonDates(seasonYear);
 
@@ -72,15 +108,26 @@ const getMidSeasonDate = async (seasonYear) => {
   return new Date(midSeasonTimestamp);
 };
 
+/**
+ * Retrieves the start and end dates of the current ISO week.
+ *
+ * @return {Object} An object containing the start and end dates of the current ISO week.
+ */
 const getWeekDateRange = () => {
   const moment = require('moment');
-  const now = moment()
+  const now = moment().utc()
   // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 })
   const start = now.clone().startOf('isoWeek');
   const end = now.clone().endOf('isoWeek');
-  return { start: start, end: end };
+  return { start: start.toDate(), end: end.toDate() };
 }
 
+/**
+ * Returns the start and end dates of the current month.
+ *
+ * @return {Object} An object with `startOfMonth` and `endOfMonth` properties,
+ * representing the start and end dates of the current month respectively.
+ */
 const getMonthDateRange = () => {
   const moment = require('moment');
   // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
@@ -90,6 +137,14 @@ const getMonthDateRange = () => {
   return { start: start, end: end };
 }
 
+/**
+ * Retrieves the matchdays within a given period of time.
+ *
+ * @param {Date} startDate - The start date of the period.
+ * @param {Date} endDate - The end date of the period.
+ * @return {Promise<number[]>} An array of matchdays within the given period.
+ * @throws {Error} If the provided dates are invalid.
+ */
 const getPeriodMatchdays = async (startDate, endDate) => {
   try {
     if (!(startDate instanceof Date) || isNaN(startDate.getTime()) || !(endDate instanceof Date) || isNaN(endDate.getTime())) {
@@ -114,6 +169,11 @@ const getPeriodMatchdays = async (startDate, endDate) => {
   }
 }
 
+/**
+ * Retrieves the matchdays within the current week.
+ *
+ * @return {Promise<number[]>} An array of matchdays within the current week.
+ */
 const getCurrentWeekMatchdays = async () => {
   try {
     const matchdays = []
@@ -135,6 +195,11 @@ const getCurrentWeekMatchdays = async () => {
   }
 }
 
+/**
+ * Retrieves the matchdays within the current month.
+ *
+ * @return {Promise<number[]>} An array of matchdays within the current month.
+ */
 const getCurrentMonthMatchdays = async () => {
   try {
     const matchdays = []
@@ -156,6 +221,11 @@ const getCurrentMonthMatchdays = async () => {
   }
 }
 
+/**
+ * Retrieves the current matchday from the database.
+ *
+ * @return {Promise<number>} The current matchday.
+ */
 const getCurrentMatchday = async () => {
   try {
     const response = await Season.findAll({
@@ -163,12 +233,22 @@ const getCurrentMatchday = async () => {
         current: true,
       }
     })
+    console.log(response)
     return response[0].dataValues.currentMatchday
   } catch (error) {
     logger.error('getCurrentMatchday ERROR: ', error)
   }
 }
 
+/**
+ * Checks the database for seasons that have ended and have not yet had their end tasks scheduled,
+ * and schedules a task to run when the season ends. When the task runs, it emits a 'seasonEnded'
+ * event with the season ID and updates the season's taskScheduled flag to true.
+ *
+ * @return {Promise<void>} A Promise that resolves when all tasks have been scheduled or rejects
+ *                         with an error if there was an issue retrieving the seasons or scheduling
+ *                         the tasks.
+ */
 const checkAndScheduleSeasonEndTasks = async () => {
   try {
     const today = new Date();
@@ -200,6 +280,12 @@ const checkAndScheduleSeasonEndTasks = async () => {
   }
 };
 
+/**
+ * Retrieves the settlement from the database based on the 'regulation' key.
+ *
+ * @return {Promise<Object>} The settlement object from the database.
+ * @throws {Error} If there is an error retrieving the settlement from the database.
+ */
 const getSettlement = async () => {
   try {
     return await Setting.findOne({where: {key: 'regulation'}})
@@ -208,6 +294,12 @@ const getSettlement = async () => {
   }
 }
 
+/**
+ * Schedules a task to be executed at the end of the current month if the last matchday of the month
+ * is also the last matchday of the month. The task emits the 'monthEnded' event.
+ *
+ * @return {Promise<void>} A promise that resolves when the task is scheduled or rejects with an error.
+ */
 const scheduleTaskForEndOfMonthMatch = async () => {
   try {
     // Obtenez la première et la dernière date du mois en cours
@@ -262,6 +354,12 @@ const scheduleTaskForEndOfMonthMatch = async () => {
   }
 };
 
+/**
+ * Retrieves the UTC date of the first match of the current week.
+ *
+ * @return {Promise<Date|null>} The UTC date of the first match of the current week, or null if no match is found.
+ * @throws {Error} If there is an error retrieving the first match from the database.
+ */
 const getFirstMatchOfCurrentWeek = async () => {
   try {
     const currentDate = new Date();
@@ -289,6 +387,13 @@ const getFirstMatchOfCurrentWeek = async () => {
   }
 };
 
+/**
+ * Schedules the betsClose event for the first match of the current week.
+ *
+ * @return {Promise<void>} - A promise that resolves when the event is scheduled successfully,
+ * or rejects with an error if there is an issue scheduling the event.
+ * @throws {Error} - If there is an error retrieving the first match of the current week.
+ */
 const scheduleBetsCloseEvent = async () => {
   try {
     const firstMatchDate = await getFirstMatchOfCurrentWeek();

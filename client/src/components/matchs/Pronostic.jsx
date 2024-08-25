@@ -125,7 +125,6 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     const endpoint = isNewBet ? '/api/bet/add' : `/api/bet/update/${betDetails.id}`;
     const method = isNewBet ? 'post' : 'patch'
     const playerGoal = data.scorer === "null" ? null : data.scorer;
-    console.log(match.id)
     const payload = {
       userId: userId,
       competition_id: match.league,

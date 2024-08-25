@@ -1,3 +1,11 @@
+/**
+ * Defines the Match model for the sequelize ORM.
+ *
+ * @param {Object} sequelize - The sequelize instance.
+ * @param {Object} DataTypes - The data types provided by sequelize.
+ * @return {Object} The defined Match model.
+ */
+
 module.exports = (sequelize, DataTypes) => {
   const Match = sequelize.define('Match', {
     utc_date: {
@@ -67,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       field: 'season_id'
     },
     winner_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: 'Teams',
@@ -128,11 +136,13 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       field: 'created_at'
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       field: 'updated_at'
     }
   }, {
@@ -140,6 +150,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Match model with other models in the sequelize ORM.
+   *
+   * @param {Object} models - The sequelize models.
+   * @return {void}
+   */
   Match.associate = (models) => {
     Match.belongsTo(models.Team, { as: 'HomeTeam', foreignKey: 'home_team_id' });
     Match.belongsTo(models.Team, { as: 'AwayTeam', foreignKey: 'away_team_id' });

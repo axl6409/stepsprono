@@ -115,7 +115,7 @@ const AdminPlayers = () => {
         try {
             const selectedIndex = teams.findIndex(team => team.team_id === selectedTeam.team_id);
             setIsLoading(true);
-            await axios.post(`${apiUrl}/api/players/update`, { teamId: selectedTeam.team_id }, {
+            await axios.post(`${apiUrl}/api/admin/players/update`, { teamId: selectedTeam.team_id }, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
@@ -145,7 +145,7 @@ const AdminPlayers = () => {
     }
 
     if (error) return <p>Erreur : {error.message}</p>;
-    console.log(players)
+
     return (
         isLoading ? (
             <p>Chargement...</p>

@@ -1,3 +1,10 @@
+/**
+ * Defines the Role model for the Sequelize ORM.
+ *
+ * @param {Object} sequelize - The Sequelize instance.
+ * @param {Object} DataTypes - The data types provided by Sequelize.
+ * @return {Object} The defined Role model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Role = sequelize.define('Role', {
     name: {
@@ -21,6 +28,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Role model with the User model through the UserRole model.
+   *
+   * @param {Object} models - The Sequelize models object.
+   * @return {void}
+   */
   Role.associate = (models) => {
     Role.belongsToMany(models.User, { through: models.UserRole, foreignKey: 'role_id' });
   };
