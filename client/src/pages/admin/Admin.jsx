@@ -10,6 +10,7 @@ import axios from "axios";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import DashboardButton from "../../components/nav/DashboardButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Admin = () => {
@@ -35,12 +36,7 @@ const Admin = () => {
       {isModalOpen && (
         <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
       )}
-      <Link
-        to="/dashboard"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche" />
-      </Link>
+      <DashboardButton />
       <SimpleTitle title={"Administration"} />
       <div className="py-4 block">
         <div

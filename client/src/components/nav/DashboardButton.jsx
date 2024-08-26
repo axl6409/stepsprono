@@ -1,22 +1,17 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import {Link} from "react-router-dom";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 
-const BackButton = () => {
-  const history = useNavigate();
-
-  const handleBackClick = () => {
-    history(-1);
-  };
+const DashboardButton = () => {
 
   return (
-    <button
-      onClick={handleBackClick}
+    <Link
+      to="/dashboard"
       className="swiper-button-prev fade-in w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
     >
-      <img src={arrowIcon} alt="Icône flèche"/>
-    </button>
+      <img src={arrowIcon} alt="Icône flèche" />
+    </Link>
   );
 };
 
-export default BackButton
+export default DashboardButton

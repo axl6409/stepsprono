@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import arrowIcon from "../../assets/icons/arrow-left.svg";
 import penIcon from "../../assets/icons/pencil.svg";
 import navClose from "../../assets/icons/nav-cross.svg";
 import userAdd from "../../assets/icons/user-add.svg";
@@ -10,6 +8,7 @@ import UserSelectionModal from '../../components/admin/UserSelectionModal.jsx';
 import RewardForm from '../../components/admin/RewardForm';
 import { useCookies } from "react-cookie";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import BackButton from "../../components/nav/BackButton.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -96,12 +95,7 @@ const AdminRewards = () => {
 
   return (
       <div className="inline-block w-full h-auto py-20">
-        <Link
-            to="/admin"
-            className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-        >
-          <img src={arrowIcon} alt="Icône flèche" />
-        </Link>
+        <BackButton />
         <SimpleTitle title={"Gestion des trophées"} />
         <button
           onClick={() => {

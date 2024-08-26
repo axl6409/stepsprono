@@ -11,6 +11,7 @@ import {useCookies} from "react-cookie";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import Pronostic from "../components/matchs/Pronostic.jsx";
 import axios from "axios";
+import DashboardButton from "../components/nav/DashboardButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Matchs = () => {
@@ -59,12 +60,7 @@ const Matchs = () => {
 
   return (
     <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden py-12">
-      <Link
-        to="/dashboard"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <DashboardButton />
       <AnimatedTitle title={"Pronostics"} />
       <div className="px-4 relative">
         <Week token={token} user={user}/>

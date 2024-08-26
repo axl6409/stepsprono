@@ -184,7 +184,6 @@ const Week = ({token, user}) => {
   };
 
   const refreshBets = async () => {
-    // Re-fetch bets logic here
     const matchIds = matchs.map(match => match.id);
     try {
       const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {

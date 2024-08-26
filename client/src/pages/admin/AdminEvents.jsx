@@ -1,12 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {useCookies} from "react-cookie";
-import {Link} from "react-router-dom";
 import axios from "axios";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
-import downloadIcon from "../../assets/icons/download-icon.svg";
 import Loader from "../../components/partials/Loader.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminEvents = () => {
@@ -76,12 +74,7 @@ const AdminEvents = () => {
       {isModalOpen && (
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
-      <Link
-        to="/admin"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <BackButton />
       <SimpleTitle title={"Gestion des évènements"} />
       <div className="flex flex-col justify-start items-center">
         <div className="flex flex-row justify-between items-center">

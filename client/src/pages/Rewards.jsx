@@ -22,6 +22,23 @@ const Rewards = () => {
 
   const { userId } = useParams();
 
+  const fetchUserRewards = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/rewards/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const fetchedUserRewards = response.data;
+      if (fetchedUserRewards.length === undefined || fetchedUserRewards.length === 0) {
+        return;
+      }
+      setUserRewards(fetchedUserRewards);
+    } catch (error) {
+      console.error('Erreur lors de la sélection des recompenses', error);
+    }
+  };
+
   useEffect(() => {
     const fetchRewards = async () => {
       try {
@@ -35,23 +52,6 @@ const Rewards = () => {
           return;
         }
         setRewards(fetchedRewards);
-      } catch (error) {
-        console.error('Erreur lors de la sélection des recompenses', error);
-      }
-    };
-
-    const fetchUserRewards = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/rewards/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        const fetchedUserRewards = response.data;
-        if (fetchedUserRewards.length === undefined || fetchedUserRewards.length === 0) {
-          return;
-        }
-        setUserRewards(fetchedUserRewards);
       } catch (error) {
         console.error('Erreur lors de la sélection des recompenses', error);
       }
@@ -76,14 +76,42 @@ const Rewards = () => {
     }
   };
 
+  const handleAddReward = async (reward) => {
+    try {
+      await axios.post(`${apiUrl}/api/admin/rewards/attribute`, {
+        user_id: userId,
+        reward_id: reward.id,
+        count: 1,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      await fetchUserRewards();
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du trophée', error);
+    }
+  };
+
+  const handleRemoveReward = async (reward) => {
+    try {
+      await axios.post(`${apiUrl}/api/admin/rewards/remove`, {
+        user_id: userId,
+        reward_id: reward.id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      await fetchUserRewards();
+    } catch (error) {
+      console.error('Erreur lors du retrait du trophée', error);
+    }
+  };
+
   return (
       <div className="text-center relative py-10 flex flex-col justify-center">
-        <Link
-          to="/dashboard"
-          className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-        >
-          <img src={arrowIcon} alt="Icône flèche"/>
-        </Link>
+        <BackButton />
         <AnimatedTitle title={"Trophées"} animate={false}/>
         <div className="flex flex-row flex-wrap justify-around px-4">
           {sortedRewards.map((reward) => {
@@ -109,6 +137,27 @@ const Rewards = () => {
                       <p
                         className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
                     </div>
+                  )}
+                  {userHasReward && user.role === 'admin' && (
+                    <>
+                      <button
+                      className="absolute z-[25] bg-white bottom-2 right-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                      onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddReward(reward);
+                      }}>
+                        <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">+</span>
+                      </button>
+                      <button
+                        className="absolute z-[25] bg-white bottom-2 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveReward(reward);
+                        }}>
+                          <span
+                            className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">-</span>
+                      </button>
+                    </>
                   )}
                 </div>
                 {userHasReward && (

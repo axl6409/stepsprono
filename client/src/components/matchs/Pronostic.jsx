@@ -136,10 +136,24 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
       scorer: playerGoal ? playerGoal : null
     };
     try {
-      if (match.id === lastMatch.id) {
+      if (match.require_details === true) {
         if (!data.homeScore || !data.awayScore) {
           handleError('Score obligatoire');
           return
+        }
+        console.log(selectedTeam)
+        console.log(match.AwayTeam.id)
+        if (selectedTeam === match.AwayTeam.id) {
+          if (data.homeScore > data.awayScore) {
+            handleError('Le score n\'est pas cohérent avec l\'équipe sélectionnée');
+            return
+          }
+        }
+        if (selectedTeam === match.HomeTeam.id) {
+          if (data.homeScore < data.awayScore) {
+            handleError('Le score n\'est pas cohérent avec l\'équipe sélectionnée');
+            return
+          }
         }
       }
       const response = await axios({

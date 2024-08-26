@@ -1,21 +1,17 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
 import {UserContext} from "../../contexts/UserContext.jsx";
-import {Link, Navigate, useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-  faCaretLeft,
   faCloudArrowDown,
   faDatabase,
-  faPersonRunning,
   faRankingStar
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminBets = () => {
@@ -99,12 +95,7 @@ const AdminBets = () => {
   return (
     <div className="inline-block w-full h-auto py-20">
       <AlertModal message={alertMessage} type={alertType} />
-      <Link
-        to="/admin"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <BackButton />
       <SimpleTitle title={"Données des pronostics"} />
       <div className="pb-3.5 pt-6 px-2 bg-black relative">
         <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Pronostics non-vérifiés</p>

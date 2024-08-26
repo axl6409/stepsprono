@@ -5,6 +5,7 @@ import Passed from "../components/matchs/Passed.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
 import arrowIcon from "../assets/icons/arrow-left.svg";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
+import DashboardButton from "../components/nav/DashboardButton.jsx";
 
 const MatchsHistory = () => {
   const { user, setUser } = useContext(UserContext)
@@ -20,12 +21,7 @@ const MatchsHistory = () => {
 
   return (
     <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20">
-      <Link
-        to="/dashboard"
-        className="swiper-button-prev fade-in w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <DashboardButton />
       <AnimatedTitle title={"Historique"} animate={false}/>
       <div className="relative">
         <Passed token={token} user={user}/>

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretLeft, faCircleQuestion, faCircleXmark, faPaperPlane, faPen} from "@fortawesome/free-solid-svg-icons";
 import InformationModal from "../../components/partials/modals/InformationModal.jsx";
 import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
-import {Link} from "react-router-dom";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Settings = () => {
@@ -76,12 +73,7 @@ const Settings = () => {
 
   return (
     <div className="inline-block w-full h-auto py-12">
-      <Link
-        to="/admin"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <BackButton />
       <SimpleTitle title={"Gestion des réglages"} />
       {settings.map((setting) => (
         <DynamicFormComponent
