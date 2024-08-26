@@ -126,42 +126,46 @@ const Rewards = () => {
                 onClick={() => handleRewardClick(reward)}
               >
                 <div className="relative">
+                  {/*<div className="absolute z-[5] inset-0 w-full h-full bg-transparent rounded-full inset-shadow ch-info-front"></div>*/}
                   <img
                     src={imageUrl}
                     alt={reward.name}
-                    className="w-full h-[150px] object-cover rounded-lg"
+                    className="w-full h-[150px] object-cover rounded-full ch-info-back"
                   />
                   {userHasReward && (
                     <div
                       className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
                       <p
-                        className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
+                        translate="no"
+                        className="font-rubik no-correct w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
                     </div>
                   )}
                   {userHasReward && user.role === 'admin' && (
                     <>
                       <button
-                      className="absolute z-[25] bg-white bottom-2 right-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        translate="no"
+                      className="absolute no-correct z-[25] bg-white bottom-2 right-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                       onClick={(e) => {
                       e.stopPropagation();
                       handleAddReward(reward);
                       }}>
-                        <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">+</span>
+                        <span className="font-rubik no-correct w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">+</span>
                       </button>
                       <button
-                        className="absolute z-[25] bg-white bottom-2 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        translate="no"
+                        className="absolute no-correct z-[25] bg-white bottom-2 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRemoveReward(reward);
                         }}>
                           <span
-                            className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">-</span>
+                            className="font-rubik no-correct w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">-</span>
                       </button>
                     </>
                   )}
                 </div>
                 {userHasReward && (
-                  <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+                  <h2 className="text-base no-correct font-roboto font-bold mt-2">{reward.name}</h2>
                 )}
               </div>
             );

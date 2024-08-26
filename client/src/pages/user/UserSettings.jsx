@@ -61,6 +61,7 @@ const UserSettings = (props) => {
         className="w-fit fade-in block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
       >
         <span
+          translate="no"
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-medium transition -translate-y-1.5 group-hover:-translate-y-0"
         >
           Règlement
@@ -76,7 +77,7 @@ const UserSettings = (props) => {
               className="w-40 h-40 mx-auto border-2 border-black fade-in rounded-full object-cover"/>
             <div className="file-upload-wrapper fade-in relative inline-block mt-4 cursor-pointer group">
               <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" onChange={handleImageChange}  type="file" accept="image/*"/>
-              <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center transition-all duration-300 ease-in-out group-hover:bg-grey-medium group-hover:text-white">
+              <label translate="no" className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center transition-all duration-300 ease-in-out group-hover:bg-grey-medium group-hover:text-white">
                 Changer la photo
               </label>
             </div>
@@ -88,7 +89,7 @@ const UserSettings = (props) => {
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/username">
-                <span className="relative z-[5] font-roboto text-sm font-medium">Changer le pseudo</span>
+                <span translate="no" className="relative z-[5] font-roboto text-sm font-medium">Changer le pseudo</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconUser} alt=""/>
                 <img className="absolute z-[2] right-1 -top-8" src={iconUserBg} alt=""/>
               </Link>
@@ -97,7 +98,7 @@ const UserSettings = (props) => {
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/email">
-                <span className="relative z-[5] font-roboto text-sm font-medium">Changer le mail</span>
+                <span translate="no" className="relative z-[5] font-roboto text-sm font-medium">Changer le mail</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconMail} alt=""/>
                 <img className="absolute z-[2] right-1 -top-8" src={iconMailBg} alt=""/>
               </Link>
@@ -106,7 +107,7 @@ const UserSettings = (props) => {
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/password">
-                <span className="relative z-[5] font-roboto text-sm font-medium">Changer le mot de passe</span>
+                <span translate="no" className="relative z-[5] font-roboto text-sm font-medium">Changer le mot de passe</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconMdp} alt=""/>
                 <img className="absolute z-[2] right-1 -top-8" src={iconMdpBg} alt=""/>
               </Link>
@@ -115,7 +116,7 @@ const UserSettings = (props) => {
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/team">
-                <span className="relative z-[5] font-roboto text-sm font-medium">Trahir l'équipe de cœur</span>
+                <span translate="no" className="relative z-[5] font-roboto text-sm font-medium">Trahir l'équipe de cœur</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconHeart} alt=""/>
                 <img className="absolute z-[2] right-1 -top-1" src={iconHeartBg} alt=""/>
               </Link>
@@ -124,7 +125,7 @@ const UserSettings = (props) => {
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to={`/rewards/${user.id}`}>
-                <span className="relative z-[5] font-roboto text-sm font-medium">Mes trophées</span>
+                <span translate="no" className="relative z-[5] font-roboto text-sm font-medium">Mes trophées</span>
                 <img className="absolute z-[3] right-0 top-0" src={iconTrophees} alt=""/>
                 <img className="absolute z-[2] right-1 -top-4" src={iconTropheesBg} alt=""/>
               </Link>

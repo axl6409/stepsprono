@@ -29,14 +29,15 @@ const StatusModal = ({message, status, closeModal }) => {
               <FontAwesomeIcon icon={faTriangleExclamation} />
             )}
           </div>
-          <div className="font-sans text-left font-l font-medium leading-7 informations-text-styles mx-4">
+          <div translate="no" className="font-sans text-left font-l font-medium leading-7 informations-text-styles mx-4">
             {message}
           </div>
           <button
+            translate="no"
             onClick={handleClose}
             className="relative my-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
           >
-            <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faXmark} className="cursor-pointer" />
             </span>
           </button>

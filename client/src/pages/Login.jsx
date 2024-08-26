@@ -96,6 +96,7 @@ const Login = () => {
                 <img src={userIcon} alt="icone de l'utilisateur"/>
               </div>
               <input
+                translate="no"
                 type="text"
                 name="username"
                 placeholder="Pseudo"
@@ -109,6 +110,7 @@ const Login = () => {
                 <img src={lockIcon} alt="icone de l'utilisateur"/>
               </div>
               <input
+                translate="no"
                 type="password"
                 name="password"
                 placeholder="Mot de passe"
@@ -122,14 +124,15 @@ const Login = () => {
               className="w-4/5 relative mb-8 mt-8 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
             >
               <span
+                translate="no"
                 className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-purple-soft transition -translate-y-1.5 group-hover:-translate-y-0">Connexion</span>
             </button>
           </form>
         </div>
       </div>
       <div className="p-8 h-[30%] bg-purple-light relative z-[1] mt-[-17%] flex flex-col justify-center">
-        <p className="font-roboto font-regular text-sm text-center">Pas encore de compte ?</p>
-        <Link to="/register" className="underline font-roboto text-base font-medium text-center">Inscrivez-vous !</Link>
+        <p translate="no" className="font-roboto font-regular text-sm text-center">Pas encore de compte ?</p>
+        <Link to="/register" translate="no" className="underline font-roboto text-base font-medium text-center">Inscrivez-vous !</Link>
       </div>
       <motion.div
         initial={{scaleX: 1}}

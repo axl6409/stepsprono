@@ -178,7 +178,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navHome} alt="Icône accueil"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
+                  <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
                 </Link>
                 <Link
                   to="/matchs/history"
@@ -188,7 +188,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navPronos} alt="Icône mes pronos"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Mes pronos</span>
+                  <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Mes pronos</span>
                 </Link>
                 <Link
                   to="/teams"
@@ -198,7 +198,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navRanking} alt="Icône classement équipes"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement équipes</span>
+                  <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Classement équipes</span>
                 </Link>
                 <Link
                   to="/classement"
@@ -208,7 +208,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navStepsRanking} alt="Icône classement steps"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Classement Steps</span>
+                  <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Classement Steps</span>
                 </Link>
                 <Link
                   to="/user/settings"
@@ -218,7 +218,7 @@ const UserMenu = () => {
                   <span className="inline-block w-1/5">
                     <img className="h-[20px] mx-auto" src={navProfile} alt="Icône profil"/>
                   </span>
-                  <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
+                  <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
                 </Link>
 
                 {user && user.role === 'admin' && (
@@ -230,7 +230,7 @@ const UserMenu = () => {
                     <span className="inline-block w-1/5">
                       <img className="h-[20px] mx-auto" src={navAdmin} alt="Icône administration"/>
                     </span>
-                    <span className="inline-block w-4/5 font-roboto text-black px-3 py-2 text-left">Administration</span>
+                    <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Administration</span>
                   </Link>
                 )}
               </div>
@@ -243,21 +243,21 @@ const UserMenu = () => {
         <div id="countdownPoup"
              className={`${countdown.hidden ? 'hidden' : ''} fixed z-[70] top-28 left-0 px-2 py-2 border-2 border-black shadow-flat-black-adjust bg-deep-red transition-transform duration-300 ease-in-out ${isCountDownPopupOpen ? '-translate-x-0' : 'translate-x-[-101%]'} `}>
           {!countdown.expired && (
-            <p className="font-sans text-sm text-white font-bold">Fin des pronostics dans :</p>
+            <p className="font-sans no-correct text-sm text-white font-bold">Fin des pronostics dans :</p>
           )}
           <p className="font-sans text-sm text-white text-center">
             {!countdown.expired ? (
               <>
                 <span
-                  className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
-                <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
-                <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
+                  className="bg-white no-correct border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+                <span className="bg-white no-correct border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
+                <span className="bg-white no-correct border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
               </>
             ) : (
-              <span className="bg-white border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
+              <span className="bg-white no-correct border border-black shadow-flat-black-adjust text-black font-title font-black text-base inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
             )}
           </p>
-          <button className="absolute right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 rounded-r-lg border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
+          <button className="absolute no-correct right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 rounded-r-lg border-black shadow-flat-black-adjust focus:outline-none" onClick={toggleCountDownModal}>
             <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white" />
           </button>
         </div>
@@ -265,7 +265,7 @@ const UserMenu = () => {
       {user && user.role === 'admin' && isDebuggerActive && (
         <div className={`debugger fixed z-[80] max-w-[94%] right-0.5 top-0.5 transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'translate-x-0' : 'translate-x-full'} before:content-[''] before:absolute before:inset-0 before:bg-green-lime before:-translate-x-0.5 before:translate-y-0.5 before:border before:border-black before:z-[1]`}>
           <button
-            className={`absolute z-[2] block h-5 w-6 top-0 -left-4 bg-black text-left pl-1 focus:outline-none`}
+            className={`absolute no-correct z-[2] block h-5 w-6 top-0 -left-4 bg-black text-left pl-1 focus:outline-none`}
             onClick={toggleDebuggerModal}
           >
             <FontAwesomeIcon icon={faChevronLeft} className={`text-green-lime-deep text-xs inline-block align-[0] transition-transform duration-300 ease-in-out ${isDebuggerOpen ? 'rotate-180' : 'rotate-0'}`} />
@@ -274,15 +274,15 @@ const UserMenu = () => {
             <div className="flex flex-row mb-2">
               <button
                 onClick={() => fetchAPICalls()}
-                className="relative block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
+                className="relative no-correct block h-fit mr-2 -mb-1 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded before:bg-green-lime before:border-black before:border-2 group"
               >
             <span
-              className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-0.5 py-0.5 rounded text-center text-xs font-sans uppercase font-bold shadow-md bg-white transition translate-y-[-3px] translate-x-[-3px] group-hover:-translate-y-0 group-hover:-translate-x-0">
+              className="relative no-correct z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-0.5 py-0.5 rounded text-center text-xs font-sans uppercase font-bold shadow-md bg-white transition translate-y-[-3px] translate-x-[-3px] group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faArrowsRotate}/>
             </span>
               </button>
-              <p className="font-title font-bold text-green-lime-deep leading-4 my-auto w-[200px]">
-                <span className="inline-block mr-0.5">API Calls : </span>
+              <p className="font-title no-correct font-bold text-green-lime-deep leading-4 my-auto w-[200px]">
+                <span className="inline-block no-correct mr-0.5">API Calls : </span>
                 {apiCalls.current !== undefined ? (
                   <>
                   <span className={`inline-block font-bold ${

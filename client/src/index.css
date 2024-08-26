@@ -45,6 +45,10 @@ body {
     text-shadow: 1px 2px 0 rgba(0,0,0,1);
 }
 
+.inset-shadow {
+    box-shadow: inset 0px 5px 5px 5px rgba(0,0,0,0.5);
+}
+
 /* Swiper */
 .swiper-wrapper {
     margin-bottom: 2rem;
