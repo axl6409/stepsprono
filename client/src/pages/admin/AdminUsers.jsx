@@ -8,6 +8,7 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 import Loader from "../../components/partials/Loader.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
+import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
@@ -102,19 +103,19 @@ const AdminUsers = () => {
                       <Link to={`/admin/users/edit/${user.id}`}
                             className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                       >
-              <span
-                className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                <FontAwesomeIcon icon={faPen}/>
-              </span>
+                      <span
+                        className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                        <FontAwesomeIcon icon={faPen}/>
+                      </span>
                       </Link>
                       <button
                         onClick={() => handleDeleteUser(user.id)}
                         className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
                       >
-              <span
-                className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-                <FontAwesomeIcon icon={faCircleXmark}/>
-              </span>
+                      <span
+                        className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+                        <FontAwesomeIcon icon={faCircleXmark}/>
+                      </span>
                       </button>
                     </div>
                   </li>
