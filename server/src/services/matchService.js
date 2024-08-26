@@ -226,13 +226,14 @@ async function updateMatches(competitionId = null) {
 async function fetchWeekMatches() {
   try {
     // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-    const now = moment();
-    const startOfWeek = now.startOf('isoWeek').tz("Europe/Paris");
-    const endOfWeek = now.endOf('isoWeek').tz("Europe/Paris");
+    const now = moment().tz("Europe/Paris");
+    logger.info('[CRON]=> fetchWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
+    const startOfWeek = now.clone().startOf('isoWeek');
+    const endOfWeek = now.clone().endOf('isoWeek');
 
-    const startDate = startOfWeek.format('YYYY-MM-DD 00:00:00');
-    const endDate = endOfWeek.format('YYYY-MM-DD 23:59:59');
-
+    const startDate = startOfWeek.clone().utc().format();
+    const endDate = endOfWeek.clone().utc().format();
+    logger.info(`[CRON]=> fetchWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
     const matches = await Match.findAll({
       where: {
         utc_date: {
@@ -244,8 +245,9 @@ async function fetchWeekMatches() {
         }
       }
     });
-
+    logger.info(`[CRON]=> fetchWeekMatches => Number of matches: ${matches.length}`);
     matches.forEach(match => {
+      logger.info(`[CRON]=> fetchWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
       const matchTime = new Date(match.utc_date);
       const initialDelay = 110 * 60000;
       const initialTime = new Date(matchTime.getTime() + initialDelay);
