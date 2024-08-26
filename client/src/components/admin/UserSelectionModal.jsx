@@ -30,7 +30,6 @@ const UserSelectionModal = ({ reward, onClose }) => {
 
   const handleAssignReward = async () => {
     try {
-      console.log(reward.id)
       await axios.post(`${apiUrl}/api/admin/rewards/attribute`, {
         user_id: selectedUserId,
         reward_id: reward.id,

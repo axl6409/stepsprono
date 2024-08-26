@@ -35,7 +35,6 @@ const Passed = ({ token, user }) => {
           }
         });
         const seasonsData = response.data;
-        console.log(seasonsData)
         setSeasons(seasonsData);
         if (seasonsData.length > 0) {
           const currentSeason = seasonsData.find(season => season.current) || seasonsData[0];
@@ -83,7 +82,6 @@ const Passed = ({ token, user }) => {
               'Authorization': `Bearer ${token}`,
             }
           });
-          console.log(response.data)
           const sortedMatchs = response.data.data.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
           setMatchs(sortedMatchs);
           setIsLoading(false);
@@ -223,7 +221,7 @@ const Passed = ({ token, user }) => {
           </div>
         </Swiper>
         <div className="mt-4">
-          <div className="flex flex-row justify-end border-t border-b border-black">
+          <div className="flex fade-in flex-row justify-end border-t border-b border-black">
             <div className="flex justify-end">
               <label className="opacity-0 h-0 w-0">Saison :</label>
               <select value={selectedSeason?.id || ''} onChange={handleSeasonChange}
@@ -243,11 +241,12 @@ const Passed = ({ token, user }) => {
             </div>
           </div>
           <div className="px-4">
-            {matchs.map(match => {
+            {matchs.map((match, index) => {
               const bet = getBetForMatch(match.id);
               return (
                 <div
-                  className="flex flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
+                  style={{animationDelay: `${index * 0.15}s`}}
+                  className="flex fade-in flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
                   key={match.id} data-match-id={match.id}>
                   <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
                     <div className="w-full flex flex-row justify-center">

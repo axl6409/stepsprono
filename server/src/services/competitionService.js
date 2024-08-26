@@ -7,6 +7,12 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 
+/**
+ * Updates the teams for a new season in the given competition.
+ *
+ * @param {number} competitionId - The ID of the competition.
+ * @return {Promise<void>} - A promise that resolves when the update is complete.
+ */
 async function updateCompetitionTeamsNewSeason(competitionId) {
   try {
     const currentSeasonYear = await getCurrentSeasonYear(competitionId);
@@ -68,7 +74,13 @@ async function updateCompetitionTeamsNewSeason(competitionId) {
   }
 }
 
-// Fonction pour récupérer les équipes depuis l'API
+/**
+ * Fetches teams from the API for a given competition and season.
+ *
+ * @param {number} competitionId - The ID of the competition.
+ * @param {number} seasonYear - The year of the season.
+ * @return {Promise<Object>} - A promise that resolves to the response data containing the teams.
+ */
 async function fetchTeamsFromApi(competitionId, seasonYear) {
   const options = {
     method: "GET",
@@ -87,6 +99,12 @@ async function fetchTeamsFromApi(competitionId, seasonYear) {
   return response.data.response;
 }
 
+/**
+ * Retrieves the ID of the current season for a given competition.
+ *
+ * @param {number} competitionId - The ID of the competition.
+ * @return {Promise<number|string>} - The ID of the current season as a Promise, or a string indicating that a competition ID is required.
+ */
 async function getCurrentSeasonId(competitionId) {
 
 }

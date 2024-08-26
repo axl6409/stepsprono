@@ -1,5 +1,4 @@
 const eventBus = require('./eventBus');
-const rewardService = require('../services/rewardService');
 const logger = require('../utils/logger/logger');
 const {
   checkMassacreTrophy, checkChallengerTrophy, checkKhalassTrophy, checkSeasonRewards, checkOracleTrophy,
@@ -45,7 +44,7 @@ eventBus.on('weekEnded', async () => {
   logger.info('# Event => weekEnded || Rewards check ends #');
 })
 
-eventBus.on('matchUpdated', async (matchId) => {
+eventBus.on('betsChecked', async (matchId) => {
   logger.info('# Event => matchUpdated || Rewards check begins #');
   logger.info('Match updated', matchId)
   logger.info('Début de la vérification du trophée ZeroGuardian');

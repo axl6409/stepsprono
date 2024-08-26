@@ -261,7 +261,7 @@ const checkUserZeroPredictions = async (userId, startDate, endDate) => {
         away_score: 0,
         matchday: {
           [Op.in]: matchdays
-        }
+        },
       },
       include: [{
         model: Match,
@@ -271,7 +271,8 @@ const checkUserZeroPredictions = async (userId, startDate, endDate) => {
           score_full_time_away: 0,
           matchday: {
             [Op.in]: matchdays
-          }
+          },
+          require_details: true
         }
       }]
     });
@@ -355,12 +356,16 @@ const checkIncorrectScorePredictions = async (userId, startDate, endDate) => {
             [Op.in]: matchdays
           }
         },
-        attributes: ['score_full_time_home', 'score_full_time_away']
+        attributes: ['score_full_time_home', 'score_full_time_away'],
+        required: true
       }]
     });
 
     for (const bet of bets) {
       const match = bet.MatchId;
+      if (!match.require_details) {
+        return false;
+      }
       if (bet.home_score === match.score_full_time_home && bet.away_score === match.score_full_time_away) {
         return false;
       }
@@ -544,10 +549,19 @@ const checkCorrectMatchFullPrediction = async (userId, startOfWeek, endOfWeek) =
 
     const match = bet.MatchId;
 
+    if (!bet.MatchId.require_details) {
+      return false;
+    }
     const correctWinner = bet.winner_id === match.winner_id;
     const correctScore = bet.home_score === match.score_full_time_home && bet.away_score === match.score_full_time_away;
-    const correctScorer = match.scorers && match.scorers.some(scorer => scorer.player_id === bet.player_goal);
-
+    let scorers = match.scorers;
+    if (typeof scorers === 'string') {
+      scorers = JSON.parse(scorers);
+    }
+    let correctScorer = false;
+    if (Array.isArray(scorers)) {
+      correctScorer = scorers.some(scorer => scorer.player_id === bet.player_goal);
+    }
     return correctWinner && correctScore && correctScorer;
   } catch (error) {
     console.error('Erreur lors de la vérification des critères Triple Menace:', error);
@@ -585,9 +599,20 @@ const checkIncorrectMatchFullPrediction = async (userId, startOfWeek, endOfWeek)
 
     const match = bet.MatchId;
 
+    if (!bet.MatchId.require_details) {
+      return false;
+    }
+
     const incorrectWinner = bet.winner_id !== match.winner_id;
     const incorrectScore = bet.home_score !== match.score_full_time_home || bet.away_score !== match.score_full_time_away;
-    const incorrectScorer = !match.scorers || !match.scorers.some(scorer => scorer.player_id === bet.player_goal);
+    let scorers = match.scorers;
+    if (typeof scorers === 'string') {
+      scorers = JSON.parse(scorers);
+    }
+    let incorrectScorer = false;
+    if (Array.isArray(scorers)) {
+      incorrectScorer = scorers.some(scorer => scorer.player_id !== bet.player_goal)
+    }
 
     return incorrectWinner && incorrectScore && incorrectScorer;
   } catch (error) {

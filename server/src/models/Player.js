@@ -1,3 +1,10 @@
+/**
+ * Defines the Player model for the sequelize ORM.
+ *
+ * @param {Object} sequelize - The sequelize instance.
+ * @param {Object} DataTypes - The data types provided by sequelize.
+ * @return {Object} The defined Player model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Player = sequelize.define('Player', {
     name: {
@@ -31,6 +38,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Player model with the Team and Bet models.
+   *
+   * @param {Object} models - The models object containing the Team and Bet models.
+   * @return {void}
+   */
   Player.associate = (models) => {
     Player.belongsToMany(models.Team, { through: models.PlayerTeamCompetition, foreignKey: 'player_id' });
     Player.hasMany(models.Bet, { foreignKey: 'player_goal' })

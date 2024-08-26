@@ -2,7 +2,7 @@ import React from 'react'
 
 const WeekPoints = () => {
   return (
-    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="w-full" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g>
         <path
           d="M45.1175 100.145L39.9999 80.7502L21.7133 72.5083L33.6841 56.4053L28.7233 36.9652L48.7793 36.2933L60.8846 20.3022L73.9081 35.5542L93.9641 35.0391L90.1679 54.7367L103.068 70.1007L85.2967 79.4064L81.3325 99.0704L62.9675 90.9853L45.1175 100.145Z"

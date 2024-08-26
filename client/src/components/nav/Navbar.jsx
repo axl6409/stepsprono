@@ -136,11 +136,11 @@ const UserMenu = () => {
       <nav className="px-2 py-2 relative z-[10]">
         {user && (
           <button
-            className="relative z-[80] w-[60px] h-[60px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            className="relative z-[80] w-[70px] h-[70px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
             onClick={toggleMenu}
           >
             <span
-              className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-0.5 py-0.5 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              className="relative z-[2] w-full h-full flex flex-col justify-center bg-no-repeat bg-cover bg-center border-2 border-black text-black px-1 py-1 rounded-full text-center shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <img src={menuBallon} alt=""/>
             </span>
           </button>

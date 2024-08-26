@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Creates the 'user_roles' table in the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('user_roles', {
       id: {
@@ -48,6 +55,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Drops the 'user_roles' table from the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('user_roles');
   }

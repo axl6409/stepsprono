@@ -50,7 +50,7 @@ const AdminRewards = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiUrl}/api/rewards/${id}`, {
+      await axios.delete(`${apiUrl}/api/admin/rewards/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
@@ -69,7 +69,7 @@ const AdminRewards = () => {
 
   const toggleActive = async (reward) => {
     try {
-      await axios.put(`${apiUrl}/api/rewards/${reward.id}/activate`, { active: !reward.active }, {
+      await axios.put(`${apiUrl}/api/admin/rewards/${reward.id}/activate`, { active: !reward.active }, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }

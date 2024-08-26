@@ -17,10 +17,11 @@ async function updatePlayersForAllTeamsSequentially(teams) {
 }
 
 const runCronJob = () => {
-  // Every day at 23:59
+  // Every Sunday at 23:59
   cron.schedule('59 23 * * 0', () => {
     eventBus.emit('weekEnded');
   })
+  logger.info("[CRON]=> 59 23 * * 0 => eventBus.emit('weekEnded')");
 
   // Every monday at 0:00
   cron.schedule('0 0 * * 1', async () => {
@@ -28,6 +29,7 @@ const runCronJob = () => {
       logger.info('Week Matches Fetched : Success');
     })
   })
+  logger.info('[CRON]=> 0 0 * * 1 => fetchWeekMatches()');
 
   // Every day at 23:30
   cron.schedule('30 23 * * *', async () => {
@@ -39,6 +41,7 @@ const runCronJob = () => {
       logger.info('Program bets closed : Success');
     })
   })
+  logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
 
   // Mercato Winters at 23:00 on day-of-month 5 in February.
   cron.schedule('00 23 5 2 *', async () => {

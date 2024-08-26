@@ -70,14 +70,14 @@ const RewardForm = ({ reward, onClose }) => {
 
         try {
             if (reward) {
-                await axios.put(`${apiUrl}/api/rewards/${reward.id}`, data, {
+                await axios.put(`${apiUrl}/api/admin/rewards/${reward.id}`, data, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
                     }
                 });
             } else {
-                await axios.post(`${apiUrl}/api/rewards`, data, {
+                await axios.post(`${apiUrl}/api/admin/rewards`, data, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'

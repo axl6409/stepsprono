@@ -1,3 +1,10 @@
+/**
+ * Defines the Competition model for Sequelize and sets up associations with other models.
+ *
+ * @param {Object} sequelize - The Sequelize instance.
+ * @param {Object} DataTypes - The Sequelize DataTypes object.
+ * @return {Object} The Competition model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Competition = sequelize.define('Competition', {
     name: {
@@ -39,6 +46,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Competition model with the Area and Season models.
+   *
+   * @param {Object} models - The Sequelize models object.
+   * @return {void}
+   */
   Competition.associate = (models) => {
     Competition.belongsTo(models.Area, { foreignKey: 'area_id', as: 'Area' });
     Competition.hasMany(models.Season, { foreignKey: 'competition_id' });

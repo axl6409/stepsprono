@@ -56,13 +56,13 @@ const UserSettings = (props) => {
     <div className="inline-block w-full h-auto pt-20">
       <Link
         to="/dashboard"
-        className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+        className="swiper-button-prev fade-in w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
         <img src={arrowIcon} alt="Icône flèche" />
       </Link>
       <Link
         to="/reglement"
-        className="w-fit block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        className="w-fit fade-in block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
       >
         <span
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-medium transition -translate-y-1.5 group-hover:-translate-y-0"
@@ -77,7 +77,8 @@ const UserSettings = (props) => {
             <img
               src={user.img ? (apiUrl + "/uploads/users/" + user.id + "/" + user.img) : defaultUserImage}
               alt="Profil"
-              className="w-40 h-40 mx-auto border-2 border-black rounded-full object-cover"/>            <div className="file-upload-wrapper relative inline-block mt-4 cursor-pointer group">
+              className="w-40 h-40 mx-auto border-2 border-black fade-in rounded-full object-cover"/>
+            <div className="file-upload-wrapper fade-in relative inline-block mt-4 cursor-pointer group">
               <input className="absolute top-0 left-0 w-full h-full opacity-0 z-[2] cursor-pointer" onChange={handleImageChange}  type="file" accept="image/*"/>
               <label className="custom-file-upload relative inline-block cursor-pointer font-roboto text-grey-medium underline text-base px-4 py-1 rounded text-center transition-all duration-300 ease-in-out group-hover:bg-grey-medium group-hover:text-white">
                 Changer la photo
@@ -87,7 +88,7 @@ const UserSettings = (props) => {
         </div>
         <div className="links mt-4 pb-20">
           <ul className="px-8">
-            <li className="my-3">
+            <li className="my-3 fade-in delay-150">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/username">
@@ -96,7 +97,7 @@ const UserSettings = (props) => {
                 <img className="absolute z-[2] right-1 -top-8" src={iconUserBg} alt=""/>
               </Link>
             </li>
-            <li className="my-3">
+            <li className="my-3 fade-in delay-300">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/email">
@@ -105,7 +106,7 @@ const UserSettings = (props) => {
                 <img className="absolute z-[2] right-1 -top-8" src={iconMailBg} alt=""/>
               </Link>
             </li>
-            <li className="my-3">
+            <li className="my-3 fade-in delay-500">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/password">
@@ -114,7 +115,7 @@ const UserSettings = (props) => {
                 <img className="absolute z-[2] right-1 -top-8" src={iconMdpBg} alt=""/>
               </Link>
             </li>
-            <li className="my-3">
+            <li className="my-3 fade-in delay-700">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to="/settings/team">
@@ -123,7 +124,7 @@ const UserSettings = (props) => {
                 <img className="absolute z-[2] right-1 -top-1" src={iconHeartBg} alt=""/>
               </Link>
             </li>
-            <li className="my-3">
+            <li className="my-3 fade-in delay-1000">
               <Link
                 className="block relative overflow-hidden bg-white w-full h-auto py-4 border border-black rounded-xl px-4 shadow-flat-black transition-shadow duration-300 ease-out hover:shadow-none"
                 to={`/rewards/${user.id}`}>

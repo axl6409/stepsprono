@@ -65,14 +65,14 @@ const UserRanking = ({ users, token }) => {
 
       {/* Podium: Top 3 users */}
       <div className="relative z-[10] flex flex-row justify-center items-end mb-8">
-        <img className="absolute z-[1] -top-20 left-4 w-20" src={crownOpacity} alt=""/>
-        <img className="absolute z-[1] -top-20 right-0 w-20" src={purpleStar} alt=""/>
-        <img className="absolute z-[1] -top-20 right-12 w-4" src={blackStar} alt=""/>
-        <img className="absolute z-[1] bottom-20 -left-2" src={flowerYellowOpacity} alt=""/>
-        <img className="absolute z-[1] bottom-16 left-4 w-4" src={blackStar} alt=""/>
-        <img className="absolute z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
-        <img className="absolute z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
-        <div className="relative z-[3] order-1 -mr-6">
+        <img className="absolute fade-in z-[1] -top-20 left-4 w-20" src={crownOpacity} alt=""/>
+        <img className="absolute fade-in z-[1] -top-20 right-0 w-20" src={purpleStar} alt=""/>
+        <img className="absolute fade-in z-[1] -top-20 right-12 w-4" src={blackStar} alt=""/>
+        <img className="absolute fade-in z-[1] bottom-20 -left-2" src={flowerYellowOpacity} alt=""/>
+        <img className="absolute fade-in z-[1] bottom-16 left-4 w-4" src={blackStar} alt=""/>
+        <img className="absolute fade-in z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
+        <img className="absolute fade-in z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
+        <div className="relative fade-in  z-[3] order-1 -mr-6">
           <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative z-[20] group flex flex-col items-center">
             <p className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
             <div
@@ -85,22 +85,22 @@ const UserRanking = ({ users, token }) => {
         </div>
         <div className="relative z-[4]  order-2 transform -translate-y-4">
           <Link to={`/dashboard/${updatedUsers[0]?.id}`} className="relative z-[20] group flex flex-col items-center">
-            <img className="absolute -top-20 w-20" src={crown} alt=""/>
-            <img className="absolute z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
+            <img className="absolute fade-in delay-500 -top-20 w-20" src={crown} alt=""/>
+            <img className="absolute fade-in delay-150 z-[1] -top-2 -left-4 w-20" src={purpleFlower} alt=""/>
             <div
               className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
-              <img className="absolute z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
-              <div className="overflow-hidden flex items-center rounded-full justify-center w-full h-full">
+              <img className="absolute fade-in delay-700 z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
+              <div className="overflow-hidden fade-in flex items-center rounded-full justify-center w-full h-full">
                 <img className="z-[2]" src={updatedUsers[0]?.img ? `${apiUrl}/uploads/users/${updatedUsers[0].id}/${updatedUsers[0].img}` : defaultUserImage} alt={updatedUsers[0]?.username}/>
               </div>
-              <img className="absolute z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
+              <img className="absolute fade-in delay-300 z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
             </div>
             <p className="font-bold">{updatedUsers[0]?.username}</p>
             <p>{updatedUsers[0]?.points}</p>
           </Link>
         </div>
         <div className="relative z-[2] order-3 -ml-6">
-          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
           <p
             className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
           <div
@@ -118,21 +118,21 @@ const UserRanking = ({ users, token }) => {
           className="relative z-[2] bg-white rounded-md p-1 flex flex-row justify-center w-full h-full border border-black">
           <button
             onClick={() => handleFilterChange('week')}
-            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'week' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'week' ? 'bg-green-medium' : ''}`}
           >
             semaine
           </button>
           <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
           <button
             onClick={() => handleFilterChange('month')}
-            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'month' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'month' ? 'bg-green-medium' : ''}`}
           >
             mois
           </button>
           <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
           <button
             onClick={() => handleFilterChange('season')}
-            className={`w-1/3 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'season' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${filter === 'season' ? 'bg-green-medium' : ''}`}
           >
             saison
           </button>
@@ -140,10 +140,11 @@ const UserRanking = ({ users, token }) => {
       </div>
 
       <div className="relative z-[20] flex flex-col justify-start">
-        <ul className="px-6">
+        <ul className="px-4">
           {updatedUsers.slice(3).map((user, index) => (
             <li
-              className="relative rounded-xl mt-2 mb-4 border-2 border-black bg-white h-fit shadow-flat-black"
+              style={{animationDelay: `${index * 0.05}s`}}
+              className="relative fade-in rounded-xl mt-2 mb-4 border-2 border-black bg-white h-fit shadow-flat-black"
               key={user.id}>
               <div
                 className="absolute z-[25] bg-white -top-3 -left-4 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust">
@@ -152,8 +153,8 @@ const UserRanking = ({ users, token }) => {
               </div>
               <Link to={`/dashboard/${user.id}`}
                     className="relative z-[20] group flex flex-row overflow-hidden rounded-xl justify-between">
-                <div className="w-14 bg-grey-light rounded-r-xl">
-                  <img className="object-center object-cover"
+                <div className="h-[60px] w-[70px] bg-grey-light rounded-r-md">
+                  <img className="object-center w-full h-full object-cover"
                        src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
                        alt={user.username}/>
                 </div>

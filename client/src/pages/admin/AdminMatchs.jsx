@@ -33,13 +33,12 @@ const AdminMatchs = () => {
 
   const fetchMatchs = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/admin/matchs/no-results`, {
+      const response = await axios.get(`${apiUrl}/api/admin/matchs/no-checked`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
       });
       const uncheckedMatchs = response.data.data;
-      console.log(uncheckedMatchs)
       const sortedMatchs = uncheckedMatchs.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
       setMatchs(sortedMatchs);
     } catch (error) {
@@ -86,6 +85,7 @@ const AdminMatchs = () => {
       });
       if (response.status === 200) {
         handleSuccess('Détails requis mis à jour !', 1500);
+        fetchMatchs();
       } else {
         handleError('Erreur lors de la mise à jour des détails requis', 1500);
       }

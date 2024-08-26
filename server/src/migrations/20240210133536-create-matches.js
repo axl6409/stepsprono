@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Creates the 'matchs' table in the database with the specified columns.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('matchs', { // Assurez-vous que le nom de la table correspond à votre convention
       id: {
@@ -36,6 +43,12 @@ module.exports = {
         allowNull: false,
         field: 'stage'
       },
+      require_details: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: 'require_details'
+      },
       home_team_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -58,7 +71,7 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       },
-      league_id: {
+      competition_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -154,6 +167,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Drops the 'matchs' table.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface.
+   * @param {Object} Sequelize - The Sequelize library.
+   * @return {Promise<void>} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('matchs');
   }

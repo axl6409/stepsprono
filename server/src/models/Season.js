@@ -1,3 +1,10 @@
+/**
+ * Drops the 'seasons' table from the database.
+ *
+ * @param {Object} queryInterface - The Sequelize query interface.
+ * @param {Object} Sequelize - The Sequelize library.
+ * @return {Promise<void>} A promise that resolves when the table is dropped.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Season = sequelize.define('Season', {
     year: {
@@ -36,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     current: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: true,
       field: 'current'
     },
     current_matchday: {
@@ -54,11 +61,13 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       field: 'created_at'
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       field: 'updated_at'
     }
   }, {
@@ -66,6 +75,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the Season model with the Competition and Team models.
+   *
+   * @param {Object} models - The Sequelize models object.
+   * @return {void} This function does not return anything.
+   */
   Season.associate = (models) => {
     Season.belongsTo(models.Competition, { foreignKey: 'competition_id' });
     Season.belongsTo(models.Team, { foreignKey: 'winner_id' });

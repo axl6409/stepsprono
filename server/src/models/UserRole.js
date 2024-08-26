@@ -1,3 +1,10 @@
+/**
+ * Defines the UserRole model for the sequelize ORM.
+ *
+ * @param {Object} sequelize - The sequelize instance.
+ * @param {Object} DataTypes - The data types provided by sequelize.
+ * @return {Object} The UserRole model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const UserRole = sequelize.define('UserRole', {
     user_id: {

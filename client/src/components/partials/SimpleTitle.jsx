@@ -4,7 +4,7 @@ const SimpleTitle = ({ title }) => {
 
   return (
     <h1
-      className={`font-black mb-12 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>
+      className={`font-black fade-in mb-12 text-center relative w-fit mx-auto text-xl5 leading-[50px]`}>
       <span className="relative z-[3]">{title}</span>
       <span
         className="absolute left-0 top-0 right-0 text-purple-soft z-[2] translate-x-0.5 translate-y-0.5">{title}</span>

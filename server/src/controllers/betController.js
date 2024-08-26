@@ -1,12 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
 const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
+/* PUBLIC - GET */
 router.get('/bets', authenticateJWT, async (req, res) => {
   try {
     const defaultLimit = 10;
@@ -60,6 +61,8 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     }
   }
 })
+
+/* PUBLIC - POST */
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
   let seasonId = req.query.seasonId;
@@ -83,21 +86,9 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.delete('/admin/bets/delete/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 
-    const betId = req.params.id;
-    const bet = await Match.findByPk(betId);
-    if (!bet) return res.status(404).json({ error: 'Équipe non trouvée' });
-
-    await bet.destroy();
-    res.status(200).json({ message: 'Équipe supprimée avec succès' });
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
-  }
-})
-router.get('/admin/bets/unchecked', authenticateJWT, async (req, res) => {
+/* ADMIN - GET */
+router.get('/admin/bets/unchecked', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -109,7 +100,9 @@ router.get('/admin/bets/unchecked', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
+
+/* ADMIN - PATCH */
+router.patch('/admin/bets/checkup/all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const betIds = req.body;
     logger.info(betIds)
@@ -123,7 +116,7 @@ router.patch('/admin/bets/checkup/all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/admin/bets/checkup/:betId', authenticateJWT, async (req, res) => {
+router.patch('/admin/bets/checkup/:betId', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const betId = req.params.betId;
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -136,7 +129,7 @@ router.patch('/admin/bets/checkup/:betId', authenticateJWT, async (req, res) => 
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
+router.patch('/bet/update/:betId', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const betId = req.params.betId;
     const bet = await updateBet({ id: betId, ...req.body });
@@ -145,4 +138,21 @@ router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 })
+
+/* ADMIN - DELETE */
+router.delete('/admin/bets/delete/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+
+    const betId = req.params.id;
+    const bet = await Match.findByPk(betId);
+    if (!bet) return res.status(404).json({ error: 'Équipe non trouvée' });
+
+    await bet.destroy();
+    res.status(200).json({ message: 'Équipe supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l’équipe', message: error.message });
+  }
+})
+
 module.exports = router

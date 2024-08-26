@@ -2,6 +2,20 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+
+  /**
+   * Creates a new table named 'areas' in the database. The table has the following columns:
+   * - id: an auto-incrementing integer primary key
+   * - name: a non-null string
+   * - code: a non-null unique string
+   * - flag: a nullable string
+   * - created_at: a non-null date with a default value of the current timestamp
+   * - updated_at: a non-null date with a default value of the current timestamp
+   *
+   * @param {Object} queryInterface - The Sequelize query interface for interacting with the database
+   * @param {Object} Sequelize - The Sequelize object for defining data types
+   * @return {Promise} A promise that resolves when the table is created
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('areas', {
       id: {
@@ -42,6 +56,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Drops the 'areas' table from the database.
+   *
+   * @param {Object} queryInterface - The Sequelize query interface for interacting with the database.
+   * @param {Object} Sequelize - The Sequelize object for defining data types.
+   * @return {Promise} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('areas');
   }

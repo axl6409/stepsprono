@@ -2,20 +2,26 @@ const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const {Match} = require("../models");
+const {Match, Team} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
 const { sequelize } = require('../models');
-const {schedule} = require("node-schedule");
+const {schedule, scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
-const {getWeekDateRange, getMonthDateRange} = require("./appService");
+const {getWeekDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
 let cronTasks = [];
 
+/**
+ * Updates the specified matches and their corresponding predictions records.
+ *
+ * @param {number|number[]} matchIds - The ID(s) of the match(es) to update.
+ * @return {Promise<void>} - A promise that resolves when all matches have been updated.
+ */
 const updateMatchAndPredictions = async (matchIds) => {
   if (!Array.isArray(matchIds)) {
     matchIds = [matchIds];
@@ -25,10 +31,21 @@ const updateMatchAndPredictions = async (matchIds) => {
   }
 }
 
+/**
+ * Returns the array of cron tasks.
+ *
+ * @return {Array} The array of cron tasks.
+ */
 function getMatchsCronTasks() {
   return cronTasks
 }
 
+/**
+ * Updates a single match and its corresponding prediction records.
+ *
+ * @param {number} matchId - The ID of the match to update.
+ * @return {Promise<void>} - A promise that resolves when the match has been updated.
+ */
 async function updateSingleMatch(matchId) {
   try {
     const options = {
@@ -115,7 +132,7 @@ async function updateSingleMatch(matchId) {
       const updatedMatchData = await Match.findByPk(matchId);
       if (updatedMatchData.status === 'FT') {
         await checkBetByMatchId(matchId);
-        console.log('Pronostics vérifiés pour le match:', matchId);
+        logger.info(`Pronostics vérifiés pour le match: ${matchId}`);
         eventBus.emit('matchUpdated', { matchId });
       } else {
         console.log("Le statut du match n'est pas encore 'FT', vérification des pronostics annulée.");
@@ -128,6 +145,12 @@ async function updateSingleMatch(matchId) {
   }
 }
 
+/**
+ * Updates the matches for a given competition.
+ *
+ * @param {number|null} competitionId - The ID of the competition. If not provided, the function logs a message and returns.
+ * @return {Promise<void>} A promise that resolves when the matches have been updated.
+ */
 async function updateMatches(competitionId = null) {
   try {
     if (!competitionId) {
@@ -195,6 +218,11 @@ async function updateMatches(competitionId = null) {
   }
 }
 
+/**
+ * Fetches all matches within the current week and schedules jobs to update match and predictions data.
+ *
+ * @return {Promise<void>} A promise that resolves when all matches have been fetched and jobs have been scheduled.
+ */
 async function fetchWeekMatches() {
   try {
     // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
@@ -212,23 +240,45 @@ async function fetchWeekMatches() {
           [Op.lte]: endDate
         },
         status: {
-          [Op.not]: ['PST', 'FT']
+          [Op.not]: ['PST', 'FT', 'TBD']
         }
       }
     });
+
     matches.forEach(match => {
-      const matchTime = new Date(match.utc_date)
-      const updateTime = new Date(matchTime.getTime() + (2 * 60 + 10) * 60000)
-      schedule.scheduleJob(updateTime, () => {
-        updateMatchAndPredictions(match.id)
-        createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true)
-      })
+      const matchTime = new Date(match.utc_date);
+      const initialDelay = 110 * 60000;
+      const initialTime = new Date(matchTime.getTime() + initialDelay);
+
+      scheduleJob(initialTime, function executeJob() {
+        updateMatchAndPredictions(match.id);
+        createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
+        logger.info(`[CRON]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+
+        const recurringJob = setInterval(() => {
+          updateMatchAndPredictions(match.id);
+          createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
+          logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+        }, 2 * 60000);
+
+        setTimeout(() => {
+          clearInterval(recurringJob);
+          logger.info(`[CRON RECURRING STOPPED]=> Stopped recurring updates for match ID: ${match.id}`);
+        }, 15 * 60000);
+      });
+
+      logger.info(`[CRON SETUP]=> Initial job set for match ID: ${match.id}, Start at: ${initialTime}`);
     });
   } catch (error) {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);
   }
 }
 
+/**
+ * Updates the require_details field for the last matches of each competition, season, and matchday.
+ *
+ * @return {Promise<void>} A promise that resolves when the updates are complete.
+ */
 async function updateRequireDetails() {
   try {
     const lastMatches = await sequelize.query(
@@ -271,11 +321,48 @@ async function updateRequireDetails() {
   }
 }
 
+/**
+ * Fetches matchs that have not been checked within the current week.
+ *
+ * @return {Promise<{data: Array<Match>, count: number}>} An object containing an array of matchs and the count of matchs.
+ * @throws {Error} If there is an error fetching the matchs.
+ */
+const fetchMatchsNoChecked = async () => {
+  try {
+    const week = getWeekDateRange();
+    const startOfWeek = week.start;
+    const endOfWeek = week.end;
+    console.log('Date Range:', startOfWeek, endOfWeek);
+    const matchs = await Match.findAndCountAll({
+      where: {
+        utc_date: {
+          [Op.gte]: startOfWeek,
+          [Op.lte]: endOfWeek
+        },
+        status: {
+          [Op.in]: ['NS', 'PST', 'HT', '1H', '2H', 'ET', 'BT', 'P']
+        }
+      },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' }
+      ]
+    });
+    return {
+      data: matchs.rows,
+      count: matchs.count
+    };
+  } catch (error) {
+    console.log('Erreur lors de la création des matchs:', error);
+  }
+}
+
 module.exports = {
   updateMatchAndPredictions,
   updateSingleMatch,
   updateMatches,
   getMatchsCronTasks,
   fetchWeekMatches,
-  updateRequireDetails
+  updateRequireDetails,
+  fetchMatchsNoChecked
 };

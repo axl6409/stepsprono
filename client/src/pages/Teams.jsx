@@ -56,15 +56,15 @@ const Teams = () => {
     <div className="inline-block w-full h-auto pt-20">
       <Link
         to="/dashboard"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
+        className="swiper-button-prev fade-in w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
       >
         <img src={arrowIcon} alt="Icône flèche"/>
       </Link>
       <SimpleTitle title={"Classement Ligue 1"} />
       <div className="relative py-8 px-2 pt-0">
         <ul className="flex flex-col justify-start">
-          {teams.map(team => (
-            <li className="flex flex-row justify-between" key={team.team_id}>
+          {teams.map((team, index) => (
+            <li style={{animationDelay: `${index * 0.15}s`}} className="flex fadde-in flex-row justify-between" key={index}>
               <div className="my-6 flex flex-col relative border-2 border-black rounded-xl bg-white shadow-flat-black w-full">
                 <div className="absolute z-[10] -top-5 left-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust" style={{backgroundColor: teamColors[team.team_id]}}>
                   <p

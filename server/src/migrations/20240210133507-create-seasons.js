@@ -2,6 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  /**
+   * Creates the 'seasons' table in the database.
+   *
+   * @param {Object} queryInterface - The query interface object provided by Sequelize.
+   * @param {Object} Sequelize - The Sequelize object.
+   * @return {Promise<void>} A promise that resolves when the table is created.
+   */
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('seasons', {
       id: {
@@ -58,6 +65,12 @@ module.exports = {
         defaultValue: 0,
         field: 'current_matchday'
       },
+      scheduled: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: 'scheduled'
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -73,6 +86,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Asynchronously drops the 'seasons' table from the database.
+   *
+   * @param {Object} queryInterface - The query interface object provided by Sequelize.
+   * @param {Object} Sequelize - The Sequelize object.
+   * @return {Promise<void>} A promise that resolves when the table is dropped.
+   */
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('seasons');
   }

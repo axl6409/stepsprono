@@ -1,3 +1,10 @@
+/**
+ * Defines the 'Bet' model in the database.
+ *
+ * @param {Object} sequelize - The Sequelize object for interacting with the database.
+ * @param {Object} DataTypes - The Sequelize object for defining the table schema.
+ * @return {Object} The defined 'Bet' model.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Bet = sequelize.define('Bet', {
     user_id: {
@@ -89,6 +96,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  /**
+   * Associates the 'Bet' model with other models in the database.
+   *
+   * @param {Object} models - The models object containing the models to associate with.
+   * @return {void} This function does not return anything.
+   */
   Bet.associate = (models) => {
     Bet.belongsTo(models.User, { foreignKey: 'user_id' });
     Bet.belongsTo(models.Competition, { foreignKey: 'competition_id' });
