@@ -61,6 +61,15 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
     }
   }
 })
+router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
+  try {
+    const betId = req.params.betId;
+    const bet = await updateBet({ id: betId, ...req.body });
+    res.status(200).json(bet);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+})
 
 /* PUBLIC - POST */
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
@@ -127,15 +136,6 @@ router.patch('/admin/bets/checkup/:betId', authenticateJWT, checkAdmin, async (r
     res.status(200).json({ message: bet.message, datas: bet.updatedBets });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
-  }
-})
-router.patch('/bet/update/:betId', authenticateJWT, checkAdmin, async (req, res) => {
-  try {
-    const betId = req.params.betId;
-    const bet = await updateBet({ id: betId, ...req.body });
-    res.status(200).json(bet);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
   }
 })
 
