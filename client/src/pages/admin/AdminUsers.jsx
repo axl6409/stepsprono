@@ -2,13 +2,12 @@ import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretLeft, faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
-import {Link, useLocation} from "react-router-dom";
+import {Link} from "react-router-dom";
 import ConfirmationModal from "../../components/partials/modals/ConfirmationModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import Loader from "../../components/partials/Loader.jsx";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
@@ -83,12 +82,7 @@ const AdminUsers = () => {
       <Loader />
     ) : (
       <div className="inline-block w-full h-auto py-12">
-        <Link
-          to="/admin"
-          className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-        >
-          <img src={arrowIcon} alt="Icône flèche"/>
-        </Link>
+        <BackButton />
         <SimpleTitle title={"Gestion des utilisateurs"} />
         <div className="py-3.5 mb-20 px-6 pr-0 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
           <ul className="flex flex-col justify-start">

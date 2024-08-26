@@ -15,6 +15,7 @@ import iconTrophees from "../../assets/components/user/icon-trophees-color-borde
 import iconTropheesBg from "../../assets/components/user/icon-trophees-star-opacity.png";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import AnimatedTitle from "../../components/partials/AnimatedTitle.jsx";
+import DashboardButton from "../../components/nav/DashboardButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserSettings = (props) => {
@@ -54,12 +55,7 @@ const UserSettings = (props) => {
 
   return (
     <div className="inline-block w-full h-auto pt-20">
-      <Link
-        to="/dashboard"
-        className="swiper-button-prev fade-in w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche" />
-      </Link>
+      <DashboardButton />
       <Link
         to="/reglement"
         className="w-fit fade-in block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"

@@ -1,10 +1,9 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
-import {Link} from "react-router-dom";
 import axios from "axios";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
 import downloadIcon from "../../assets/icons/download-icon.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminCompetitions = () => {
@@ -104,12 +103,7 @@ const AdminCompetitions = () => {
           <p>Chargement...</p>
       ) : (
           <div className="inline-block w-full h-auto py-20">
-            <Link
-                to="/admin"
-                className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-            >
-              <img src={arrowIcon} alt="Icône flèche"/>
-            </Link>
+            <BackButton />
             <SimpleTitle title={"Données des competitions"} />
             <div className="mt-4 px-8 flex flex-row flex-wrap justify-evenly items-center">
               {competitions.length > 0 ? (

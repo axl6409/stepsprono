@@ -173,7 +173,11 @@ const checkUserCorrectPredictions = async (userId, startDate, endDate) => {
       where: {
         matchday: {
           [Op.in]: matchdays
-        }
+        },
+        utc_date: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        },
       },
       include: [{
         model: Bet,
@@ -184,15 +188,14 @@ const checkUserCorrectPredictions = async (userId, startDate, endDate) => {
       }]
     });
 
-    // Vérifier si toutes les prédictions sont correctes
     for (const match of matchs) {
-      const bet = match.MatchId[0]; // Chaque utilisateur devrait avoir un seul pari par match
+      const bet = match.MatchId[0];
       if (bet && bet.winner_id !== match.winner_id) {
-        return false; // Si une seule prédiction est incorrecte, retourner false
+        return false;
       }
     }
 
-    return true; // Toutes les prédictions sont correctes
+    return true;
   } catch (error) {
     console.error('Erreur lors de la vérification des prédictions de l\'utilisateur:', error);
     throw error;
@@ -216,7 +219,11 @@ const checkUserIncorrectPredictions = async (userId, startDate, endDate) => {
       where: {
         matchday: {
           [Op.in]: matchdays
-        }
+        },
+        utc_date: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        },
       },
       include: [{
         model: Bet,

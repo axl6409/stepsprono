@@ -1,18 +1,15 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {useCookies} from "react-cookie";
 import {UserContext} from "../../contexts/UserContext.jsx";
-import {Link, Navigate, useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretLeft, faCloudArrowDown, faFlagCheckered, faPen} from "@fortawesome/free-solid-svg-icons";
+import {faFlagCheckered} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import moment from "moment";
-import ConfirmationModal from "../../components/partials/modals/ConfirmationModal.jsx";
-import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
-import arrowIcon from "../../assets/icons/arrow-left.svg";
 import WeekMatchesToggle from "../../components/admin/WeekMatchesToggle.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminMatchs = () => {
@@ -113,12 +110,7 @@ const AdminMatchs = () => {
   return (
     <div className="inline-block w-full h-auto py-20">
       <AlertModal message={alertMessage} type={alertType}/>
-      <Link
-        to="/admin"
-        className="swiper-button-prev w-[30px] h-[30px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
-      >
-        <img src={arrowIcon} alt="Icône flèche"/>
-      </Link>
+      <BackButton />
       <SimpleTitle title={"Données des matchs"} />
       <button
         onClick={() => handleProgramMatchsTasks()}
