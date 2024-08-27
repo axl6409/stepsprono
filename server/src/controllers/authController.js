@@ -101,6 +101,10 @@ router.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe incorrect' });
 
+    user.last_connect = new Date();
+    await user.save();
+    logger.info(`User ${user.username} updated at: ${user.updatedAt }, last connect: ${user.last_connect}`);
+
     const token = jwt.sign({ userId: user.id, role: userRole }, secretKey, { expiresIn: '365d' });
 
     res.set('Cache-Control', 'no-store');
@@ -113,7 +117,6 @@ router.post('/login', async (req, res) => {
       cookieConfig.secure = false;
     }
     res.cookie('token', token, cookieConfig);
-
     res.status(200).json({ message: 'Connexion réussie', user, token });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });

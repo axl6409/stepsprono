@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
     } else if (fileType === 'team') {
       relativeDest = path.join('src/assets/uploads/teams', (req.params.id || new Date().getTime()).toString());
     } else if (fileType === 'trophy') {
-      relativeDest = path.join('src/assets/uploads/trophies');
+      relativeDest = path.join('src/assets/uploads/trophies', (req.params.id || new Date().getTime()).toString());
     } else {
       relativeDest = path.join('src/assets/uploads/others');
     }
@@ -51,10 +51,10 @@ const storage = multer.diskStorage({
       cb(null, 'img_' + userId.toString() + '_' + randomString + path.extname(file.originalname));
     } else if (fileType === 'trophy') {
       const trophyId = req.params.id || new Date().getTime();
-      cb(null, 'trophy_' + trophyId.toString() + '_' + randomString + path.extname(file.originalname));
+      cb(null, 'trophy_' + trophyId.toString() + path.extname(file.originalname));
     } else if (fileType === 'team') {
       const teamId = req.params.id || new Date().getTime();
-      cb(null, 'team_' + teamId.toString() + '_' + randomString + path.extname(file.originalname));
+      cb(null, 'team_' + teamId.toString() + path.extname(file.originalname));
     } else {
       cb(null, randomString + path.extname(file.originalname));
     }

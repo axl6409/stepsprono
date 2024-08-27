@@ -39,7 +39,7 @@ const AuthenticatedApp = () => {
   const location = useLocation();
 
   if (isAuthenticated && location.pathname === '/') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard/" replace />;
   }
 
   const pageVariants = {

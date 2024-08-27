@@ -117,7 +117,7 @@ const Rewards = () => {
           {sortedRewards.map((reward) => {
             const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);
             const userHasReward = !!userReward;
-            const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.image}` : hiddenTrophy;
+            const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.id}/${reward.image}` : hiddenTrophy;
             const rewardCount = userHasReward ? userReward.count : " ";
             return (
               <div
@@ -126,11 +126,20 @@ const Rewards = () => {
                 onClick={() => handleRewardClick(reward)}
               >
                 <div className="relative">
-                  <img
-                    src={imageUrl}
-                    alt={reward.name}
-                    className="w-full h-[150px] object-cover rounded-lg"
-                  />
+                  <div className={`relative trophy-container ${userHasReward ? 'trophy-active' : 'jello-anim'}`}>
+                    <div className="trophy-inner">
+                      <img
+                        src={imageUrl}
+                        alt="Front"
+                        className="trophy-front w-full h-[150px] object-cover rounded-lg"
+                        />
+                      <img
+                        src={hiddenTrophy}
+                        alt="Back"
+                        className="trophy-back w-full h-[150px] object-cover rounded-lg"
+                        />
+                    </div>
+                  </div>
                   {userHasReward && (
                     <div
                       className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">

@@ -117,7 +117,7 @@ const AdminRewards = () => {
               </p>
               <p className="w-full font-roboto text-base text-center font-medium">{reward.name}</p>
               <div className="flex flex-col max-w-[50%]">
-                <img src={`${apiUrl}/uploads/trophies/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
+                <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
               </div>
               <div className="flex flex-row justify-end max-w-[50%]">
                 <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
