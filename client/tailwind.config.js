@@ -78,6 +78,11 @@ export default {
         'flat-lime-adjust': '2px 2px 0 rgba(0,255,0,1);',
         'inner-black-light': 'inset 0px 5px 5px 5px rgba(0,0,0,0.5);',
       },
+      backgroundImage: {
+        'bronze-gradient': 'linear-gradient(40deg, rgba(103, 50, 8, 1) 0%, rgba(219, 108, 43, 1) 17%, rgba(243, 150, 93, 1) 36%, rgba(161, 79, 26, 1) 57%, rgba(103, 50, 9, 1) 79%, rgba(175, 86, 30, 1) 100%)',
+        'sliver-gradient': 'linear-gradient(40deg, rgba(71,71,71,1) 0%, rgba(216,215,214,1) 17%, rgba(239,237,228,1) 36%, rgba(125,125,124,1) 57%, rgba(80,80,80,1) 79%, rgba(211,211,210,1) 100%)',
+        'golden-gradient': 'linear-gradient(40deg, rgba(163,122,28,1) 0%, rgba(211,168,77,1) 17%, rgba(255,236,148,1) 36%, rgba(211,168,77,1) 57%, rgba(163,122,28,1) 79%, rgba(255,215,124,1) 100%)',
+      },
       translate: {
         '-5': '-1.25rem',
       }

@@ -45,10 +45,6 @@ body {
     text-shadow: 1px 2px 0 rgba(0,0,0,1);
 }
 
-.inset-shadow {
-    box-shadow: inset 0px 5px 5px 5px rgba(0,0,0,0.5);
-}
-
 /* Swiper */
 .swiper-wrapper {
     margin-bottom: 2rem;
@@ -236,6 +232,75 @@ body {
     }
 }
 
+/* Rewards */
+.trophy-container {
+    width: 150px;
+    height: 150px;
+    perspective: 1000px;
+}
+.trophy-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 3s cubic-bezier(0.68,-0.55,0.27,1.55);
+}
+.trophy-front,
+.trophy-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+}
+.trophy-back {
+    transform: rotateY(180deg);
+}
+.trophy-active:hover .trophy-inner {
+    animation: spin 1.5s cubic-bezier(0.18, -0.35, 0.37, 1.15) forwards;
+}
+@keyframes spin {
+    0% {
+        transform: rotateY(0deg);
+    }
+    100% {
+        transform: rotateY(1440deg);
+    }
+}
+
+.trophy-bronze-rank-text {
+    font-size: 18px;
+    background: linear-gradient(40deg, rgba(103, 50, 8, 1) 0%, rgba(219, 108, 43, 1) 17%, rgba(243, 150, 93, 1) 36%, rgba(161, 79, 26, 1) 57%, rgba(103, 50, 9, 1) 79%, rgba(175, 86, 30, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+.trophy-bronze-gradient {
+    background: linear-gradient(40deg, rgba(103, 50, 8, 1) 0%, rgba(219, 108, 43, 1) 17%, rgba(243, 150, 93, 1) 36%, rgba(161, 79, 26, 1) 57%, rgba(103, 50, 9, 1) 79%, rgba(175, 86, 30, 1) 100%);
+}
+
+.trophy-silver-rank-text {
+    font-size: 18px;
+    background: linear-gradient(40deg, rgba(71,71,71,1) 0%, rgba(216,215,214,1) 17%, rgba(239,237,228,1) 36%, rgba(125,125,124,1) 57%, rgba(80,80,80,1) 79%, rgba(211,211,210,1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+.trophy-silver-gradient {
+    background: linear-gradient(40deg, rgba(71,71,71,1) 0%, rgba(216,215,214,1) 17%, rgba(239,237,228,1) 36%, rgba(125,125,124,1) 57%, rgba(80,80,80,1) 79%, rgba(211,211,210,1) 100%);
+}
+
+.trophy-golden-rank-text {
+    font-size: 18px;
+    background: linear-gradient(40deg, rgba(163,122,28,1) 0%, rgba(211,168,77,1) 17%, rgba(255,236,148,1) 36%, rgba(211,168,77,1) 57%, rgba(163,122,28,1) 79%, rgba(255,215,124,1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+.trophy-golden-gradient {
+    background: linear-gradient(40deg, rgba(163,122,28,1) 0%, rgba(211,168,77,1) 17%, rgba(255,236,148,1) 36%, rgba(211,168,77,1) 57%, rgba(163,122,28,1) 79%, rgba(255,215,124,1) 100%);
+}
+
 /* For Animations */
 .title-animated {
     font-size: 50px;
@@ -296,5 +361,76 @@ body {
     }
     100% {
         opacity: 1;
+    }
+}
+
+/**
+ * ----------------------------------------
+ * animation jello-horizontal
+ * ----------------------------------------
+ */
+.jello-anim:hover .trophy-inner {
+    -webkit-animation: jello-horizontal 0.4s both;
+    animation: jello-horizontal 0.4s both;
+}
+
+@-webkit-keyframes jello-horizontal {
+    0% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+    30% {
+        -webkit-transform: scale3d(1.15, 0.85, 1);
+        transform: scale3d(1.15, 0.85, 1);
+    }
+    40% {
+        -webkit-transform: scale3d(0.85, 1.15, 1);
+        transform: scale3d(0.85, 1.15, 1);
+    }
+    50% {
+        -webkit-transform: scale3d(1.15, 0.85, 1);
+        transform: scale3d(1.15, 0.85, 1);
+    }
+    65% {
+        -webkit-transform: scale3d(0.95, 1.05, 1);
+        transform: scale3d(0.95, 1.05, 1);
+    }
+    75% {
+        -webkit-transform: scale3d(1.05, 0.95, 1);
+        transform: scale3d(1.05, 0.95, 1);
+    }
+    100% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+}
+@keyframes jello-horizontal {
+    0% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+    30% {
+        -webkit-transform: scale3d(1.15, 0.85, 1);
+        transform: scale3d(1.15, 0.85, 1);
+    }
+    40% {
+        -webkit-transform: scale3d(0.85, 1.15, 1);
+        transform: scale3d(0.85, 1.15, 1);
+    }
+    50% {
+        -webkit-transform: scale3d(1.15, 0.85, 1);
+        transform: scale3d(1.15, 0.85, 1);
+    }
+    65% {
+        -webkit-transform: scale3d(0.95, 1.05, 1);
+        transform: scale3d(0.95, 1.05, 1);
+    }
+    75% {
+        -webkit-transform: scale3d(1.05, 0.95, 1);
+        transform: scale3d(1.05, 0.95, 1);
+    }
+    100% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
     }
 }

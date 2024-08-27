@@ -57,6 +57,11 @@ module.exports = {
         allowNull: true,
         field: 'status'
       },
+      last_connect: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        field: 'last_connect'
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
