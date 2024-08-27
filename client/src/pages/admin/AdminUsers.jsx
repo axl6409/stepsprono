@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
+import moment from 'moment';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
@@ -78,6 +79,10 @@ const AdminUsers = () => {
     return requests.find(request => request.id === userId);
   };
 
+  const formatDate = (dateString) => {
+    return moment(dateString).format('DD/MM/YYYY - HH:mm:ss');
+  };
+
   return (
     isLoading ? (
       <Loader />
@@ -90,15 +95,23 @@ const AdminUsers = () => {
             {users.map(user => {
                 const request = getRequestForUser(user.id)
                 return (
-                  <li className="flex flex-row justify-between" key={user.id}>
-                    <p
-                      className="username relative font-title font-bold text-xl leading-6 my-auto border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">
-                      {user.username}
-                      {request && (
-                        <span
-                          className="absolute z-[3] -right-1.5 -top-2.5 translate-x-1 translate-y-1 w-4 h-4 border-2 border-black rounded-full bg-flat-red transition duration-300 group-hover:translate-y-2.5"></span>
-                      )}
-                    </p>
+                  <li className="relative my-2 flex flex-row justify-between" key={user.id}>
+                    <div>
+                      <p
+                        className="font-rubik w-[25px] h-[25px] rounded-full text-center text-xs text-black font-medium leading-6 border border-black bg-white shadow-flat-black-adjust absolute z-[5] -left-4 -top-2">{user.id}</p>
+                      <p
+                        className="username w-fit relative font-title font-bold text-xl leading-6 my-auto border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">
+                        {user.username}
+                        {request && (
+                          <span
+                            className="absolute z-[3] -right-1.5 -top-2.5 translate-x-1 translate-y-1 w-4 h-4 border-2 border-black rounded-full bg-flat-red transition duration-300 group-hover:translate-y-2.5"></span>
+                        )}
+                      </p>
+                      <p
+                        className="font-rubik mt-2 text-center text-xxs px-2 text-black font-medium leading-6 border border-black bg-white shadow-flat-black-adjust">
+                        Dernière connexion : {formatDate(user.last_connect)}
+                      </p>
+                    </div>
                     <div className="flex flex-row">
                       <Link to={`/admin/users/edit/${user.id}`}
                             className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
