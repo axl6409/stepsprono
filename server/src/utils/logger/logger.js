@@ -1,30 +1,31 @@
 const { createLogger, format, transports } = require('winston');
+const path = require('path');
 require('winston-daily-rotate-file');
 
 const errorTransport = new transports.DailyRotateFile({
-  filename: 'logs/error-%DATE%.log',
+  filename: path.join('logs', 'error-%DATE%.log'),
   datePattern: 'YYYY-MM-DD',
   level: 'error',
   zippedArchive: true,
-  maxSize: '20m',
-  maxFiles: '14d'
+  maxSize: '10m',
+  maxFiles: '4d'
 });
 
 const warningTransport = new transports.DailyRotateFile({
-  filename: 'logs/warning-%DATE%.log',
+  filename: path.join('logs', 'warning-%DATE%.log'),
   datePattern: 'YYYY-MM-DD',
   level: 'warning',
   zippedArchive: true,
-  maxSize: '20m',
-  maxFiles: '14d'
+  maxSize: '10m',
+  maxFiles: '4d'
 });
 
 const infoTransport = new transports.DailyRotateFile({
-  filename: 'logs/combined-%DATE%.log',
+  filename: path.join('logs', 'combined-%DATE%.log'),
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
-  maxSize: '20m',
-  maxFiles: '14d'
+  maxSize: '10m',
+  maxFiles: '4d'
 });
 
 const logger = createLogger({

@@ -5,16 +5,16 @@ const {Match, Team} = require("../models");
 const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked} = require("../services/matchService");
+const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
 /* PUBLIC - GET */
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
   try {
-    const match = await Match.findByPk(req.params.matchId);
+    const match = await getMatchAndBets(req.params.matchId);
     res.json(match);
   } catch (error) {
-    res.status(500).json({ message: 'Route protégée', error: error.message })
+    res.status(500).json({ message: 'Erreur lors de la récupération du match et des pronostics', error: error.message })
   }
 })
 router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {

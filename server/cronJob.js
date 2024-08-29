@@ -28,6 +28,9 @@ const runCronJob = () => {
     await fetchWeekMatches().then(r => {
       logger.info('Week Matches Fetched : Success');
     })
+    await scheduleBetsCloseEvent().then(r => {
+      logger.info('Program bets closed : Success');
+    })
   })
   logger.info('[CRON]=> 0 0 * * 1 => fetchWeekMatches()');
 
@@ -37,9 +40,6 @@ const runCronJob = () => {
     if (tomorrow.date() === 1) {
       eventBus.emit('monthEnded');
     }
-    await scheduleBetsCloseEvent().then(r => {
-      logger.info('Program bets closed : Success');
-    })
   })
   logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
 

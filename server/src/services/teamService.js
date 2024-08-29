@@ -384,6 +384,14 @@ async function updateTeamStats(competitionId = null, teamID = null, seasonYear =
   }
 }
 
+/**
+ * Updates the statistics for all teams in a competition for a given season.
+ *
+ * @param {number|null} competitionId - The ID of the competition. If not provided, defaults to 61.
+ * @param {string|null} seasonYear - The year of the season. If not provided, defaults to the current season year for the given competition.
+ * @return {Promise<void>} - A promise that resolves when the statistics are successfully updated for all teams.
+ * @throws {Error} - If there is an error retrieving the current season ID or season year, or if there is an error updating the statistics for the teams.
+ */
 async function updateAllTeamsStats(competitionId = null, seasonYear = null) {
   try {
     if (!competitionId) {
