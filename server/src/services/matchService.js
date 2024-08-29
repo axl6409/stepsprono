@@ -2,7 +2,7 @@ const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const {Match, Team} = require("../models");
+const {Match, Team, Bet, User, Player} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
@@ -15,6 +15,41 @@ const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
 let cronTasks = [];
+
+const getMatchAndBets = async (matchId) => {
+  try {
+    const matchWithBets = await Match.findOne({
+      where: { id: matchId },
+      include: [
+        { model: Team, as: 'HomeTeam' },
+        { model: Team, as: 'AwayTeam' },
+        {
+          model: Bet,
+          as: 'MatchId',
+          include: [
+            { model: User, as: 'User', attributes: ['username'] },
+            { model: Player, as: 'PlayerGoal' }
+          ],
+          required: false
+        },
+      ]
+    });
+
+    if (!matchWithBets) {
+      throw new Error('Match non trouvé');
+    }
+
+    return {
+      match: matchWithBets,
+      homeTeam: matchWithBets.HomeTeam,
+      awayTeam: matchWithBets.AwayTeam,
+      bets: matchWithBets.Bets
+    };
+  } catch (error) {
+    logger.info('Erreur lors de la récupération des matchs et des pronostics : ', error);
+    throw error;
+  }
+};
 
 /**
  * Updates the specified matches and their corresponding predictions records.
@@ -360,6 +395,7 @@ const fetchMatchsNoChecked = async () => {
 }
 
 module.exports = {
+  getMatchAndBets,
   updateMatchAndPredictions,
   updateSingleMatch,
   updateMatches,

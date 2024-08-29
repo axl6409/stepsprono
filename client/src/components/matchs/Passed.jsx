@@ -12,9 +12,11 @@ import correctIcon from "../../assets/icons/correct-icon.svg";
 import incorrectIcon from "../../assets/icons/incorrect-icon.svg";
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
+import {useNavigate} from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Passed = ({ token, user }) => {
+  const navigate = useNavigate()
   const [matchs, setMatchs] = useState([]);
   const [matchdays, setMatchdays] = useState([]);
   const [seasons, setSeasons] = useState([]);
@@ -36,10 +38,12 @@ const Passed = ({ token, user }) => {
         });
         const seasonsData = response.data;
         setSeasons(seasonsData);
-        if (seasonsData.length > 0) {
-          const currentSeason = seasonsData.find(season => season.current) || seasonsData[0];
-          setSelectedSeason(currentSeason);
-        }
+        const storedSeasonId = localStorage.getItem('selectedSeasonId');
+        const currentSeason = storedSeasonId
+          ? seasonsData.find(season => season.id === parseInt(storedSeasonId, 10))
+          : seasonsData.find(season => season.current) || seasonsData[0];
+
+        setSelectedSeason(currentSeason);
       } catch (error) {
         console.error('Erreur lors de la récupération des saisons :', error);
         setError(error);
@@ -60,8 +64,14 @@ const Passed = ({ token, user }) => {
           const days = response.data;
           setMatchdays(days);
           setIsLoading(false);
+          const storedMatchdayIndex = localStorage.getItem('selectedMatchdayIndex');
+          const initialMatchdayIndex = storedMatchdayIndex ? parseInt(storedMatchdayIndex, 10) : 0;
+
           if (days.length > 0) {
-            setSelectedMatchday(days[0])
+            setSelectedMatchday(days[initialMatchdayIndex]);
+            if (swiperRef.current) {
+              swiperRef.current.swiper.slideTo(initialMatchdayIndex, 0);
+            }
           }
         } catch (error) {
           console.error('Erreur lors de la récupération des journées :', error);
@@ -121,10 +131,12 @@ const Passed = ({ token, user }) => {
     const selectedSeasonId = event.target.value;
     const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
     setSelectedSeason(season);
+    localStorage.setItem('selectedSeasonId', selectedSeasonId);
   };
 
   const handleMatchdayChange = (day) => {
     setSelectedMatchday(day);
+    localStorage.setItem('selectedMatchdayIndex', day);
   };
 
   const isBetPlaced = (matchId) => {
@@ -164,6 +176,7 @@ const Passed = ({ token, user }) => {
     const day = matchdays[swiper.activeIndex];
     if (selectedMatchday !== day) {
       handleMatchdayChange(day);
+      localStorage.setItem('selectedMatchdayIndex', swiper.activeIndex);
       updateSlideClasses();
     }
   };
@@ -173,8 +186,13 @@ const Passed = ({ token, user }) => {
     if (swiperRef.current) {
       const swiper = swiperRef.current.swiper;
       swiper.slideTo(index);
+      localStorage.setItem('selectedMatchdayIndex', index);
       updateSlideClasses();
     }
+  };
+
+  const handleMatchClick = (matchId) => {
+    navigate(`/matchs/history/${matchId}`);
   };
 
   if (error) return <p>Erreur : {error.message}</p>;
@@ -196,7 +214,7 @@ const Passed = ({ token, user }) => {
           onSlideChange={handleSlideChange}
           onInit={updateSlideClasses}
           modules={[Navigation]}
-          className="historySwiper flex flex-col justify-start px-8 relative mb-12 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl"
+          className="historySwiper flex flex-col justify-start px-8 relative mb-12 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl after:content-[''] after:absolute"
           ref={swiperRef}
         >
           {matchdays.map((day, index) => (
@@ -206,7 +224,7 @@ const Passed = ({ token, user }) => {
               className={`transition-all duration-300 ease-in ${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
             >
               <div className="text-center font-roboto py-4 cursor-pointer">
-                <span className="block no-correct text-xl">{day}</span>
+                <span className="block text-xl">{day}</span>
               </div>
             </SwiperSlide>
           ))}
@@ -245,8 +263,11 @@ const Passed = ({ token, user }) => {
               return (
                 <div
                   style={{animationDelay: `${index * 0.15}s`}}
-                  className="flex fade-in flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
-                  key={match.id} data-match-id={match.id}>
+                  className="flex cursor-pointer fade-in flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
+                  key={match.id}
+                  data-match-id={match.id}
+                  onClick={() => handleMatchClick(match.id)}
+                >
                   <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
                     <div className="w-full flex flex-row justify-center">
                       <p

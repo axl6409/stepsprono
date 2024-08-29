@@ -30,6 +30,7 @@ import {AppContext} from "./contexts/AppContext.jsx";
 import AdminSeasons from "./pages/admin/AdminSeasons.jsx";
 import AdminEvents from "./pages/admin/AdminEvents.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import MatchDetails from "./pages/MatchDetails.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -39,7 +40,7 @@ const AuthenticatedApp = () => {
   const location = useLocation();
 
   if (isAuthenticated && location.pathname === '/') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard/" replace />;
   }
 
   const pageVariants = {
@@ -116,6 +117,7 @@ const AuthenticatedApp = () => {
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
             <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
+            <Route path="/matchs/history/:matchId" element={<ProtectedRoute component={MatchDetails} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />

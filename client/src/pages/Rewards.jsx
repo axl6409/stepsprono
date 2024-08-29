@@ -110,46 +110,46 @@ const Rewards = () => {
   };
 
   return (
-    <div className="text-center relative py-10 flex flex-col justify-center">
-      <BackButton />
-      <AnimatedTitle title={"Trophées"} animate={false}/>
-      <div className="flex flex-row flex-wrap justify-around px-4">
-        {sortedRewards.map((reward) => {
-          const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);
-          const userHasReward = !!userReward;
-          const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.id}/${reward.image}` : hiddenTrophy;
-          const rewardCount = userHasReward ? userReward.count : " ";
-          return (
-            <div
-              key={reward.id}
-              className="w-[150px] flex flex-col items-center my-4 cursor-pointer"
-              onClick={() => handleRewardClick(reward)}
-            >
-              <div className="relative">
-                <div className={`relative trophy-container ${userHasReward ? 'trophy-active' : 'jello-anim'}`}>
-                  <div className="trophy-inner">
-                    <img
-                      src={imageUrl}
-                      alt="Front"
-                      className="trophy-front w-full h-[150px] object-cover rounded-lg"
-                    />
-                    <img
-                      src={hiddenTrophy}
-                      alt="Back"
-                      className="trophy-back w-full h-[150px] object-cover rounded-lg"
-                    />
+      <div className="text-center relative py-10 flex flex-col justify-center">
+        <BackButton />
+        <AnimatedTitle title={"Trophées"} animate={false}/>
+        <div className="flex flex-row flex-wrap justify-around px-4">
+          {sortedRewards.map((reward) => {
+            const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);
+            const userHasReward = !!userReward;
+            const imageUrl = userHasReward ? `${apiUrl}/uploads/trophies/${reward.id}/${reward.image}` : hiddenTrophy;
+            const rewardCount = userHasReward ? userReward.count : " ";
+            return (
+              <div
+                key={reward.id}
+                className="w-[150px] flex flex-col items-center my-4 cursor-pointer"
+                onClick={() => handleRewardClick(reward)}
+              >
+                <div className="relative">
+                  <div className={`relative trophy-container ${userHasReward ? 'trophy-active' : 'jello-anim'}`}>
+                    <div className="trophy-inner">
+                      <img
+                        src={imageUrl}
+                        alt="Front"
+                        className="trophy-front w-full h-[150px] object-cover rounded-lg"
+                        />
+                      <img
+                        src={hiddenTrophy}
+                        alt="Back"
+                        className="trophy-back w-full h-[150px] object-cover rounded-lg"
+                        />
+                    </div>
                   </div>
-                </div>
-                {userHasReward && (
-                  <div
-                    className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
-                    <p
-                      className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
-                  </div>
-                )}
-                {userHasReward && user.role === 'admin' && (
-                  <>
-                    <button
+                  {userHasReward && (
+                    <div
+                      className="absolute bg-black z-[10] -top-0 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center">
+                      <p
+                        className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{rewardCount}x</p>
+                    </div>
+                  )}
+                  {userHasReward && user.role === 'admin' && (
+                    <>
+                      <button
                       className="absolute z-[25] bg-white bottom-2 right-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                       onClick={(e) => {
                         e.stopPropagation();

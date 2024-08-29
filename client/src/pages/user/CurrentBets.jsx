@@ -12,9 +12,6 @@ import {Link} from "react-router-dom";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
-import WeekPoints from "../../components/svg/WeekPoints.jsx";
-import MonthPoints from "../../components/svg/MonthPoints.jsx";
-import SeasonPoints from "../../components/svg/SeasonPoints.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -239,9 +236,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           bets && bets.length > 0 && (
             <div
               className="relative my-[25%]">
-              <h2
-                translate="no"
-                className={`no-correct relative fade-in mb-12 w-fit mx-auto`}>
+              <h2 className={`relative fade-in mb-12 w-fit mx-auto`}>
                   <span
                     className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
                 <span
@@ -266,20 +261,30 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                   </div>
                   <div className={`flex flex-col mt-2 `}>
                     {bets.map((bet, index) => (
+                      <Link
+                        key={index}
+                        to={{
+                          pathname: `/matchs/history/${bet.MatchId.id}`,
+                          state: { canDisplayBets }
+                        }}
+                      >
                       <div key={index}
-                         className="relative bg-white min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
-                          <p translate="no" className="absolute no-correct z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20" style={{color: betColors[bet.id]}}>{index + 1}</p>
+                           className="relative bg-white min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
+                        <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20"
+                           style={{color: betColors[bet.id]}}>{index + 1}</p>
                         <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                           <div className="flex flex-col justify-evenly h-full">
                             {bet.home_score !== null && bet.away_score !== null ? (
                               <>
                                 <div className="relative flex flex-row justify-center items-center">
-                                  <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
+                                  <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]"
+                                       src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                        alt={bet.MatchId.HomeTeam.name}/>
                                   <img className="h-[40px] relative z-[3]"
                                        src={vsIcon}
                                        alt=""/>
-                                  <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                  <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]"
+                                       src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                        alt={bet.MatchId.AwayTeam.name}/>
                                 </div>
                               </>
@@ -308,10 +313,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                               </div>
                             ) : (
                               bet.winner_id === bet.MatchId.HomeTeam.id ? (
-                                <img className="h-auto w-8" src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
+                                <img className="h-auto w-8"
+                                     src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                      alt={bet.MatchId.HomeTeam.name}/>
                               ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
-                                <img className="h-auto w-8" src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                <img className="h-auto w-8"
+                                     src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                      alt={bet.MatchId.AwayTeam.name}/>
                               ) : (
                                 <img className="h-auto w-8" src={nullSymbol}
@@ -322,7 +329,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         </div>
                         <div className="w-[20%] flex flex-col justify-center items-center py-2">
                           {bet.points === null ? (
-                            <img className="block mx-auto rotate-clock-animation" style={{ animationDelay: `${index * 0.2}s` }} src={clockIcon} alt="icone d'horloge"/>
+                            <img className="block mx-auto rotate-clock-animation"
+                                 style={{animationDelay: `${index * 0.2}s`}} src={clockIcon} alt="icone d'horloge"/>
                           ) : bet.points === 0 ? (
                             <p translate="no" className="font-rubik no-correct font-medium text-xl">{bet.points}</p>
                           ) : (
@@ -330,6 +338,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                           )}
                         </div>
                       </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
