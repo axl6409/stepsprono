@@ -146,38 +146,16 @@ const AdminRewards = () => {
         {isUserSelectionModalOpen && (
           <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal} />
         )}
-        {showForm && (
-          <div className="fixed z-[10] inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-8 rounded shadow-lg">
-              <RewardForm reward={selectedReward} onClose={() => {
-                setShowForm(false);
-                fetchRewards();
-              }}/>
-            </div>
-            <div className="flex flex-row justify-end max-w-[50%]">
-              <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
-                <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
-              </button>
-              <button onClick={() => handleDelete(reward.id)}
-                      className="bg-red-500 text-white px-2 py-1 mx-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
-                <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>
-              </button>
-              <button onClick={() => openUserSelectionModal(reward)}
-                      className="bg-green-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
-                <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
-              </button>
-              <button
-                className={`w-[70px] h-[27px] flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
-                onClick={() => toggleActive(reward.id)}
-              >
-                <div
-                  className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-6' : ''}`}
-                ></div>
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {showForm && (
+        <div className="fixed z-[10] inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <RewardForm reward={selectedReward} onClose={() => {
+              setShowForm(false);
+              fetchRewards();
+            }}/>
+          </div>
+        </div>
+      )}
       {isUserSelectionModalOpen && (
         <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal} />
       )}
