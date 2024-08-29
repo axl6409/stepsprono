@@ -1,7 +1,6 @@
 ![MrR0b0t](https://github.com/axl6409/acffs/blob/master/ascii-mrr0b0t.png)
 
 # Steps Prono
-![Steps Prono Logo](https://github.com/axl6409/stepsprono/blob/master/steps-prono-logo.png)
 ## Application de Pronostics Sportifs entre Steps
 
 ![npm](https://img.shields.io/badge/npm-v7.24.0-green)
