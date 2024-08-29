@@ -109,7 +109,7 @@ const Dashboard = ({ userId: propUserId }) => {
   if (!profileUser) {
     return (
       <div className="text-center flex flex-col justify-center">
-        <span className="text-3xl font-black uppercase">Utilisateur introuvable</span>
+        <span className="text-3xl no-correct font-black uppercase">Utilisateur introuvable</span>
       </div>
     );
   }
@@ -129,7 +129,7 @@ const Dashboard = ({ userId: propUserId }) => {
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span
-              className="absolute top-1.5 left-0 right-0 z-[4]">
+              className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTeam} alt=""/>
             </span>
               <span
@@ -153,7 +153,7 @@ const Dashboard = ({ userId: propUserId }) => {
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5">
             <span
-              className="absolute top-1.5 left-0 right-0 z-[4]">
+              className="absolute top-1.5 no-correct left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTeam} alt=""/>
             </span>
               <span
@@ -176,7 +176,7 @@ const Dashboard = ({ userId: propUserId }) => {
           <div
             className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span
-              className="absolute top-1.5 left-0 right-0 z-[4]">
+              className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
               <img className="mx-auto" src={curveTextTrophies} alt=""/>
             </span>
             <span
@@ -199,31 +199,34 @@ const Dashboard = ({ userId: propUserId }) => {
         ) : (
           <>
             <div className="px-4 fade-in">
-              <p className="font-rubik font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
+              <p translate="no" className="font-rubik no-correct font-base">Vous ête un <span className="font-bold">Visiteur</span></p>
               {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
                 <button
+                  translate="no"
                   className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"
                   onClick={handleRequestRoleUpdate}
                 >
-                  <span className="font-roboto text-black text-sm font-medium leading-4">Devenir un Steps</span>
+                  <span className="font-roboto no-correct text-black text-sm font-medium leading-4">Devenir un Steps</span>
                   <span className="w-fit mx-auto relative">
                       <FontAwesomeIcon icon={faPersonPraying} className="text-black h-6 w-6 mx-auto ml-4 relative z-[2]"/>
                   </span>
                 </button>
               ) : user.status === 'refused' ? (
                 <p
+                  translate="no"
                   className="font-sans w-fit relative bg-red-medium flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust"
                 >
-                  <span className="font-roboto text-white text-xs leading-4">Demande <br/> refusée</span>
+                  <span className="font-roboto no-correct text-white text-xs leading-4">Demande <br/> refusée</span>
                   <span className="w-fit mx-auto relative">
                     <FontAwesomeIcon icon={faTriangleExclamation} className="text-white h-6 w-6 mx-auto ml-4 relative z-[2]"/>
                   </span>
                 </p>
               ) : user.status === 'pending' ? (
                 <p
+                  translate="no"
                   className="font-sans w-fit relative bg-yellow-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust"
                 >
-                  <span className="font-roboto text-black text-xs leading-4">Demande <br/> en attente</span>
+                  <span className="font-roboto no-correct text-black text-xs leading-4">Demande <br/> en attente</span>
                   <span className="w-fit mx-auto my-auto relative">
                     <FontAwesomeIcon icon={faHourglassHalf} className="text-black h-4 w-4 mx-auto ml-4 relative z-[2]"/>
                   </span>

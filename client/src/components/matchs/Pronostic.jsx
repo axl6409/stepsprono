@@ -218,17 +218,19 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                 </div>
               </div>
               <div className="w-full text-center flex flex-col justify-center px-6 py-4">
-                <p className="date-hour capitalize font-medium">
-                  <span className="inline-block font-roboto text-sm mr-4">{utcDate.format('DD/MM/YY')}</span>
-                  <span className="inline-block font-roboto text-sm ml-4">{utcDate.format('HH:mm:ss')}</span>
+                <p translate="no" className="date-hour capitalize no-correct font-medium">
+                  <span translate="no" className="inline-block no-correct font-roboto text-sm mr-4">{utcDate.format('DD/MM/YY')}</span>
+                  <span translate="no" className="inline-block no-correct font-roboto text-sm ml-4">{utcDate.format('HH:mm:ss')}</span>
                 </p>
               </div>
               <div className="flex flex-row justify-evenly items-center mb-4">
                 <label
+                  translate="no"
                   className={`label-element w-2/5 h-auto flex flex-col justify-center relative px-2 cursor-pointer ${selectedTeam === match.HomeTeam.id ? 'checked' : ''}`}
                   style={{ '--team-color': homeTeamColor }}
                 >
                   <input
+                    translate="no"
                     type="radio"
                     value={match.HomeTeam.id}
                     className="hidden"
@@ -237,12 +239,13 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   />
                   <div
                     className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-1 px-auto transition-all duration-300 ease-in-out">
-                    <p className="font-roboto text-center leading-4 font-bold text-xs">{match.HomeTeam.name}</p>
+                    <p translate="no" className="font-roboto text-center no-correct leading-4 font-bold text-xs">{match.HomeTeam.name}</p>
                   </div>
                 </label>
                 <label
                   className={`label-element w-1/5 h-auto flex flex-col justify-center relative px-2 cursor-pointer ${selectedTeam === null ? 'checked' : ''}`}>
                   <input
+                    translate="no"
                     type="radio"
                     value=""
                     className="hidden"
@@ -251,7 +254,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   />
                   <div
                     className="py-1.5 h-[45px] w-[45px] mx-auto rounded-full bg-white border border-black transition-all duration-300 ease-in-out">
-                    <p className="font-roboto text-center leading-8 font-medium text-sm">nul</p>
+                    <p translate="no" className="font-roboto text-center no-correct leading-8 font-medium text-sm">nul</p>
                   </div>
                 </label>
                 <label
@@ -259,6 +262,7 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   style={{ '--team-color': awayTeamColor }}
                 >
                   <input
+                    translate="no"
                     type="radio"
                     value={match.AwayTeam.id}
                     className="hidden"
@@ -267,25 +271,27 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   />
                   <div
                     className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-1 px-auto transition-all duration-300 ease-in-out">
-                    <p className="font-roboto text-center leading-4 font-bold text-xs">{match.AwayTeam.name}</p>
+                    <p translate="no" className="font-roboto text-center no-correct leading-4 font-bold text-xs">{match.AwayTeam.name}</p>
                   </div>
                 </label>
               </div>
               {(match.require_details || match.id === lastMatch.id) && (
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
-                    <p className="font-roboto text-sm font-regular">Score</p>
-                    <label className="flex flex-col w-fit max-w-[40px]">
+                    <p className="font-roboto no-correct text-sm font-regular">Score</p>
+                    <label translate="no" className="flex flex-col w-fit max-w-[40px]">
                       <input
-                        className="border border-black text-rubik font-black text-base text-center rounded-xl"
+                        translate="no"
+                        className="border no-correct border-black text-rubik font-black text-base text-center rounded-xl"
                         type="number"
                         min="0"
                         {...register("homeScore")}
                         onChange={(e) => setHomeScore(e.target.value)}
                       />
                     </label>
-                    <label className="flex flex-col w-fit max-w-[40px]">
+                    <label translate="no" className="flex no-correct flex-col w-fit max-w-[40px]">
                       <input
+                        translate="no"
                         className="border border-black text-rubik font-black text-base text-center rounded-xl"
                         type="number"
                         min="0"
@@ -296,15 +302,16 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
                   </div>
                   {players.length > 0 && (
                     <div className="flex flex-row justify-evenly my-2 w-1/2">
-                      <label className="flex flex-col w-11/12 ml-auto text-center">
+                      <label translate="no" className="flex no-correct flex-col w-11/12 ml-auto text-center">
                         <select
+                          translate="no"
                           className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
                           {...register("scorer")}
                           onChange={(e) => setScorer(e.target.value)}
                         >
-                          <option key={1} value={''}>Aucun buteur</option>
+                          <option key={1} value={''} className="no-correct">Aucun buteur</option>
                           {players.map((player, index) => (
-                            <option key={`${player.player_id}-${index}`} value={player.player_id}>
+                            <option key={`${player.player_id}-${index}`} value={player.player_id} className="no-correct">
                               {cleanPlayerName(decodeHtml(player.Player.name))}
                             </option>
                           ))}

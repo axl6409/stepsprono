@@ -152,38 +152,38 @@ const Rewards = () => {
                       <button
                       className="absolute z-[25] bg-white bottom-2 right-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                       onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddReward(reward);
+                        e.stopPropagation();
+                        handleAddReward(reward);
                       }}>
-                        <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">+</span>
-                      </button>
-                      <button
-                        className="absolute z-[25] bg-white bottom-2 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveReward(reward);
-                        }}>
+                      <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">+</span>
+                    </button>
+                    <button
+                      className="absolute z-[25] bg-white bottom-2 left-2 border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveReward(reward);
+                      }}>
                           <span
                             className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">-</span>
-                      </button>
-                    </>
-                  )}
-                </div>
-                {userHasReward && (
-                  <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+                    </button>
+                  </>
                 )}
               </div>
-            );
-          })}
-        </div>
-        {selectedReward && (
-          <RewardPopup
-            reward={selectedReward}
-            apiUrl={apiUrl}
-            onClose={() => setSelectedReward(null)}
-          />
-        )}
+              {userHasReward && (
+                <h2 className="text-base font-roboto font-bold mt-2">{reward.name}</h2>
+              )}
+            </div>
+          );
+        })}
       </div>
+      {selectedReward && (
+        <RewardPopup
+          reward={selectedReward}
+          apiUrl={apiUrl}
+          onClose={() => setSelectedReward(null)}
+        />
+      )}
+    </div>
   );
 };
 

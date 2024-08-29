@@ -240,21 +240,21 @@ const Passed = ({ token, user }) => {
         <div className="mt-4">
           <div className="flex fade-in flex-row justify-end border-t border-b border-black">
             <div className="flex justify-end">
-              <label className="opacity-0 h-0 w-0">Saison :</label>
-              <select value={selectedSeason?.id || ''} onChange={handleSeasonChange}
+              <label translate="no" className="opacity-0 no-correct h-0 w-0">Saison :</label>
+              <select translate="no" value={selectedSeason?.id || ''} onChange={handleSeasonChange}
                       className="border-y-0 border-x border-black px-2 py-1">
                 {seasons.map(season => (
-                  <option key={season.id} value={season.id}>
+                  <option key={season.id} value={season.id} className="no-correct">
                     {season.year}
                   </option>
                 ))}
               </select>
             </div>
             <div className="w-2/3 px-4">
-              <p className="font-roboto text-sm uppercase text-black text-right">Match</p>
+              <p translate="no" className="font-roboto no-correct text-sm uppercase text-black text-right">Match</p>
             </div>
             <div className="w-1/3 px-2 border-l border-dashed border-black">
-              <p className="font-roboto text-sm uppercase text-black">Mon Prono</p>
+              <p translate="no" className="font-roboto no-correct text-sm uppercase text-black">Mon Prono</p>
             </div>
           </div>
           <div className="px-4">
@@ -271,13 +271,15 @@ const Passed = ({ token, user }) => {
                   <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
                     <div className="w-full flex flex-row justify-center">
                       <p
-                        className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
-                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_home}</p>
+                        translate="no"
+                        className="w-2/3 no-correct font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
+                      <p translate="no" className="w-1/3  font-title font-black text-xl leading-5">{match.goals_home}</p>
                     </div>
                     <div className="w-full flex flex-row justify-center">
                       <p
-                        className="w-2/3 font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
-                      <p className="w-1/3 font-title font-black text-xl leading-5">{match.goals_away}</p>
+                        translate="no"
+                        className="w-2/3 no-correct font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
+                      <p translate="no" className="w-1/3 no-correct font-title font-black text-xl leading-5">{match.goals_away}</p>
                     </div>
                   </div>
                   {bet ? (
@@ -286,11 +288,13 @@ const Passed = ({ token, user }) => {
                         <div className="h-full flex flex-col justify-center">
                           <div className="w-full my-1 flex flex-col justify-center">
                             <p
-                              className="font-title font-black text-xl mx-auto leading-5">{bet.home_score}</p>
+                              translate="no"
+                              className="font-title no-correct font-black text-xl mx-auto leading-5">{bet.home_score}</p>
                           </div>
                           <div className="w-full my-1 flex flex-col justify-center">
                             <p
-                              className="font-title font-black text-xl mx-auto leading-5">{bet.away_score}</p>
+                              translate="no"
+                              className="font-title no-correct font-black text-xl mx-auto leading-5">{bet.away_score}</p>
                           </div>
                         </div>
                       ) : (
@@ -312,7 +316,7 @@ const Passed = ({ token, user }) => {
                   ) : (
                     <div
                       className="pronostic-info flex flex-col justify-center w-[32%] border-l border-dashed border-black px-2 py-2">
-                      <p className="name font-sans text-base font-bold capitalize">???</p>
+                      <p translate="no" className="name no-correct font-sans text-base font-bold capitalize">???</p>
                     </div>
                   )}
                   {!isVisitor && (

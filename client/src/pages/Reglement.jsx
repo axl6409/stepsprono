@@ -34,12 +34,13 @@ const Reglement = () => {
   return (
     <div className="reglement-container px-8 py-12">
       <AnimatedTitle title={"RÈGLEMENT INTÉRIEUR"} />
-      <div className="my-12" dangerouslySetInnerHTML={{__html: reglement}}/>
+      <div translate="no" className="my-12" dangerouslySetInnerHTML={{__html: reglement}}/>
       <Link
         to="/dashboard"
         className="w-4/5 block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
       >
         <span
+          translate="no"
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
         >
           J'accepte

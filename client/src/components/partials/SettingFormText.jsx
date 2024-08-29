@@ -50,7 +50,7 @@ const SettingFormText = ({ setting, openModal, token, }) => {
     <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
       <div className="flex flex-col justify-start">
         <div key={setting.id} className="flex flex-col items-center relative">
-          <p className="font-title uppercase text-xl font-black mb-4">{setting.displayName}</p>
+          <p translate="no" className="font-title uppercase text-xl font-black mb-4">{setting.displayName}</p>
           <form action="" className="w-full">
             <Editor
               apiKey={apiKey}
@@ -68,7 +68,7 @@ const SettingFormText = ({ setting, openModal, token, }) => {
               type="submit"
               onClick={handleSubmit}
             >
-              <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-4 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-4 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
                 Enregistrer
               </span>
             </button>
@@ -77,7 +77,7 @@ const SettingFormText = ({ setting, openModal, token, }) => {
             onClick={() => openModal(setting.description)}
             className="absolute mx-auto block top-0 right-0 h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
           >
-            <span className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faCircleQuestion} className="cursor-pointer" />
             </span>
           </button>

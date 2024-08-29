@@ -150,6 +150,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={monthPointsText} alt=""/>
           </div>
           <p
+            translate="no"
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
             {monthPoints}
           </p>
@@ -162,6 +163,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={weekPointsText} alt=""/>
           </div>
           <p
+            translate="no"
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {weekPoints}
           </p>
@@ -174,6 +176,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={seasonPointsText} alt=""/>
           </div>
           <p
+            translate="no"
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-5">
             {seasonPoints}
           </p>
@@ -185,7 +188,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             <div
               className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
               <span
-                className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+                translate="no"
+                className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
               >
                 Aucun match cette semaine
               </span>
@@ -196,7 +200,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
               className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
             >
               <span
-                className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                translate="no"
+                className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
               >
                 {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
               </span>
@@ -205,7 +210,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             <div
               className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
               <span
-                className="relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+                translate="no"
+                className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
               >
                 Pronostics Fermés
               </span>
@@ -215,14 +221,14 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       )}
       {noMatches ? (
         <div className="relative fade-in my-[25%]">
-          <p className="text-center text-lg font-medium mt-4">
+          <p translate="no" className="no-correct text-center text-lg font-medium mt-4">
             Aucun matchs et pronostics pour cette semaine.
           </p>
         </div>
       ) : (
         canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative fade-in my-[25%]">
-            <p className="text-center text-lg font-medium mt-4 px-12">
+            <p translate="no" className="no-correct text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
             </p>
           </div>
@@ -236,20 +242,21 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 <span
                   className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
                 <span
-                  className="relative bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
+                  translate="no"
+                  className="relative no-correct bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronos de la semaine</span>
               </h2>
               <div className="w-full fade-in px-2">
                 <div className="flex flex-col w-full">
                   <div
                     className="relative flex flex-row border border-black rounded-full shadow-flat-black-adjust bg-white">
                     <div scope="col" className="py-0.5 pr-4 w-[50%] border-r-2 border-black border-dotted">
-                      <p className="font-rubik font-medium text-right uppercase text-xxs">Match</p>
+                      <p translate="no" className="font-rubik no-correct font-medium text-right uppercase text-xxs">Match</p>
                     </div>
                     <div scope="col" className="py-0.5 px-1 w-[30%] border-r-2 border-black border-dotted">
-                      <p className="font-rubik font-medium text-xxs uppercase">Prono</p>
+                      <p translate="no" className="font-rubik no-correct font-medium text-xxs uppercase">Prono</p>
                     </div>
                     <div scope="col" className="py-0.5 px-1 w-[20%]">
-                      <p className="font-rubik font-medium text-xxs uppercase">Points</p>
+                      <p translate="no" className="font-rubik no-correct font-medium text-xxs uppercase">Points</p>
                     </div>
                   </div>
                   <div className={`flex flex-col mt-2 `}>
@@ -284,9 +291,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                             ) : (
                               <>
                                 <p
-                                  className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
+                                  translate="no"
+                                  className="font-roboto no-correct text-left uppercase text-xs font-medium">{bet.MatchId.HomeTeam.name}</p>
                                 <p
-                                  className="font-roboto text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
+                                  translate="no"
+                                  className="font-roboto no-correct text-left uppercase text-xs font-medium">{bet.MatchId.AwayTeam.name}</p>
                               </>
                             )}
                           </div>
@@ -295,11 +304,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                           <div className="h-full flex flex-row justify-center items-center">
                             {bet.home_score !== null && bet.away_score !== null ? (
                               <div>
-                                <p className="font-rubik font-medium text-xl">
+                                <p translate="no" className="font-rubik no-correct font-medium text-xl">
                                   {bet.home_score} - {bet.away_score}
                                 </p>
                                 {bet.PlayerGoal !== null && (
-                                  <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
+                                  <p translate="no" className="font-title no-correct text-base font-bold">{bet.PlayerGoal.name}</p>
                                 )}
                               </div>
                             ) : (
@@ -323,9 +332,9 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                             <img className="block mx-auto rotate-clock-animation"
                                  style={{animationDelay: `${index * 0.2}s`}} src={clockIcon} alt="icone d'horloge"/>
                           ) : bet.points === 0 ? (
-                            <p className="font-rubik font-medium text-xl">{bet.points}</p>
+                            <p translate="no" className="font-rubik no-correct font-medium text-xl">{bet.points}</p>
                           ) : (
-                            <p className="font-rubik font-medium text-xl">{bet.points}</p>
+                            <p translate="no" className="font-rubik no-correct font-medium text-xl">{bet.points}</p>
                           )}
                         </div>
                       </div>
