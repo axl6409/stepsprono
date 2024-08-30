@@ -112,10 +112,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         const firstMatchDate = moment(sortedMatchs[0].utc_date);
         const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
         const now = moment();
-        if (now.isBefore(firstMatchDate.clone().hour(12))) {
-          setCanDisplayBets(true);
-        } else if (now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek)) {
+        if (now.isBefore(firstMatchDate.clone().hour(12).minute(0).seconds(0))) {
           setCanDisplayBets(false);
+        } else if (now.isBetween(firstMatchDate.clone().hour(12).minute(0).seconds(0), sundayEndOfWeek)) {
+          setCanDisplayBets(true);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
@@ -194,7 +194,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 Aucun match cette semaine
               </span>
             </div>
-          ) : canDisplayBets ? (
+          ) : !canDisplayBets ? (
             <Link
               to="/matchs"
               className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
@@ -226,7 +226,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
       ) : (
-        canDisplayBets && loggedUser.id !== user.id ? (
+        !canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative fade-in my-[25%]">
             <p translate="no" className="no-correct text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
