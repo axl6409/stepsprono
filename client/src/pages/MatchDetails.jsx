@@ -51,11 +51,13 @@ const MatchDetails = () => {
           });
           setBetColors(newBetColors);
 
-          const scorers = matchDatas.scorers || [];
+          const scorersString = matchDatas.scorers;
+          const scorers = typeof scorersString === 'string' ? JSON.parse(scorersString) : [];
           const homeScorersList = [];
           const awayScorersList = [];
 
           for (const scorer of scorers) {
+
             if (!scorer || !scorer.playerId) {
               continue;
             }
@@ -80,6 +82,7 @@ const MatchDetails = () => {
               console.error(`Erreur lors de la récupération des données du joueur ${scorer.playerId}:`, playerError);
             }
           }
+
           setHomeScorers(homeScorersList);
           setAwayScorers(awayScorersList);
         } else {
