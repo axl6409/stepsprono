@@ -1,12 +1,12 @@
-require('dotenv').config();
 const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const env = process.env.NODE_ENV;
-const isProduction = env === 'production';
-let sequelize;
 
 const getSequelizeInstance = function() {
+  const env = process.env.NODE_ENV;
+  const isProduction = env === 'production';
+
+  let sequelize;
   if (isProduction) {
     sequelize = new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
@@ -31,9 +31,7 @@ const getSequelizeInstance = function() {
       protocol: 'postgres',
       logging: console.log,
       dialectOptions: {
-        ssl: {
-          require: false
-        }
+        ssl: false
       },
       define: {
         underscored: true,
@@ -41,38 +39,7 @@ const getSequelizeInstance = function() {
       }
     });
   }
-  console.log("Sequelize instance created");
   return sequelize;
 }
 
-const config = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    define: {
-      underscored: true,
-      freezeTableName: true,
-    }
-  },
-  production: {
-    use_env_variable: 'DATABASE_URL',
-    dialect: 'postgres',
-    protocol: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-        ca: fs.readFileSync(path.resolve(__dirname, '../ssl/server.crt')).toString(),
-      }
-    },
-    define: {
-      underscored: true,
-      freezeTableName: true,
-    }
-  }
-};
-
-module.exports = {getSequelizeInstance, config};
+module.exports = getSequelizeInstance;
