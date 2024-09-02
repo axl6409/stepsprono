@@ -240,6 +240,31 @@ const getCurrentMatchday = async () => {
   }
 }
 
+const getClosestPastMatchday = async (seasonId) => {
+  try {
+    const match = await Match.findOne({
+      where: {
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: new Date(),
+        },
+      },
+      order: [['utc_date', 'DESC']],
+      attributes: ['matchday'],
+    });
+
+    if (!match) {
+      console.warn('Aucun match trouvé pour la saison donnée.');
+      return null;
+    }
+
+    return match.matchday;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    throw error;
+  }
+};
+
 /**
  * Checks the database for seasons that have ended and have not yet had their end tasks scheduled,
  * and schedules a task to run when the season ends. When the task runs, it emits a 'seasonEnded'
@@ -426,6 +451,7 @@ module.exports = {
   getCurrentWeekMatchdays,
   getCurrentMonthMatchdays,
   getCurrentMatchday,
+  getClosestPastMatchday,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
   scheduleTaskForEndOfMonthMatch,

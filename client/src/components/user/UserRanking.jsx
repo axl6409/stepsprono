@@ -36,9 +36,18 @@ const UserRanking = ({ users, token }) => {
     const fetchUsersWithPoints = async () => {
       const usersWithPoints = await Promise.all(users.map(async (user) => {
         const points = await fetchUserPoints(user.id);
-        return { ...user, points };
+        let lastMatchdayPoints = 0;
+        if (filter !== 'week') {
+          lastMatchdayPoints = await fetchLastMatchdayPoints(user.id);
+        }
+        return { ...user, points, lastMatchdayPoints };
       }));
-      usersWithPoints.sort((a, b) => b.points - a.points);
+      usersWithPoints.sort((a, b) => {
+        if (b.points === a.points) {
+          return b.lastMatchdayPoints - a.lastMatchdayPoints;
+        }
+        return b.points - a.points;
+      });
       setUpdatedUsers(usersWithPoints);
       setIsLoading(false);
     }
@@ -51,6 +60,20 @@ const UserRanking = ({ users, token }) => {
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
   };
+
+  const fetchLastMatchdayPoints = async (userId) => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/user/${userId}/bets/last-matchday`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data.points;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des points de la dernière journée pour l'utilisateur ${userId}`, error);
+      return 0;
+    }
+  }
 
   if (isLoading) {
     return (
@@ -74,13 +97,21 @@ const UserRanking = ({ users, token }) => {
         <img className="absolute fade-in z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
         <div className="relative fade-in  z-[3] order-1 -mr-6">
           <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative z-[20] group flex flex-col items-center">
-            <p translate="no" className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
+            <p translate="no"
+               className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
             <div
               className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-              <img src={updatedUsers[1]?.img ? `${apiUrl}/uploads/users/${updatedUsers[1].id}/${updatedUsers[1].img}` : defaultUserImage} alt={updatedUsers[1]?.username}/>
+              <img
+                src={updatedUsers[1]?.img ? `${apiUrl}/uploads/users/${updatedUsers[1].id}/${updatedUsers[1].img}` : defaultUserImage}
+                alt={updatedUsers[1]?.username}/>
             </div>
-            <p translate="no" className="font-bold">{updatedUsers[1]?.username}</p>
-            <p translate="no" >{updatedUsers[1]?.points}</p>
+            <div className="relative">
+              <p translate="no" className="font-bold">{updatedUsers[1]?.username}</p>
+              <p translate="no"
+                 className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[1]?.points}</p>
+              <p translate="no"
+                 className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[1]?.lastMatchdayPoints}</p>
+            </div>
           </Link>
         </div>
         <div className="relative z-[4]  order-2 transform -translate-y-4">
@@ -91,30 +122,45 @@ const UserRanking = ({ users, token }) => {
               className="w-40 h-40 relative z-[2] rounded-full bg-white mb-2 border-yellow-medium border-2">
               <img className="absolute fade-in delay-700 z-[3] top-1 left-2 w-8" src={blackStar} alt=""/>
               <div className="overflow-hidden fade-in flex items-center rounded-full justify-center w-full h-full">
-                <img className="z-[2]" src={updatedUsers[0]?.img ? `${apiUrl}/uploads/users/${updatedUsers[0].id}/${updatedUsers[0].img}` : defaultUserImage} alt={updatedUsers[0]?.username}/>
+                <img className="z-[2]"
+                     src={updatedUsers[0]?.img ? `${apiUrl}/uploads/users/${updatedUsers[0].id}/${updatedUsers[0].img}` : defaultUserImage}
+                     alt={updatedUsers[0]?.username}/>
               </div>
               <img className="absolute fade-in delay-300 z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
             </div>
-            <p translate="no" className="font-bold">{updatedUsers[0]?.username}</p>
-            <p translate="no" >{updatedUsers[0]?.points}</p>
+            <div className="relative">
+              <p translate="no" className="font-bold">{updatedUsers[0]?.username}</p>
+              <p translate="no" className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[0]?.points}</p>
+              <p translate="no"
+                className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[0]?.lastMatchdayPoints}</p>
+            </div>
           </Link>
         </div>
         <div className="relative z-[2] order-3 -ml-6">
-          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[2]?.id}`}
+                className="relative fade-in z-[20] group flex flex-col items-center">
             <p
               translate="no"
               className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
             <div
               className="w-28 h-28 flex items-center justify-center rounded-full overflow-hidden bg-white mb-2 border-blue-medium border-2">
-              <img src={updatedUsers[2]?.img ? `${apiUrl}/uploads/users/${updatedUsers[2].id}/${updatedUsers[2].img}` : defaultUserImage} alt={updatedUsers[2]?.username}/>
+              <img
+                src={updatedUsers[2]?.img ? `${apiUrl}/uploads/users/${updatedUsers[2].id}/${updatedUsers[2].img}` : defaultUserImage}
+                alt={updatedUsers[2]?.username}/>
             </div>
-            <p translate="no" className="font-bold">{updatedUsers[2]?.username}</p>
-            <p translate="no" >{updatedUsers[2]?.points}</p>
+            <div className="relative">
+              <p translate="no" className="font-bold">{updatedUsers[2]?.username}</p>
+              <p translate="no"
+                 className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[2]?.points}</p>
+              <p translate="no"
+                 className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[2]?.lastMatchdayPoints}</p>
+            </div>
           </Link>
         </div>
       </div>
 
-      <div className="relative z-[30] bg-white w-full mb-4 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
+      <div
+        className="relative z-[30] bg-white w-full mb-4 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
         <div
           className="relative z-[2] bg-white rounded-md p-1 flex flex-row justify-center w-full h-full border border-black">
           <button
@@ -167,8 +213,10 @@ const UserRanking = ({ users, token }) => {
                   <span translate="no" className="inline-block mr-2">{user.username}</span>
                 </p>
                 <div className="w-px h-auto mx-1 border-l-2 border-black border-dotted"></div>
-                <p translate="no" className="font-title text-black text-right uppercase text-l font-bold leading-4 w-1/5 pr-4 my-auto">
-                  <span translate="no" className="inline-block text-black p-2 ">{user.points}</span>
+                <p translate="no"
+                   className="font-title text-black text-right uppercase text-l font-bold leading-4 w-1/5 pr-4 my-auto">
+                  <span translate="no" className="inline-block text-black p-2">{user.points}</span>
+                  <span translate="no" className="font-rubik font-black text-stroke-black-2 text-white text-[15px] inline-block">+{user.lastMatchdayPoints}</span>
                 </p>
               </Link>
             </li>
