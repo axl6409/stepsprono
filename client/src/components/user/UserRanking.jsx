@@ -109,8 +109,8 @@ const UserRanking = ({ users, token }) => {
               <p translate="no" className="font-bold">{updatedUsers[1]?.username}</p>
               <p translate="no"
                  className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[1]?.points}</p>
-              <p translate="no"
-                 className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[1]?.lastMatchdayPoints}</p>
+              {/*<p translate="no"*/}
+              {/*   className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[1]?.lastMatchdayPoints}</p>*/}
             </div>
           </Link>
         </div>
@@ -131,8 +131,8 @@ const UserRanking = ({ users, token }) => {
             <div className="relative">
               <p translate="no" className="font-bold">{updatedUsers[0]?.username}</p>
               <p translate="no" className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[0]?.points}</p>
-              <p translate="no"
-                className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[0]?.lastMatchdayPoints}</p>
+              {/*<p translate="no"*/}
+              {/*  className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[0]?.lastMatchdayPoints}</p>*/}
             </div>
           </Link>
         </div>
@@ -152,8 +152,8 @@ const UserRanking = ({ users, token }) => {
               <p translate="no" className="font-bold">{updatedUsers[2]?.username}</p>
               <p translate="no"
                  className="flex flex-row justify-center items-center font-rubik font-bold">{updatedUsers[2]?.points}</p>
-              <p translate="no"
-                 className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[2]?.lastMatchdayPoints}</p>
+              {/*<p translate="no"*/}
+              {/*   className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[2]?.lastMatchdayPoints}</p>*/}
             </div>
           </Link>
         </div>
@@ -216,7 +216,7 @@ const UserRanking = ({ users, token }) => {
                 <p translate="no"
                    className="font-title text-black text-right uppercase text-l font-bold leading-4 w-1/5 pr-4 my-auto">
                   <span translate="no" className="inline-block text-black p-2">{user.points}</span>
-                  <span translate="no" className="font-rubik font-black text-stroke-black-2 text-white text-[15px] inline-block">+{user.lastMatchdayPoints}</span>
+                  {/*<span translate="no" className="font-rubik font-black text-stroke-black-2 text-white text-[15px] inline-block">+{user.lastMatchdayPoints}</span>*/}
                 </p>
               </Link>
             </li>
