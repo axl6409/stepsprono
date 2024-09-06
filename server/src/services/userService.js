@@ -190,6 +190,7 @@ const checkUserCorrectPredictions = async (userId, startDate, endDate) => {
 
     for (const match of matchs) {
       const bet = match.MatchId[0];
+      logger.info('[checkUserCorrectPredictions | BET RESULT] => userID:', userId, ' | bet.winner_id:', bet.winner_id, ' | match.winner_id:', match.winner_id);
       if (bet && bet.winner_id !== match.winner_id) {
         return false;
       }
@@ -234,11 +235,11 @@ const checkUserIncorrectPredictions = async (userId, startDate, endDate) => {
       }]
     });
 
-    // Vérifier si toutes les prédictions sont incorrectes
     for (const match of matchs) {
-      const bet = match.MatchId[0]; // Chaque utilisateur devrait avoir un seul pari par match
+      const bet = match.MatchId[0];
+      logger.info('[checkUserIncorrectPredictions | BET RESULT] => userID:', userId, ' | bet.winner_id:', bet.winner_id, ' | match.winner_id:', match.winner_id);
       if (bet && bet.winner_id === match.winner_id) {
-        return false; // Si une seule prédiction est correcte, retourner false
+        return false;
       }
     }
 

@@ -23,6 +23,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const { isDebuggerActive, isDebuggerOpen, toggleDebuggerModal, isCountDownPopupOpen, toggleCountDownModal, matchsCronTasks, fetchMatchsCronJobs} = useContext(AppContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
@@ -32,7 +33,7 @@ const UserMenu = () => {
   const [countdown, setCountdown] = useState({});
   const [cronTasks, setCronTasks] = useState([]);
   const [firstMatchDate, setFirstMatchDate] = useState(null);
-  const menuRef = useRef(null); // Référence pour le menu
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const debugCookie = cookies.debug === 'true';
@@ -40,7 +41,6 @@ const UserMenu = () => {
   }, [cookies]);
 
   useEffect(() => {
-    // Gestionnaire pour les clics en dehors du menu
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuOpen(false);
@@ -77,7 +77,12 @@ const UserMenu = () => {
   }, [cookies.token]);
 
   useEffect(() => {
-    if (!firstMatchDate) return;
+    if (!firstMatchDate) {
+      setCountdown({
+        hidden: true
+      })
+      return;
+    }
 
     const interval = setInterval(() => {
       const now = new Date();

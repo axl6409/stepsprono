@@ -13,7 +13,7 @@ const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {getMonthPoints, getSeasonPoints, getWeekPoints} = require("../services/betService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints} = require("../services/betService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -87,7 +87,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       }
     });
     if (bets.length === 0) {
-      res.status(404).json({ message: 'Aucun pari pour la semaine en cours' })
+      res.status(200).json({ bets: [], message: 'Aucun pari pour la semaine en cours' })
     } else {
       res.json(bets)
     }
@@ -112,6 +112,10 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
       const seasonId = await getCurrentSeasonId(61);
       const seasonPoints = await getSeasonPoints(seasonId, userId);
       return res.json({ points: seasonPoints });
+    } else if (filter === 'last-matchday') {
+      const seasonId = await getCurrentSeasonId(61);
+      const lastMatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
+      return res.json({ points: lastMatchdayPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
     }

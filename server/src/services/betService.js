@@ -1,9 +1,10 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team} = require("../models");
-const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getClosestPastMatchday} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
+const sequelize = require("../../database");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -73,6 +74,39 @@ const getNullBets = async () => {
     });
   } catch (error) {
     console.log('Erreur lors de la recuperation des paris nuls:', error);
+  }
+}
+
+const getLastMatchdayPoints = async (seasonId, userId) => {
+  try {
+    const matchday = await getClosestPastMatchday(seasonId);
+    logger.info('Matchday:', matchday);
+    const bets = await Bet.findAll({
+      where: {
+        season_id: seasonId,
+        user_id: userId,
+        points: { [Op.not]: null }
+      },
+      include: [{
+        model: Match,
+        as: 'MatchId',
+        where: {
+          matchday: {
+            [Op.eq]: matchday
+          }
+        }
+      }]
+    });
+
+    let points = 0;
+    for (const bet of bets) {
+      points += bet.points;
+    }
+    logger.info('Points:', points);
+    return points;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des points pour la dernière journée:', error);
+    return 0;
   }
 }
 
@@ -391,6 +425,7 @@ module.exports = {
   checkBetByMatchId,
   checkupBets,
   getNullBets,
+  getLastMatchdayPoints,
   getWeekPoints,
   getMonthPoints,
   getSeasonPoints,
