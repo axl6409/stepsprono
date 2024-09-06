@@ -87,7 +87,7 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       }
     });
     if (bets.length === 0) {
-      res.status(404).json({ message: 'Aucun pari pour la semaine en cours' })
+      res.status(200).json({ bets: [], message: 'Aucun pari pour la semaine en cours' })
     } else {
       res.json(bets)
     }

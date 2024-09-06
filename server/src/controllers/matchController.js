@@ -131,7 +131,7 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     });
 
     if (matchs.count === 0) {
-      return res.status(200).json({ message: 'Aucun match trouvé pour cette semaine' });
+      return res.status(200).json({ data: [], message: 'Aucun match trouvé pour cette semaine' });
     }
 
     res.json({
