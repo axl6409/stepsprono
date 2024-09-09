@@ -33,9 +33,9 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        const currentBets = response.data;
-
-        if (currentBets.bets.length === 0) {
+        const currentBets = response.data.bets;
+        console.log('currentBets => ', currentBets);
+        if (currentBets.length === 0) {
           setBets([]);
         } else {
           if (Array.isArray(currentBets)) {
@@ -43,7 +43,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             setBets(sortedBets);
           }
           const newBetColors = {};
-          response.data.forEach((bet, index) => {
+          currentBets.forEach((bet, index) => {
             newBetColors[bet.id] = colors[index % colors.length];
           });
           setBetColors(newBetColors);
@@ -239,7 +239,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
         ) : (
-          bets && bets.length > 0 && (
+          bets && bets.length > 0 ? (
             <div
               className="relative my-[25%]">
               <h2 className={`relative fade-in mb-12 w-fit mx-auto`}>
@@ -350,6 +350,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                 </div>
               </div>
             </div>
+          ) : (
+            <p className="font-rubik text-l text-center my-8">Aucun pronos en cours</p>
           )
         )
       )}

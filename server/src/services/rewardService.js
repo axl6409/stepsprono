@@ -359,6 +359,11 @@ const checkMassacreTrophy = async () => {
     for (const user of users) {
       const userPoints = await getUserPointsForWeek(user.id, startOfWeek, endOfWeek);
 
+      if (userPoints === null) {
+        logger.info(`L'utilisateur ${user.username} n'a fait aucun pari cette semaine.`);
+        continue;
+      }
+
       if (userPoints > maxPoints) {
         maxPoints = userPoints;
         topUsers = [user];
@@ -420,6 +425,11 @@ const checkKhalassTrophy = async () => {
 
     for (const user of users) {
       const userPoints = await getUserPointsForWeek(user.id, startOfWeek, endOfWeek);
+
+      if (userPoints === null) {
+        logger.info(`L'utilisateur ${user.username} n'a fait aucun pari cette semaine.`);
+        continue;
+      }
 
       if (userPoints < minPoints) {
         minPoints = userPoints;
