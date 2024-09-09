@@ -103,6 +103,8 @@ const getUserRankByPeriod = async (userId, startDate, endDate) => {
     let inTop3 = false;
     let outOfTop3 = false;
     let backInTop3 = false;
+    let top3ExitDate = null;
+    let reEntryDate = null;
 
     for (const matchday in rankings) {
       const userRanking = rankings[matchday].find(r => r.userId === userId);
@@ -110,20 +112,29 @@ const getUserRankByPeriod = async (userId, startDate, endDate) => {
         if (userRanking.rank <= 3) {
           if (inTop3 && outOfTop3) {
             backInTop3 = true;
-            break;
+            reEntryDate = matchday;
+            break;  // L'utilisateur est revenu dans le top 3
           } else {
-            inTop3 = true;
+            inTop3 = true; // L'utilisateur est actuellement dans le top 3
           }
         } else {
-          if (inTop3) {
-            outOfTop3 = true;
+          if (inTop3 && !outOfTop3) {
+            outOfTop3 = true;  // L'utilisateur est sorti du top 3
+            top3ExitDate = matchday;
           }
         }
       }
     }
 
-    return inTop3 && outOfTop3 && backInTop3;
+    if (inTop3 && outOfTop3 && backInTop3) {
+      const exitDate = new Date(top3ExitDate);
+      const reEntryDateParsed = new Date(reEntryDate);
+      const timeOutOfTop3 = reEntryDateParsed.getTime() - exitDate.getTime();
+      const twoMonthsInMillis = 60 * 24 * 60 * 60 * 1000; // 2 mois en millisecondes
+      return timeOutOfTop3 >= twoMonthsInMillis;
+    }
 
+    return false;
   } catch (error) {
     console.error('Erreur lors de la vérification du classement de l\'utilisateur:', error);
     throw error;
@@ -149,7 +160,16 @@ const getUserPointsForWeek = async (userId, startOfWeek, endOfWeek) => {
         },
       },
     });
-    return bets.reduce((total, bet) => total + bet.points, 0);
+    if (bets.length === 0) {
+      return null;
+    }
+    const validBets = bets.filter(bet => bet.points !== null);
+
+    if (validBets.length === 0) {
+      return null;
+    }
+
+    return validBets.reduce((total, bet) => total + bet.points, 0);
   } catch (error) {
     console.error("Erreur lors de la sélection des points:", error);
     throw error;
@@ -178,6 +198,7 @@ const checkUserCorrectPredictions = async (userId, startDate, endDate) => {
           [Op.gte]: startDate,
           [Op.lte]: endDate
         },
+        status: 'FT'
       },
       include: [{
         model: Bet,
@@ -187,6 +208,14 @@ const checkUserCorrectPredictions = async (userId, startDate, endDate) => {
         }
       }]
     });
+
+    if (matchs.length === 0) {
+      return false;
+    }
+
+    if (matchs.length !== matchdays.length) {
+      return false;
+    }
 
     for (const match of matchs) {
       const bet = match.MatchId[0];
@@ -225,6 +254,7 @@ const checkUserIncorrectPredictions = async (userId, startDate, endDate) => {
           [Op.gte]: startDate,
           [Op.lte]: endDate
         },
+        status: 'FT'
       },
       include: [{
         model: Bet,
@@ -234,16 +264,17 @@ const checkUserIncorrectPredictions = async (userId, startDate, endDate) => {
         }
       }]
     });
-
+    if (matchs.length === 0) {
+      return false;
+    }
     for (const match of matchs) {
       const bet = match.MatchId[0];
-      logger.info('[checkUserIncorrectPredictions | BET RESULT] => userID:', userId, ' | bet.winner_id:', bet.winner_id, ' | match.winner_id:', match.winner_id);
       if (bet && bet.winner_id === match.winner_id) {
         return false;
       }
     }
 
-    return true; // Toutes les prédictions sont incorrectes
+    return true;
   } catch (error) {
     console.error('Erreur lors de la vérification des prédictions incorrectes de l\'utilisateur:', error);
     throw error;

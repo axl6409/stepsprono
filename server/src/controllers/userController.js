@@ -87,9 +87,9 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       }
     });
     if (bets.length === 0) {
-      res.status(200).json({ bets: [], message: 'Aucun pari pour la semaine en cours' })
+      res.status(200).json({ bets: bets, message: 'Aucun pari pour la semaine en cours' })
     } else {
-      res.json(bets)
+      res.json({bets: bets})
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })

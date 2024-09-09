@@ -157,7 +157,8 @@ const getPeriodMatchdays = async (startDate, endDate) => {
         utc_date: {
           [Op.gte]: startDate,
           [Op.lte]: endDate
-        }
+        },
+        status: 'FT'
       }
     })
     for (const match of matchs) {
