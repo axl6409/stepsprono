@@ -161,7 +161,7 @@ const MatchDetails = () => {
           className="relative bg-white uppercase left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronostics</span>
       </h2>
       <div className="w-full fade-in px-2">
-        {canDisplayBets || isHistoricalMatch ? (
+        {!canDisplayBets || isHistoricalMatch ? (
           <div className="flex flex-col w-full">
             <div className={`flex flex-col mt-2 `}>
               {bets.map((bet, index) => (
