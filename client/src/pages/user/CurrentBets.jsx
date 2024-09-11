@@ -232,7 +232,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
       ) : (
-        !canDisplayBets && loggedUser.id !== user.id ? (
+        canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative fade-in my-[25%]">
             <p translate="no" className="no-correct text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
