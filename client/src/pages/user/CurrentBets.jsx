@@ -118,9 +118,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         const firstMatchDate = moment(sortedMatchs[0].utc_date);
         const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
         const now = moment();
-        if (now.isBefore(firstMatchDate.clone().hour(12).minute(0).seconds(0))) {
+        console.log('now => ', now);
+        console.log(now.isBefore(firstMatchDate.clone().hour(12)))
+        console.log(now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek))
+        if (now.isBefore(firstMatchDate.clone().hour(12))) {
           setCanDisplayBets(false);
-        } else if (now.isBetween(firstMatchDate.clone().hour(12).minute(0).seconds(0), sundayEndOfWeek)) {
+        } else if (now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek)) {
           setCanDisplayBets(true);
         }
       } catch (error) {
@@ -232,7 +235,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           </p>
         </div>
       ) : (
-        canDisplayBets && loggedUser.id !== user.id ? (
+        !canDisplayBets && loggedUser.id !== user.id ? (
           <div className="relative fade-in my-[25%]">
             <p translate="no" className="no-correct text-center text-lg font-medium mt-4 px-12">
               Attends la fin des pronos pour voir les siens 😉
