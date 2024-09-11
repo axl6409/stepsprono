@@ -8,13 +8,14 @@ import monthPointsShape from "../../assets/components/dashboard/month/month-poin
 import monthPointsText from "../../assets/components/dashboard/month/month-points-txt.png";
 import seasonPointsShape from "../../assets/components/dashboard/season/season-points-shape.png";
 import seasonPointsText from "../../assets/components/dashboard/season/season-points-txt.png";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
+  const navigate = useNavigate();
   const [matchs, setMatchs] = useState([]);
   const [bets, setBets] = useState([]);
   const [noMatches, setNoMatches] = useState(false);
@@ -139,6 +140,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       fetchSeasonPoints()
     }
   }, [user, token]);
+
+  const handleNavigate = (bet) => {
+    navigate(`/matchs/history/${bet.MatchId.id}`, {
+      state: { canDisplayBets: canDisplayBets }
+    });
+  };
 
   return (
     <div>
@@ -270,14 +277,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                   </div>
                   <div className={`flex flex-col mt-2 `}>
                     {bets.map((bet, index) => (
-                      <Link
-                        key={index}
-                        to={{
-                          pathname: `/matchs/history/${bet.MatchId.id}`,
-                          state: { canDisplayBets }
-                        }}
-                      >
                       <div key={index}
+                           onClick={() => handleNavigate(bet)}
                            className="relative bg-white min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
                         <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20"
                            style={{color: betColors[bet.id]}}>{index + 1}</p>
@@ -347,7 +348,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                           )}
                         </div>
                       </div>
-                      </Link>
                     ))}
                   </div>
                 </div>

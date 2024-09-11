@@ -15,8 +15,8 @@ const MatchDetails = () => {
   const token = localStorage.getItem('token') || cookies.token;
   const { matchId } = useParams();
   const location = useLocation();
-  const { canDisplayBets } = location.state || {};
-
+  const canDisplayBets = location.state?.canDisplayBets ?? false;
+  console.log(location)
   const [match, setMatch] = useState(null);
   const [bets, setBets] = useState([]);
   const [betColors, setBetColors] = useState({});
@@ -106,7 +106,8 @@ const MatchDetails = () => {
       <AnimatedTitle title={"Détails du match"} animate={false}/>
       <div>
         <div className="w-full text-center flex flex-col justify-center px-6 py-4">
-          <p className="date-hour fade-in delay-150 capitalize font-medium bg-white border-2 border-black shadow-flat-black-adjust w-fit mx-auto px-8 mb-8">
+          <p
+            className="date-hour fade-in delay-150 capitalize font-medium bg-white border-2 border-black shadow-flat-black-adjust w-fit mx-auto px-8 mb-8">
             <span className="block font-roboto text-sm">{matchDate.format('DD MMMM YY')}</span>
             <span className="block font-roboto text-sm">{matchDate.format('HH:mm:ss')}</span>
           </p>
@@ -134,7 +135,7 @@ const MatchDetails = () => {
             <p className="font-rubik font-bold text-xl4 fade-in delay-150">{match.goals_home}</p>
             <ul>
               {homeScorers.map((scorer, index) => (
-                <li key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <li key={index} className="fade-in" style={{animationDelay: `${index * 0.1}s`}}>
                   <p className="font-rubik font-medium text-sm">{scorer}</p>
                 </li>
               ))}
@@ -144,7 +145,7 @@ const MatchDetails = () => {
             <p className="font-rubik font-bold text-xl4">{match.goals_away}</p>
             <ul>
               {awayScorers.map((scorer, index) => (
-                <li key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <li key={index} className="fade-in" style={{animationDelay: `${index * 0.1}s`}}>
                   <p className="font-rubik font-medium text-sm">{scorer}</p>
                 </li>
               ))}
@@ -161,12 +162,12 @@ const MatchDetails = () => {
           className="relative bg-white uppercase left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Pronostics</span>
       </h2>
       <div className="w-full fade-in px-2">
-        {canDisplayBets || isHistoricalMatch ? (
+        {(isHistoricalMatch || canDisplayBets) ? (
           <div className="flex flex-col w-full">
             <div className={`flex flex-col mt-2 `}>
               {bets.map((bet, index) => (
                 <div key={index}
-                     style={{ animationDelay: `${index * 0.1}s` }}
+                     style={{animationDelay: `${index * 0.1}s`}}
                      className={`history-single-match-${index} fade-in relative bg-white min-h-[55px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust`}>
                   <style>
                     {`
@@ -184,8 +185,9 @@ const MatchDetails = () => {
                       }
                     `}
                   </style>
-                  <p
-                    className="absolute hidden z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
+                  <p className="absolute hidden z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">
+                    {index + 1}
+                  </p>
                   <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                     <div className="flex flex-col justify-evenly h-full">
                       <p className="font-rubik font-medium text-l">{bet.User.username}</p>
