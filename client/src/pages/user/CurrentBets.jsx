@@ -119,12 +119,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         const firstMatchDate = moment(sortedMatchs[0].utc_date);
         const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
         const now = moment();
-        console.log('now => ', now);
-        console.log(now.isBefore(firstMatchDate.clone().hour(12)))
-        console.log(now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek))
-        if (now.isBefore(firstMatchDate.clone().hour(12))) {
+        console.log(now.isBefore(firstMatchDate.clone().hour(12).minute(0).seconds(0)))
+        if (now.isBefore(firstMatchDate.clone().hour(12).minute(0).seconds(0))) {
           setCanDisplayBets(false);
-        } else if (now.isBetween(firstMatchDate.clone().hour(12), sundayEndOfWeek)) {
+        } else if (now.isBetween(firstMatchDate.clone().hour(12).minute(0).seconds(0), sundayEndOfWeek)) {
           setCanDisplayBets(true);
         }
       } catch (error) {
