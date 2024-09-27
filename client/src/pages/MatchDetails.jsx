@@ -37,7 +37,7 @@ const MatchDetails = () => {
 
           betDatas = betDatas.sort((a, b) => {
             if (b.points === a.points) {
-              return a.User.id - b.User.id;
+              return a.UserId.id - b.UserId.id;
             }
             return b.points - a.points;
           });
@@ -187,7 +187,7 @@ const MatchDetails = () => {
                     className="absolute hidden z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
                   <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                     <div className="flex flex-col justify-evenly h-full">
-                      <p className="font-rubik font-medium text-l">{bet.User.username}</p>
+                      <p className="font-rubik font-medium text-l">{bet.UserId.username}</p>
                     </div>
                   </div>
                   <div className="relative z-[2] w-[40%] py-2 border-r-2 border-black border-dotted">

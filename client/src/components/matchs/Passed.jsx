@@ -273,13 +273,15 @@ const Passed = ({ token, user }) => {
                       <p
                         translate="no"
                         className="w-2/3 no-correct font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.HomeTeam.name}</p>
-                      <p translate="no" className="w-1/3  font-title font-black text-xl leading-5">{match.goals_home}</p>
+                      <p translate="no"
+                         className="w-1/3  font-title font-black text-xl leading-5">{match.goals_home}</p>
                     </div>
                     <div className="w-full flex flex-row justify-center">
                       <p
                         translate="no"
                         className="w-2/3 no-correct font-regular text-left font-rubik text-sm leading-5 my-1 uppercase">{match.AwayTeam.name}</p>
-                      <p translate="no" className="w-1/3 no-correct font-title font-black text-xl leading-5">{match.goals_away}</p>
+                      <p translate="no"
+                         className="w-1/3 no-correct font-title font-black text-xl leading-5">{match.goals_away}</p>
                     </div>
                   </div>
                   {bet ? (
@@ -331,6 +333,9 @@ const Passed = ({ token, user }) => {
                 </div>
               );
             })}
+          </div>
+          <div className="px-4">
+          {/* Users ranking */}
           </div>
         </div>
       </div>

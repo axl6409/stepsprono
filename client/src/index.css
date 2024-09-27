@@ -45,6 +45,11 @@ body {
     text-shadow: 1px 2px 0 rgba(0,0,0,1);
 }
 
+.writing-vertical {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+}
+
 /* Swiper */
 .swiper-wrapper {
     margin-bottom: 2rem;
@@ -432,5 +437,38 @@ body {
     100% {
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
+    }
+}
+
+/* Media query pour les écrans en orientation portrait */
+@media screen and (orientation: portrait) {
+    .landscape-only {
+        display: none;
+    }
+
+    .portrait-warning {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #FFB5BE;
+        color: black;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        text-wrap: pretty;
+        padding: 2rem;
+        text-transform: uppercase;
+    }
+}
+
+/* Media query pour les écrans en orientation paysage */
+@media screen and (orientation: landscape) {
+    .landscape-only {
+        display: block;
+    }
+
+    .portrait-warning {
+        display: none;
     }
 }

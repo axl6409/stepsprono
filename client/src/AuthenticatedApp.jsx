@@ -31,6 +31,7 @@ import AdminSeasons from "./pages/admin/AdminSeasons.jsx";
 import AdminEvents from "./pages/admin/AdminEvents.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import MatchDetails from "./pages/MatchDetails.jsx";
+import WeekRecap from "./pages/WeekRecap.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -53,7 +54,7 @@ const AuthenticatedApp = () => {
   return isAuthenticated ? (
     <>
       <Navbar />
-      <div className={`container mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
+      <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
         <AnimatePresence>
           <Routes>
             <Route path="/dashboard/" element={
@@ -119,6 +120,7 @@ const AuthenticatedApp = () => {
             <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
             <Route path="/matchs/history/:matchId" element={<ProtectedRoute component={MatchDetails} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
+            <Route path="/week-recap" element={<ProtectedRoute component={WeekRecap} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
             <Route path="/user/settings" element={

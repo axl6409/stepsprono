@@ -105,13 +105,18 @@ async function fetchTeamsFromApi(competitionId, seasonYear) {
  * @param {number} competitionId - The ID of the competition.
  * @return {Promise<number|string>} - The ID of the current season as a Promise, or a string indicating that a competition ID is required.
  */
-async function getCurrentSeasonId(competitionId) {
-
+async function getCurrentCompetitionId() {
+  try {
+    const currentSeason = await Season.findOne();
+    return currentSeason.id;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des données:', error);
+  }
 }
 
 
 module.exports = {
   updateCompetitionTeamsNewSeason,
   fetchTeamsFromApi,
-  getCurrentSeasonId
+  getCurrentCompetitionId
 }

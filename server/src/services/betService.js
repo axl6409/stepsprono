@@ -1,10 +1,12 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team} = require("../models");
+const {Bet, Match, Team, Player, User} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getClosestPastMatchday} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
 const sequelize = require("../../database");
+const {getCurrentCompetitionId} = require("./competitionService");
+const moment = require("moment-timezone");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -77,6 +79,13 @@ const getNullBets = async () => {
   }
 }
 
+/**
+ * Retrieves the total points earned by a user for the last matchday of a season.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<number>} The total points earned by the user for the last matchday. Returns 0 if there was an error.
+ */
 const getLastMatchdayPoints = async (seasonId, userId) => {
   try {
     const matchday = await getClosestPastMatchday(seasonId);
@@ -420,6 +429,93 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
   }
 }
 
+const getLastBetsByUserId = async (userId) => {
+  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+  const now = moment();
+  const startOfWeek = now.clone().startOf('isoWeek');
+  const endOfWeek = now.clone().endOf('isoWeek');
+
+  const startDate = startOfWeek.toDate();
+  const endDate = endOfWeek.toDate();
+
+  const bets = await Bet.findAll({
+    include: [
+      {
+        model: Match,
+        as: 'MatchId',
+        where: {
+          utc_date: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      },
+      {
+        model: Player,
+        as: 'PlayerGoal'
+      }
+    ],
+    where: {
+      user_id: userId
+    }
+  });
+  return bets;
+}
+
+const getAllLastBets = async () => {
+  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+  const now = moment();
+  const startOfWeek = now.clone().startOf('isoWeek');
+  const endOfWeek = now.clone().endOf('isoWeek');
+
+  const startDate = startOfWeek.toDate();
+  const endDate = endOfWeek.toDate();
+
+  const bets = await Bet.findAll({
+    include: [
+      {
+        model: Match,
+        as: 'MatchId',
+        where: {
+          utc_date: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      },
+      {
+        model: Player,
+        as: 'PlayerGoal'
+      },
+      {
+        model: User,
+        as: 'UserId'
+      }
+    ],
+  });
+  return bets;
+}
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -431,4 +527,6 @@ module.exports = {
   getSeasonPoints,
   createBet,
   updateBet,
+  getLastBetsByUserId,
+  getAllLastBets,
 };
