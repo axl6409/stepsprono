@@ -64,15 +64,15 @@ const WeekRecap = () => {
           <SimpleTitle title={"Récap"} />
         </div>
         <div className="overflow-x-auto relative z-[2]">
-          <div className="table-auto w-full text-left border-collapse">
-            <div className="text-xs uppercase relative z-[4] -bottom-4">
+          <div className="table-auto w-full text-left border-collapse max-w-[95%] ml-auto mr-[2%]">
+            <div className="text-xs uppercase relative z-[4] -bottom-8">
               <div className="flex flex-row justify-start">
-                <div className="px-4 py-2 w-[10%]"></div>
+                <div className="px-4 py-2 w-[20%]"></div>
                 {matchs.map(match => (
                   <div
                     key={match.id}
-                    className="px-2 py-2 text-black bg-white border border-black font-roboto rotate-[-20deg] -translate-x-6 pb-8 text-center"
-                    style={{ width: `${90 / matchs.length}%` }}
+                    className="px-2 py-2 text-black bg-white border border-black font-roboto rotate-[-20deg] -translate-x-6 pb-8 text-center last:!w-[15%]"
+                    style={{ width: `${90 / matchs.length - 2}%` }}
                   >
                     <p className="writing-vertical">
                       {match.HomeTeam.name}
@@ -83,10 +83,10 @@ const WeekRecap = () => {
                 ))}
               </div>
             </div>
-            <div className="relative z-[5] flex flex-col justify-start">
+            <div className="relative z-[5] flex flex-col justify-start border border-black rounded-tl-2xl overflow-hidden">
             {uniqueUsers.map(user => (
-              <div key={user.id} className="bg-white border-b hover:bg-gray-100 flex flex-row justify-start items-center">
-                <div className="px-2 py-2 w-[10%]">{user.username}</div>
+              <div key={user.id} className="h-[60px] bg-white border-dashed border-b border-black hover:bg-gray-100 flex flex-row justify-start items-center">
+                <div className="px-2 py-2 w-[20%] h-full border-r border-black flex flex-col justify-center">{user.username}</div>
 
                 {matchs.map(match => {
                   const prediction = getPredictionForMatchAndUser(match.id, user.id);
@@ -96,8 +96,8 @@ const WeekRecap = () => {
                       return (
                         <div
                           key={`${user.id}-${match.id}`}
-                          className="px-2 py-2"
-                          style={{ width: `${90 / matchs.length}%` }}
+                          className="px-2 py-2 last:w-[15%] h-full text-xxs flex flex-col justify-center"
+                          style={{ width: `15%` }}
                         >
                           {prediction.home_score} - {prediction.away_score}
                           <br/>
@@ -118,8 +118,8 @@ const WeekRecap = () => {
                       return (
                         <div
                           key={`${user.id}-${match.id}`}
-                          className="px-1 py-2"
-                          style={{ width: `${90 / matchs.length}%` }}
+                          className="px-1 py-2 border-r border-black h-full flex flex-col justify-center"
+                          style={{ width: `${90 / matchs.length - 2}%` }}
                         >
                           {winnerTeam ? (
                             <img
