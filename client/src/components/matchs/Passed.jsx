@@ -13,12 +13,11 @@ import incorrectIcon from "../../assets/icons/incorrect-icon.svg";
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 import {useNavigate} from "react-router-dom";
-import DayRanking from "../partials/DayRanking.jsx";
-const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Passed = ({ token, user }) => {
+const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
   const navigate = useNavigate()
   const [matchs, setMatchs] = useState([]);
+  const [matchday, setMatchday] = useState(selectedDay);
   const [matchdays, setMatchdays] = useState([]);
   const [seasons, setSeasons] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState(null);
@@ -128,6 +127,10 @@ const Passed = ({ token, user }) => {
     }
   }, [matchs, selectedSeason, token, user]);
 
+  useEffect(() => {
+    handleMatchdayChange(matchday);
+  }, [matchday]);
+
   const handleSeasonChange = (event) => {
     const selectedSeasonId = event.target.value;
     const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
@@ -135,9 +138,11 @@ const Passed = ({ token, user }) => {
     localStorage.setItem('selectedSeasonId', selectedSeasonId);
   };
 
-  const handleMatchdayChange = (day) => {
-    setSelectedMatchday(day);
-    localStorage.setItem('selectedMatchdayIndex', day);
+  const handleMatchdayChange = (newMatchday) => {
+    setSelectedMatchday(newMatchday);
+    setMatchday(newMatchday);
+    onDayChange(newMatchday);
+    localStorage.setItem('selectedMatchdayIndex', newMatchday);
   };
 
   const isBetPlaced = (matchId) => {
@@ -258,7 +263,7 @@ const Passed = ({ token, user }) => {
               <p translate="no" className="font-roboto no-correct text-sm uppercase text-black">Mon Prono</p>
             </div>
           </div>
-          <div className="px-4">
+          <div className="px-4 overflow-hidden">
             {matchs.map((match, index) => {
               const bet = getBetForMatch(match.id);
               return (
@@ -334,9 +339,6 @@ const Passed = ({ token, user }) => {
                 </div>
               );
             })}
-          </div>
-          <div className="px-4">
-           <DayRanking />
           </div>
         </div>
       </div>

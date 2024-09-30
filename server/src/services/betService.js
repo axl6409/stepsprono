@@ -89,7 +89,6 @@ const getNullBets = async () => {
 const getLastMatchdayPoints = async (seasonId, userId) => {
   try {
     const matchday = await getClosestPastMatchday(seasonId);
-    logger.info('Matchday:', matchday);
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -516,6 +515,52 @@ const getAllLastBets = async () => {
   return bets;
 }
 
+const getMatchdayRanking = async (matchday) => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+    logger.info(competitionId)
+    logger.info(seasonId)
+    const bets = await Bet.findAll({
+      where: {
+        matchday,
+        season_id: seasonId,
+        points: { [Op.not]: null }
+      },
+      include: [
+        {
+          model: User,
+          as: 'UserId',
+        }
+      ],
+    });
+
+    const ranking = bets.reduce((acc, bet) => {
+      const userId = bet.user_id;
+      const username = bet.UserId.username;
+
+      if (acc[userId]) {
+        acc[userId].points += bet.points;
+      } else {
+        acc[userId] = {
+          user_id: userId,
+          username: username,
+          points: bet.points
+        };
+      }
+
+      return acc;
+    }, {});
+
+    const sortedRanking = Object.values(ranking).sort((a, b) => b.points - a.points);
+
+    return sortedRanking;
+  } catch (error) {
+    logger.error(`Erreur lors de la récupération du classement de la journée ${matchday}:`, error);
+    return [];
+  }
+};
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -529,4 +574,5 @@ module.exports = {
   updateBet,
   getLastBetsByUserId,
   getAllLastBets,
+  getMatchdayRanking,
 };

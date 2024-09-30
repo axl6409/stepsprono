@@ -13,7 +13,9 @@ const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets} = require("../services/betService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
+  getMatchdayRanking
+} = require("../services/betService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -65,6 +67,18 @@ router.get('/users/bets/last', authenticateJWT, async (req, res) => {
       res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
     } else {
       res.json({bets: bets})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/users/bets/ranking/:matchday', authenticateJWT, async (req, res) => {
+  try {
+    const ranking = await getMatchdayRanking(req.params.matchday);
+    if (ranking.length === 0) {
+      res.status(200).json({ ranking: ranking, message: `Aucun classement pour la journée ${req.params.matchday}` })
+    } else {
+      res.json({ranking: ranking})
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
