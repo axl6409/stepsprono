@@ -290,6 +290,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                            onClick={() => handleNavigate(bet)}
                            className="relative bg-white min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust">
                         <p className="absolute z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20"
+                           translate="no"
                            style={{color: betColors[bet.id]}}>{index + 1}</p>
                         <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                           <div className="flex flex-col justify-evenly h-full">

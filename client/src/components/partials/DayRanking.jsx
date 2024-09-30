@@ -46,7 +46,7 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
 
   return (
     <div className="relative p-8 px-2 pt-8">
-      <h2 className="font-rubik text-xl4 font-black text-black text-center leading-9 capitalize text-balance">Classement de la journée</h2>
+      <h2 translate="no" className="font-rubik text-xl4 font-black text-black text-center leading-9 capitalize text-balance">Classement de la journée</h2>
       <ul className="px-6">
         {ranking.map((user, index) => (
           <li key={user.user_id} className="relative flex justify-between border border-black rounded-xl my-4">
@@ -55,10 +55,11 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
               style={{backgroundColor: usersColors[user.user_id]}}
             >
               <p
+                  translate="no"
                 className="font-rubik w-full font-black text-stroke-black-2 text-white text-[140%] inline-block leading-[35px]">{index + 1}</p>
             </div>
-            <p className="w-4/5 font-roboto font-medium text-base text-black py-2">{user.username}</p>
-            <p className="w-1/5 font-rubik font-black text-l text-black py-2 border-l border-dashed border-black">{String(user.points).padStart(2, '0')}</p>
+            <p translate="no" className="w-4/5 font-roboto font-medium text-base text-black py-2">{user.username}</p>
+            <p translate="no" className="w-1/5 font-rubik font-black text-l text-black py-2 border-l border-dashed border-black">{String(user.points).padStart(2, '0')}</p>
           </li>
         ))}
       </ul>

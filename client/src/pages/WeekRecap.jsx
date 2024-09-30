@@ -65,7 +65,9 @@ const WeekRecap = () => {
   return (
     <div className="recap-container">
       <div className="portrait-warning">
-        Veuillez tourner votre appareil pour voir les pronostics en mode paysage.
+        <p
+            translate="no"
+            className="font-roboto text-xl text-black font-bold">Tourne le téléphone bandit !</p>
       </div>
       <DashboardButton/>
       <div className="landscape-only relative">
@@ -93,9 +95,10 @@ const WeekRecap = () => {
                     style={{width: `${90 / matchs.length}%`}}
                   >
                     <p className="absolute z-[1] font-rubik font-black text-xl6 bottom-0 right-0 opacity-20 rotate-[27deg]"
+                       translate="no"
                        style={{color: betColors[match.id]}}>{index + 1}</p>
                     <p
-                      className="writing-vertical text-black text-sm w-full h-full text-center font-roboto flex flex-col leading-[20px] justify-center items-center">
+                      className="writing-vertical text-black text-sm w-full h-full text-center font-roboto flex flex-col leading-[20px] justify-center items-center" translate="no">
                       <span>
                         <img
                           className="inline-block align-baseline h-[22px] w-[22px] opacity-80 object-contain object-center relative z-[1]"
@@ -121,7 +124,7 @@ const WeekRecap = () => {
                 {uniqueUsers.map(user => (
                   <div key={user.id} className="h-[60px] relative z-[-1] bg-white border-dashed border-b border-black hover:bg-gray-100 flex flex-row justify-start items-center">
                     <div className="px-2 py-2 w-[20%] h-full border-r border-black flex flex-col justify-center">
-                      <p className="font-rubik text-sm font-medium text-black">{user.username}</p>
+                      <p className="font-rubik text-sm font-medium text-black" translate="no">{user.username}</p>
                     </div>
 
                     {matchs.map((match, index) => {
@@ -136,9 +139,9 @@ const WeekRecap = () => {
                               style={{width: `${90 / matchs.length}%`}}
                             >
                               <span
-                                className="font-rubik font-bold text-l text-center">{prediction.home_score} : {prediction.away_score}</span>
+                                className="font-rubik font-bold text-l text-center" translate="no">{prediction.home_score} : {prediction.away_score}</span>
                               <span
-                                className="font-rubik font-medium text-xxxs text-center leading-[10px]">{prediction.PlayerGoal
+                                className="font-rubik font-medium text-xxxs text-center leading-[10px]" translate="no">{prediction.PlayerGoal
                                 ? `${prediction.PlayerGoal.name.length > 8
                                   ? prediction.PlayerGoal.name.substring(0, 8) + '...'
                                   : prediction.PlayerGoal.name}`
@@ -177,7 +180,7 @@ const WeekRecap = () => {
                       } else {
                         return <div key={`${user.id}-${match.id}`} style={{width: `${90 / matchs.length}%`}}
                                     className="px-1 py-2 h-full flex flex-col justify-center relative border-r border-black z-[1]">
-                          <p className="text-center"> </p>
+                          <p className="text-center" translate="no"> </p>
                         </div>;
                       }
                     })}
