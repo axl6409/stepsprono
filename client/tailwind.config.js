@@ -70,6 +70,7 @@ export default {
         'menu': '0.25rem 0.5rem 2rem rgba(0,0,0,.16);',
         'flat-black': '3px 4px 0 rgba(0,0,0,1);',
         'flat-black-adjust': '2px 2px 0 rgba(0,0,0,1);',
+        'flat-black-adjust-left': '-3px 2px 0 rgba(0,0,0,1);',
         'flat-black-adjust-50': '2px 2px 0 rgba(0,0,0,0.5);',
         'flat-black-middle': '0px 4px 0 4px rgba(0,0,0,1);',
         'flat-purple': '3px 4px 0 rgba(255,0,245,1);',

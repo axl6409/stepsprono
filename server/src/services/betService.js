@@ -1,10 +1,12 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team} = require("../models");
+const {Bet, Match, Team, Player, User} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getClosestPastMatchday} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
 const sequelize = require("../../database");
+const {getCurrentCompetitionId} = require("./competitionService");
+const moment = require("moment-timezone");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -77,10 +79,16 @@ const getNullBets = async () => {
   }
 }
 
+/**
+ * Retrieves the total points earned by a user for the last matchday of a season.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {number} userId - The ID of the user.
+ * @return {Promise<number>} The total points earned by the user for the last matchday. Returns 0 if there was an error.
+ */
 const getLastMatchdayPoints = async (seasonId, userId) => {
   try {
     const matchday = await getClosestPastMatchday(seasonId);
-    logger.info('Matchday:', matchday);
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -420,6 +428,139 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
   }
 }
 
+const getLastBetsByUserId = async (userId) => {
+  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+  const now = moment();
+  const startOfWeek = now.clone().startOf('isoWeek');
+  const endOfWeek = now.clone().endOf('isoWeek');
+
+  const startDate = startOfWeek.toDate();
+  const endDate = endOfWeek.toDate();
+
+  const bets = await Bet.findAll({
+    include: [
+      {
+        model: Match,
+        as: 'MatchId',
+        where: {
+          utc_date: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      },
+      {
+        model: Player,
+        as: 'PlayerGoal'
+      }
+    ],
+    where: {
+      user_id: userId
+    }
+  });
+  return bets;
+}
+
+const getAllLastBets = async () => {
+  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+  const now = moment();
+  const startOfWeek = now.clone().startOf('isoWeek');
+  const endOfWeek = now.clone().endOf('isoWeek');
+
+  const startDate = startOfWeek.toDate();
+  const endDate = endOfWeek.toDate();
+
+  const bets = await Bet.findAll({
+    include: [
+      {
+        model: Match,
+        as: 'MatchId',
+        where: {
+          utc_date: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate
+          }
+        },
+        include: [
+          {
+            model: Team,
+            as: 'HomeTeam'
+          },
+          {
+            model: Team,
+            as: 'AwayTeam'
+          }
+        ]
+      },
+      {
+        model: Player,
+        as: 'PlayerGoal'
+      },
+      {
+        model: User,
+        as: 'UserId'
+      }
+    ],
+  });
+  return bets;
+}
+
+const getMatchdayRanking = async (matchday) => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+    logger.info(competitionId)
+    logger.info(seasonId)
+    const bets = await Bet.findAll({
+      where: {
+        matchday,
+        season_id: seasonId,
+        points: { [Op.not]: null }
+      },
+      include: [
+        {
+          model: User,
+          as: 'UserId',
+        }
+      ],
+    });
+
+    const ranking = bets.reduce((acc, bet) => {
+      const userId = bet.user_id;
+      const username = bet.UserId.username;
+
+      if (acc[userId]) {
+        acc[userId].points += bet.points;
+      } else {
+        acc[userId] = {
+          user_id: userId,
+          username: username,
+          points: bet.points
+        };
+      }
+
+      return acc;
+    }, {});
+
+    const sortedRanking = Object.values(ranking).sort((a, b) => b.points - a.points);
+
+    return sortedRanking;
+  } catch (error) {
+    logger.error(`Erreur lors de la récupération du classement de la journée ${matchday}:`, error);
+    return [];
+  }
+};
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -431,4 +572,7 @@ module.exports = {
   getSeasonPoints,
   createBet,
   updateBet,
+  getLastBetsByUserId,
+  getAllLastBets,
+  getMatchdayRanking,
 };

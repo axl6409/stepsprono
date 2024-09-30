@@ -103,7 +103,7 @@ module.exports = (sequelize, DataTypes) => {
    * @return {void} This function does not return anything.
    */
   Bet.associate = (models) => {
-    Bet.belongsTo(models.User, { foreignKey: 'user_id' });
+    Bet.belongsTo(models.User, { foreignKey: 'user_id', as: 'UserId' });
     Bet.belongsTo(models.Competition, { foreignKey: 'competition_id' });
     Bet.belongsTo(models.Season, { foreignKey: 'season_id' });
     Bet.belongsTo(models.Match, { foreignKey: 'match_id', as: 'MatchId' });

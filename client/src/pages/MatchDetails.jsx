@@ -37,7 +37,7 @@ const MatchDetails = () => {
 
           betDatas = betDatas.sort((a, b) => {
             if (b.points === a.points) {
-              return a.User.id - b.User.id;
+              return a.UserId.id - b.UserId.id;
             }
             return b.points - a.points;
           });
@@ -105,9 +105,9 @@ const MatchDetails = () => {
       <AnimatedTitle title={"Détails du match"} animate={false}/>
       <div>
         <div className="w-full text-center flex flex-col justify-center px-6 py-4">
-          <p className="date-hour fade-in delay-150 capitalize font-medium bg-white border-2 border-black shadow-flat-black-adjust w-fit mx-auto px-8 mb-8">
-            <span className="block font-roboto text-sm">{matchDate.format('DD MMMM YY')}</span>
-            <span className="block font-roboto text-sm">{matchDate.format('HH:mm:ss')}</span>
+          <p className="date-hour fade-in delay-150 capitalize font-medium bg-white border-2 border-black shadow-flat-black-adjust w-fit mx-auto px-8 mb-8" translate="no">
+            <span className="block font-roboto text-sm" translate="no">{matchDate.format('DD MMMM YY')}</span>
+            <span className="block font-roboto text-sm" translate="no">{matchDate.format('HH:mm:ss')}</span>
           </p>
         </div>
         <div className="relative flex flex-row justify-center items-center">
@@ -123,7 +123,7 @@ const MatchDetails = () => {
                  src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url} alt=""/>
             <ul>
               {awayScorers.map((scorer, index) => (
-                <li key={index}>{scorer.playerName}</li>
+                <li key={index} translate="no">{scorer.playerName}</li>
               ))}
             </ul>
           </div>
@@ -134,17 +134,17 @@ const MatchDetails = () => {
             <ul>
               {homeScorers.map((scorer, index) => (
                 <li key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <p className="font-rubik font-medium text-sm">{scorer}</p>
+                  <p className="font-rubik font-medium text-sm" translate="no">{scorer}</p>
                 </li>
               ))}
             </ul>
           </div>
           <div className="w-[150px]">
-            <p className="font-rubik font-bold text-xl4">{match.goals_away}</p>
+            <p className="font-rubik font-bold text-xl4" translate="no">{match.goals_away}</p>
             <ul>
               {awayScorers.map((scorer, index) => (
                 <li key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <p className="font-rubik font-medium text-sm">{scorer}</p>
+                  <p className="font-rubik font-medium text-sm" translate="no">{scorer}</p>
                 </li>
               ))}
             </ul>
@@ -187,18 +187,18 @@ const MatchDetails = () => {
                     className="absolute hidden z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
                   <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                     <div className="flex flex-col justify-evenly h-full">
-                      <p className="font-rubik font-medium text-l">{bet.User.username}</p>
+                      <p className="font-rubik font-medium text-l" translate="no">{bet.UserId.username}</p>
                     </div>
                   </div>
                   <div className="relative z-[2] w-[40%] py-2 border-r-2 border-black border-dotted">
                     <div className="h-full flex flex-row justify-center items-center">
                       {bet.home_score !== null && bet.away_score !== null ? (
                         <div>
-                          <p className="font-rubik font-medium text-xl leading-5">
+                          <p className="font-rubik font-medium text-xl leading-5" translate="no">
                             {bet.home_score} - {bet.away_score}
                           </p>
                           {bet.player_goal !== null && (
-                            <p className="font-title text-base font-bold">{bet.PlayerGoal.name}</p>
+                            <p className="font-title text-base font-bold" translate="no">{bet.PlayerGoal.name}</p>
                           )}
                         </div>
                       ) : (
@@ -218,7 +218,7 @@ const MatchDetails = () => {
                     </div>
                   </div>
                   <div className="w-[10%] flex flex-col justify-center items-center py-2">
-                    <p className="font-rubik font-medium text-xl">{bet.points}</p>
+                    <p className="font-rubik font-medium text-xl" translate="no">{bet.points}</p>
                   </div>
                 </div>
               ))}
@@ -226,7 +226,7 @@ const MatchDetails = () => {
           </div>
         ) : (
           <div className="relative fade-in my-[25%]">
-            <p className="text-center text-lg font-medium mt-4 px-12">
+            <p className="text-center text-lg font-medium mt-4 px-12" translate="no">
               Attends la fin des pronos pour voir ceux des autres 😉
             </p>
           </div>

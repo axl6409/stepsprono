@@ -27,7 +27,7 @@ const getMatchAndBets = async (matchId) => {
           model: Bet,
           as: 'MatchId',
           include: [
-            { model: User, as: 'User', attributes: ['username'] },
+            { model: User, as: 'UserId', attributes: ['username'] },
             { model: Player, as: 'PlayerGoal' }
           ],
           required: false

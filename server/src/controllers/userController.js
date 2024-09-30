@@ -13,7 +13,9 @@ const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints} = require("../services/betService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
+  getMatchdayRanking
+} = require("../services/betService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -47,49 +49,36 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
 })
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
-    // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-    const now = moment();
-    const startOfWeek = now.clone().startOf('isoWeek');
-    const endOfWeek = now.clone().endOf('isoWeek');
-
-    const startDate = startOfWeek.toDate();
-    const endDate = endOfWeek.toDate();
-
-    const bets = await Bet.findAll({
-      include: [
-        {
-          model: Match,
-          as: 'MatchId',
-          where: {
-            utc_date: {
-              [Op.gte]: startDate,
-              [Op.lte]: endDate
-            }
-          },
-          include: [
-            {
-              model: Team,
-              as: 'HomeTeam'
-            },
-            {
-              model: Team,
-              as: 'AwayTeam'
-            }
-          ]
-        },
-        {
-          model: Player,
-          as: 'PlayerGoal'
-        }
-      ],
-      where: {
-        user_id: req.params.id
-      }
-    });
+    if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
+    const bets = await getLastBetsByUserId(req.params.id);
     if (bets.length === 0) {
-      res.status(200).json({ bets: bets, message: 'Aucun pari pour la semaine en cours' })
+      res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
     } else {
       res.json({bets: bets})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/users/bets/last', authenticateJWT, async (req, res) => {
+  try {
+    const bets = await getAllLastBets(req.params.id);
+    if (bets.length === 0) {
+      res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
+    } else {
+      res.json({bets: bets})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/users/bets/ranking/:matchday', authenticateJWT, async (req, res) => {
+  try {
+    const ranking = await getMatchdayRanking(req.params.matchday);
+    if (ranking.length === 0) {
+      res.status(200).json({ ranking: ranking, message: `Aucun classement pour la journée ${req.params.matchday}` })
+    } else {
+      res.json({ranking: ranking})
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })

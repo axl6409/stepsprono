@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { Team, TeamCompetition, Season } = require("../models");
+const { Team, TeamCompetition, Season, Competition } = require("../models");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear} = require("./seasonService");
 const {downloadImage} = require("./imageService");
@@ -105,13 +105,18 @@ async function fetchTeamsFromApi(competitionId, seasonYear) {
  * @param {number} competitionId - The ID of the competition.
  * @return {Promise<number|string>} - The ID of the current season as a Promise, or a string indicating that a competition ID is required.
  */
-async function getCurrentSeasonId(competitionId) {
-
+async function getCurrentCompetitionId() {
+  try {
+    const currentSeason = await Competition.findOne();
+    return currentSeason.id;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des données:', error);
+  }
 }
 
 
 module.exports = {
   updateCompetitionTeamsNewSeason,
   fetchTeamsFromApi,
-  getCurrentSeasonId
+  getCurrentCompetitionId
 }
