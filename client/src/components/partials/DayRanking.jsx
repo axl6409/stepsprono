@@ -17,8 +17,8 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
   // }
 
   return (
-    <div className="relative p-8 px-2 pt-0">
-      <h2>Classement de la journée</h2>
+    <div className="relative p-8 px-2 pt-8">
+      <h2 className="font-rubik text-xl4 font-black text-black text-center leading-9 capitalize">Classement de la journée</h2>
     </div>
   )
 }

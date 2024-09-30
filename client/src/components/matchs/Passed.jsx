@@ -13,6 +13,7 @@ import incorrectIcon from "../../assets/icons/incorrect-icon.svg";
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 import {useNavigate} from "react-router-dom";
+import DayRanking from "../partials/DayRanking.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Passed = ({ token, user }) => {
@@ -335,7 +336,7 @@ const Passed = ({ token, user }) => {
             })}
           </div>
           <div className="px-4">
-          {/* Users ranking */}
+           <DayRanking />
           </div>
         </div>
       </div>
