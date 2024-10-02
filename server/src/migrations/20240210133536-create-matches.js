@@ -75,7 +75,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'competitions',
           key: 'id',
         },
         onDelete: 'RESTRICT',
@@ -85,7 +84,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'seasons',
           key: 'id',
         },
         onDelete: 'RESTRICT',
@@ -95,7 +93,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'teams',
           key: 'id',
         },
         field: 'winner_id',
