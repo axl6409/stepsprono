@@ -1,11 +1,15 @@
 const { NotificationSubscription } = require('../models');
 const express = require("express");
+const axios = require("axios");
 const { authenticateJWT } = require("../middlewares/auth");
 const { sendNotificationsToAll } = require('../services/notificationService');
+const { sendNotification } = require("../services/fcmService");
 const router = express.Router();
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
+const appPublicUrl = process.env.REACT_APP_PUBLIC_URL || 'http://localhost:3000';
 
 router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
-  const { endpoint, keys } = req.body;
+  const { token } = req.body;
   const userId = req.user.userId;
 
   try {
@@ -13,13 +17,11 @@ router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
       return res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
 
-    let subscription = await NotificationSubscription.findOne({ where: { endpoint } });
+    let subscription = await NotificationSubscription.findOne({ where: { endpoint: token } });
 
     if (!subscription) {
       subscription = await NotificationSubscription.create({
-        endpoint,
-        keys_p256dh: keys.p256dh,
-        keys_auth: keys.auth,
+        endpoint: token,
         user_id: userId,
       });
     }
@@ -31,15 +33,13 @@ router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
   }
 });
 
-router.post('/notifications/send', authenticateJWT, async (req, res) => {
+router.post('/notifications/send', async (req, res) => {
   try {
-    const message = "Les pronostics sont maintenant fermés !";
+    const { token, message } = req.body;
 
-    const subscriptions = await NotificationSubscription.findAll();
+    await sendNotification(token, message);
 
-    await sendNotificationsToAll(subscriptions, message);
-
-    res.status(200).json({ message: 'Notifications envoyées avec succès' });
+    res.status(200).json({ message: 'Notification envoyée avec succès' });
   } catch (error) {
     console.error('Erreur lors de l\'envoi des notifications:', error);
     res.status(500).json({ error: 'Erreur lors de l\'envoi des notifications' });

@@ -48,7 +48,7 @@ const App = () => {
       }
 
       const messaging = getMessaging(firebaseApp);
-      const fcmToken = await getToken(messaging, { vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY, serviceWorkerRegistration: registration });
+      const fcmToken = await getToken(messaging, { vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY });
 
       if (fcmToken) {
         console.log('Token FCM reçu : ', fcmToken);

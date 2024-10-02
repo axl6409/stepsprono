@@ -14,21 +14,6 @@ module.exports = {
         unique: true,
         field: 'endpoint'
       },
-      expirationTime: {
-        type: Sequelize.DATE,
-        allowNull: true,
-        field: 'expiration_time'
-      },
-      keys_p256dh: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        field: 'keys_p256dh'
-      },
-      keys_auth: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        field: 'keys_auth'
-      },
       user_id: {
         type: Sequelize.INTEGER,
         references: {

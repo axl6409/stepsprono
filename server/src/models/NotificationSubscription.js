@@ -6,21 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       field: 'endpoint'
     },
-    expirationTime: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      field: 'expiration_time'
-    },
-    keys_p256dh: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'keys_p256dh'
-    },
-    keys_auth: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'keys_auth'
-    },
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
