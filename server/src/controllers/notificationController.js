@@ -4,6 +4,7 @@ const axios = require("axios");
 const { authenticateJWT } = require("../middlewares/auth");
 const { sendNotificationsToAll } = require('../services/notificationService');
 const { sendNotification } = require("../services/fcmService");
+const logger = require("../utils/logger/logger");
 const router = express.Router();
 const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 const appPublicUrl = process.env.REACT_APP_PUBLIC_URL || 'http://localhost:3000';
@@ -34,15 +35,22 @@ router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
 });
 
 router.post('/notifications/send', async (req, res) => {
+  // const { userId, message } = req.body;
+  const message = 'message test de notification';
   try {
-    const { token, message } = req.body;
+    const subscription = await NotificationSubscription.findOne({ where: { user_id: 2 } });
 
-    await sendNotification(token, message);
+    if (!subscription) {
+      return res.status(404).json({ error: 'Souscription non trouvée pour cet utilisateur.' });
+    }
+
+    await sendNotification(subscription.endpoint, message);
 
     res.status(200).json({ message: 'Notification envoyée avec succès' });
   } catch (error) {
-    console.error('Erreur lors de l\'envoi des notifications:', error);
-    res.status(500).json({ error: 'Erreur lors de l\'envoi des notifications' });
+    console.error('Erreur lors de l\'envoi de la notification:', error);
+    logger.error(error.data)
+    res.status(500).json({ error: 'Erreur lors de l\'envoi de la notification' });
   }
 });
 

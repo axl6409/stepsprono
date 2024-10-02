@@ -4,13 +4,17 @@ const path = require('path');
 const serviceAccount = require(path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS));
 
 async function getAccessToken() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: serviceAccount,
-    scopes: ['https://www.googleapis.com/auth/cloud-platform']
-  });
-
-  const accessToken = await auth.getAccessToken();
-  return accessToken;
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: serviceAccount,
+      scopes: ['https://www.googleapis.com/auth/firebase.messaging']
+    });
+    const accessToken = await auth.getAccessToken();
+    console.log('AccessToken obtenu:', accessToken);
+    return accessToken;
+  } catch (error) {
+    console.error('Erreur lors de l\'obtention du token d\'accès:', error);
+  }
 }
 
 
@@ -18,15 +22,25 @@ async function sendNotification(token, message) {
   const accessToken = await getAccessToken();
 
   const payload = {
-    to: token,
-    notification: {
-      title: 'Test de notification',
-      body: message,
-      icon: 'http://localhost:3000/img/logo-steps-150x143.png',
-    },
+    message: {
+      token: token,
+      notification: {
+        title: 'Test de notification',
+        body: 'Message de test pour la notification push',
+      },
+      webpush: {
+        headers: {
+          Urgency: 'high',
+        },
+        notification: {
+          icon: 'https://stepsprono.fr/img/logo-steps-150x143.png',
+        }
+      }
+    }
   };
 
   try {
+    console.log('AccessToken:', accessToken);
     const response = await axios.post('https://fcm.googleapis.com/v1/projects/stepsprono/messages:send', payload, {
       headers: {
         'Content-Type': 'application/json',

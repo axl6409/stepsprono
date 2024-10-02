@@ -24,26 +24,7 @@ const sendNotification = async (subscription, notification) => {
   }
 };
 
-const sendNotificationsToAll = async (subscriptions, message) => {
-  const payload = {
-    title: 'Pronostics fermés',
-    body: message,
-    icon: '/path/to/icon.png'
-  };
-
-  const validSubscriptions = subscriptions.filter(sub => sub.keys_p256dh && sub.keys_auth);
-
-  if (validSubscriptions.length === 0) {
-    console.log('Aucune souscription valide trouvée');
-    return;
-  }
-
-  for (const subscription of validSubscriptions) {
-    await sendNotification(subscription, payload);
-  }
-};
 
 module.exports = {
   sendNotification,
-  sendNotificationsToAll
 };
