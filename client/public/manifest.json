@@ -1,0 +1,20 @@
+{
+  "name": "StepsProno",
+  "short_name": "StepsProno",
+  "icons": [
+    {
+      "src": "/img/logo-steps-150x143.png",
+      "sizes": "150x143",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/logo-steps-522x498.png",
+      "sizes": "522x498",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000"
+}
