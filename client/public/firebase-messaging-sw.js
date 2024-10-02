@@ -2,14 +2,14 @@ importScripts('https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.6.8/firebase-messaging.js');
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA4ZGPpE3MK5FYM1Se50f7kUI3h4kLXtSI",
-  authDomain: "stepsprono.firebaseapp.com",
-  databaseURL: "https://stepsprono-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "stepsprono",
-  storageBucket: "stepsprono.appspot.com",
-  messagingSenderId: "86708555549",
-  appId: "1:86708555549:web:28ee4bee59ea7a8eb35bf4",
-  measurementId: "G-BMGKPV8DX7"
+  apiKey: "api_key",
+  authDomain: "firebase.app.com",
+  databaseURL: "https://app.firebasedatabase.app",
+  projectId: "firebaseProjectId",
+  storageBucket: "project.appspot.com",
+  messagingSenderId: "000000",
+  appId: " ",
+  measurementId: " "
 };
 
 firebase.initializeApp(firebaseConfig);
