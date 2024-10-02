@@ -4,11 +4,15 @@ import 'moment/dist/locale/fr';
 import moment from "moment";
 import { AppProvider } from "./contexts/AppContext.jsx";
 import AppContent from "./AppContent.jsx";
+import {useCookies} from "react-cookie";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-// Clé publique VAPID (remplacez par votre propre clé publique)
 const publicVapidKey = 'BBQ0lld4HKzAy4qTt7ui7PAfekIvcZK4qexmjcM6awDcoG_WbvQxzp09FXz6PwWJrEBhDk9oX0czGKO8zyArCfU';
 
 const App = () => {
+  const [cookies] = useCookies(['token']);
+  const token = localStorage.getItem('token') || cookies.token
+
   moment.updateLocale('fr', {});
 
   useEffect(() => {
@@ -19,31 +23,36 @@ const App = () => {
 
   const registerServiceWorker = async () => {
     try {
-      // Enregistrer le Service Worker
+      if (!token) {
+        console.error('Token non disponible, impossible d\'envoyer la requête');
+        return;
+      }
       const registration = await navigator.serviceWorker.register('/service-worker.js');
 
-      // Demander la permission pour recevoir des notifications push
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         console.error('Permission de notification refusée');
         return;
       }
 
-      // Souscrire aux notifications push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
       });
 
-      // Envoyer la souscription au serveur
-      await fetch('http://localhost:5000/api/notifications/subscribe', {
+      const response = await fetch(`${apiUrl}/api/notifications/subscribe`, {
         method: 'POST',
         body: JSON.stringify(subscription),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
 
+      if (!response.ok) {
+        console.error('Erreur lors de l\'inscription aux notifications push');
+        return;
+      }
       console.log('Souscription réussie aux notifications push');
     } catch (error) {
       console.error('Erreur lors de l\'inscription aux notifications push:', error);
