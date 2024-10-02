@@ -117,9 +117,22 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         setMatchs(sortedMatchs)
         const firstMatchDate = moment(sortedMatchs[0].utc_date);
         const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
-        const now = moment();
+        const closingTime = firstMatchDate.clone().hour(12).minute(0).second(0);
+        const now = moment(); // moment('2024-10-04T12:15:00');
+
         if (now.isBefore(firstMatchDate.clone().hour(12).minute(0).seconds(0))) {
           setCanDisplayBets(false);
+
+          const interval = setInterval(() => {
+            const currentTime = moment();
+            if (currentTime.isAfter(closingTime)) {
+              clearInterval(interval);
+              setCanDisplayBets(false);
+            }
+          }, 1000);
+
+          return () => clearInterval(interval);
+
         } else if (now.isBetween(firstMatchDate.clone().hour(12).minute(0).seconds(0), sundayEndOfWeek)) {
           setCanDisplayBets(true);
         }
@@ -220,15 +233,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </Link>
           ) : (
             <>
-              <div
-                className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
-                <span
-                  translate="no"
-                  className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
-                >
-                  Pronostics Fermés
-                </span>
-              </div>
               <Link
                 to="/week-recap"
                 className="w-4/5 fade-in block relative mt-12 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"

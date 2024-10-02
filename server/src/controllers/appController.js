@@ -4,7 +4,7 @@ const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {getAPICallsCount, getSettlement} = require("../services/appService");
 const {Setting, Role} = require("../models");
 const {getCronTasks} = require("../../cronJob");
-const {fetchWeekMatches, getMatchsCronTasks} = require("../services/matchService");
+const {fetchAndProgramWeekMatches, getMatchsCronTasks} = require("../services/matchService");
 
 /* PUBLIC - GET */
 router.get('/app/calls', authenticateJWT, async (req, res) => {
@@ -78,7 +78,7 @@ router.get('/admin/roles', authenticateJWT, checkAdmin, async (req, res) => {
 router.get('/admin/matchs/program-tasks', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
-    await fetchWeekMatches();
+    await fetchAndProgramWeekMatches();
     res.status(200).json({ message: 'Programmation des matchs effectuée avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la programmation des tâches', message: error.message });

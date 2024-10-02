@@ -21,11 +21,19 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         field: 'user_id',
       },
       reward_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'rewards',
+          key: 'id',
+        },
         field: 'reward_id',
       },
       count: {

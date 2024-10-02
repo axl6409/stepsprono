@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useCookies} from "react-cookie";
 import axios from "axios";
+import paperplane from "../../assets/icons/paper-plane-solid.svg";
 import Loader from "../../components/partials/Loader.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
@@ -17,34 +18,60 @@ const AdminEvents = () => {
   const [error, setError] = useState(null);
   const [buttonActive, setButtonActive] = useState(false);
 
-  const triggerEvent = async (eventName) => {
+  const triggerNotification = async (notificationType) => {
     try {
-      const response = await axios.post(`${apiUrl}/api/admin/events/${eventName}`, null, {
+      const response = await axios.post(`${apiUrl}/api/notifications/bets-close`, {
+        notificationType: notificationType
+      }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
         setUpdateStatus(true);
-        setUpdateMessage('Évènement déclanché !');
-        setIsModalOpen(true)
-        setTimeout(function () {
-          closeModal()
-        }, 1500)
+        setUpdateMessage('Notification déclenchée avec succès !');
+        setIsModalOpen(true);
+        setTimeout(closeModal, 1500);
       } else {
         setUpdateStatus(false);
-        setUpdateMessage('Erreur lors du déclenchement de l\'évènement : ' + response.data.message);
-        setIsModalOpen(true)
-        setTimeout(function () {
-          closeModal()
-        }, 2500)
+        setUpdateMessage('Erreur lors du déclenchement : ' + response.data.message);
+        setIsModalOpen(true);
+        setTimeout(closeModal, 2500);
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
-      setUpdateMessage('Erreur lors du déclenchement de l\'évènement : ' + error.response.data.message);
-      setIsModalOpen(true)
-      setTimeout(function () {
-        closeModal()
-      }, 2500)
+      console.log(error);
+      setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
+      setIsModalOpen(true);
+      setTimeout(closeModal, 2500);
+    } finally {
+      setButtonActive(true);
+      setTimeout(() => {
+        setButtonActive(false);
+      }, 200);
+    }
+  };
+
+  const triggerTestNotification = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/notifications/test`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setUpdateStatus(true);
+        setUpdateMessage('Notification déclenchée avec succès !');
+        setIsModalOpen(true);
+        setTimeout(closeModal, 1500);
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors du déclenchement : ' + response.data.message);
+        setIsModalOpen(true);
+        setTimeout(closeModal, 2500);
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      console.log(error);
+      setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
+      setIsModalOpen(true);
+      setTimeout(closeModal, 2500);
     } finally {
       setButtonActive(true);
       setTimeout(() => {
@@ -76,15 +103,48 @@ const AdminEvents = () => {
       )}
       <BackButton />
       <SimpleTitle title={"Gestion des évènements"} />
-      <div className="flex flex-col justify-start items-center">
-        <div className="flex flex-row justify-between items-center">
-          <p className="btn btn-primary w-4/5">
-            Déclancher l'évènement <strong>testEvent</strong>
+      <div className="flex flex-col justify-start items-center px-4">
+        <div className="flex flex-row justify-between items-center w-full my-4">
+          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
+            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
+            <span>Pronos fermés demain</span>
           </p>
           <div>
             <button
               className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerEvent('testEvent')}
+              onClick={() => triggerNotification('dayBefore')}
+            >
+              <div
+                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4">
+          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
+            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
+            <span>Pronos fermés dans 3h</span>
+          </p>
+          <div>
+            <button
+              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
+              onClick={() => triggerNotification('matchDay')}
+            >
+              <div
+                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4">
+          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
+            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
+            <span>Notif test</span>
+          </p>
+          <div>
+            <button
+              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
+              onClick={() => triggerTestNotification()}
             >
               <div
                 className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>

@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-          model: 'Players',
+          model: 'players',
           key: 'id',
         },
         field: 'player_id',
@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-          model: 'Teams',
+          model: 'teams',
           key: 'id',
         },
         field: 'team_id',
@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
-          model: 'Competitions',
+          model: 'competitions',
           key: 'id',
         },
         field: 'competition_id',

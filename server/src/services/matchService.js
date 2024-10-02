@@ -258,17 +258,17 @@ async function updateMatches(competitionId = null) {
  *
  * @return {Promise<void>} A promise that resolves when all matches have been fetched and jobs have been scheduled.
  */
-async function fetchWeekMatches() {
+async function fetchAndProgramWeekMatches() {
   try {
     // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
     const now = moment().tz("Europe/Paris");
-    logger.info('[CRON]=> fetchWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
+    logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
     const startDate = startOfWeek.clone().utc().format();
     const endDate = endOfWeek.clone().utc().format();
-    logger.info(`[CRON]=> fetchWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
+    logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
     const matches = await Match.findAll({
       where: {
         utc_date: {
@@ -280,9 +280,9 @@ async function fetchWeekMatches() {
         }
       }
     });
-    logger.info(`[CRON]=> fetchWeekMatches => Number of matches: ${matches.length}`);
+    logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
     matches.forEach(match => {
-      logger.info(`[CRON]=> fetchWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
+      logger.info(`[CRON]=> fetchAndProgramWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
       const matchTime = new Date(match.utc_date);
       const initialDelay = 110 * 60000;
       const initialTime = new Date(matchTime.getTime() + initialDelay);
@@ -310,6 +310,36 @@ async function fetchWeekMatches() {
     console.log('Erreur lors de la récupération des matchs du weekend:', error);
   }
 }
+
+async function fetchWeekMatches() {
+  try {
+    // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    const now = moment().tz("Europe/Paris");
+
+    const startOfWeek = now.clone().startOf('isoWeek');
+    const endOfWeek = now.clone().endOf('isoWeek');
+
+    const startDate = startOfWeek.clone().utc().format();
+    const endDate = endOfWeek.clone().utc().format();
+
+    const matches = await Match.findAll({
+      where: {
+        utc_date: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        },
+        status: {
+          [Op.not]: ['PST', 'FT', 'TBD']
+        }
+      }
+    });
+
+    return matches;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des matchs de la semaine:', error);
+  }
+}
+
 
 /**
  * Updates the require_details field for the last matches of each competition, season, and matchday.
@@ -400,6 +430,7 @@ module.exports = {
   updateSingleMatch,
   updateMatches,
   getMatchsCronTasks,
+  fetchAndProgramWeekMatches,
   fetchWeekMatches,
   updateRequireDetails,
   fetchMatchsNoChecked

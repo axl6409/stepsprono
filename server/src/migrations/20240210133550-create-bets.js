@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'users',
           key: 'id',
         },
         field: 'user_id',
@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Seasons',
+          model: 'seasons',
           key: 'id',
         },
         field: 'season_id',
@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Competitions',
+          model: 'competitions',
           key: 'id',
         },
         field: 'competition_id',
@@ -60,7 +60,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Matches',
+          model: 'matchs',
           key: 'id',
         },
         field: 'match_id',
@@ -71,7 +71,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Teams',
+          model: 'teams',
           key: 'id',
         },
         field: 'winner_id',
@@ -92,7 +92,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Players',
+          model: 'players',
           key: 'id',
         },
         field: 'player_goal',

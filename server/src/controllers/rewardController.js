@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateJWT } = require('../middlewares/auth');
+const { authenticateJWT, checkAdmin} = require('../middlewares/auth');
 const { getAllRewards, assignReward, toggleActivation, deleteReward, updateReward, createReward, getUserRewards,
-  removeReward
+  removeReward, checkMassacreTrophy, checkKhalassTrophy, checkChallengerTrophy, checkOracleTrophy, checkBlackCatTrophy,
+  checkZeroGuardianTrophy, checkJackpotTrophy, checkLooserTrophy, checkInvincibleTrophy, checkFragileTrophy,
+  checkGhostTrophy, checkTripleMenaceTrophy, checkTripleLooserTrophy, checkCasanierTrophy, checkNomadeTrophy,
+  checkVisionaryTrophy, checkBlindTrophy, checkAnalystTrophy, checkFavoriteTrophy, checkEternalSecondTrophy,
+  checkGoldenHandTrophy, checkColdHandTrophy, checkHeartExpertTrophy, checkFanaticTrophy, checkGoalDetectiveTrophy,
+  checkCollectorTrophy, checkKingStepsTrophy, checkJesterTrophy, checkLegendaryStepTrophy, checkMilestoneTrophies,
+  checkPhoenixTrophy, checkRisingStarTrophy
 } = require('../services/rewardService');
 const { upload } = require('../utils/utils');
 
@@ -48,6 +54,55 @@ router.post('/admin/rewards', authenticateJWT, upload.single('image'), async (re
     res.status(201).json(reward);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création du trophée', error: error.message });
+  }
+});
+router.post('/admin/rewards/events/:eventName', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const eventName = req.params.eventName;
+
+    const eventMap = {
+      'phoenix': checkPhoenixTrophy,
+      'risingstar': checkRisingStarTrophy,
+      'massacre': checkMassacreTrophy,
+      'khalass': checkKhalassTrophy,
+      'challenger': checkChallengerTrophy,
+      'oracle': checkOracleTrophy,
+      'blackcat': checkBlackCatTrophy,
+      'zeroguardian': checkZeroGuardianTrophy,
+      'jackpot': checkJackpotTrophy,
+      'looser': checkLooserTrophy,
+      'invincible': checkInvincibleTrophy,
+      'fragile': checkFragileTrophy,
+      'ghost': checkGhostTrophy,
+      'triplemenace': checkTripleMenaceTrophy,
+      'triplelooser': checkTripleLooserTrophy,
+      'casanier': checkCasanierTrophy,
+      'nomade': checkNomadeTrophy,
+      'visionary': checkVisionaryTrophy,
+      'blind': checkBlindTrophy,
+      'analyst': checkAnalystTrophy,
+      'favorite': checkFavoriteTrophy,
+      'eternalsecond': checkEternalSecondTrophy,
+      'goldenhand': checkGoldenHandTrophy,
+      'coldhand': checkColdHandTrophy,
+      'heartexpert': checkHeartExpertTrophy,
+      'fanatic': checkFanaticTrophy,
+      'goaldetective': checkGoalDetectiveTrophy,
+      'collector': checkCollectorTrophy,
+      'kingsteps': checkKingStepsTrophy,
+      'jester': checkJesterTrophy,
+      'legendarystep': checkLegendaryStepTrophy,
+      'milestone': checkMilestoneTrophies,
+    };
+
+    if (eventMap[eventName]) {
+      await eventMap[eventName]();
+      res.status(200).send({ message: `Trophée pour l'événement ${eventName} vérifié et attribué.` });
+    } else {
+      res.status(404).send({ message: `L'événement ${eventName} n'existe pas.` });
+    }
+  } catch (e) {
+    res.status(500).json({ message: 'Route protégée', error: e.message })
   }
 });
 

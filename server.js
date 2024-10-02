@@ -18,7 +18,7 @@ const accessLogStream = rfs.createStream('access.log', {
 const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
-const {updateRequireDetails, fetchWeekMatches} = require("./server/src/services/matchService");
+const {updateRequireDetails, fetchAndProgramWeekMatches} = require("./server/src/services/matchService");
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
@@ -53,11 +53,11 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('[START] => Connection to the database has been established successfully')
     await sequelize.sync({ force: false })
     console.log('[START] => Database synchronized')
-    runCronJob()
-    console.log('[START] => Cron job started')
-    await fetchWeekMatches().then(r => {
-      logger.info('[START] => Week Matches Fetched : Success');
+    await fetchAndProgramWeekMatches().then(r => {
+      logger.info('[MATCHS] => Week Matches Fetched : Success');
     })
+    runCronJob()
+    console.log('[CRON] => Cron job started')
   } catch (error) {
     console.log('[START] => Unable to connect to the database: ', error)
   }
