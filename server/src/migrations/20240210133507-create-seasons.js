@@ -36,7 +36,7 @@ module.exports = {
       competition_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Competitions',
+          model: 'competitions',
           key: 'id'
         },
         field: 'competition_id',
@@ -47,7 +47,7 @@ module.exports = {
       winner_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Teams',
+          model: 'teams',
           key: 'id'
         },
         field: 'winner_id',

@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Teams',
+          model: 'teams',
           key: 'id',
         },
         field: 'team_id',
@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Competitions',
+          model: 'competitions',
           key: 'id',
         },
         field: 'competition_id',
@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Seasons',
+          model: 'seasons',
           key: 'id',
         },
         field: 'season_id',
