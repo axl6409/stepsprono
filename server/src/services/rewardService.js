@@ -26,6 +26,10 @@ const getAllRewards = async () => {
   return await Reward.findAll();
 };
 
+const getRewardById = async (id) => {
+  return await Reward.findByPk(id);
+}
+
 /**
  * Retrieves all rewards for a given user from the database.
  *
@@ -232,6 +236,11 @@ const removeReward = async (data) => {
  */
 const checkPhoenixTrophy = async () => {
   try {
+    const reward = await getRewardById(5);
+    if (reward.active === false) {
+      logger.info("Trophee Phoenix non actif");
+      return;
+    }
     const endOfLastMonth = new Date();
     endOfLastMonth.setMonth(endOfLastMonth.getMonth() - 1);
 
@@ -282,6 +291,12 @@ const checkPhoenixTrophy = async () => {
  */
 const checkRisingStarTrophy = async () => {
   try {
+    const reward = await getRewardById(6);
+    if (reward.active === false) {
+      logger.info("Trophee Rising Star non actif");
+      return;
+    }
+
     const currentSeason = await getCurrentSeasonYear(61);
     const seasonStartDate = await getSeasonStartDate(currentSeason);
     const endOfFirstMonth = new Date(seasonStartDate);
@@ -346,6 +361,11 @@ const checkRisingStarTrophy = async () => {
  */
 const checkMassacreTrophy = async () => {
   try {
+    const reward = await getRewardById(7);
+    if (reward.active === false) {
+      logger.info("Trophee Massacre non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -413,6 +433,11 @@ const checkMassacreTrophy = async () => {
  */
 const checkKhalassTrophy = async () => {
   try {
+    const reward = await getRewardById(8);
+    if (reward.active === false) {
+      logger.info("Trophee Khalass non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -476,6 +501,11 @@ const checkKhalassTrophy = async () => {
  */
 const checkChallengerTrophy = async () => {
   try {
+    const reward = await getRewardById(9);
+    if (reward.active === false) {
+      logger.info("Trophee Le Challenger non actif");
+      return;
+    }
     const currentMonth = new Date();
     const twoMonthsAgo = new Date();
     twoMonthsAgo.setMonth(currentMonth.getMonth() - 2);
@@ -526,6 +556,11 @@ const checkChallengerTrophy = async () => {
  */
 const checkOracleTrophy = async () => {
   try {
+    const reward = await getRewardById(10);
+    if (reward.active === false) {
+      logger.info("Trophee L'Oracle non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -573,6 +608,11 @@ const checkOracleTrophy = async () => {
  */
 const checkBlackCatTrophy = async () => {
   try {
+    const reward = await getRewardById(11);
+    if (reward.active === false) {
+      logger.info("Trophee Le Chat Noir non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -620,6 +660,11 @@ const checkBlackCatTrophy = async () => {
  */
 const checkZeroGuardianTrophy = async () => {
   try {
+    const reward = await getRewardById(7);
+    if (reward.active === false) {
+      logger.info("Trophee Le Gardien du Zéro non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -667,6 +712,11 @@ const checkZeroGuardianTrophy = async () => {
  */
 const checkJackpotTrophy = async () => {
   try {
+    const reward = await getRewardById(8);
+    if (reward.active === false) {
+      logger.info("Trophee Jackpot non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -715,6 +765,11 @@ const checkJackpotTrophy = async () => {
  */
 const checkLooserTrophy = async () => {
   try {
+    const reward = await getRewardById(9);
+    if (reward.active === false) {
+      logger.info("Trophee Looser non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -767,6 +822,11 @@ const checkLooserTrophy = async () => {
  */
 const checkInvincibleTrophy = async () => {
   try {
+    const reward = await getRewardById(10);
+    if (reward.active === false) {
+      logger.info("Trophee Invincible non actif");
+      return;
+    }
     const currentMonth = new Date();
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -815,6 +875,11 @@ const checkInvincibleTrophy = async () => {
  */
 const checkFragileTrophy = async () => {
   try {
+    const reward = await getRewardById(11);
+    if (reward.active === false) {
+      logger.info("Trophee Fragile non actif");
+      return;
+    }
     const currentMonth = new Date();
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -862,6 +927,11 @@ const checkFragileTrophy = async () => {
  */
 const checkGhostTrophy = async () => {
   try {
+    const reward = await getRewardById(27);
+    if (reward.active === false) {
+      logger.info("Trophee Le disparu non actif");
+      return;
+    }
     const currentWeek = new Date();
     const firstDayOfWeek = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1));
     const lastDayOfWeek = new Date(currentWeek.setDate(firstDayOfWeek.getDate() + 6));
@@ -909,6 +979,11 @@ const checkGhostTrophy = async () => {
  */
 const checkTripleMenaceTrophy = async () => {
   try {
+    const reward = await getRewardById(28);
+    if (reward.active === false) {
+      logger.info("Trophee Triple Menace non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -959,6 +1034,11 @@ const checkTripleMenaceTrophy = async () => {
  */
 const checkTripleLooserTrophy = async () => {
   try {
+    const reward = await getRewardById(29);
+    if (reward.active === false) {
+      logger.info("Trophee Triple Looser non actif");
+      return;
+    }
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
@@ -1009,6 +1089,11 @@ const checkTripleLooserTrophy = async () => {
  */
 const checkCasanierTrophy = async () => {
   try {
+    const reward = await getRewardById(25);
+    if (reward.active === false) {
+      logger.info("Trophee Le casanier non actif");
+      return;
+    }
     const currentMonth = new Date();
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -1057,6 +1142,11 @@ const checkCasanierTrophy = async () => {
  */
 const checkNomadeTrophy = async () => {
   try {
+    const reward = await getRewardById(26);
+    if (reward.active === false) {
+      logger.info("Trophee Le nomade non actif");
+      return;
+    }
     const currentWeek = new Date();
     const startOfWeek = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1));
     const endOfWeek = new Date(currentWeek.setDate(startOfWeek.getDate() + 6));
@@ -1104,6 +1194,11 @@ const checkNomadeTrophy = async () => {
  */
 const checkVisionaryTrophy = async () => {
   try {
+    const reward = await getRewardById(15);
+    if (reward.active === false) {
+      logger.info("Trophee Le visionnaire non actif");
+      return;
+    }
     const currentWeek = new Date();
     const startOfWeek = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1));
     const endOfWeek = new Date(currentWeek.setDate(startOfWeek.getDate() + 6));
@@ -1152,6 +1247,11 @@ const checkVisionaryTrophy = async () => {
  */
 const checkBlindTrophy = async () => {
   try {
+    const reward = await getRewardById(16);
+    if (reward.active === false) {
+      logger.info("Trophee L'aveugle non actif");
+      return;
+    }
     const currentWeek = getStartAndEndOfCurrentWeek();
     const users = await User.findAll();
 
@@ -1197,6 +1297,11 @@ const checkBlindTrophy = async () => {
  */
 const checkAnalystTrophy = async () => {
   try {
+    const reward = await getRewardById(14);
+    if (reward.active === false) {
+      logger.info("Trophee L'analyste non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeasonId(61);
     const users = await User.findAll();
 
@@ -1243,6 +1348,11 @@ const checkAnalystTrophy = async () => {
  */
 const checkFavoriteTrophy = async () => {
   try {
+    const reward = await getRewardById(12);
+    if (reward.active === false) {
+      logger.info("Trophee Favorite non actif");
+      return;
+    }
     const monthDates = getFirstDaysOfCurrentAndPreviousMonth();
     const users = await User.findAll();
 
@@ -1295,6 +1405,11 @@ const checkFavoriteTrophy = async () => {
  */
 const checkEternalSecondTrophy = async () => {
   try {
+    const reward = await getRewardById(13);
+    if (reward.active === false) {
+      logger.info("Trophee L'éternel Second non actif");
+      return;
+    }
     const monthDates = getFirstDaysOfCurrentAndPreviousMonth();
     const users = await User.findAll();
 
@@ -1340,6 +1455,11 @@ const checkEternalSecondTrophy = async () => {
  */
 const checkGoldenHandTrophy = async () => {
   try {
+    const reward = await getRewardById(18);
+    if (reward.active === false) {
+      logger.info("Trophee La Main en or non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeasonYear(61);
     const { startDate, endDate } = await getSeasonDates(currentSeason);
     const midSeasonDate = await getMidSeasonDate(currentSeason);
@@ -1399,6 +1519,11 @@ const checkGoldenHandTrophy = async () => {
  */
 const checkColdHandTrophy = async () => {
   try {
+    const reward = await getRewardById(19);
+    if (reward.active === false) {
+      logger.info("Trophee La Main en fer non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeasonYear(61);
     const monthDates = getStartAndEndOfCurrentMonth();
 
@@ -1457,6 +1582,11 @@ const checkColdHandTrophy = async () => {
  */
 const checkHeartExpertTrophy = async () => {
   try {
+    const reward = await getRewardById(22);
+    if (reward.active === false) {
+      logger.info("Trophee L'Expert du cœur non actif");
+      return;
+    }
     const users = await User.findAll();
 
     for (const user of users) {
@@ -1508,6 +1638,11 @@ const checkHeartExpertTrophy = async () => {
  */
 const checkFanaticTrophy = async () => {
   try {
+    const reward = await getRewardById(23);
+    if (reward.active === false) {
+      logger.info("Trophee Le fanatique non actif");
+      return;
+    }
     const users = await User.findAll();
 
     for (const user of users) {
@@ -1559,6 +1694,11 @@ const checkFanaticTrophy = async () => {
  */
 const checkGoalDetectiveTrophy = async () => {
   try {
+    const reward = await getRewardById(24);
+    if (reward.active === false) {
+      logger.info("Trophee Détective du Butteur non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeasonYear(61);
     const users = await User.findAll();
 
@@ -1603,6 +1743,11 @@ const checkGoalDetectiveTrophy = async () => {
  */
 const checkCollectorTrophy = async () => {
   try {
+    const reward = await getRewardById(32);
+    if (reward.active === false) {
+      logger.info("Trophee Collecteur non actif");
+      return;
+    }
     const users = await User.findAll();
 
     for (const user of users) {
@@ -1647,6 +1792,11 @@ const checkCollectorTrophy = async () => {
  */
 const checkKingStepsTrophy = async () => {
   try {
+    const reward = await getRewardById(33);
+    if (reward.active === false) {
+      logger.info("Trophee Le Roi Steps non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeasonYear(61);
     const seasonDates = await getSeasonDates(currentSeason);
     const currentDate = new Date();
@@ -1708,6 +1858,11 @@ const checkKingStepsTrophy = async () => {
  */
 const checkJesterTrophy = async () => {
   try {
+    const reward = await getRewardById(34);
+    if (reward.active === false) {
+      logger.info("Trophee Jester non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeason();
 
     const currentDate = new Date();
@@ -1775,6 +1930,11 @@ const checkJesterTrophy = async () => {
  */
 const checkLegendaryStepTrophy = async () => {
   try {
+    const reward = await getRewardById(35);
+    if (reward.active === false) {
+      logger.info("Trophee Legendary Step non actif");
+      return;
+    }
     const currentSeason = await getCurrentSeason();
 
     const currentDate = new Date();

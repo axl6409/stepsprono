@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import penIcon from "../../assets/icons/pencil.svg";
 import navClose from "../../assets/icons/nav-cross.svg";
+import paperplane from "../../assets/icons/paper-plane-solid.svg";
 import userAdd from "../../assets/icons/user-add.svg";
 import StatusModal from "../../components/partials/modals/StatusModal.jsx";
 import UserSelectionModal from '../../components/admin/UserSelectionModal.jsx';
@@ -23,6 +24,7 @@ const AdminRewards = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRewardForUser, setSelectedRewardForUser] = useState(null);
   const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(false);
+  const [buttonActive, setButtonActive] = useState(false);
 
   useEffect(() => {
     fetchRewards();
@@ -73,9 +75,40 @@ const AdminRewards = () => {
           'Authorization': `Bearer ${token}`,
         }
       });
+      setStatusMessage('Trophée désactivée avec succès');
+      setStatus(true);
+      setIsModalOpen(true);
       fetchRewards();
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du trophée:', error);
+      setStatusMessage('Erreur lors de la désactivation du trophée');
+      setStatus(false);
+      setIsModalOpen(true);
+      console.error('Erreur lors de la désactivation du trophée:', error);
+    }
+  };
+
+  const triggerEvent = async (eventName) => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/admin/rewards/events/${eventName}`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setStatus(true);
+        setStatusMessage('Évènement déclenché avec succès !');
+      } else {
+        setStatus(false);
+        setStatusMessage('Erreur lors du déclenchement de l\'événement : ' + response.data.message);
+      }
+    } catch (error) {
+      setStatus(false);
+      setStatusMessage('Erreur lors du déclenchement de l\'événement : ' + error.response?.data?.message || error.message);
+    } finally {
+      setIsModalOpen(true);
+      setButtonActive(true);
+      setTimeout(() => {
+        setButtonActive(false);
+        setIsModalOpen(false);
+      }, 2000);
     }
   };
 
@@ -120,20 +153,28 @@ const AdminRewards = () => {
                 <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
               </div>
               <div className="flex flex-row justify-end max-w-[50%]">
-                <button onClick={() => handleEdit(reward)} className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
+                <button onClick={() => handleEdit(reward)}
+                        className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
                 </button>
-                <button onClick={() => handleDelete(reward.id)}
-                        className="bg-red-500 text-white px-2 py-1 mx-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
-                  <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>
+                {/*<button onClick={() => handleDelete(reward.id)}*/}
+                {/*        className="bg-red-500 text-white px-2 py-1 mx-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">*/}
+                {/*  <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>*/}
+                {/*</button>*/}
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 ml-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none"
+                  onClick={() => triggerEvent(reward.slug)}
+                  disabled={buttonActive}
+                >
+                  <img className="w-auto h-[20px]" src={paperplane} alt="Icone modifier"/>
                 </button>
                 <button onClick={() => openUserSelectionModal(reward)}
-                        className="bg-green-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
+                        className="bg-green-500 text-white px-2 py-1 ml-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
                 </button>
                 <button
                   className={`w-[70px] h-[27px] flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
-                  onClick={() => toggleActive(reward.id)}
+                  onClick={() => toggleActive(reward)}
                 >
                   <div
                     className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-6' : ''}`}
@@ -143,9 +184,9 @@ const AdminRewards = () => {
             </li>
           ))}
         </ul>
-        {isUserSelectionModalOpen && (
-          <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal} />
-        )}
+      {isUserSelectionModalOpen && (
+        <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal}/>
+      )}
       {showForm && (
         <div className="fixed z-[10] inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded shadow-lg">
@@ -157,7 +198,7 @@ const AdminRewards = () => {
         </div>
       )}
       {isUserSelectionModalOpen && (
-        <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal} />
+        <UserSelectionModal reward={selectedRewardForUser} onClose={closeUserSelectionModal}/>
       )}
       {showForm && (
         <div className="fixed z-[10] inset-0 flex items-center justify-center bg-black bg-opacity-50">

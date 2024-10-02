@@ -2,9 +2,9 @@ const { NotificationSubscription } = require('../models');
 const express = require("express");
 const axios = require("axios");
 const { authenticateJWT } = require("../middlewares/auth");
-const { sendNotificationsToAll } = require('../services/notificationService');
 const { sendNotification } = require("../services/fcmService");
 const logger = require("../utils/logger/logger");
+const {betsCloseNotification, testNotification} = require("../services/notificationService");
 const router = express.Router();
 const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 const appPublicUrl = process.env.REACT_APP_PUBLIC_URL || 'http://localhost:3000';
@@ -51,6 +51,25 @@ router.post('/notifications/send', async (req, res) => {
     console.error('Erreur lors de l\'envoi de la notification:', error);
     logger.error(error.data)
     res.status(500).json({ error: 'Erreur lors de l\'envoi de la notification' });
+  }
+});
+
+router.post('/notifications/bets-close', async (req, res) => {
+  const { notificationType } = req.body;
+  try {
+    await betsCloseNotification(notificationType);
+    res.status(200).json({ message: 'Notifications programmées avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la programmation des notifications', error });
+  }
+});
+
+router.post('/notifications/test', async (req, res) => {
+  try {
+    await testNotification();
+    res.status(200).json({ message: 'Notifications programmées avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la programmation des notifications', error });
   }
 });
 
