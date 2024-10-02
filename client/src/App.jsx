@@ -36,7 +36,7 @@ const App = () => {
       });
 
       // Envoyer la souscription au serveur
-      await fetch('http://localhost:5000/subscribe', {
+      await fetch('http://localhost:5000/api/notifications/subscribe', {
         method: 'POST',
         body: JSON.stringify(subscription),
         headers: {

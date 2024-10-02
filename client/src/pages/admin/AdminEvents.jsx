@@ -55,7 +55,7 @@ const AdminEvents = () => {
 
   const triggerNotification = async () => {
     try {
-      const response = await axios.post(`${apiUrl}/api/notifications/subscribe`, null, {
+      const response = await axios.post(`${apiUrl}/api/notifications/send`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {

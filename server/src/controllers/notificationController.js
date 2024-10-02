@@ -1,7 +1,10 @@
 const { NotificationSubscription } = require('../models');
 const { User } = require('../models');
+const express = require("express");
+const {authenticateJWT} = require("../middlewares/auth");
+const router = express.Router()
 
-exports.subscribe = async (req, res) => {
+router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
   const { endpoint, keys } = req.body;
   const userId = req.user.id;
 
@@ -26,4 +29,6 @@ exports.subscribe = async (req, res) => {
     console.error('Erreur lors de l\'enregistrement de la souscription:', error);
     res.status(500).json({ error: 'Erreur lors de l\'enregistrement de la souscription' });
   }
-};
+})
+
+module.exports = router
