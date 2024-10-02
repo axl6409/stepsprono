@@ -1,0 +1,282 @@
+const express = require('express')
+const router = express.Router()
+const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
+const fs = require('fs');
+const { mkdirSync, readdirSync } = require('fs');
+const { promisify } = require('util');
+const moveFile = promisify(fs.rename);
+const { User, Team, Role, Bet, Match, Player} = require("../models");
+const bcrypt = require("bcrypt");
+const path = require("path");
+const sharp = require("sharp");
+const { upload, deleteFilesInDirectory} = require('../utils/utils');
+const moment = require("moment-timezone");
+const {Op} = require("sequelize");
+const {getCurrentSeasonId} = require("../services/seasonService");
+const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
+  getMatchdayRanking
+} = require("../services/betService");
+
+/* PUBLIC - GET */
+router.get('/users/all', authenticateJWT, async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/user/:id', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      include: [
+        {
+          model: Role,
+          as: 'Roles'
+        },
+        {
+          model: Team,
+          as: 'team',
+        }]
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message })
+  }
+})
+router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
+  try {
+    if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
+    const bets = await getLastBetsByUserId(req.params.id);
+    if (bets.length === 0) {
+      res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
+    } else {
+      res.json({bets: bets})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/users/bets/last', authenticateJWT, async (req, res) => {
+  try {
+    const bets = await getAllLastBets(req.params.id);
+    if (bets.length === 0) {
+      res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
+    } else {
+      res.json({bets: bets})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/users/bets/ranking/:matchday', authenticateJWT, async (req, res) => {
+  try {
+    const ranking = await getMatchdayRanking(req.params.matchday);
+    if (ranking.length === 0) {
+      res.status(200).json({ ranking: ranking, message: `Aucun classement pour la journée ${req.params.matchday}` })
+    } else {
+      res.json({ranking: ranking})
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
+  }
+})
+router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const filter = req.params.filter;
+
+    if (filter === 'week') {
+      const seasonId = await getCurrentSeasonId(61);
+      const weekPoints = await getWeekPoints(seasonId, userId);
+      return res.json({ points: weekPoints });
+    } else if (filter === 'month') {
+      const seasonId = await getCurrentSeasonId(61);
+      const monthPoints = await getMonthPoints(seasonId, userId);
+      return res.json({ points: monthPoints });
+    } else if (filter === 'season') {
+      const seasonId = await getCurrentSeasonId(61);
+      const seasonPoints = await getSeasonPoints(seasonId, userId);
+      return res.json({ points: seasonPoints });
+    } else if (filter === 'last-matchday') {
+      const seasonId = await getCurrentSeasonId(61);
+      const lastMatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
+      return res.json({ points: lastMatchdayPoints });
+    } else {
+      return res.status(400).json({ error: 'Filtre non valide' });
+    }
+  } catch (error) {
+    console.error('Impossible de récupérer les pronostics:', error);
+    res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
+  }
+});
+
+/* PUBLIC - PUT */
+router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const { username, email, password, roleName, team_id } = req.body;
+    if (team_id) user.team_id = team_id;
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+    if (req.file) {
+      const imagePath = req.file.path;
+      const baseName = path.basename(imagePath, path.extname(imagePath));
+      const userDirectory = path.dirname(imagePath);
+      const tempDirectory = path.join(userDirectory, '..', 'temp');
+
+      mkdirSync(tempDirectory, { recursive: true });
+
+      await sharp(imagePath)
+        .resize(120, 120)
+        .toFile(`${tempDirectory}/${baseName}_120x120${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450, 450)
+        .toFile(`${tempDirectory}/${baseName}_450x450${path.extname(imagePath)}`);
+
+      await sharp(imagePath)
+        .resize(450)
+        .toFile(`${tempDirectory}/${baseName}_450xAuto${path.extname(imagePath)}`);
+
+      const originalFileName = `${baseName}${path.extname(imagePath)}`;
+      const originalFilePath = path.join(tempDirectory, originalFileName);
+      await moveFile(imagePath, originalFilePath);
+
+      deleteFilesInDirectory(userDirectory);
+
+      const tempFiles = readdirSync(tempDirectory);
+      for (const file of tempFiles) {
+        await moveFile(path.join(tempDirectory, file), path.join(userDirectory, file));
+      }
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+
+      user.img = path.basename(req.file.path);
+    }
+    if (roleName) {
+      const role = await Role.findOne({ where: { name: roleName } });
+      if (role) {
+        await user.setRoles([role]);
+        user.status = 'approved';
+      }
+    }
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: "Impossible de mettre à jour l'utilisateur" + error });
+  }
+});
+
+/* PUBLIC - PATCH */
+router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id)
+    if (!user) return res.status(404).json({error: 'Utilisateur non trouvé' })
+
+    const userStatus = user.status
+    if (userStatus === 'pending') {
+      res.status(403).json({ error: 'La demande est déjà en attente de validation'})
+    }
+    if (userStatus === 'refused') {
+      res.status(401).json({ error: 'La demande à déjà été refusée'})
+    }
+    await user.update({ status: 'pending' })
+    res.status(200).json({ message: 'La demande à été soumise avec succès' })
+  } catch (error) {
+    res.status(400).json({ error: 'Impossible de soumettre la requête ' + error })
+  }
+})
+
+/* PUBLIC - POST */
+router.post('/user/check-password', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ samePassword: true, error: 'Le nouveau mot de passe ne peut pas être le même que l\'ancien' });
+    }
+
+    res.status(200).json({ samePassword: false, message: 'Le nouveau mot de passe est différent de l\'ancien' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
+  }
+});
+router.post('/user/verify-password', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, currentPassword } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
+
+    res.status(200).json({ message: 'Mot de passe actuel correct' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la vérification du mot de passe' });
+  }
+});
+
+/* ADMIN - GET */
+router.get('/admin/users/requests', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    const users = await User.findAll({ where: { status: 'pending' } });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+router.get('/admin/users', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    let queryOptions = {
+      include: [{
+        model: Role,
+        through: { attributes: [] },
+        where: {}
+      }]
+    };
+    const roles = req.query.roles;
+    if (roles && roles.length > 0) {
+      queryOptions.include[0].where.name = roles;
+    }
+    const users = await User.findAll(queryOptions);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/* ADMIN - DELETE */
+router.delete('/admin/user/delete/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
+
+    const userId = req.params.id;
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvée' });
+
+    await user.destroy();
+    res.status(200).json({ message: 'Utilisateur supprimée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de l\'utilisateur', message: error.message });
+  }
+})
+
+module.exports = router

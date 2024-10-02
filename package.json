@@ -1,21 +1,55 @@
 {
-  "name": "stepsprono",
+  "name": "server",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "node server.js",
+    "build": "npm install --prefix client --include=dev && npm run build --prefix client",
+    "migrate": "npx sequelize-cli db:migrate",
+    "seed": "npx sequelize-cli db:seed:all"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": "^18.x"
   },
   "dependencies": {
-    "expo": "~49.0.11",
-    "expo-status-bar": "~1.6.0",
-    "react": "18.2.0",
-    "react-native": "0.72.4"
+    "axios": "^1.5.1",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "debug": "^2.6.9",
+    "dotenv": "^16.3.1",
+    "dotenv-json": "^1.0.0",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "firebase": "^10.14.0",
+    "googleapis": "^144.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.6.1",
+    "node-cron": "^3.0.2",
+    "node-schedule": "^2.1.1",
+    "nodemon": "^3.0.1",
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
+    "progress": "^2.0.3",
+    "rotating-file-stream": "^3.2.1",
+    "sequelize": "^6.33.0",
+    "sharp": "^0.32.6",
+    "web-push": "^3.6.7",
+    "winston": "^3.12.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
-  },
-  "private": true
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
+    "sequelize-cli": "^6.6.2",
+    "sinon": "^18.0.0"
+  }
 }
