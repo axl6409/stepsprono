@@ -11,10 +11,10 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         strategies: 'injectManifest',
         srcDir: 'src',
-        filename: 'service-worker.js',
+        filename: 'firebase-messaging-sw.js',
         injectManifest: {
           swSrc: './src/firebase-messaging-sw.js', // Chemin vers votre service worker Firebase
-          swDest: 'service-worker.js',
+          swDest: 'firebase-messaging-sw.js',
         },
         manifest: {
           name: 'StepsProno',

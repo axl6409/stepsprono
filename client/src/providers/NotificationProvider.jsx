@@ -28,7 +28,7 @@ const NotificationProvider = ({ children }) => {
           return;
         }
 
-        const registration = await navigator.serviceWorker.register('/service-worker.js');
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
         console.log('Service Worker enregistré avec succès :', registration);
 
         // Demander la permission pour les notifications
