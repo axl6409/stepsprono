@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa'
+import { resolve } from 'path'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -13,7 +14,7 @@ export default defineConfig(({ mode }) => {
         srcDir: 'src',
         filename: 'firebase-messaging-sw.js',
         injectManifest: {
-          swSrc: './src/firebase-messaging-sw.js', // Chemin vers votre service worker Firebase
+          swSrc: resolve(__dirname, 'client/src/firebase-messaging-sw.js'),
           swDest: 'firebase-messaging-sw.js',
         },
         manifest: {
