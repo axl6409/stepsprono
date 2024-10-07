@@ -18,6 +18,7 @@ ssl/
 wait-for-it.sh
 /client/src/assets/uploads/
 /server/config/
+/client/public/firebase-messaging-sw.js
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
 
