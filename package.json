@@ -51,6 +51,7 @@
     "mocha": "^10.7.3",
     "sequelize-cli": "^6.6.2",
     "sinon": "^18.0.0",
-    "vite-plugin-pwa": "^0.20.5"
+    "vite-plugin-pwa": "^0.20.5",
+    "workbox-window": "^7.1.0"
   }
 }
