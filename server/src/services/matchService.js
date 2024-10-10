@@ -7,7 +7,7 @@ const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
 const {Op} = require("sequelize");
 const { sequelize } = require('../models');
-const {schedule, scheduleJob} = require("node-schedule");
+const {scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
 const {getWeekDateRange} = require("./appService");
@@ -260,15 +260,20 @@ async function updateMatches(competitionId = null) {
  */
 async function fetchAndProgramWeekMatches() {
   try {
-    // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+    // Utiliser l'heure actuelle avec le fuseau Europe/Paris
+    // const now = moment().set({ 'year': 2024, 'month': 9, 'date': 15 });
     const now = moment().tz("Europe/Paris");
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
+
+    // Calculer le début et la fin de la semaine en cours
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
     const startDate = startOfWeek.clone().utc().format();
     const endDate = endOfWeek.clone().utc().format();
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
+
+    // Récupérer les matchs de la semaine à venir
     const matches = await Match.findAll({
       where: {
         utc_date: {
@@ -280,34 +285,21 @@ async function fetchAndProgramWeekMatches() {
         }
       }
     });
+
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
+
     matches.forEach(match => {
       logger.info(`[CRON]=> fetchAndProgramWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
       const matchTime = new Date(match.utc_date);
       const initialDelay = 110 * 60000;
       const initialTime = new Date(matchTime.getTime() + initialDelay);
 
-      scheduleJob(initialTime, function executeJob() {
-        updateMatchAndPredictions(match.id);
-        createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
-        logger.info(`[CRON]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
-
-        const recurringJob = setInterval(() => {
-          updateMatchAndPredictions(match.id);
-          createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
-          logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
-        }, 2 * 60000);
-
-        setTimeout(() => {
-          clearInterval(recurringJob);
-          logger.info(`[CRON RECURRING STOPPED]=> Stopped recurring updates for match ID: ${match.id}`);
-        }, 15 * 60000);
-      });
+      scheduleJob(initialTime, () => handleMatchUpdate(match));
 
       logger.info(`[CRON SETUP]=> Initial job set for match ID: ${match.id}, Start at: ${initialTime}`);
     });
   } catch (error) {
-    console.log('Erreur lors de la récupération des matchs du weekend:', error);
+    logger.error('Erreur lors de la récupération des matchs du weekend:', error);
   }
 }
 
@@ -339,7 +331,6 @@ async function fetchWeekMatches() {
     console.log('Erreur lors de la récupération des matchs de la semaine:', error);
   }
 }
-
 
 /**
  * Updates the require_details field for the last matches of each competition, season, and matchday.
@@ -423,6 +414,33 @@ const fetchMatchsNoChecked = async () => {
     console.log('Erreur lors de la création des matchs:', error);
   }
 }
+
+async function handleMatchUpdate(match) {
+  try {
+    await updateMatchAndPredictions(match.id);
+    await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
+    logger.info(`[CRON]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+
+    const recurringJob = setInterval(async () => {
+      try {
+        await updateMatchAndPredictions(match.id);
+        await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
+        logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+      } catch (recurringError) {
+        logger.error(`[CRON RECURRING ERROR]=> Error during recurring update for match ID: ${match.id}`, recurringError);
+      }
+    }, 2 * 60000);
+
+    setTimeout(() => {
+      clearInterval(recurringJob);
+      logger.info(`[CRON RECURRING STOPPED]=> Stopped recurring updates for match ID: ${match.id}`);
+    }, 15 * 60000);
+
+  } catch (error) {
+    logger.error(`[CRON ERROR]=> Error during update for match ID: ${match.id}`, error);
+  }
+}
+
 
 module.exports = {
   getMatchAndBets,

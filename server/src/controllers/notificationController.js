@@ -57,7 +57,7 @@ router.post('/notifications/send', async (req, res) => {
 router.post('/notifications/bets-close', async (req, res) => {
   const { notificationType } = req.body;
   try {
-    await betsCloseNotification(notificationType);
+    await betsCloseNotification(notificationType, 'trigger');
     res.status(200).json({ message: 'Notifications programmées avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la programmation des notifications', error });

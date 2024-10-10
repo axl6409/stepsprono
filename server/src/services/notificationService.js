@@ -1,11 +1,15 @@
 const { sendNotificationsToAll } = require('./fcmService');
 const { fetchWeekMatches } = require('./matchService');
+const { schedule } = require("node-schedule");
 const moment = require('moment');
+const logger = require("../utils/logger/logger");
+const {createTask} = require("./taskService");
 
-async function betsCloseNotification(type) {
+async function betsCloseNotification(type, action) {
   try {
     const matches = await fetchWeekMatches();
     if (!type) type = 'all';
+    if (!action) action = 'schedule';
 
     if (matches.length > 0) {
       const firstMatch = matches.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date))[0];
@@ -30,18 +34,34 @@ async function betsCloseNotification(type) {
         icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
       };
 
-      if (type === 'dayBefore') {
-        await sendNotificationsToAll(notificationMessage1);
-        console.log('Notification envoyée pour la veille à 18h.');
-      }
-      if (type === 'matchDay') {
-        await sendNotificationsToAll(notificationMessage2);
-        console.log('Notification envoyée pour le jour même à 9h.');
-      }
-      if (type === 'all') {
-        await sendNotificationsToAll(notificationMessage1);
-        await sendNotificationsToAll(notificationMessage2);
-        console.log('Notification envoyée pour la veille à 18h et le jour précédent à 9h.');
+      if (action === 'schedule') {
+        if (type === 'dayBefore' || type === 'all') {
+          await createTask('dayBefore', dayBeforeAt18h, async () => {
+            await sendNotificationsToAll(notificationMessage1);
+            logger.info('[NOTIF] Notification planifiée envoyée pour la veille à 18h.');
+          });
+        }
+        if (type === 'matchDay' || type === 'all') {
+          await createTask('matchDay', matchDayAt09h, async () => {
+            await sendNotificationsToAll(notificationMessage2);
+            logger.info('Notification planifiée envoyée pour le jour du match à 9h.');
+          });
+        }
+        logger.info('Les notifications ont été planifiées.');
+      } else if (action === 'trigger') {
+        if (type === 'dayBefore') {
+          await sendNotificationsToAll(notificationMessage1);
+          logger.info('[NOTIF] Notification immédiate envoyée pour la veille à 18h.');
+        }
+        if (type === 'matchDay') {
+          await sendNotificationsToAll(notificationMessage2);
+          logger.info('[NOTIF] Notification immédiate envoyée pour le jour du match à 9h.');
+        }
+        if (type === 'all') {
+          await sendNotificationsToAll(notificationMessage1);
+          await sendNotificationsToAll(notificationMessage2);
+          logger.info('[NOTIF] Notifications immédiates envoyées pour la veille à 18h et le jour du match à 9h.');
+        }
       }
     }
   } catch (error) {

@@ -23,7 +23,7 @@ const runCronJob = () => {
   // Every day at 00:01
   cron.schedule('0 1 * * *', async () => {
     console.log('Exécution de la tâche cron à 1h du matin...');
-    await betsCloseNotification();
+    await betsCloseNotification('all', 'schedule');
   });
 
   // Every Sunday at 23:59
