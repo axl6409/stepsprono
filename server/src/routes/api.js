@@ -14,6 +14,7 @@ const seasonController = require("../controllers/seasonController")
 const teamController = require("../controllers/teamController")
 const userController = require("../controllers/userController")
 const notificationController = require("../controllers/notificationController");
+const taskController = require("../controllers/taskController");
 
 router.use(appController)
 router.use(authController)
@@ -26,5 +27,6 @@ router.use(seasonController)
 router.use(teamController)
 router.use(userController)
 router.use(notificationController);
+router.use(taskController)
 
 module.exports = router;

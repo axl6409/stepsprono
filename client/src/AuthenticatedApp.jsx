@@ -32,6 +32,7 @@ import AdminEvents from "./pages/admin/AdminEvents.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import MatchDetails from "./pages/MatchDetails.jsx";
 import WeekRecap from "./pages/WeekRecap.jsx";
+import AdminTasks from "./pages/admin/AdminTasks.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -131,6 +132,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser}/>} />
             <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
             <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
+            <Route path="/admin/tasks" element={<ProtectedRoute component={AdminTasks} />} />
             <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
             <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
             <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />

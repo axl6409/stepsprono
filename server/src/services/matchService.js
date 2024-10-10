@@ -14,7 +14,7 @@ const {getWeekDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
-const {createTask} = require("./taskService");
+const {createOrReplaceTask} = require("./taskService");
 let cronTasks = [];
 
 const getMatchAndBets = async (matchId) => {
@@ -292,7 +292,7 @@ async function fetchAndProgramWeekMatches() {
       const initialDelay = 110 * 60000;
       const initialTime = new Date(matchTime.getTime() + initialDelay);
       console.log(initialTime)
-      await createTask('matchUpdate', initialTime, async () => {
+      await createOrReplaceTask('matchUpdate', initialTime, async () => {
         await handleMatchUpdate(match);
       });
 
@@ -430,7 +430,7 @@ async function handleMatchUpdate(match) {
     for (let i = 1; i <= numberOfTasks; i++) {
       const taskTime = new Date(now.getTime() + i * intervalMinutes * 60000);
 
-      await createTask('matchUpdateRecurring', taskTime, async () => {
+      await createOrReplaceTask('matchUpdateRecurring', taskTime, async () => {
         try {
           await updateMatchAndPredictions(match.id);
           await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
