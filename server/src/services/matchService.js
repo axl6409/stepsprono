@@ -14,6 +14,7 @@ const {getWeekDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
+const {createTask} = require("./taskService");
 let cronTasks = [];
 
 const getMatchAndBets = async (matchId) => {
@@ -260,12 +261,10 @@ async function updateMatches(competitionId = null) {
  */
 async function fetchAndProgramWeekMatches() {
   try {
-    // Utiliser l'heure actuelle avec le fuseau Europe/Paris
-    // const now = moment().set({ 'year': 2024, 'month': 9, 'date': 15 });
-    const now = moment().tz("Europe/Paris");
+    const now = moment().set({ 'year': 2024, 'month': 9, 'date': 15 });
+    // const now = moment().tz("Europe/Paris");
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
 
-    // Calculer le début et la fin de la semaine en cours
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
@@ -273,7 +272,6 @@ async function fetchAndProgramWeekMatches() {
     const endDate = endOfWeek.clone().utc().format();
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
 
-    // Récupérer les matchs de la semaine à venir
     const matches = await Match.findAll({
       where: {
         utc_date: {
@@ -288,16 +286,18 @@ async function fetchAndProgramWeekMatches() {
 
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
 
-    matches.forEach(match => {
+    for (const match of matches) {
       logger.info(`[CRON]=> fetchAndProgramWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
       const matchTime = new Date(match.utc_date);
       const initialDelay = 110 * 60000;
       const initialTime = new Date(matchTime.getTime() + initialDelay);
-
-      scheduleJob(initialTime, () => handleMatchUpdate(match));
+      console.log(initialTime)
+      await createTask('matchUpdate', initialTime, async () => {
+        await handleMatchUpdate(match);
+      });
 
       logger.info(`[CRON SETUP]=> Initial job set for match ID: ${match.id}, Start at: ${initialTime}`);
-    });
+    }
   } catch (error) {
     logger.error('Erreur lors de la récupération des matchs du weekend:', error);
   }
@@ -421,25 +421,33 @@ async function handleMatchUpdate(match) {
     await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
     logger.info(`[CRON]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
 
-    const recurringJob = setInterval(async () => {
-      try {
-        await updateMatchAndPredictions(match.id);
-        await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
-        logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
-      } catch (recurringError) {
-        logger.error(`[CRON RECURRING ERROR]=> Error during recurring update for match ID: ${match.id}`, recurringError);
-      }
-    }, 2 * 60000);
+    const intervalMinutes = 2;
+    const durationMinutes = 15;
+    const numberOfTasks = durationMinutes / intervalMinutes;
 
-    setTimeout(() => {
-      clearInterval(recurringJob);
-      logger.info(`[CRON RECURRING STOPPED]=> Stopped recurring updates for match ID: ${match.id}`);
-    }, 15 * 60000);
+    const now = new Date();
+
+    for (let i = 1; i <= numberOfTasks; i++) {
+      const taskTime = new Date(now.getTime() + i * intervalMinutes * 60000);
+
+      await createTask('matchUpdateRecurring', taskTime, async () => {
+        try {
+          await updateMatchAndPredictions(match.id);
+          await createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
+          logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+        } catch (recurringError) {
+          logger.error(`[CRON RECURRING ERROR]=> Error during recurring update for match ID: ${match.id}`, recurringError);
+        }
+      });
+    }
+
+    logger.info(`[CRON RECURRING]=> Scheduled ${numberOfTasks} recurring updates for match ID: ${match.id}`);
 
   } catch (error) {
     logger.error(`[CRON ERROR]=> Error during update for match ID: ${match.id}`, error);
   }
 }
+
 
 
 module.exports = {

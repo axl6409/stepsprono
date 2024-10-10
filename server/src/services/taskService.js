@@ -1,14 +1,15 @@
-const { ScheduledTask } = require('../models');
+const { ScheduledTasks } = require('../models');
 const schedule = require('node-schedule');
+const logger = require("../utils/logger/logger");
 
 async function createTask(type, scheduledAt, taskFunction) {
   try {
     const job = schedule.scheduleJob(scheduledAt, taskFunction);
-
-    const task = await ScheduledTask.create({
+    logger.info(`scheduledAt ${scheduledAt}`);
+    const task = await ScheduledTasks.create({
       type,
-      scheduledAt,
-      jobId: job.name,
+      scheduled_at: scheduledAt.toISOString(),
+      job_id: job.name,
       status: 'pending',
     });
 
@@ -21,7 +22,7 @@ async function createTask(type, scheduledAt, taskFunction) {
 
 async function updateTaskStatus(jobId, status) {
   try {
-    const task = await ScheduledTask.findOne({ where: { jobId } });
+    const task = await ScheduledTasks.findOne({ where: { jobId } });
     if (task) {
       task.status = status;
       await task.save();

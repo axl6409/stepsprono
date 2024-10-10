@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const ScheduledTask = sequelize.define('ScheduledTask', {
+  const ScheduledTasks = sequelize.define('ScheduledTasks', {
     type: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -22,9 +22,9 @@ module.exports = (sequelize, DataTypes) => {
       field: 'status',
     },
   }, {
-    tableName: 'scheduled_task',
+    tableName: 'scheduled_tasks',
     timestamps: true
   });
 
-  return ScheduledTask;
+  return ScheduledTasks;
 };
