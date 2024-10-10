@@ -10,22 +10,17 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        strategies: 'injectManifest',
-        srcDir: 'src',
-        filename: 'firebase-messaging-sw.js',
-        injectManifest: {
-          swSrc: resolve(__dirname, 'client/src/firebase-messaging-sw.js'),
-          swDest: 'firebase-messaging-sw.js',
-        },
+        registerType:'prompt',
         manifest: {
           name: 'StepsProno',
           short_name: 'StepsProno',
-          description: 'Votre description ici',
+          description: 'Application de pronostics entre potes',
           theme_color: '#ffffff',
           background_color: '#ffffff',
           display: 'standalone',
           scope: '/',
           start_url: '/',
+          orientation: 'portrait',
           icons: [
             {
               src: 'icons/icon-192x192.png',

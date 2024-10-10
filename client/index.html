@@ -49,6 +49,28 @@
   </head>
   <body class="bg-white overflow-x-hidden">
     <div id="root" class="h-full w-full bg-white md:max-w-[750px] md:mx-auto"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              registration.update();
+              registration.active.postMessage({
+                firebaseConfig: {
+                  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+                  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+                  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+                  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+                  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+                  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+                  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+                  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+                }
+              });
+            });
+        });
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
