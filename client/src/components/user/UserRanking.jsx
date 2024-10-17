@@ -17,11 +17,13 @@ const UserRanking = ({ users, token }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [updatedUsers, setUpdatedUsers] = useState([]);
   const [filter, setFilter] = useState('season');
+  const [selectedSubFilter, setSelectedSubFilter] = useState(null);
+  const [availableSubFilters, setAvailableSubFilters] = useState([]);
 
   useEffect(() => {
     const fetchUserPoints = async (userId) => {
       try {
-        const response = await axios.get(`${apiUrl}/api/user/${userId}/bets/${filter}`, {
+        const response = await axios.get(`${apiUrl}/api/user/${userId}/bets/${filter}?subFilter=${selectedSubFilter}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -31,7 +33,7 @@ const UserRanking = ({ users, token }) => {
         console.error(`Erreur lors de la récupération des points pour l'utilisateur ${userId}`, error);
         return 0;
       }
-    }
+    };
 
     const fetchUsersWithPoints = async () => {
       const usersWithPoints = await Promise.all(users.map(async (user) => {
@@ -50,16 +52,44 @@ const UserRanking = ({ users, token }) => {
       });
       setUpdatedUsers(usersWithPoints);
       setIsLoading(false);
-    }
+    };
 
     if (users.length > 0) {
       fetchUsersWithPoints();
     }
-  }, [users, token, filter]);
+  }, [users, token, filter, selectedSubFilter]);
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
+    setSelectedSubFilter(null); // Reset subfilter when filter changes
   };
+
+  useEffect(() => {
+    const fetchAvailableSubFilters = async () => {
+      let url;
+      if (filter === 'month') {
+        url = `${apiUrl}/api/matchs/months/available`; // Get available months
+      } else if (filter === 'week') {
+        url = `${apiUrl}/api/matchs/days/passed`; // Get available matchdays
+      }
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setAvailableSubFilters(response.data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des sous-filtres disponibles", error);
+      }
+    };
+
+    if (filter === 'month' || filter === 'week') {
+      fetchAvailableSubFilters();
+    }
+  }, [filter, token]);
 
   const fetchLastMatchdayPoints = async (userId) => {
     try {
@@ -73,7 +103,11 @@ const UserRanking = ({ users, token }) => {
       console.error(`Erreur lors de la récupération des points de la dernière journée pour l'utilisateur ${userId}`, error);
       return 0;
     }
-  }
+  };
+
+  const handleSubFilterChange = (e) => {
+    setSelectedSubFilter(e.target.value);
+  };
 
   if (isLoading) {
     return (
@@ -96,7 +130,7 @@ const UserRanking = ({ users, token }) => {
         <img className="absolute fade-in z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
         <img className="absolute fade-in z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
         <div className="relative fade-in  z-[3] order-1 -mr-6">
-          <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
             <p translate="no"
                className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
             <div
@@ -137,8 +171,7 @@ const UserRanking = ({ users, token }) => {
           </Link>
         </div>
         <div className="relative z-[2] order-3 -ml-6">
-          <Link to={`/dashboard/${updatedUsers[2]?.id}`}
-                className="relative fade-in z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
             <p
               translate="no"
               className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>
@@ -188,6 +221,30 @@ const UserRanking = ({ users, token }) => {
           </button>
         </div>
       </div>
+
+      {filter === 'month' && (
+        <div>
+          <select onChange={handleSubFilterChange} value={selectedSubFilter} className="form-select">
+            <option value="">Sélectionner un mois</option>
+            {availableSubFilters.map((option, index) => (
+              <option key={index} value={option.month}>
+                Mois {option.month}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {filter === 'week' && (
+        <select onChange={handleSubFilterChange} value={selectedSubFilter} className="form-select">
+          <option value="">Sélectionner une journée</option>
+          {availableSubFilters.map((option, index) => (
+            <option key={index} value={option}>
+              Journée {option.matchday || option}
+            </option>
+          ))}
+        </select>
+      )}
 
       <div className="relative z-[20] flex flex-col justify-start">
         <ul className="px-4">

@@ -5,15 +5,16 @@ const apiBaseUrl = process.env.FB_API_URL;
 const {Match, Team, Bet, User, Player} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
 const ProgressBar = require("progress");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./betService");
 const moment = require("moment");
-const {getWeekDateRange} = require("./appService");
+const {getWeekDateRange, getPeriodMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
+const {getCurrentCompetitionId} = require("./competitionService");
 let cronTasks = [];
 
 const getMatchAndBets = async (matchId) => {
@@ -399,7 +400,7 @@ const fetchMatchsNoChecked = async () => {
     const week = getWeekDateRange();
     const startOfWeek = week.start;
     const endOfWeek = week.end;
-    console.log('Date Range:', startOfWeek, endOfWeek);
+
     const matchs = await Match.findAndCountAll({
       where: {
         utc_date: {
@@ -424,6 +425,39 @@ const fetchMatchsNoChecked = async () => {
   }
 }
 
+const getAvailableMonthsWithMatches = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const monthsWithMatches = await Match.findAll({
+      attributes: [
+        [Sequelize.literal('DISTINCT EXTRACT(MONTH FROM "utc_date")'), 'month'],
+      ],
+      where: {
+        status: { [Op.ne]: 'TBD' },
+        season_id: seasonId
+      },
+    });
+
+    const monthsWithMatchdays = await Promise.all(monthsWithMatches.map(async (monthMatch) => {
+      const month = monthMatch.getDataValue('month');
+
+      const startDate = new Date(new Date().getFullYear(), month - 1, 1);
+      const endDate = new Date(new Date().getFullYear(), month, 0);
+
+      const matchdays = await getPeriodMatchdays(startDate, endDate);
+
+      return { month, matchdays };
+    }));
+
+    return monthsWithMatchdays;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des mois et matchdays : ', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getMatchAndBets,
   updateMatchAndPredictions,
@@ -433,5 +467,6 @@ module.exports = {
   fetchAndProgramWeekMatches,
   fetchWeekMatches,
   updateRequireDetails,
-  fetchMatchsNoChecked
+  fetchMatchsNoChecked,
+  getAvailableMonthsWithMatches
 };

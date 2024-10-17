@@ -5,7 +5,9 @@ const {Match, Team} = require("../models");
 const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
-const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets} = require("../services/matchService");
+const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
+  getAvailableMonthsWithMatches
+} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
 /* PUBLIC - GET */
@@ -145,6 +147,14 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 })
+router.get('/matchs/months/available', authenticateJWT, async (req, res) => {
+  try {
+    const monthsWithMatches = await getAvailableMonthsWithMatches();
+    res.status(200).json(monthsWithMatches);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des mois disponibles', error: error.message });
+  }
+});
 
 /* ADMIN - GET */
 router.get('/admin/matchs/no-results', authenticateJWT, checkAdmin, async (req, res) => {
