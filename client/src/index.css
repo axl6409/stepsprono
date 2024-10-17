@@ -26,6 +26,26 @@
     animation: slideOut 0.5s ease forwards;
 }
 
+.sticky-element {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.sticky-element.animatedTitle {
+    font-size: 1.5rem;
+    padding: 10px;
+
+    span:nth-child(2) {
+        transform: translate(2px, 12px);
+    }
+    span:nth-child(3) {
+        transform: translate(3px, 14px);
+    }
+}
+
+
 /* Pour Firefox */
 body {
     scrollbar-width: thin;

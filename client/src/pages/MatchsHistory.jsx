@@ -5,7 +5,6 @@ import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import DashboardButton from "../components/nav/DashboardButton.jsx";
 import {useCookies} from "react-cookie";
 import DayRanking from "../components/partials/DayRanking.jsx";
-
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const MatchsHistory = () => {
@@ -21,7 +20,7 @@ const MatchsHistory = () => {
   return (
     <div className="text-center relative h-auto flex flex-col justify-center w-full pt-20">
       <DashboardButton />
-      <AnimatedTitle title={"Historique"} animate={false}/>
+      <AnimatedTitle title={"Historique"} stickyStatus={true}/>
       <div className="relative">
         <Passed token={token} user={user} onDayChange={handleDayChange} selectedDay={currentPage} apiUrl={apiUrl}/>
         <DayRanking matchday={currentPage} token={token} apiUrl={apiUrl} />

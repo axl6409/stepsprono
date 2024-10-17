@@ -189,7 +189,7 @@ const Dashboard = ({ userId: propUserId }) => {
         </Link>
       </div>
 
-      <AnimatedTitle title={profileUser.username} animate={false}/>
+      <AnimatedTitle title={profileUser.username} stickyStatus={false}/>
 
       <div>
         {isAuthenticated && profileUser && profileUser.role !== 'visitor' ? (
