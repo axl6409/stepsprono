@@ -38,12 +38,12 @@ const Classements = () => {
   }, [token]);
 
   return (
-    <div className="inline-block w-full h-auto py-20">
+    <div className="inline-block relative w-full h-auto py-20">
       <DashboardButton />
-      <div className="mb-32">
-        <SimpleTitle title={"Classement Steps"} />
+      <SimpleTitle title={"Classement Steps"} />
+      <div className="relative mt-28">
+        <UserRanking users={Array.isArray(users) ? users : []} token={token} />
       </div>
-      <UserRanking users={Array.isArray(users) ? users : []} token={token} />
     </div>
   );
 }
