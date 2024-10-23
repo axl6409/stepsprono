@@ -3,7 +3,7 @@ const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId} = require("../services/betService");
+const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId, getSeasonRanking} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
@@ -47,29 +47,20 @@ router.get('/bets/get-null/all', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.post('/bet/add', authenticateJWT, async (req, res) => {
+router.get('/bets/season-ranking', authenticateJWT, async (req, res) => {
   try {
-    const bet = await createBet(req.body);
-    res.status(200).json(bet);
-  } catch (error) {
-    if (error.message === 'Match non trouvé' || error.message === 'Un prono existe déjà pour ce match') {
-      res.status(404).json({ error: error.message });
-    } else if (error.message.startsWith('Le score n\'est pas valide')) {
-      res.status(401).json({ error: error.message });
-    } else {
-      res.status(400).json({ error: 'Impossible d\'enregistrer le prono', message: error.message });
+    const seasonId = await getCurrentSeasonId(61);
+    const ranking = await getSeasonRanking(seasonId);
+
+    if (!ranking || ranking.length === 0) {
+      return res.status(404).json({ message: 'Aucun classement trouvé pour cette saison.' });
     }
-  }
-})
-router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
-  try {
-    const betId = req.params.betId;
-    const bet = await updateBet({ id: betId, ...req.body });
-    res.status(200).json(bet);
+
+    res.status(200).json({ ranking });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
   }
-})
+});
 
 /* PUBLIC - POST */
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
@@ -93,6 +84,20 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.post('/bet/add', authenticateJWT, async (req, res) => {
+  try {
+    const bet = await createBet(req.body);
+    res.status(200).json(bet);
+  } catch (error) {
+    if (error.message === 'Match non trouvé' || error.message === 'Un prono existe déjà pour ce match') {
+      res.status(404).json({ error: error.message });
+    } else if (error.message.startsWith('Le score n\'est pas valide')) {
+      res.status(401).json({ error: error.message });
+    } else {
+      res.status(400).json({ error: 'Impossible d\'enregistrer le prono', message: error.message });
+    }
   }
 })
 
@@ -136,6 +141,15 @@ router.patch('/admin/bets/checkup/:betId', authenticateJWT, checkAdmin, async (r
     res.status(200).json({ message: bet.message, datas: bet.updatedBets });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/bet/update/:betId', authenticateJWT, async (req, res) => {
+  try {
+    const betId = req.params.betId;
+    const bet = await updateBet({ id: betId, ...req.body });
+    res.status(200).json(bet);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 })
 

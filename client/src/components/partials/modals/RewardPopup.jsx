@@ -17,7 +17,7 @@ const RewardPopup = ({ reward, apiUrl, onClose }) => {
       case 'silver':
         return 'trophy-silver-rank-text';
       case 'gold':
-        return 'trophy-golden-rank-text';
+        return 'trophy-gold-rank-text';
       default:
         return '';
     }
@@ -38,8 +38,8 @@ const RewardPopup = ({ reward, apiUrl, onClose }) => {
             <div className="w-[200px] h-[200px] mx-auto flex flex-col justify-center relative">
               <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name}
                    className="mx-auto w-[75%]"/>
-              {/*<img src={`${apiUrl}/uploads/trophies/${reward.id}/text_${reward.id}.svg`} alt={reward.name}*/}
-              {/*     className="absolute inset-0 rotate-animation delay-500 origin-center"/>*/}
+              <img src={`${apiUrl}/uploads/trophies/${reward.id}/text_${reward.id}.webp`} alt={reward.name}
+                   className="absolute inset-0 rotate-animation delay-500 origin-center"/>
             </div>
           </div>
         </div>

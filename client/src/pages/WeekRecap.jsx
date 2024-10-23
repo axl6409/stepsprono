@@ -70,10 +70,10 @@ const WeekRecap = () => {
     return <div>Chargement en cours...</div>;
   }
 
-  if (!isAccessAllowed) {
-    navigate('/');
-    return null;
-  }
+  // if (!isAccessAllowed) {
+  //   navigate('/');
+  //   return null;
+  // }
 
   const getPredictionForMatchAndUser = (matchId, userId) => {
     const prediction = predictions?.find(pred => pred.match_id === matchId && pred.user_id === userId);

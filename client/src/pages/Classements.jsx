@@ -40,7 +40,7 @@ const Classements = () => {
   return (
     <div className="inline-block relative w-full h-auto py-20">
       <DashboardButton />
-      <SimpleTitle title={"Classement Steps"} />
+      <SimpleTitle title={"Classement Steps"} stickyStatus={false}/>
       <div className="relative mt-28">
         <UserRanking users={Array.isArray(users) ? users : []} token={token} />
       </div>

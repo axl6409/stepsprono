@@ -32,6 +32,7 @@ import AdminEvents from "./pages/admin/AdminEvents.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import MatchDetails from "./pages/MatchDetails.jsx";
 import WeekRecap from "./pages/WeekRecap.jsx";
+import RankingProvider from "./contexts/RankingContext.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -54,7 +55,8 @@ const AuthenticatedApp = () => {
   return isAuthenticated ? (
     <>
       <Navbar />
-      <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
+      <RankingProvider>
+        <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? 'blur-sm' : ''}`}>
         <AnimatePresence>
           <Routes>
             <Route path="/dashboard/" element={
@@ -141,6 +143,7 @@ const AuthenticatedApp = () => {
           </Routes>
         </AnimatePresence>
       </div>
+      </RankingProvider>
     </>
   ) : (
     <>

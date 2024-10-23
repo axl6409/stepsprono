@@ -8,7 +8,7 @@ const AnimatedTitle = ({ title, stickyStatus = true }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimateTitle(true);
-    }, 500);
+    }, 250);
 
     return () => {
       clearTimeout(timer);
@@ -19,7 +19,7 @@ const AnimatedTitle = ({ title, stickyStatus = true }) => {
     <h1
       translate="no"
       style={isSticky ? { top: `0px` } : {}}
-      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full bg-white fade-in overflow-hidden mb-8 mt-0 uppercase transition-all duration-500 text-center ease-in-out relative mx-auto ${animateTitle ? 'title-animated' : 'text-base'}`}>
+      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full bg-white fade-in overflow-hidden mb-8 mt-0 uppercase transition-all duration-200 text-center ease-in relative mx-auto ${animateTitle ? 'title-animated' : 'text-base'}`}>
       <span translate="no" className="relative z-[3] block left-0 top-0 right-0">{title}</span>
       <span
         translate="no"

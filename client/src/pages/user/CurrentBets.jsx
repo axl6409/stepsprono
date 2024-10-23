@@ -157,7 +157,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   };
 
   return (
-    <div>
+    <div key={user.id}>
       <div
         className="flex fade-in flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
         <img

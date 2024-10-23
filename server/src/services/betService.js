@@ -217,6 +217,54 @@ const getSeasonPoints = async (seasonId, userId) => {
 }
 
 /**
+ * Récupère le classement des utilisateurs pour une saison donnée
+ * @param {number} seasonId - L'ID de la saison
+ * @return {Promise<Array>} Le classement des utilisateurs avec leurs points
+ */
+const getSeasonRanking = async (seasonId) => {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        season_id: seasonId,
+        points: { [Op.not]: null }
+      },
+      include: [
+        {
+          model: User,
+          as: 'UserId',
+          attributes: ['id', 'username']
+        }
+      ]
+    });
+
+    const ranking = bets.reduce((acc, bet) => {
+      const userId = bet.user_id;
+      const username = bet.UserId.username;
+
+      if (acc[userId]) {
+        acc[userId].points += bet.points;
+      } else {
+        acc[userId] = {
+          user_id: userId,
+          username: username,
+          points: bet.points
+        };
+      }
+
+      return acc;
+    }, {});
+
+    // Trie le classement en fonction des points
+    const sortedRanking = Object.values(ranking).sort((a, b) => b.points - a.points);
+
+    return sortedRanking;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du classement de la saison:', error);
+    throw new Error('Erreur lors de la récupération du classement.');
+  }
+};
+
+/**
  * Calculates the total points based on the number of wins, draws, and losses.
  *
  * @param {number} wins - The number of wins.
@@ -572,6 +620,7 @@ module.exports = {
   getSeasonPoints,
   createBet,
   updateBet,
+  getSeasonRanking,
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,

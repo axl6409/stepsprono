@@ -11,9 +11,11 @@ async function betsCloseNotification(type) {
       const firstMatch = matches.sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date))[0];
       const firstMatchDate = new Date(firstMatch.utc_date);
 
+      const now = new Date();
+
       const dayBeforeAt18h = new Date(firstMatchDate);
       dayBeforeAt18h.setDate(dayBeforeAt18h.getDate() - 1);
-      dayBeforeAt18h.setHours(18, 0, 0);
+      dayBeforeAt18h.setHours(18, 0, 0, 0);
 
       const notificationMessage1 = {
         title: '⏰ Fermeture des pronostics demain ! ',
@@ -22,7 +24,7 @@ async function betsCloseNotification(type) {
       };
 
       const matchDayAt09h = new Date(firstMatchDate);
-      matchDayAt09h.setHours(9, 0, 0);
+      matchDayAt09h.setHours(9, 0, 0, 0);
 
       const notificationMessage2 = {
         title: '🚨 Fermeture des pronostics dans 3 heures !',
@@ -30,18 +32,14 @@ async function betsCloseNotification(type) {
         icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
       };
 
-      if (type === 'dayBefore') {
+      if (type === 'dayBefore' || (type === 'all' && now.getTime() === dayBeforeAt18h.getTime())) {
         await sendNotificationsToAll(notificationMessage1);
         console.log('Notification envoyée pour la veille à 18h.');
       }
-      if (type === 'matchDay') {
+
+      if (type === 'matchDay' || (type === 'all' && now.getTime() === matchDayAt09h.getTime())) {
         await sendNotificationsToAll(notificationMessage2);
         console.log('Notification envoyée pour le jour même à 9h.');
-      }
-      if (type === 'all') {
-        await sendNotificationsToAll(notificationMessage1);
-        await sendNotificationsToAll(notificationMessage2);
-        console.log('Notification envoyée pour la veille à 18h et le jour précédent à 9h.');
       }
     }
   } catch (error) {

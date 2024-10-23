@@ -275,7 +275,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
               const bet = getBetForMatch(match.id);
               return (
                 <div
-                  style={{animationDelay: `${index * 0.15}s`}}
+                  style={{animationDelay: `${index * 0.10}s`}}
                   className="flex cursor-pointer fade-in flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
                   key={match.id}
                   data-match-id={match.id}
