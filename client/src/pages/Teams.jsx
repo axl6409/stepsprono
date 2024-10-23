@@ -56,7 +56,7 @@ const Teams = () => {
   return (
     <div className="inline-block w-full h-auto pt-20">
       <DashboardButton />
-      <SimpleTitle title={"Classement Ligue 1"} />
+      <SimpleTitle title={"Classement Ligue 1"} stickyStatus={false}/>
       <div className="relative py-8 px-2 pt-0">
         <ul className="flex flex-col justify-start">
           {teams.map((team, index) => (

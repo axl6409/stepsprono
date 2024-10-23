@@ -112,7 +112,7 @@ const Rewards = () => {
   return (
       <div className="text-center relative py-10 flex flex-col justify-center">
         <BackButton />
-        <AnimatedTitle title={"Trophées"} animate={false}/>
+        <AnimatedTitle title={"Trophées"} stickyStatus={false}/>
         <div className="flex flex-row flex-wrap justify-around px-4">
           {sortedRewards.map((reward) => {
             const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);

@@ -28,6 +28,7 @@ export default {
         'purple-soft': '#CC99FF',
         'yellow-light': '#F3F5B2',
         'yellow-medium': '#FDD41D',
+        'orange-medium': '#F7B009',
         'red-light': '#FFB5BE',
         'red-medium': '#F41731',
         'blue-light': '#CCCCFF',

@@ -31,7 +31,7 @@ const UserRanking = ({ users, token }) => {
         console.error(`Erreur lors de la récupération des points pour l'utilisateur ${userId}`, error);
         return 0;
       }
-    }
+    };
 
     const fetchUsersWithPoints = async () => {
       const usersWithPoints = await Promise.all(users.map(async (user) => {
@@ -50,7 +50,7 @@ const UserRanking = ({ users, token }) => {
       });
       setUpdatedUsers(usersWithPoints);
       setIsLoading(false);
-    }
+    };
 
     if (users.length > 0) {
       fetchUsersWithPoints();
@@ -73,7 +73,7 @@ const UserRanking = ({ users, token }) => {
       console.error(`Erreur lors de la récupération des points de la dernière journée pour l'utilisateur ${userId}`, error);
       return 0;
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -96,7 +96,7 @@ const UserRanking = ({ users, token }) => {
         <img className="absolute fade-in z-[1] -bottom-20 right-0 w-20 rotate-45" src={crownOpacity} alt=""/>
         <img className="absolute fade-in z-[1] -bottom-16 left-1/4 w-20" src={purpleStarOpacity} alt=""/>
         <div className="relative fade-in  z-[3] order-1 -mr-6">
-          <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[1]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
             <p translate="no"
                className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">2</p>
             <div
@@ -137,8 +137,7 @@ const UserRanking = ({ users, token }) => {
           </Link>
         </div>
         <div className="relative z-[2] order-3 -ml-6">
-          <Link to={`/dashboard/${updatedUsers[2]?.id}`}
-                className="relative fade-in z-[20] group flex flex-col items-center">
+          <Link to={`/dashboard/${updatedUsers[2]?.id}`} className="relative fade-in z-[20] group flex flex-col items-center">
             <p
               translate="no"
               className="absolute -top-4 rounded-full bg-blue-medium w-9 h-9 text-center font-rubik font-black text-white text-xl2 leading-8">3</p>

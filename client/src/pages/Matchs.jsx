@@ -61,7 +61,7 @@ const Matchs = () => {
   return (
     <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden py-12">
       <DashboardButton />
-      <AnimatedTitle title={"Pronostics"} />
+      <AnimatedTitle title={"Pronostics"} stickyStatus={false}/>
       <div className="px-4 relative">
         <Week token={token} user={user}/>
       </div>

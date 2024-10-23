@@ -13,8 +13,10 @@ import incorrectIcon from "../../assets/icons/incorrect-icon.svg";
 import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 import {useNavigate} from "react-router-dom";
+import useSticky from "../../hooks/useSticky.jsx";
 
 const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
+  const { isSticky } = useSticky(100);
   const navigate = useNavigate()
   const [matchs, setMatchs] = useState([]);
   const [matchday, setMatchday] = useState(selectedDay);
@@ -208,43 +210,48 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       <Loader />
     ) : (
       <div className="relative pt-12 pb-20">
-        <Swiper
-          slidesPerView={5}
-          spaceBetween={10}
-          centeredSlides={true}
-          grabCursor={false}
-          navigation={{
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          }}
-          onSlideChange={handleSlideChange}
-          onInit={updateSlideClasses}
-          modules={[Navigation]}
-          className="historySwiper flex flex-col justify-start px-8 relative mb-12 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl after:content-[''] after:absolute"
-          ref={swiperRef}
+        <div
+          style={isSticky ? { top: `60px` } : {}}
+          className={`bg-white ${isSticky ? 'sticky-element pb-2' : ''}`}
         >
-          {matchdays.map((day, index) => (
-            <SwiperSlide
-              key={day}
-              onClick={() => handleSlideClick(day, index)}
-              className={`transition-all duration-300 ease-in ${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
-            >
-              <div className="text-center font-roboto py-4 cursor-pointer">
-                <span className="block text-xl">{day}</span>
-              </div>
-            </SwiperSlide>
-          ))}
-          <div
-            className="swiper-button-prev overflow-visible mt-0 absolute shadow-md h-full w-8 left-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
-            <img src={SwiperArrow} alt=""/>
-          </div>
-          <div
-            className="swiper-button-next overflow-visible mt-0 absolute shadow-md h-full w-8 right-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white focus:scla">
-            <img className="rotate-180" src={SwiperArrow} alt=""/>
-          </div>
-        </Swiper>
+          <Swiper
+            slidesPerView={isSticky ? 6 : 5}
+            spaceBetween={10}
+            centeredSlides={true}
+            grabCursor={false}
+            navigation={{
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            }}
+            onSlideChange={handleSlideChange}
+            onInit={updateSlideClasses}
+            modules={[Navigation]}
+            className={`historySwiper flex flex-col justify-start px-8 relative mb-12 ${isSticky ? '!mb-0' : ''} before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl after:content-[''] after:absolute`}
+            ref={swiperRef}
+          >
+            {matchdays.map((day, index) => (
+              <SwiperSlide
+                key={day}
+                onClick={() => handleSlideClick(day, index)}
+                className={`transition-all duration-300 ease-in ${selectedMatchday === day ? 'swiper-slide-active' : ''}`}
+              >
+                <div className="text-center font-roboto py-4 cursor-pointer">
+                  <span className={`block text-xl ${isSticky ? '!text-base' : ''}`}>{day}</span>
+                </div>
+              </SwiperSlide>
+            ))}
+            <div
+              className="swiper-button-prev overflow-visible mt-0 absolute shadow-md h-full w-8 left-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white">
+              <img src={SwiperArrow} alt=""/>
+            </div>
+            <div
+              className="swiper-button-next overflow-visible mt-0 absolute shadow-md h-full w-8 right-0 top-0 bottom-0 flex flex-col justify-center items-center bg-white focus:scla">
+              <img className="rotate-180" src={SwiperArrow} alt=""/>
+            </div>
+          </Swiper>
+        </div>
         <div className="mt-4">
-          <div className="flex fade-in flex-row justify-end border-t border-b border-black">
+          <div className={`bg-white ${isSticky ? 'sticky-element !top-[125px]' : ''} flex fade-in flex-row justify-end border-t border-b border-black`}>
             <div className="flex justify-end">
               <label translate="no" className="opacity-0 no-correct h-0 w-0">Saison :</label>
               <select translate="no" value={selectedSeason?.id || ''} onChange={handleSeasonChange}
@@ -268,13 +275,13 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
               const bet = getBetForMatch(match.id);
               return (
                 <div
-                  style={{animationDelay: `${index * 0.15}s`}}
+                  style={{animationDelay: `${index * 0.10}s`}}
                   className="flex cursor-pointer fade-in flex-row justify-start relative my-4 border border-black bg-white rounded-xl shadow-flat-black"
                   key={match.id}
                   data-match-id={match.id}
                   onClick={() => handleMatchClick(match.id)}
                 >
-                  <div className="flex flex-col justify-evenly items-center w-[68%] px-2 py-2">
+                  <div className="flex flex-col justify-evenly items-center w-3/4 px-2 py-2">
                     <div className="w-full flex flex-row justify-center">
                       <p
                         translate="no"
@@ -291,7 +298,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
                     </div>
                   </div>
                   {bet ? (
-                    <div className="pronostic-info w-[32%] border-l border-dashed border-black px-2 py-2">
+                    <div className="pronostic-info w-1/4 border-l border-dashed border-black px-2 py-2">
                       {bet.home_score !== null && bet.away_score !== null ? (
                         <div className="h-full flex flex-col justify-center">
                           <div className="w-full my-1 flex flex-col justify-center">

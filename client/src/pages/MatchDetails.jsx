@@ -115,7 +115,7 @@ const MatchDetails = () => {
             <img className="w-[150px] h-[150px] object-contain fade-in delay-150"
                  src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url} alt=""/>
           </div>
-          <div className="absolute">
+          <div className="absolute z-[10]">
             <img className="fade-in delay-300" src={vsIcon} alt=""/>
           </div>
           <div>
@@ -130,7 +130,7 @@ const MatchDetails = () => {
         </div>
         <div className="relative flex flex-row justify-center items-start">
           <div className="w-[150px]">
-            <p className="font-rubik font-bold text-xl4 fade-in delay-150">{match.goals_home}</p>
+            <p translate="no"  className="font-rubik font-bold text-xl4 fade-in delay-150">{match.goals_home}</p>
             <ul>
               {homeScorers.map((scorer, index) => (
                 <li key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -151,7 +151,7 @@ const MatchDetails = () => {
           </div>
         </div>
       </div>
-      <h2 className={`relative fade-in delay-200 mb-8 mt-12 w-fit mx-auto`}>
+      <h2 translate="no"  className={`relative fade-in delay-200 mb-8 mt-12 w-fit mx-auto`}>
         <span
           className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
         <span
@@ -184,6 +184,7 @@ const MatchDetails = () => {
                     `}
                   </style>
                   <p
+                    translate="no"
                     className="absolute hidden z-[1] font-rubik font-black text-xl6 -top-8 -left-2 opacity-20">{index + 1}</p>
                   <div className="relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 border-black border-dotted">
                     <div className="flex flex-col justify-evenly h-full">
