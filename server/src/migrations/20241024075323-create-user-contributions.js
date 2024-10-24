@@ -25,7 +25,6 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
         field: 'status'
       },
       matchday: {
