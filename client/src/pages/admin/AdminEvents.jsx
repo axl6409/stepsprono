@@ -80,6 +80,36 @@ const AdminEvents = () => {
     }
   };
 
+  const triggerTestFonction = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/admin/events/test`, null, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setUpdateStatus(true);
+        setUpdateMessage('Notification déclenchée avec succès !');
+        setIsModalOpen(true);
+        setTimeout(closeModal, 1500);
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors du déclenchement : ' + response.data.message);
+        setIsModalOpen(true);
+        setTimeout(closeModal, 2500);
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      console.log(error);
+      setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
+      setIsModalOpen(true);
+      setTimeout(closeModal, 2500);
+    } finally {
+      setButtonActive(true);
+      setTimeout(() => {
+        setButtonActive(false);
+      }, 200);
+    }
+  };
+
   const closeModal = () => {
     setUpdateStatus(false);
     setUpdateMessage('');
@@ -145,6 +175,22 @@ const AdminEvents = () => {
             <button
               className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
               onClick={() => triggerTestNotification()}
+            >
+              <div
+                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4">
+          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
+            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
+            <span>Test Fonction</span>
+          </p>
+          <div>
+            <button
+              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
+              onClick={() => triggerTestFonction()}
             >
               <div
                 className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>

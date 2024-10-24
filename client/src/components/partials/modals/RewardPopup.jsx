@@ -39,12 +39,12 @@ const RewardPopup = ({ reward, apiUrl, onClose }) => {
               <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name}
                    className="mx-auto w-[75%]"/>
               <img src={`${apiUrl}/uploads/trophies/${reward.id}/text_${reward.id}.webp`} alt={reward.name}
-                   className="absolute inset-0 rotate-animation delay-500 origin-center"/>
+                   className="h-full w-full object-contain object-center absolute inset-0 rotate-animation delay-500 origin-center"/>
             </div>
           </div>
         </div>
-        <p className="font-roboto font-medium text-sm leading-5">{reward.description}</p>
-        <p className={`font-rubik uppercase mt-4 text-sm font-bold ${getRankClass(reward.rank)} leading-5`}>{reward.rank}</p>
+        <p translate="no" className="font-roboto font-medium text-sm leading-5">{reward.description}</p>
+        <p translate="no" className={`font-rubik uppercase mt-4 text-sm font-bold ${getRankClass(reward.rank)} leading-5`}>{reward.rank}</p>
       </div>
     </div>
   );

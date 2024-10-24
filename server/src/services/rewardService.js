@@ -11,7 +11,7 @@ const {getUserRank, getUserPointsForWeek, getUserRankByPeriod, checkUserCorrectP
   getPredictedVictoriesForFavoriteTeam, getCorrectScorerPredictionsCount, getUniqueTrophiesCount,
   getTotalPointsForSeason, hasUserWonPreviousSeason, getSeasonWinner, getUserPointsForSeason
 } = require("./userService");
-const {getStartAndEndOfCurrentWeek, getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDate,
+const {getWeekDateRange, getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDate,
   getStartAndEndOfCurrentMonth
 } = require("./appService");
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
@@ -1252,11 +1252,11 @@ const checkBlindTrophy = async () => {
       logger.info("Trophee L'aveugle non actif");
       return;
     }
-    const currentWeek = getStartAndEndOfCurrentWeek();
+    const currentWeek = getWeekDateRange();
     const users = await User.findAll();
 
     for (const user of users) {
-      const userIsBlind = await checkBlindBet(user.id, currentWeek.startDate, currentWeek.endDate);
+      const userIsBlind = await checkBlindBet(user.id, currentWeek.start, currentWeek.end);
 
       if (userIsBlind) {
         const existingReward = await UserReward.findOne({

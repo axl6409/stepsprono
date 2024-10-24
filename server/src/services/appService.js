@@ -8,7 +8,8 @@ const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
 const moment = require("moment/moment");
 const eventBus = require("../events/eventBus");
-const {getSeasonDates} = require("./seasonService");
+const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
+const {getCurrentCompetitionId} = require("./competitionService");
 
 /**
  * Retrieves the number of API calls made by the server.
@@ -31,22 +32,6 @@ const getAPICallsCount = async () => {
   } catch (error) {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
-}
-
-/**
- * Returns the start and end dates of the current week.
- *
- * @return {Object} An object with `startDate` and `endDate` properties,
- * representing the start and end dates of the current week respectively.
- */
-const getStartAndEndOfCurrentWeek = () => {
-  const startOfWeek = new Date();
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-  return { startDate: startOfWeek, endDate: endOfWeek };
 }
 
 /**
@@ -170,6 +155,38 @@ const getPeriodMatchdays = async (startDate, endDate) => {
   }
 }
 
+const getMatchdayPeriod = async (matchday) => {
+  try {
+    if (isNaN(matchday)) {
+      logger.error("Matchday invalide fourni à getMatchdayPeriod");
+      throw new Error("Matchday invalide fourni à getMatchdayPeriod");
+    }
+
+    const matchs = await Match.findAll({
+      where: {
+        matchday: matchday,
+      },
+      order: [['utc_date', 'ASC']]
+    });
+
+    if (matchs.length === 0) {
+      logger.info('Aucun match prévu pour le matchday', matchday);
+      throw new Error(`Aucun match trouvé pour le matchday ${matchday}`);
+    }
+
+    const startDate = matchs[0].utc_date;
+    const endDate = matchs[matchs.length - 1].utc_date;
+
+    return {
+      startDate,
+      endDate
+    };
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des dates du matchday :', error);
+    throw error;
+  }
+};
+
 /**
  * Retrieves the matchdays within the current week.
  *
@@ -203,65 +220,33 @@ const getCurrentWeekMatchdays = async () => {
  */
 const getCurrentMonthMatchdays = async () => {
   try {
-    const matchdays = []
-    const monthDates = getMonthDateRange();
-    const matchs = await Match.findAll({
-      where: {
-        utc_date: {
-          [Op.gte]: monthDates.start,
-          [Op.lte]: monthDates.end
-        }
-      }
-    })
-    for (const match of matchs) {
-      matchdays.push(match.matchday)
-    }
-    return matchdays
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
-  }
-}
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
 
-/**
- * Retrieves the current matchday from the database.
- *
- * @return {Promise<number>} The current matchday.
- */
-const getCurrentMatchday = async () => {
-  try {
-    const response = await Season.findAll({
-      where: {
-        current: true,
-      }
-    })
-    console.log(response)
-    return response[0].dataValues.currentMatchday
-  } catch (error) {
-    logger.error('getCurrentMatchday ERROR: ', error)
-  }
-}
+    const { start, end } = getMonthDateRange();
 
-const getClosestPastMatchday = async (seasonId) => {
-  try {
-    const match = await Match.findOne({
+    const matches = await Match.findAll({
       where: {
+        competition_id: competitionId,
         season_id: seasonId,
         utc_date: {
-          [Op.lte]: new Date(),
-        },
+          [Op.between]: [start, end]
+        }
       },
-      order: [['utc_date', 'DESC']],
-      attributes: ['matchday'],
+      order: [['utc_date', 'ASC']]
     });
 
-    if (!match) {
-      console.warn('Aucun match trouvé pour la saison donnée.');
-      return null;
+    if (matches.length > 0) {
+      const uniqueMatchdays = Array.from(new Set(matches.map(match => match.matchday)));
+
+      return uniqueMatchdays;
+    } else {
+      logger.info('Aucun match prévu ce mois-ci.');
+      return [];
     }
 
-    return match.matchday;
   } catch (error) {
-    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    logger.error('Erreur lors de la récupération des matchdays :', error);
     throw error;
   }
 };
@@ -449,14 +434,12 @@ module.exports = {
   getWeekDateRange,
   getMonthDateRange,
   getPeriodMatchdays,
+  getMatchdayPeriod,
   getCurrentWeekMatchdays,
   getCurrentMonthMatchdays,
-  getCurrentMatchday,
-  getClosestPastMatchday,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
   scheduleTaskForEndOfMonthMatch,
-  getStartAndEndOfCurrentWeek,
   getStartAndEndOfCurrentMonth,
   getFirstDaysOfCurrentAndPreviousMonth,
   getSeasonStartDate,

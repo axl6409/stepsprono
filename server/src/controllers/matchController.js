@@ -6,7 +6,7 @@ const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
-  getAvailableMonthsWithMatches
+  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays
 } = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
@@ -49,24 +49,8 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   try {
-    const { seasonId } = req.query;
-    const currentDate = new Date();
-    const matchdays = await Match.findAll({
-      attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('matchday')), 'matchday'],
-      ],
-      where: {
-        utc_date: {
-          [Op.lt]: currentDate
-        },
-        season_id: seasonId
-      },
-      order: [
-        ['matchday', 'ASC']
-      ]
-    });
-    const uniqueMatchdays = matchdays.map(match => match.matchday);
-    res.json(uniqueMatchdays);
+    const matchdays = await getPastAndCurrentMatchdays();
+    res.json(matchdays);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
   }
