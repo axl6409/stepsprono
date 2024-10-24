@@ -157,12 +157,13 @@ const Contributions = () => {
     <div className="inline-block relative w-full h-auto py-20 overflow-x-hidden">
       <BackButton/>
       <SimpleTitle title={"Steps d'épargne"} stickyStatus={false}/>
-      <button
-        className="absolute z-[25] bg-green-medium top-2 right-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-        onClick={() => setIsModalOpen(true)}>
-        <span
-          className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">+</span>
-      </button>
+      {(user.role === 'admin' || user.role === 'treasurer') && (
+        <button
+          className="absolute z-[25] bg-green-medium top-2 right-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+          onClick={() => setIsModalOpen(true)}>
+          <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">+</span>
+        </button>
+      )}
       <div className="mb-4 flex flex-row justify-evenly items-center">
         <p className="font-rubik text-base font-medium text-black flex flex-col text-center">
           <span>
