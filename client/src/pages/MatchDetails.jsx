@@ -102,7 +102,7 @@ const MatchDetails = () => {
   return (
     <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20 pb-28">
       <BackButton/>
-      <AnimatedTitle title={"Détails du match"} animate={false}/>
+      <AnimatedTitle title={"Détails du match"} stickyStatus={false}/>
       <div>
         <div className="w-full text-center flex flex-col justify-center px-6 py-4">
           <p className="date-hour fade-in delay-150 capitalize font-medium bg-white border-2 border-black shadow-flat-black-adjust w-fit mx-auto px-8 mb-8" translate="no">

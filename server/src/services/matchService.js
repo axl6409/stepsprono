@@ -341,7 +341,6 @@ async function fetchWeekMatches() {
   }
 }
 
-
 /**
  * Updates the require_details field for the last matches of each competition, season, and matchday.
  *
@@ -458,15 +457,114 @@ const getAvailableMonthsWithMatches = async () => {
   }
 };
 
+const getClosestPastMatchday = async (seasonId) => {
+  try {
+    const match = await Match.findOne({
+      where: {
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: new Date(),
+        },
+      },
+      order: [['utc_date', 'DESC']],
+      attributes: ['matchday'],
+    });
+
+    if (!match) {
+      console.warn('Aucun match trouvé pour la saison donnée.');
+      return null;
+    }
+
+    return match.matchday;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    throw error;
+  }
+};
+
+const getPastAndCurrentMatchdays = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const today = new Date();
+
+    const matches = await Match.findAll({
+      where: {
+        competition_id: competitionId,
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: today
+        }
+      },
+      order: [['utc_date', 'ASC']]
+    });
+
+    if (matches.length > 0) {
+      const matchdays = Array.from(new Set(matches.map(match => match.matchday)));
+
+      return matchdays;
+    } else {
+      logger.info('Aucun match passé ou en cours.');
+      return [];
+    }
+
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des matchdays passés et actuels :', error);
+    throw error;
+  }
+};
+
+const getCurrentMatchday = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    // Récupérer tous les matchs de la saison actuelle
+    const matches = await Match.findAll({
+      where: {
+        competition_id: competitionId,
+        season_id: seasonId
+      },
+      order: [['utc_date', 'ASC']]
+    });
+
+    const today = new Date();
+
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7));
+    startOfWeek.setHours(0, 0, 0, 0);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const matchesThisWeek = matches.filter(match => {
+      const matchDate = new Date(match.utc_date);
+      return matchDate >= startOfWeek && matchDate <= endOfWeek;
+    });
+
+    if (matchesThisWeek.length > 0) {
+      return matchesThisWeek[0].matchday;
+    } else {
+      console.log('Aucun match prévu cette semaine.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Erreur lors de la recuperation du matchday : ', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getMatchAndBets,
   updateMatchAndPredictions,
   updateSingleMatch,
+  getClosestPastMatchday,
   updateMatches,
   getMatchsCronTasks,
   fetchAndProgramWeekMatches,
   fetchWeekMatches,
   updateRequireDetails,
   fetchMatchsNoChecked,
-  getAvailableMonthsWithMatches
+  getAvailableMonthsWithMatches,
+  getPastAndCurrentMatchdays,
+  getCurrentMatchday
 };

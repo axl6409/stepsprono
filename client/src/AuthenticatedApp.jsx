@@ -33,6 +33,7 @@ import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import MatchDetails from "./pages/MatchDetails.jsx";
 import WeekRecap from "./pages/WeekRecap.jsx";
 import RankingProvider from "./contexts/RankingContext.jsx";
+import Contributions from "./pages/Contributions.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser } = useContext(UserContext);
@@ -123,6 +124,7 @@ const AuthenticatedApp = () => {
             <Route path="/matchs/history/:matchId" element={<ProtectedRoute component={MatchDetails} />} />
             <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
             <Route path="/week-recap" element={<ProtectedRoute component={WeekRecap} />} />
+            <Route path="/contributions" element={<ProtectedRoute component={Contributions} />} />
             <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
             <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
             <Route path="/user/settings" element={

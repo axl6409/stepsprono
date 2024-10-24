@@ -18,7 +18,7 @@ const MatchsHistory = () => {
   }
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center w-full pt-20">
+    <div className="text-center relative h-auto flex flex-col justify-center w-full py-20">
       <DashboardButton />
       <AnimatedTitle title={"Historique"} stickyStatus={true}/>
       <div className="relative">

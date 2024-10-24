@@ -150,6 +150,19 @@ const checkAndAddNewSeason = async (competitionId) => {
   }
 }
 
+const updateCurrentMatchday = async () => {
+  try {
+    const currentSeason = await getCurrentSeason()
+    const currentMatchday = await getCurrentMatchday()
+    const newSeason = await Season.update(
+      { currentMatchday: currentMatchday },
+      { where: { id: currentSeason.id } }
+    )
+    return newSeason
+  } catch (error) {
+    console.log('updateCurrentMatchday ERROR: ', error)
+  }
+}
 
 module.exports = {
   getCurrentSeason,
@@ -157,5 +170,6 @@ module.exports = {
   getCurrentSeasonId,
   getCurrentSeasonYear,
   checkAndAddNewSeason,
-  getSeasonDates
+  getSeasonDates,
+  updateCurrentMatchday,
 };

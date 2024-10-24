@@ -25,6 +25,8 @@ module.exports = {
           model: 'users',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
         field: 'user_id',
       },
       reward_id: {
@@ -34,6 +36,8 @@ module.exports = {
           model: 'rewards',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
         field: 'reward_id',
       },
       count: {

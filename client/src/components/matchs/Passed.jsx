@@ -58,7 +58,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     if (selectedSeason) {
       const fetchMatchdays = async () => {
         try {
-          const response = await axios.get(`${apiUrl}/api/matchs/days/passed?seasonId=${selectedSeason.id}`, {
+          const response = await axios.get(`${apiUrl}/api/matchs/days/passed`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }

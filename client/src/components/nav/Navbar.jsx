@@ -9,6 +9,7 @@ import navProfile from '../../assets/components/icons/nav-profil.svg';
 import navClose from '../../assets/icons/nav-cross.svg';
 import navLogout from '../../assets/components/icons/nav-logout.svg';
 import navAdmin from '../../assets/components/icons/nav-admin.svg';
+import navBank from '../../assets/components/icons/nav-bank.svg';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
@@ -213,6 +214,16 @@ const UserMenu = () => {
                       <img className="h-[20px] mx-auto" src={navStepsRanking} alt="Icône classement steps"/>
                     </span>
                     <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Classement Steps</span>
+                  </Link>
+                  <Link
+                    to="/contributions"
+                    className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"
+                    onClick={toggleMenu}
+                  >
+                    <span className="inline-block w-1/5">
+                      <img className="h-[20px] mx-auto" src={navBank} alt="Icône profil"/>
+                    </span>
+                    <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Steps d'épargne</span>
                   </Link>
                   <Link
                     to="/user/settings"
