@@ -236,7 +236,8 @@ const getSeasonRanking = async (seasonId) => {
       ]
     });
 
-    const ranking = bets.reduce((acc, bet) => {
+    const ranking = await bets.reduce(async (accPromise, bet) => {
+      const acc = await accPromise;
       const userId = bet.user_id;
       const username = bet.UserId.username;
 
@@ -246,14 +247,20 @@ const getSeasonRanking = async (seasonId) => {
         acc[userId] = {
           user_id: userId,
           username: username,
-          points: bet.points
+          points: bet.points,
+          lastMatchdayPoints: await getLastMatchdayPoints(seasonId, userId)
         };
       }
 
       return acc;
-    }, {});
+    }, Promise.resolve({}));
 
-    const sortedRanking = Object.values(ranking).sort((a, b) => b.points - a.points);
+    const sortedRanking = Object.values(ranking).sort((a, b) => {
+      if (b.points === a.points) {
+        return b.lastMatchdayPoints - a.lastMatchdayPoints;
+      }
+      return b.points - a.points;
+    });
 
     return sortedRanking;
   } catch (error) {

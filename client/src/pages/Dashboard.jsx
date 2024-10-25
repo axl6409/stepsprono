@@ -146,10 +146,10 @@ const Dashboard = ({ userId: propUserId }) => {
   };
 
   const handlers = useSwipeable({
-    onSwipedLeft: goToNextUser, // Swipe vers la gauche pour aller à l'utilisateur suivant
-    onSwipedRight: goToPreviousUser, // Swipe vers la droite pour aller à l'utilisateur précédent
+    onSwipedLeft: goToNextUser,
+    onSwipedRight: goToPreviousUser,
     preventDefaultTouchmoveEvent: true,
-    trackMouse: true // Permet également de détecter les événements de swipe avec la souris
+    trackMouse: true
   });
 
   if (isLoading) {
@@ -176,7 +176,6 @@ const Dashboard = ({ userId: propUserId }) => {
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
       <div className="flex flex-row justify-between px-4 py-2 mb-4">
-        {/* Affichage du logo de l'équipe */}
         {userId === user.id ? (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
@@ -221,7 +220,6 @@ const Dashboard = ({ userId: propUserId }) => {
             </span>
           </p>
         </div>
-        {/* Afficher les trophées */}
         <Link
           className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
           to={`/rewards/${userId}`}>
@@ -238,10 +236,8 @@ const Dashboard = ({ userId: propUserId }) => {
         </Link>
       </div>
 
-      {/* Titre animé avec le nom de l'utilisateur */}
       <AnimatedTitle title={profileUser.username} stickyStatus={false}/>
 
-      {/* Affichage des paris et rôles */}
       <div>
         {isAuthenticated && profileUser && profileUser.role !== 'visitor' ? (
           <CurrentBets loggedUser={user} user={profileUser} token={token}/>
