@@ -90,21 +90,14 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
     const filter = req.params.filter;
 
     if (filter === 'week') {
-      const seasonId = await getCurrentSeasonId(61);
-      const weekPoints = await getWeekPoints(seasonId, userId);
+      const weekPoints = await getWeekPoints(userId);
       return res.json({ points: weekPoints });
     } else if (filter === 'month') {
-      const seasonId = await getCurrentSeasonId(61);
-      const monthPoints = await getMonthPoints(seasonId, userId);
+      const monthPoints = await getMonthPoints(userId);
       return res.json({ points: monthPoints });
     } else if (filter === 'season') {
-      const seasonId = await getCurrentSeasonId(61);
-      const seasonPoints = await getSeasonPoints(seasonId, userId);
+      const seasonPoints = await getSeasonPoints(userId);
       return res.json({ points: seasonPoints });
-    } else if (filter === 'last-matchday') {
-      const seasonId = await getCurrentSeasonId(61);
-      const lastMatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
-      return res.json({ points: lastMatchdayPoints });
     } else {
       return res.status(400).json({ error: 'Filtre non valide' });
     }

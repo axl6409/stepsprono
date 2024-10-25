@@ -36,15 +36,11 @@ const UserRanking = ({ users, token }) => {
     const fetchUsersWithPoints = async () => {
       const usersWithPoints = await Promise.all(users.map(async (user) => {
         const points = await fetchUserPoints(user.id);
-        let lastMatchdayPoints = 0;
-        if (filter !== 'week') {
-          lastMatchdayPoints = await fetchLastMatchdayPoints(user.id);
-        }
-        return { ...user, points, lastMatchdayPoints };
+        return { ...user, points };
       }));
       usersWithPoints.sort((a, b) => {
         if (b.points === a.points) {
-          return b.lastMatchdayPoints - a.lastMatchdayPoints;
+          return b.points - a.points;
         }
         return b.points - a.points;
       });
@@ -59,20 +55,6 @@ const UserRanking = ({ users, token }) => {
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
-  };
-
-  const fetchLastMatchdayPoints = async (userId) => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/user/${userId}/bets/last-matchday`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return response.data.points;
-    } catch (error) {
-      console.error(`Erreur lors de la récupération des points de la dernière journée pour l'utilisateur ${userId}`, error);
-      return 0;
-    }
   };
 
   if (isLoading) {

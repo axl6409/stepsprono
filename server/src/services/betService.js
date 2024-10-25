@@ -1,7 +1,6 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team, Player, User} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
-const {getClosestPastMatchday} = require("./matchService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
@@ -80,6 +79,31 @@ const getNullBets = async () => {
   }
 }
 
+const getClosestPastMatchday = async (seasonId) => {
+  try {
+    const match = await Match.findOne({
+      where: {
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: new Date(),
+        },
+      },
+      order: [['utc_date', 'DESC']],
+      attributes: ['matchday'],
+    });
+
+    if (!match) {
+      console.warn('Aucun match trouvé pour la saison donnée.');
+      return null;
+    }
+
+    return match.matchday;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    throw error;
+  }
+};
+
 /**
  * Retrieves the total points earned by a user for the last matchday of a season.
  *
@@ -87,9 +111,12 @@ const getNullBets = async () => {
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the last matchday. Returns 0 if there was an error.
  */
-const getLastMatchdayPoints = async (seasonId, userId) => {
+const getLastMatchdayPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchday = await getClosestPastMatchday(seasonId);
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -110,7 +137,7 @@ const getLastMatchdayPoints = async (seasonId, userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
-    logger.info('Points:', points);
+
     return points;
   } catch (error) {
     console.log('Erreur lors de la récupération des points pour la dernière journée:', error);
@@ -121,12 +148,13 @@ const getLastMatchdayPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific week of a season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the week. Returns 0 if there was an error.
  */
-const getWeekPoints = async (seasonId, userId) => {
+const getWeekPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentWeekMatchdays(seasonId);
 
     const bets = await Bet.findAll({
@@ -154,15 +182,15 @@ const getWeekPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific month of a season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the month. Returns 0 if there was an error.
  */
-const getMonthPoints = async (seasonId, userId) => {
+const getMonthPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentMonthMatchdays(seasonId);
-    logger.info('Matchdays')
-    console.log(matchdays)
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -189,12 +217,13 @@ const getMonthPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the season. Returns 0 if there was an error.
  */
-const getSeasonPoints = async (seasonId, userId) => {
+const getSeasonPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -240,6 +269,7 @@ const getSeasonRanking = async (seasonId) => {
       const acc = await accPromise;
       const userId = bet.user_id;
       const username = bet.UserId.username;
+      const lastDaymatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
 
       if (acc[userId]) {
         acc[userId].points += bet.points;
@@ -248,7 +278,7 @@ const getSeasonRanking = async (seasonId) => {
           user_id: userId,
           username: username,
           points: bet.points,
-          lastMatchdayPoints: await getLastMatchdayPoints(seasonId, userId)
+          lastMatchdayPoints: lastDaymatchdayPoints
         };
       }
 

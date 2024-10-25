@@ -457,31 +457,6 @@ const getAvailableMonthsWithMatches = async () => {
   }
 };
 
-const getClosestPastMatchday = async (seasonId) => {
-  try {
-    const match = await Match.findOne({
-      where: {
-        season_id: seasonId,
-        utc_date: {
-          [Op.lte]: new Date(),
-        },
-      },
-      order: [['utc_date', 'DESC']],
-      attributes: ['matchday'],
-    });
-
-    if (!match) {
-      console.warn('Aucun match trouvé pour la saison donnée.');
-      return null;
-    }
-
-    return match.matchday;
-  } catch (error) {
-    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
-    throw error;
-  }
-};
-
 const getPastAndCurrentMatchdays = async () => {
   try {
     const competitionId = await getCurrentCompetitionId();
@@ -557,7 +532,6 @@ module.exports = {
   getMatchAndBets,
   updateMatchAndPredictions,
   updateSingleMatch,
-  getClosestPastMatchday,
   updateMatches,
   getMatchsCronTasks,
   fetchAndProgramWeekMatches,

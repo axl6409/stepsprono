@@ -3,7 +3,7 @@ const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId, getSeasonRanking} = require("../services/betService");
+const {getNullBets, checkupBets, createBet, updateBet, getSeasonRanking} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
