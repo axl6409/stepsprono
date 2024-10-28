@@ -260,7 +260,7 @@ const getSeasonRanking = async (seasonId) => {
         {
           model: User,
           as: 'UserId',
-          attributes: ['id', 'username']
+          attributes: ['id', 'username', 'img']
         }
       ]
     });
@@ -278,6 +278,7 @@ const getSeasonRanking = async (seasonId) => {
           user_id: userId,
           username: username,
           points: bet.points,
+          img: bet.UserId.img,
           lastMatchdayPoints: lastDaymatchdayPoints
         };
       }
@@ -298,6 +299,83 @@ const getSeasonRanking = async (seasonId) => {
     throw new Error('Erreur lors de la récupération du classement.');
   }
 };
+
+const getRanking = async (seasonId, period) => {
+  try {
+    let matchdays = [];
+    if (period === 'month') {
+      matchdays = await getCurrentMonthMatchdays();
+    } else if (period === 'week') {
+      matchdays = await getCurrentWeekMatchdays();
+    }
+
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'img']
+    });
+
+    const ranking = users.reduce((acc, user) => {
+      acc[user.id] = {
+        user_id: user.id,
+        username: user.username,
+        points: 0,
+        img: user.img,
+        lastMatchdayPoints: 0
+      };
+      return acc;
+    }, {});
+
+    const bets = await Bet.findAll({
+      where: {
+        season_id: seasonId,
+        points: { [Op.not]: null },
+        ...(period !== 'season' && { matchday: { [Op.in]: matchdays } })
+      },
+      include: [
+        {
+          model: User,
+          as: 'UserId',
+          attributes: ['id', 'username', 'img']
+        }
+      ]
+    });
+
+    let totalPoints = 0;
+    for (const bet of bets) {
+      const userId = bet.user_id;
+      if (ranking[userId]) {
+        ranking[userId].points += bet.points;
+        ranking[userId].lastMatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
+        totalPoints += bet.points;
+      }
+    }
+
+    if (totalPoints === 0) {
+      const closestPastMatchday = await getClosestPastMatchday(seasonId);
+      if (closestPastMatchday) {
+        const lastMatchdayRanking = await getMatchdayRanking(closestPastMatchday);
+
+        lastMatchdayRanking.forEach(user => {
+          if (ranking[user.user_id]) {
+            ranking[user.user_id].points = user.points;
+          }
+        });
+      }
+    }
+
+    const sortedRanking = Object.values(ranking).sort((a, b) => {
+      if (b.points === a.points) {
+        return b.lastMatchdayPoints - a.lastMatchdayPoints;
+      }
+      return b.points - a.points;
+    });
+
+    return sortedRanking;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération du classement pour ${period}:`, error);
+    throw new Error('Erreur lors de la récupération du classement.');
+  }
+};
+
 
 /**
  * Calculates the total points based on the number of wins, draws, and losses.
@@ -668,6 +746,7 @@ module.exports = {
   createBet,
   updateBet,
   getSeasonRanking,
+  getRanking,
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,
