@@ -1,5 +1,5 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team, Player, User} = require("../models");
+const {Bet, Match, Team, Player, User, Setting} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
@@ -302,6 +302,13 @@ const getSeasonRanking = async (seasonId) => {
 
 const getRanking = async (seasonId, period) => {
   try {
+    // 1. Récupérer le mode de classement dans la table `settings`
+    const setting = await Setting.findOne({
+      where: { key: 'rankingMode' },
+      attributes: ['active_option']
+    });
+    const rankingMode = setting?.active_option;
+
     let matchdays = [];
     if (period === 'month') {
       matchdays = await getCurrentMonthMatchdays();
@@ -318,8 +325,9 @@ const getRanking = async (seasonId, period) => {
         user_id: user.id,
         username: user.username,
         points: 0,
-        img: user.img,
-        lastMatchdayPoints: 0
+        tie_breaker_points: 0,
+        mode: rankingMode,
+        img: user.img
       };
       return acc;
     }, {});
@@ -339,32 +347,26 @@ const getRanking = async (seasonId, period) => {
       ]
     });
 
-    let totalPoints = 0;
+    // Calcul des points
     for (const bet of bets) {
       const userId = bet.user_id;
       if (ranking[userId]) {
         ranking[userId].points += bet.points;
-        ranking[userId].lastMatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
-        totalPoints += bet.points;
+
+        // Calcul de tie_breaker_points en fonction de rankingMode
+        if (rankingMode === 'legit') {
+          ranking[userId].tie_breaker_points += bet.result_points; // Points sans bonus
+        } else if (rankingMode === 'history') {
+          // Dernière journée uniquement si rankingMode == 'history'
+          ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
+        }
       }
     }
 
-    if (totalPoints === 0) {
-      const closestPastMatchday = await getClosestPastMatchday(seasonId);
-      if (closestPastMatchday) {
-        const lastMatchdayRanking = await getMatchdayRanking(closestPastMatchday);
-
-        lastMatchdayRanking.forEach(user => {
-          if (ranking[user.user_id]) {
-            ranking[user.user_id].points = user.points;
-          }
-        });
-      }
-    }
-
+    // Tri par total_points, avec tie_breaker_points pour les égalités
     const sortedRanking = Object.values(ranking).sort((a, b) => {
       if (b.points === a.points) {
-        return b.lastMatchdayPoints - a.lastMatchdayPoints;
+        return b.tie_breaker_points - a.tie_breaker_points;
       }
       return b.points - a.points;
     });
@@ -375,7 +377,6 @@ const getRanking = async (seasonId, period) => {
     throw new Error('Erreur lors de la récupération du classement.');
   }
 };
-
 
 /**
  * Calculates the total points based on the number of wins, draws, and losses.
@@ -413,7 +414,7 @@ const checkBetByMatchId = async (ids) => {
             { match_id: { [Op.in]: ids } },
             { id: { [Op.in]: ids } },
           ],
-          points: { [Op.eq]: null }
+          points: { [Op.not]: null }
         }
       });
     } else {
@@ -423,7 +424,7 @@ const checkBetByMatchId = async (ids) => {
             { match_id: ids },
             { id: ids },
           ],
-          points: { [Op.eq]: null }
+          points: { [Op.not]: null }
         }
       });
     }
@@ -444,29 +445,60 @@ const checkBetByMatchId = async (ids) => {
         logger.info("Le match n'est pas fini.");
         return { success: false, message: "Le match n'est pas fini." };
       }
-      let points = 0;
+
+      let resultPoints = 0;
+      let scorePoints = 0;
+      let scorerPoints = 0;
+
       if (bet.winner_id === match.winner_id) {
-        points += 1;
+        resultPoints = 1;
       }
-      if (bet.home_score !== null && bet.away_score !== null) {
+
+      if (match.require_details && bet.home_score !== null && bet.away_score !== null) {
         if (match.goals_home === bet.home_score && match.goals_away === bet.away_score) {
-          points += 3;
+          scorePoints = 3;
         }
       }
-      if (bet.player_goal) {
+
+      if (match.require_details) {
         const matchScorers = JSON.parse(match.scorers || '[]');
-        const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.player_goal);
-        logger.info("matchScorers:", matchScorers);
-        logger.info("scorerFound:", scorerFound);
-        if (scorerFound) {
-          points += 1;
+
+        if (bet.player_goal) {
+          const scorerFound = matchScorers.some(scorer => {
+            const isScorerMatch = String(scorer.playerId) === String(bet.player_goal);
+            logger.info(`Vérification du buteur - ID du pronostic: ${bet.player_goal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
+            return isScorerMatch;
+          });
+
+          if (scorerFound) {
+            scorerPoints = 1;
+            logger.info(`Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
+          } else {
+            logger.info(`Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
+          }
+        } else if (matchScorers.length === 0) {
+          scorerPoints = 1;
+          logger.info(`Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point pour buteur par défaut.`);
         }
       }
-      await Bet.update({ points }, { where: { id: bet.id } });
+
+
+      const totalPoints = resultPoints + scorePoints + scorerPoints;
+
+      await Bet.update(
+        {
+          result_points: resultPoints,
+          score_points: scorePoints,
+          scorer_points: scorerPoints,
+          points: totalPoints
+        },
+        { where: { id: bet.id } }
+      );
+
       betsUpdated++;
     }
+
     logger.info(`Pronostics mis à jour : ${betsUpdated}`);
-    eventBus.emit('betsChecked');
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
     logger.error("Erreur lors de la mise à jour des pronostics :", error);
@@ -734,6 +766,36 @@ const getMatchdayRanking = async (matchday) => {
   }
 };
 
+const updateAllBetsForCurrentSeason = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const matches = await Match.findAll({
+      where: {
+        id: '1213814',
+        season_id: seasonId,
+        status: 'FT',
+      },
+      attributes: ['id'],
+    });
+
+    const matchIds = matches.map(match => match.id);
+
+    if (matchIds.length === 0) {
+      console.log("Aucun match trouvé pour la saison en cours.");
+      return;
+    }
+
+    const result = await checkBetByMatchId(matchIds);
+    console.log("Mise à jour des pronostics de la saison :", result.message);
+    return { success: true, message: "Mise à jour des pronostics de la saison :" + result.message };
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des pronostics de la saison :", error);
+    return { success: false, message: "Erreur lors de la mise à jour des pronostics de la saison :" + error };
+  }
+};
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -750,4 +812,5 @@ module.exports = {
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,
+  updateAllBetsForCurrentSeason
 };

@@ -15,7 +15,21 @@ import {RankingContext} from "../../contexts/RankingContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
-  const { ranking, rankingType, changeRankingType, isLoading } = useContext(RankingContext);
+  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode } = useContext(RankingContext);
+
+  const handleFilterChange = (newFilter) => {
+    changeRankingType(newFilter);
+  };
+
+  const getTieBreakerExplanation = () => {
+    console.log("rankingMode", rankingMode);
+    if (rankingMode === 'history') {
+      return "Classement départagé selon les points obtenus lors de la semaine précédente.";
+    } else if (rankingMode === 'legit') {
+      return "Classement départagé selon les points obtenus sans bonus.";
+    }
+    return "";
+  };
 
   if (isLoading) {
     return (
@@ -24,10 +38,6 @@ const UserRanking = () => {
       </div>
     );
   }
-
-  const handleFilterChange = (newFilter) => {
-    changeRankingType(newFilter);
-  };
 
   return (
     <div className="relative p-8 px-2 pt-0">
@@ -51,12 +61,18 @@ const UserRanking = () => {
                 src={ranking[1]?.img ? `${apiUrl}/uploads/users/${ranking[1].user_id}/${ranking[1].img}` : defaultUserImage}
                 alt={ranking[1]?.username}/>
             </div>
-            <div className="relative">
-              <p translate="no" className="font-bold">{ranking[1]?.username}</p>
+            <div className="relative w-full">
+              <p translate="no" className="font-bold text-center">{ranking[1]?.username}</p>
               <p translate="no"
-                 className="flex flex-row justify-center items-center font-rubik font-bold">{ranking[1]?.points}</p>
-              {/*<p translate="no"*/}
-              {/*   className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[1]?.lastMatchdayPoints}</p>*/}
+                 className="flex flex-row relative z-[3] justify-center items-center font-rubik font-medium leading-[30px] text-xl2">{ranking[1]?.points}</p>
+              {ranking[1]?.mode === 'history' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-4 -bottom-2 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">+ {ranking[1]?.tie_breaker_points}</p>
+              )}
+              {ranking[1]?.mode === 'legit' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-4 -bottom-2 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">{ranking[1]?.tie_breaker_points}</p>
+              )}
             </div>
           </Link>
         </div>
@@ -74,11 +90,27 @@ const UserRanking = () => {
               </div>
               <img className="absolute fade-in delay-300 z-[3] bottom-0 right-1.5 w-8" src={yellowStar} alt=""/>
             </div>
-            <div className="relative">
-              <p translate="no" className="font-bold">{ranking[0]?.username}</p>
-              <p translate="no" className="flex flex-row justify-center items-center font-rubik font-bold">{ranking[0]?.points}</p>
-              {/*<p translate="no"*/}
-              {/*  className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[0]?.lastMatchdayPoints}</p>*/}
+            <div className="relative w-full">
+              <p translate="no"
+                 className="font-black w-full fade-in text-center relative mx-auto text-xl2">
+                <span translate="no" className="relative z-[3]">{ranking[0]?.username}</span>
+                <span
+                  translate="no"
+                  className="absolute left-0 top-0 right-0 text-purple-soft z-[2] translate-x-0.5 translate-y-0.5">{ranking[0]?.username}</span>
+                <span
+                  translate="no"
+                  className="absolute left-0 top-0 right-0 text-green-soft z-[1] translate-x-1 translate-y-1">{ranking[0]?.username}</span>
+              </p>
+              <p translate="no"
+                 className="flex flex-row relative z-[3] justify-center items-center font-rubik font-bold text-stroke-black-2 leading-[35px] text-xl5">{ranking[0]?.points}</p>
+              {ranking[0]?.mode === 'history' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-6 -bottom-4 font-bold text-white bg-black rounded-full text-[12px] inline-block w-[23px] h-[23px] text-center leading-[23px]">+ {ranking[0]?.tie_breaker_points}</p>
+              )}
+              {ranking[0]?.mode === 'legit' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-6 -bottom-4 font-bold text-white bg-black rounded-full text-[12px] inline-block w-[23px] h-[23px] text-center leading-[23px]">{ranking[0]?.tie_breaker_points}</p>
+              )}
             </div>
           </Link>
         </div>
@@ -93,25 +125,31 @@ const UserRanking = () => {
                 src={ranking[2]?.img ? `${apiUrl}/uploads/users/${ranking[2].user_id}/${ranking[2].img}` : defaultUserImage}
                 alt={ranking[2]?.username}/>
             </div>
-            <div className="relative">
-              <p translate="no" className="font-bold">{ranking[2]?.username}</p>
+            <div className="relative w-full">
+              <p translate="no" className="font-bold text-center">{ranking[2]?.username}</p>
               <p translate="no"
-                 className="flex flex-row justify-center items-center font-rubik font-bold">{ranking[2]?.points}</p>
-              {/*<p translate="no"*/}
-              {/*   className="font-rubik absolute -right-4 -bottom-4 font-black text-stroke-black-2 text-white text-[15px] inline-block leading-[35px]">+ {updatedUsers[2]?.lastMatchdayPoints}</p>*/}
+                 className="flex flex-row relative z-[3] justify-center items-center font-rubik font-medium leading-[30px] text-xl2">{ranking[2]?.points}</p>
+              {ranking[2]?.mode === 'history' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-4 -bottom-2 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">+ {ranking[2]?.tie_breaker_points}</p>
+              )}
+              {ranking[2]?.mode === 'legit' && rankingType !== 'week' && (
+                <p translate="no"
+                   className="font-rubik absolute z-[2] right-4 -bottom-2 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">{ranking[2]?.tie_breaker_points}</p>
+              )}
             </div>
           </Link>
         </div>
       </div>
 
       <div
-        className="relative z-[30] bg-white w-full mb-4 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
+        className="relative z-[30] bg-white w-full mb-0 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
         <div
           className="relative z-[2] bg-white rounded-md p-1 flex flex-row justify-center w-full h-full border border-black">
           <button
             translate="no"
             onClick={() => handleFilterChange('week')}
-            className={`w-1/3 fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType  === 'week' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'week' ? 'bg-green-medium' : ''}`}
           >
             semaine
           </button>
@@ -119,7 +157,7 @@ const UserRanking = () => {
           <button
             translate="no"
             onClick={() => handleFilterChange('month')}
-            className={`w-1/3 fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType  === 'month' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'month' ? 'bg-green-medium' : ''}`}
           >
             mois
           </button>
@@ -127,11 +165,15 @@ const UserRanking = () => {
           <button
             translate="no"
             onClick={() => handleFilterChange('season')}
-            className={`w-1/3 fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType  === 'season' ? 'bg-green-medium' : ''}`}
+            className={`w-1/3 fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'season' ? 'bg-green-medium' : ''}`}
           >
             saison
           </button>
         </div>
+      </div>
+
+      <div className="relative z-[15] mb-4">
+        <p className="text-xs italic">{getTieBreakerExplanation()}</p>
       </div>
 
       <div className="relative z-[20] flex flex-col justify-start">
@@ -161,7 +203,8 @@ const UserRanking = () => {
                 <p translate="no"
                    className="font-title text-black text-right uppercase text-l font-bold leading-4 w-1/5 pr-4 my-auto">
                   <span translate="no" className="inline-block text-black p-2">{user.points}</span>
-                  {/*<span translate="no" className="font-rubik font-black text-stroke-black-2 text-white text-[15px] inline-block">+{user.lastMatchdayPoints}</span>*/}
+                  {user.mode === 'history' && rankingType !== 'week' && <span translate="no" className="font-rubik absolute z-[2] right-1 bottom-1 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">+{user.tie_breaker_points}</span>}
+                  {user.mode === 'legit' && rankingType !== 'week' && <span translate="no" className="font-rubik absolute z-[2] right-1 bottom-1 font-bold text-black rounded-full text-[10px] border border-black shadow-flat-black-adjust inline-block w-[21px] h-[21px] text-center leading-[21px]">{user.tie_breaker_points}</span>}
                 </p>
               </Link>
             </li>

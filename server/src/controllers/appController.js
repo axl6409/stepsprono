@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
-const {getAPICallsCount, getSettlement} = require("../services/appService");
+const {getAPICallsCount, getSettlement, getRankingMode} = require("../services/appService");
 const {Setting, Role} = require("../models");
 const {getCronTasks} = require("../../cronJob");
 const {fetchAndProgramWeekMatches, getMatchsCronTasks} = require("../services/matchService");
+const logger = require("../utils/logger/logger");
 
 /* PUBLIC - GET */
 router.get('/app/calls', authenticateJWT, async (req, res) => {
@@ -34,7 +35,24 @@ router.get('/app/reglement', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 })
-
+router.get('/app/settings/rankingMode', authenticateJWT, async (req, res) => {
+  try {
+    const rankingMode = await getRankingMode();
+    logger.info('[RankingMode]')
+    console.log(rankingMode)
+    if (rankingMode !== null) {
+      logger.info("Mode de classement: " + rankingMode);
+      res.status(200).json({ active_option: rankingMode });
+    } else {
+      logger.info("Mode de classement: " + rankingMode);
+      res.status(404).json({ message: "Aucun mode de classement trouvé." });
+    }
+  } catch (error) {
+    logger.info("Mode de classement erreur : " + error);
+    console.error("Erreur dans /rankingMode route:", error.message);
+    res.status(500).json({ message: "Erreur interne lors de la récupération du rankingMode." });
+  }
+})
 /* ADMIN - GET */
 router.get('/admin/settings', authenticateJWT, checkAdmin, async (req, res) => {
   try {
@@ -54,7 +72,7 @@ router.put('/admin/setting/update/:id', authenticateJWT, checkAdmin, async (req,
 
     const type = setting.type;
     if (type === 'select') {
-      setting.activeOption = req.body.newValue;
+      setting.active_option = req.body.newValue;
     } else if (type === 'text') {
       const newOptions = { ...setting.options }
       newOptions['Value'] = req.body.newValue

@@ -3,7 +3,7 @@ const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getNullBets, checkupBets, createBet, updateBet, getSeasonRanking, getRanking} = require("../services/betService");
+const {getNullBets, checkupBets, createBet, updateBet, getSeasonRanking, getRanking, updateAllBetsForCurrentSeason} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
@@ -90,7 +90,6 @@ router.get('/bets/week-ranking', authenticateJWT, async (req, res) => {
   }
 });
 
-
 /* PUBLIC - POST */
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
@@ -148,11 +147,22 @@ router.get('/admin/bets/unchecked', authenticateJWT, checkAdmin, async (req, res
 router.patch('/admin/bets/checkup/all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const betIds = req.body;
-    logger.info(betIds)
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
     const bets = await checkupBets(betIds);
+    if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
+    res.status(200).json({ message: bets.message, datas: bets.updatedBets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/admin/bets/update/all', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await updateAllBetsForCurrentSeason();
     if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
     res.status(200).json({ message: bets.message, datas: bets.updatedBets });
   } catch (error) {

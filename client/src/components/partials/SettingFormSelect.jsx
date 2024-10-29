@@ -46,7 +46,7 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
     <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
       <div className="flex flex-col justify-start">
         <div key={setting.id} className="flex flex-col items-center relative">
-          <p className="font-title uppercase text-xl font-black mb-4">{setting.displayName}</p>
+          <p className="font-title uppercase text-xl font-black mb-4">{setting.display_name}</p>
           <form action="" className="w-full">
             <select
               name={setting.key}
@@ -57,7 +57,7 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
               value={selectedOption}
             >
               {Object.entries(setting.options).map(([key, option]) => (
-                <option key={key} value={key}>{option.title}</option>
+                <option key={key} value={option.value}>{option.title}</option>
               ))}
             </select>
             <button

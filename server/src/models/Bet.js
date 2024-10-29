@@ -81,6 +81,21 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'points'
     },
+    result_points: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'result_points'
+    },
+    score_points: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'score_points'
+    },
+    scorer_points: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'scorer_points'
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

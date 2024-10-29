@@ -24,7 +24,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const Dashboard = ({ userId: propUserId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
-  const { ranking } = useContext(RankingContext);
+  const { ranking, rankingType, fetchRanking, isLoading: rankingIsLoading } = useContext(RankingContext);
   const { userId: paramUserId } = useParams();
   const userId = paramUserId || propUserId;
   const [cookies, setCookie] = useCookies(["user"]);
@@ -71,11 +71,14 @@ const Dashboard = ({ userId: propUserId }) => {
 
 
   useEffect(() => {
-    if (ranking.length > 0) {
+    if (!ranking.length && !rankingIsLoading) {
+      fetchRanking(rankingType);
+    }
+    if (ranking.length > 0 && !rankingIsLoading) {
       const index = ranking.findIndex(u => u.user_id === parseInt(userId));
       setCurrentUserIndex(index);
     }
-  }, [ranking, userId]);
+  }, [ranking, rankingType, userId, fetchRanking, rankingIsLoading]);
 
 
   const goToNextUser = () => {
@@ -152,7 +155,7 @@ const Dashboard = ({ userId: propUserId }) => {
     trackMouse: true
   });
 
-  if (isLoading) {
+  if (isLoading || rankingIsLoading) {
     return (
       <div className="text-center flex flex-col justify-center">
         <Loader />
