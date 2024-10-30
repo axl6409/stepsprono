@@ -6,7 +6,7 @@ import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const SettingFormSelect = ({ setting, openModal, token }) => {
-  const [selectedOption, setSelectedOption] = useState(setting.activeOption);
+  const [selectedOption, setSelectedOption] = useState(setting.active_option);
 
   const handleChange = (settingName, selectedValue) => {
     setSelectedOption(selectedValue)

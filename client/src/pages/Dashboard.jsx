@@ -53,6 +53,21 @@ const Dashboard = ({ userId: propUserId }) => {
         setIsLoading(false);
       }
     };
+    const updateLastConnected = async () => {
+      try {
+        const userId = user.id;
+        await axios.patch(`${apiUrl}/api/user/${userId}/last-connect`, null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour de la date de connexion', error);
+      }
+    };
+    if (isAuthenticated && (userId === user.id)) {
+      updateLastConnected()
+    }
     if (userId) {
       fetchProfileUser();
     } else {

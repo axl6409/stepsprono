@@ -6,7 +6,7 @@ const logger = require("../utils/logger/logger");
 const {Op} = require("sequelize");
 const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
-const moment = require("moment/moment");
+const moment = require("moment-timezone");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
@@ -33,6 +33,13 @@ const getAPICallsCount = async () => {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
 }
+
+const getAdjustedMoment = (date) => {
+  const localTime = moment.tz(date, "Europe/Paris");
+  const isDST = localTime.isDST();
+  return isDST ? localTime.add(1, 'hours') : localTime;
+};
+
 
 /**
  * Returns the start and end dates of the current month.
@@ -442,6 +449,7 @@ const scheduleBetsCloseEvent = async () => {
 
 module.exports = {
   getAPICallsCount,
+  getAdjustedMoment,
   getWeekDateRange,
   getMonthDateRange,
   getPeriodMatchdays,

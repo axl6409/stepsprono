@@ -64,6 +64,10 @@ body {
     text-shadow: 1px 2px 0 rgba(0,0,0,1);
 }
 
+.text-shadow-red {
+    text-shadow: 0 0 20px rgb(230 10 14), 0 0 20px rgb(230 10 10 / 0%);
+}
+
 .writing-vertical {
     writing-mode: vertical-lr;
     text-orientation: mixed;

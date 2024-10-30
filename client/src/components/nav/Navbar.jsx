@@ -163,6 +163,34 @@ const UserMenu = () => {
                       <img src={navClose} alt="close menu icon"/>
                     </span>
                   </button>
+                  <div id="countdownPoup"
+                       className={`${countdown.hidden ? 'hidden' : ''} px-2 -mt-2 transition-transform duration-300 ease-in-out`}>
+                    {!countdown.expired && (
+                      <p translate="no" className="font-roboto no-correct text-xs text-black font-bold">Fin des pronostics dans</p>
+                    )}
+                    <p translate="no" className="font-sans text-sm text-white text-center">
+                      {!countdown.expired ? (
+                        <>
+                          <span
+                            className="no-correct text-red-medium text-shadow-red font-roboto font-black text-sm inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.hours}</span>
+                          <span className="font-roboto text-red-medium">:</span>
+                          <span
+                            className="no-correct text-red-medium text-shadow-red font-roboto font-black text-sm inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.minutes}</span>
+                          <span className="font-roboto text-red-medium">:</span>
+                          <span
+                            className="no-correct text-red-medium text-shadow-red font-roboto font-black text-sm inline-block my-auto w-8 leading-4 py-0.5 px-1 mx-0.5">{countdown.seconds}</span>
+                        </>
+                      ) : (
+                        <span
+                          className="no-correct text-red-medium font-roboto font-black text-sm inline-block my-auto leading-4 py-0.5 px-1 mx-0.5">Pronostics fermés</span>
+                      )}
+                    </p>
+                    <button
+                      className="absolute no-correct right-[-32px] top-[-2px] bg-deep-red px-2 border-r-2 border-t-2 border-b-2 rounded-r-lg border-black shadow-flat-black-adjust focus:outline-none"
+                      onClick={toggleCountDownModal}>
+                      <FontAwesomeIcon icon={faStopwatch} className="font-sans text-sm text-white"/>
+                    </button>
+                  </div>
                   <Link
                     to="/"
                     className="relative z-[80] w-[30px] h-[30px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
@@ -183,7 +211,8 @@ const UserMenu = () => {
                     <span className="inline-block w-1/5">
                       <img className="h-[20px] mx-auto" src={navHome} alt="Icône accueil"/>
                     </span>
-                    <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
+                    <span
+                      className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Accueil</span>
                   </Link>
                   <Link
                     to="/matchs/history"
@@ -236,7 +265,7 @@ const UserMenu = () => {
                     <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
                   </Link>
 
-                  {user && user.role === 'admin' && (
+                  {user && (user.role === 'admin' || user.role === 'manager' || user.role === 'treasurer') && (
                     <Link
                       to="/admin"
                       className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"

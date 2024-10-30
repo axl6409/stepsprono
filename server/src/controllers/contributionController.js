@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateJWT, checkAdmin} = require('../middlewares/auth');
+const { authenticateJWT, checkAdmin, checkTreasurer} = require('../middlewares/auth');
 const {getContributionsByUsers, deleteUserContribution, addUserContribution, validateUserContribution,
   refuseUserContribution
 } = require("../services/contributionService");
@@ -14,7 +14,7 @@ router.get('/contributions', authenticateJWT, async (req, res) => {
   }
 })
 
-router.delete('/contribution/delete', authenticateJWT, checkAdmin, async (req, res) => {
+router.delete('/contribution/delete', authenticateJWT, checkTreasurer, async (req, res) => {
   try {
     const {contributionId, userId} = req.body;
     const contribution = await deleteUserContribution(contributionId, userId);
@@ -25,7 +25,7 @@ router.delete('/contribution/delete', authenticateJWT, checkAdmin, async (req, r
   }
 })
 
-router.post('/contribution/new/:userId', authenticateJWT, async (req, res) => {
+router.post('/contribution/new/:userId', authenticateJWT, checkTreasurer, async (req, res) => {
   try {
     const userId = req.params.userId;
     const matchday = req.body.matchday
@@ -36,7 +36,7 @@ router.post('/contribution/new/:userId', authenticateJWT, async (req, res) => {
   }
 })
 
-router.patch('/contribution/received', authenticateJWT, async (req, res) => {
+router.patch('/contribution/received', authenticateJWT, checkTreasurer, async (req, res) => {
   try {
     const { id, userId } = req.body;
     const contribution = await validateUserContribution(id, userId);
@@ -47,7 +47,7 @@ router.patch('/contribution/received', authenticateJWT, async (req, res) => {
   }
 })
 
-router.patch('/contribution/pending', authenticateJWT, async (req, res) => {
+router.patch('/contribution/pending', authenticateJWT, checkTreasurer, async (req, res) => {
   try {
     const { id, userId } = req.body;
     const contribution = await refuseUserContribution(id, userId);

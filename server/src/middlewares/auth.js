@@ -1,5 +1,9 @@
 const jwt = require("jsonwebtoken");
+const { User } = require('../models');
+const logger = require("../utils/logger/logger");
+
 const secretKey = process.env.SECRET_KEY
+
 
 /**
  * Authenticates the request using a JSON Web Token (JWT) in the Authorization header.
@@ -29,6 +33,7 @@ const authenticateJWT = (req, res, next) => {
     }
 
     req.user = user;
+
     next();
   });
 };
@@ -51,7 +56,35 @@ const checkAdmin = (req, res, next) => {
   return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur pour accéder à cette ressource.' });
 };
 
+const checkTreasurer = (req, res, next) => {
+  if (req.user && (req.user.role === 'treasurer' || req.user.role === 'admin')) {
+    return next();
+  }
+  return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur ou trésorier pour accéder à cette ressource.' });
+};
+
+const checkManager = (req, res, next) => {
+  if (req.user && (req.user.role === 'manager' || req.user.role === 'admin')) {
+    return next();
+  }
+  return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur ou manager pour accéder à cette ressource.' });
+};
+
+const updateLastConnected = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    await User.update({ last_connected: new Date() }, { where: { id: userId } });
+    next();
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la date de dernière connexion :", error);
+    next();
+  }
+};
+
 module.exports = {
   authenticateJWT,
-  checkAdmin
+  checkAdmin,
+  checkTreasurer,
+  checkManager,
+  updateLastConnected
 };

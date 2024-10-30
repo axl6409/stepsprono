@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
 const fs = require('fs');
 const { mkdirSync, readdirSync } = require('fs');
 const { promisify } = require('util');
@@ -16,6 +16,7 @@ const {getCurrentSeasonId} = require("../services/seasonService");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
+const {updateLastConnect} = require("../services/userService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -47,6 +48,7 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 })
+
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
     if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
@@ -188,6 +190,20 @@ router.patch('/user/:id/request-role', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de soumettre la requête ' + error })
   }
 })
+/* PUBLIC - PATCH */
+router.patch('/user/:id/last-connect', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    const update = await updateLastConnect(userId);
+    if (!update) return res.status(500).json({ error: 'Erreur lors de la mise à jour de la date et heure de dernière connexion' });
+    res.status(200).json({ message: 'Date de dernière connexion mise à jour', user });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la mise à jour de la date de dernière connexion' });
+  }
+});
 
 /* PUBLIC - POST */
 router.post('/user/check-password', authenticateJWT, async (req, res) => {
@@ -224,7 +240,7 @@ router.post('/user/verify-password', authenticateJWT, async (req, res) => {
 });
 
 /* ADMIN - GET */
-router.get('/admin/users/requests', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/admin/users/requests', authenticateJWT, checkManager, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     const users = await User.findAll({ where: { status: 'pending' } });
@@ -233,11 +249,8 @@ router.get('/admin/users/requests', authenticateJWT, checkAdmin, async (req, res
     res.status(500).json({ error: error.message });
   }
 })
-router.get('/admin/users', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/admin/users', authenticateJWT, checkManager, async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    }
     let queryOptions = {
       include: [{
         model: Role,
@@ -257,7 +270,7 @@ router.get('/admin/users', authenticateJWT, checkAdmin, async (req, res) => {
 });
 
 /* ADMIN - DELETE */
-router.delete('/admin/user/delete/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.delete('/admin/user/delete/:id', authenticateJWT, checkManager, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 

@@ -7,7 +7,16 @@ const { Op, fn, col, literal, Sequelize} = require('sequelize');
 const { User, Bet, Match, UserReward, Season } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
-const { getPeriodMatchdays } = require("./appService");
+const { getPeriodMatchdays, getAdjustedMoment} = require("./appService");
+
+const updateLastConnect = async (userId) => {
+  const adjustedTime = getAdjustedMoment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+  await User.update(
+    { last_connect: adjustedTime },
+    { where: { id: userId } }
+  );
+  return adjustedTime;
+};
 
 /**
  * Retrieves the rank of a user within a specified period based on the total points earned from bets.
@@ -1322,6 +1331,7 @@ const getUserPointsForSeason = async (userId, seasonId) => {
 
 module.exports = {
   getUserRank,
+  updateLastConnect,
   getUserPointsForWeek,
   getUserRankByPeriod,
   checkUserCorrectPredictions,

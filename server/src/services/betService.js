@@ -300,9 +300,17 @@ const getSeasonRanking = async (seasonId) => {
   }
 };
 
+/**
+ * Retrieves the ranking of users for a given season and period.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {string} period - The period for which to retrieve the ranking ('month', 'week', or 'season').
+ * @return {Promise<Array<Object>>} A promise that resolves to an array of user ranking objects, sorted by points.
+ * Each object contains user_id, username, points, tie_breaker_points, mode, and img.
+ * @throws {Error} If there is an error while retrieving the ranking.
+ */
 const getRanking = async (seasonId, period) => {
   try {
-    // 1. Récupérer le mode de classement dans la table `settings`
     const setting = await Setting.findOne({
       where: { key: 'rankingMode' },
       attributes: ['active_option']
@@ -347,23 +355,19 @@ const getRanking = async (seasonId, period) => {
       ]
     });
 
-    // Calcul des points
     for (const bet of bets) {
       const userId = bet.user_id;
       if (ranking[userId]) {
         ranking[userId].points += bet.points;
 
-        // Calcul de tie_breaker_points en fonction de rankingMode
         if (rankingMode === 'legit') {
-          ranking[userId].tie_breaker_points += bet.result_points; // Points sans bonus
+          ranking[userId].tie_breaker_points += bet.result_points;
         } else if (rankingMode === 'history') {
-          // Dernière journée uniquement si rankingMode == 'history'
           ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
         }
       }
     }
 
-    // Tri par total_points, avec tie_breaker_points pour les égalités
     const sortedRanking = Object.values(ranking).sort((a, b) => {
       if (b.points === a.points) {
         return b.tie_breaker_points - a.tie_breaker_points;
@@ -773,7 +777,6 @@ const updateAllBetsForCurrentSeason = async () => {
 
     const matches = await Match.findAll({
       where: {
-        id: '1213814',
         season_id: seasonId,
         status: 'FT',
       },
