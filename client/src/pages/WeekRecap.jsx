@@ -70,10 +70,10 @@ const WeekRecap = () => {
     return <div>Chargement en cours...</div>;
   }
 
-  if (!isAccessAllowed) {
-    navigate('/');
-    return null;
-  }
+  // if (!isAccessAllowed) {
+  //   navigate('/');
+  //   return null;
+  // }
 
   const getPredictionForMatchAndUser = (matchId, userId) => {
     const prediction = predictions?.find(pred => pred.match_id === matchId && pred.user_id === userId);
@@ -86,7 +86,7 @@ const WeekRecap = () => {
   const uniqueUsers = [...new Map(predictions.map(prediction => [prediction.user_id, prediction.UserId])).values()];
 
   return (
-    <div className="recap-container">
+    <div className="recap-container pb-20">
       <div className="portrait-warning">
         <p className="font-roboto text-xl text-black font-bold">Tourne le téléphone bandit !</p>
       </div>
@@ -156,7 +156,7 @@ const WeekRecap = () => {
                               : null;
 
                           return (
-                            <div key={`${user.id}-${match.id}`} className="px-1 py-2 border-r border-black h-full flex flex-col justify-center" style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className="px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center" style={{ width: `${90 / matchs.length}%` }}>
                               {winnerTeam ? (
                                 <img className="h-[50px] w-[50px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
                               ) : (

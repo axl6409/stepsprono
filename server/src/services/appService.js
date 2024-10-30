@@ -6,7 +6,7 @@ const logger = require("../utils/logger/logger");
 const {Op} = require("sequelize");
 const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
-const moment = require("moment/moment");
+const moment = require("moment-timezone");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
@@ -33,6 +33,13 @@ const getAPICallsCount = async () => {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
 }
+
+const getAdjustedMoment = (date) => {
+  const localTime = moment.tz(date, "Europe/Paris");
+  const isDST = localTime.isDST();
+  return isDST ? localTime.add(1, 'hours') : localTime;
+};
+
 
 /**
  * Returns the start and end dates of the current month.
@@ -305,6 +312,17 @@ const getSettlement = async () => {
   }
 }
 
+const getRankingMode = async () => {
+  try {
+    const setting = await Setting.findOne({
+      where: { key: 'rankingMode' },
+    });
+    return setting ? setting.active_option : null;
+  } catch (error) {
+    throw new Error("Erreur lors de la récupération du rankingMode: " + error.message);
+  }
+};
+
 /**
  * Schedules a task to be executed at the end of the current month if the last matchday of the month
  * is also the last matchday of the month. The task emits the 'monthEnded' event.
@@ -431,6 +449,7 @@ const scheduleBetsCloseEvent = async () => {
 
 module.exports = {
   getAPICallsCount,
+  getAdjustedMoment,
   getWeekDateRange,
   getMonthDateRange,
   getPeriodMatchdays,
@@ -439,6 +458,7 @@ module.exports = {
   getCurrentMonthMatchdays,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
+  getRankingMode,
   scheduleTaskForEndOfMonthMatch,
   getStartAndEndOfCurrentMonth,
   getFirstDaysOfCurrentAndPreviousMonth,

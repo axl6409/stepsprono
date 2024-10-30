@@ -1,7 +1,6 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team, Player, User} = require("../models");
+const {Bet, Match, Team, Player, User, Setting} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
-const {getClosestPastMatchday} = require("./matchService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
@@ -80,6 +79,31 @@ const getNullBets = async () => {
   }
 }
 
+const getClosestPastMatchday = async (seasonId) => {
+  try {
+    const match = await Match.findOne({
+      where: {
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: new Date(),
+        },
+      },
+      order: [['utc_date', 'DESC']],
+      attributes: ['matchday'],
+    });
+
+    if (!match) {
+      console.warn('Aucun match trouvé pour la saison donnée.');
+      return null;
+    }
+
+    return match.matchday;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    throw error;
+  }
+};
+
 /**
  * Retrieves the total points earned by a user for the last matchday of a season.
  *
@@ -87,9 +111,12 @@ const getNullBets = async () => {
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the last matchday. Returns 0 if there was an error.
  */
-const getLastMatchdayPoints = async (seasonId, userId) => {
+const getLastMatchdayPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchday = await getClosestPastMatchday(seasonId);
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -110,7 +137,7 @@ const getLastMatchdayPoints = async (seasonId, userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
-    logger.info('Points:', points);
+
     return points;
   } catch (error) {
     console.log('Erreur lors de la récupération des points pour la dernière journée:', error);
@@ -121,12 +148,13 @@ const getLastMatchdayPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific week of a season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the week. Returns 0 if there was an error.
  */
-const getWeekPoints = async (seasonId, userId) => {
+const getWeekPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentWeekMatchdays(seasonId);
 
     const bets = await Bet.findAll({
@@ -154,15 +182,15 @@ const getWeekPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific month of a season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the month. Returns 0 if there was an error.
  */
-const getMonthPoints = async (seasonId, userId) => {
+const getMonthPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentMonthMatchdays(seasonId);
-    logger.info('Matchdays')
-    console.log(matchdays)
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -189,12 +217,13 @@ const getMonthPoints = async (seasonId, userId) => {
 /**
  * Retrieves the total points earned by a user for a specific season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the season. Returns 0 if there was an error.
  */
-const getSeasonPoints = async (seasonId, userId) => {
+const getSeasonPoints = async (userId) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
@@ -231,14 +260,16 @@ const getSeasonRanking = async (seasonId) => {
         {
           model: User,
           as: 'UserId',
-          attributes: ['id', 'username']
+          attributes: ['id', 'username', 'img']
         }
       ]
     });
 
-    const ranking = bets.reduce((acc, bet) => {
+    const ranking = await bets.reduce(async (accPromise, bet) => {
+      const acc = await accPromise;
       const userId = bet.user_id;
       const username = bet.UserId.username;
+      const lastDaymatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
 
       if (acc[userId]) {
         acc[userId].points += bet.points;
@@ -246,18 +277,107 @@ const getSeasonRanking = async (seasonId) => {
         acc[userId] = {
           user_id: userId,
           username: username,
-          points: bet.points
+          points: bet.points,
+          img: bet.UserId.img,
+          lastMatchdayPoints: lastDaymatchdayPoints
         };
       }
 
       return acc;
-    }, {});
+    }, Promise.resolve({}));
 
-    const sortedRanking = Object.values(ranking).sort((a, b) => b.points - a.points);
+    const sortedRanking = Object.values(ranking).sort((a, b) => {
+      if (b.points === a.points) {
+        return b.lastMatchdayPoints - a.lastMatchdayPoints;
+      }
+      return b.points - a.points;
+    });
 
     return sortedRanking;
   } catch (error) {
     console.error('Erreur lors de la récupération du classement de la saison:', error);
+    throw new Error('Erreur lors de la récupération du classement.');
+  }
+};
+
+/**
+ * Retrieves the ranking of users for a given season and period.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @param {string} period - The period for which to retrieve the ranking ('month', 'week', or 'season').
+ * @return {Promise<Array<Object>>} A promise that resolves to an array of user ranking objects, sorted by points.
+ * Each object contains user_id, username, points, tie_breaker_points, mode, and img.
+ * @throws {Error} If there is an error while retrieving the ranking.
+ */
+const getRanking = async (seasonId, period) => {
+  try {
+    const setting = await Setting.findOne({
+      where: { key: 'rankingMode' },
+      attributes: ['active_option']
+    });
+    const rankingMode = setting?.active_option;
+
+    let matchdays = [];
+    if (period === 'month') {
+      matchdays = await getCurrentMonthMatchdays();
+    } else if (period === 'week') {
+      matchdays = await getCurrentWeekMatchdays();
+    }
+
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'img']
+    });
+
+    const ranking = users.reduce((acc, user) => {
+      acc[user.id] = {
+        user_id: user.id,
+        username: user.username,
+        points: 0,
+        tie_breaker_points: 0,
+        mode: rankingMode,
+        img: user.img
+      };
+      return acc;
+    }, {});
+
+    const bets = await Bet.findAll({
+      where: {
+        season_id: seasonId,
+        points: { [Op.not]: null },
+        ...(period !== 'season' && { matchday: { [Op.in]: matchdays } })
+      },
+      include: [
+        {
+          model: User,
+          as: 'UserId',
+          attributes: ['id', 'username', 'img']
+        }
+      ]
+    });
+
+    for (const bet of bets) {
+      const userId = bet.user_id;
+      if (ranking[userId]) {
+        ranking[userId].points += bet.points;
+
+        if (rankingMode === 'legit') {
+          ranking[userId].tie_breaker_points += bet.result_points;
+        } else if (rankingMode === 'history') {
+          ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
+        }
+      }
+    }
+
+    const sortedRanking = Object.values(ranking).sort((a, b) => {
+      if (b.points === a.points) {
+        return b.tie_breaker_points - a.tie_breaker_points;
+      }
+      return b.points - a.points;
+    });
+
+    return sortedRanking;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération du classement pour ${period}:`, error);
     throw new Error('Erreur lors de la récupération du classement.');
   }
 };
@@ -298,7 +418,7 @@ const checkBetByMatchId = async (ids) => {
             { match_id: { [Op.in]: ids } },
             { id: { [Op.in]: ids } },
           ],
-          points: { [Op.eq]: null }
+          points: { [Op.not]: null }
         }
       });
     } else {
@@ -308,7 +428,7 @@ const checkBetByMatchId = async (ids) => {
             { match_id: ids },
             { id: ids },
           ],
-          points: { [Op.eq]: null }
+          points: { [Op.not]: null }
         }
       });
     }
@@ -329,29 +449,60 @@ const checkBetByMatchId = async (ids) => {
         logger.info("Le match n'est pas fini.");
         return { success: false, message: "Le match n'est pas fini." };
       }
-      let points = 0;
+
+      let resultPoints = 0;
+      let scorePoints = 0;
+      let scorerPoints = 0;
+
       if (bet.winner_id === match.winner_id) {
-        points += 1;
+        resultPoints = 1;
       }
-      if (bet.home_score !== null && bet.away_score !== null) {
+
+      if (match.require_details && bet.home_score !== null && bet.away_score !== null) {
         if (match.goals_home === bet.home_score && match.goals_away === bet.away_score) {
-          points += 3;
+          scorePoints = 3;
         }
       }
-      if (bet.player_goal) {
+
+      if (match.require_details) {
         const matchScorers = JSON.parse(match.scorers || '[]');
-        const scorerFound = matchScorers.some(scorer => scorer.playerId === bet.player_goal);
-        logger.info("matchScorers:", matchScorers);
-        logger.info("scorerFound:", scorerFound);
-        if (scorerFound) {
-          points += 1;
+
+        if (bet.player_goal) {
+          const scorerFound = matchScorers.some(scorer => {
+            const isScorerMatch = String(scorer.playerId) === String(bet.player_goal);
+            logger.info(`Vérification du buteur - ID du pronostic: ${bet.player_goal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
+            return isScorerMatch;
+          });
+
+          if (scorerFound) {
+            scorerPoints = 1;
+            logger.info(`Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
+          } else {
+            logger.info(`Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
+          }
+        } else if (matchScorers.length === 0) {
+          scorerPoints = 1;
+          logger.info(`Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point pour buteur par défaut.`);
         }
       }
-      await Bet.update({ points }, { where: { id: bet.id } });
+
+
+      const totalPoints = resultPoints + scorePoints + scorerPoints;
+
+      await Bet.update(
+        {
+          result_points: resultPoints,
+          score_points: scorePoints,
+          scorer_points: scorerPoints,
+          points: totalPoints
+        },
+        { where: { id: bet.id } }
+      );
+
       betsUpdated++;
     }
+
     logger.info(`Pronostics mis à jour : ${betsUpdated}`);
-    eventBus.emit('betsChecked');
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
     logger.error("Erreur lors de la mise à jour des pronostics :", error);
@@ -619,6 +770,35 @@ const getMatchdayRanking = async (matchday) => {
   }
 };
 
+const updateAllBetsForCurrentSeason = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const matches = await Match.findAll({
+      where: {
+        season_id: seasonId,
+        status: 'FT',
+      },
+      attributes: ['id'],
+    });
+
+    const matchIds = matches.map(match => match.id);
+
+    if (matchIds.length === 0) {
+      console.log("Aucun match trouvé pour la saison en cours.");
+      return;
+    }
+
+    const result = await checkBetByMatchId(matchIds);
+    console.log("Mise à jour des pronostics de la saison :", result.message);
+    return { success: true, message: "Mise à jour des pronostics de la saison :" + result.message };
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des pronostics de la saison :", error);
+    return { success: false, message: "Erreur lors de la mise à jour des pronostics de la saison :" + error };
+  }
+};
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -631,7 +811,9 @@ module.exports = {
   createBet,
   updateBet,
   getSeasonRanking,
+  getRanking,
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,
+  updateAllBetsForCurrentSeason
 };

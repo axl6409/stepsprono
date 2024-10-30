@@ -13,6 +13,8 @@ import {
   faSackXmark, faTrash, faWallet, faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../contexts/UserContext.jsx";
+import monthPointsShape from "../assets/components/dashboard/month/month-points-shape.png";
+import totalContribText from "../assets/components/contributions/total-cagnotte.webp";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Contributions = () => {
@@ -25,6 +27,8 @@ const Contributions = () => {
   const [contributions, setContributions] = useState([]);
   const [bestContributor, setBestContributor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userColors, setUserColors] = useState({});
+  const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
   useEffect(() => {
     fetchContributions();
@@ -44,6 +48,12 @@ const Contributions = () => {
       });
 
       setContributions(sortedContributions);
+
+      const newUserColors = {};
+      sortedContributions.forEach((contrib, index) => {
+        newUserColors[contrib.user.id] = colors[index % colors.length];
+      });
+      setUserColors(newUserColors);
 
       if (sortedContributions.length > 0) {
         setBestContributor(sortedContributions[0]);
@@ -165,16 +175,23 @@ const Contributions = () => {
         </button>
       )}
       <div className="mb-4 flex flex-row justify-evenly items-center">
-        <p className="font-rubik text-base font-medium text-black flex flex-col text-center">
-          <span>
-            <FontAwesomeIcon className="inline-block text-green-soft text-5xl" icon={faWallet} />
-          </span>
-          <span className="font-roboto font-bold text-stroke-black-2 text-yellow-medium text-5xl">{totalContributions}0€</span>
-        </p>
+        <div
+          className="h-fit flex flex-col w-1/3 p-1 relative fade-in">
+          <div className="w-full relative">
+            <img className="block" src={monthPointsShape} alt=""/>
+            <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={totalContribText} alt=""/>
+          </div>
+          <p
+            translate="no"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
+            {totalContributions}0
+          </p>
+        </div>
         <div>
           {bestContributor && (
             <div className="flex flex-col items-center justify-center relative">
-              <h2 className="font-rubik text-base font-medium text-black uppercase text-center leading-5">Meilleur <br/>contributeur</h2>
+              <h2 className="font-rubik text-base font-medium text-black uppercase text-center leading-5">Meilleur <br/>contributeur
+              </h2>
               <img
                 className="object-center w-[150px] h-[150px] my-2 rounded-full object-cover border-l-2 border-t-2 border-b border-r border-black"
                 src={bestContributor.user.img ? `${apiUrl}/uploads/users/${bestContributor.user.id}/${bestContributor.user.img}` : defaultUserImage}
@@ -183,7 +200,8 @@ const Contributions = () => {
               <p className="font-rubik text-xl2 -mt-8 font-black text-center uppercase text-stroke-black-2 text-white">
                 {bestContributor.user.username}
               </p>
-              <p className="absolute top-6 left-14 font-black font-rubik text-xl5 text-yellow-light text-stroke-black-2">
+              <p
+                className="absolute top-6 left-14 font-black font-rubik text-xl5 text-yellow-light text-stroke-black-2">
                 {bestContributor.contributions.length}
               </p>
             </div>
@@ -198,8 +216,9 @@ const Contributions = () => {
               key={index}>
               {contribution.user ? (
                 <div
-                  className="relative flex flex-row justify-start items-center rounded-t-xl rounded-l-2xl bg-green-light border-b border-black py-2 pl-10">
-                  <img
+                  className="relative flex flex-row justify-start items-center rounded-t-xl rounded-l-2xl bg-purple-light border-b border-black py-2 pl-10"
+                  style={{backgroundColor: userColors[contribution.user.id] + "60"}}>
+                <img
                     className="object-center absolute -left-3.5 -top-3.5 w-[60px] h-[60px] rounded-full object-cover border-l-2 border-t-2 border-b border-r border-black"
                     src={contribution.user.img ? `${apiUrl}/uploads/users/${contribution.user.id}/${contribution.user.img}` : defaultUserImage}
                     alt={contribution.user.username}/>
@@ -215,11 +234,11 @@ const Contributions = () => {
               <ul className="p-5">
                 {contribution.contributions.map((contrib, index) => (
                   <li
-                    className="flex flex-row justify-between relative"
+                    className="flex flex-row justify-between relative my-2"
                     key={index}>
                     {(user.role === 'admin' || user.role === 'treasurer') && (
                       <button
-                        className="absolute -left-8 z-[25] bg-red-medium border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        className="absolute -left-8 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                         onClick={() => handleDeleteContribution(contrib.id, contribution.user.id)}>
                         <span className="font-rubik w-full font-black text-black text-xs inline-block">
                           <FontAwesomeIcon icon={faTrash}/>
@@ -245,7 +264,7 @@ const Contributions = () => {
                     </p>
                     {(user.role === 'admin' || user.role === 'treasurer') && contrib.status === 'pending' && (
                       <button
-                        className="absolute -right-7 z-[25] bg-green-soft border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        className="absolute -right-7 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                         onClick={() => handleValidateContribution(contrib.id, contribution.user.id)}>
                         <span className="font-rubik w-full font-black text-black text-xs inline-block">
                           <FontAwesomeIcon icon={faCheck}/>
@@ -254,7 +273,7 @@ const Contributions = () => {
                     )}
                     {(user.role === 'admin' || user.role === 'treasurer') && contrib.status === 'received' && (
                       <button
-                        className="absolute -right-7 z-[25] bg-red-medium border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+                        className="absolute -right-7 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
                         onClick={() => handlePendingContribution(contrib.id, contribution.user.id)}>
                         <span className="font-rubik w-full font-black text-black text-xs inline-block">
                           <FontAwesomeIcon icon={faXmark}/>

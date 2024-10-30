@@ -111,7 +111,7 @@ const Teams = () => {
                   </div>
                 </div>
                 <div className="py-2 border-t border-black">
-                  <ul className="flex flex-row justify-center">
+                  <ul className="flex flex-row-reverse justify-center">
                     {team.form ? (
                       team.form.slice(-5).split('').map((result, index) => (
                         <li translate="no" className="mx-2 text-lg rounded-full bg-black h-fit border border-black" key={index}>

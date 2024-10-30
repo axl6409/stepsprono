@@ -3,7 +3,7 @@ const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
-const {getNullBets, checkupBets, createBet, updateBet, checkBetByMatchId, getSeasonRanking} = require("../services/betService");
+const {getNullBets, checkupBets, createBet, updateBet, getSeasonRanking, getRanking, updateAllBetsForCurrentSeason} = require("../services/betService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
 
@@ -50,10 +50,38 @@ router.get('/bets/get-null/all', authenticateJWT, async (req, res) => {
 router.get('/bets/season-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
-    const ranking = await getSeasonRanking(seasonId);
+    const ranking = await getRanking(seasonId, 'season');
 
     if (!ranking || ranking.length === 0) {
-      return res.status(404).json({ message: 'Aucun classement trouvé pour cette saison.' });
+      return res.status(204).json({ message: 'Aucun classement trouvé pour cette saison.' });
+    }
+
+    res.status(200).json({ ranking });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
+  }
+});
+router.get('/bets/month-ranking', authenticateJWT, async (req, res) => {
+  try {
+    const seasonId = await getCurrentSeasonId(61);
+    const ranking = await getRanking(seasonId, 'month');
+
+    if (!ranking || ranking.length === 0) {
+      return res.status(204).json({ message: 'Aucun classement trouvé pour ce mois.' });
+    }
+
+    res.status(200).json({ ranking });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
+  }
+});
+router.get('/bets/week-ranking', authenticateJWT, async (req, res) => {
+  try {
+    const seasonId = await getCurrentSeasonId(61);
+    const ranking = await getRanking(seasonId, 'week');
+
+    if (!ranking || ranking.length === 0) {
+      return res.status(204).json({ message: 'Aucun classement trouvé pour cette semaine.' });
     }
 
     res.status(200).json({ ranking });
@@ -119,11 +147,22 @@ router.get('/admin/bets/unchecked', authenticateJWT, checkAdmin, async (req, res
 router.patch('/admin/bets/checkup/all', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const betIds = req.body;
-    logger.info(betIds)
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     }
     const bets = await checkupBets(betIds);
+    if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
+    res.status(200).json({ message: bets.message, datas: bets.updatedBets });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.patch('/admin/bets/update/all', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const bets = await updateAllBetsForCurrentSeason();
     if (bets.success === false) return res.status(403).json({ error: bets.error, message: bets.message });
     res.status(200).json({ message: bets.message, datas: bets.updatedBets });
   } catch (error) {

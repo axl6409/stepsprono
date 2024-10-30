@@ -61,6 +61,22 @@ const AdminBets = () => {
 
   const handleUpdateAll = async () => {
     try {
+      const response = await axios.patch(`${apiUrl}/api/admin/bets/update/all`, null,{
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        fetchBetsUnchecked()
+        handleSuccess('Pronostics vérifiés !', 1500)
+      } else {
+        handleError('Erreur lors de la vérification des pronostics !', 1500)
+      }
+    } catch (error) {
+      handleError('Erreur lors de la vérification des pronostics !' + error, 1500)
+    }
+  };
+
+  const handleCheckAll = async () => {
+    try {
       const betIds = bets.map(bet => bet.id);
       const response = await axios.patch(`${apiUrl}/api/admin/bets/checkup/all`, betIds, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -101,8 +117,8 @@ const AdminBets = () => {
         <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Pronostics non-vérifiés</p>
         <div className="w-fit absolute -top-5 right-2.5 rounded-full flex flex-row">
           <button
-            onClick={() => handleUpdateAll()}
-            className="relative hidden m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            onClick={() => handleCheckAll()}
+            className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
           >
             <span
               className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">

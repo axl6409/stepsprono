@@ -24,7 +24,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const Dashboard = ({ userId: propUserId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
-  const { ranking } = useContext(RankingContext);
+  const { ranking, rankingType, fetchRanking, isLoading: rankingIsLoading } = useContext(RankingContext);
   const { userId: paramUserId } = useParams();
   const userId = paramUserId || propUserId;
   const [cookies, setCookie] = useCookies(["user"]);
@@ -53,6 +53,21 @@ const Dashboard = ({ userId: propUserId }) => {
         setIsLoading(false);
       }
     };
+    const updateLastConnected = async () => {
+      try {
+        const userId = user.id;
+        await axios.patch(`${apiUrl}/api/user/${userId}/last-connect`, null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour de la date de connexion', error);
+      }
+    };
+    if (isAuthenticated && (userId === user.id)) {
+      updateLastConnected()
+    }
     if (userId) {
       fetchProfileUser();
     } else {
@@ -71,11 +86,14 @@ const Dashboard = ({ userId: propUserId }) => {
 
 
   useEffect(() => {
-    if (ranking.length > 0) {
+    if (!ranking.length && !rankingIsLoading) {
+      fetchRanking(rankingType);
+    }
+    if (ranking.length > 0 && !rankingIsLoading) {
       const index = ranking.findIndex(u => u.user_id === parseInt(userId));
       setCurrentUserIndex(index);
     }
-  }, [ranking, userId]);
+  }, [ranking, rankingType, userId, fetchRanking, rankingIsLoading]);
 
 
   const goToNextUser = () => {
@@ -146,13 +164,13 @@ const Dashboard = ({ userId: propUserId }) => {
   };
 
   const handlers = useSwipeable({
-    onSwipedLeft: goToNextUser, // Swipe vers la gauche pour aller à l'utilisateur suivant
-    onSwipedRight: goToPreviousUser, // Swipe vers la droite pour aller à l'utilisateur précédent
+    onSwipedLeft: goToNextUser,
+    onSwipedRight: goToPreviousUser,
     preventDefaultTouchmoveEvent: true,
-    trackMouse: true // Permet également de détecter les événements de swipe avec la souris
+    trackMouse: true
   });
 
-  if (isLoading) {
+  if (isLoading || rankingIsLoading) {
     return (
       <div className="text-center flex flex-col justify-center">
         <Loader />
@@ -176,7 +194,6 @@ const Dashboard = ({ userId: propUserId }) => {
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
       <div className="flex flex-row justify-between px-4 py-2 mb-4">
-        {/* Affichage du logo de l'équipe */}
         {userId === user.id ? (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
@@ -221,7 +238,6 @@ const Dashboard = ({ userId: propUserId }) => {
             </span>
           </p>
         </div>
-        {/* Afficher les trophées */}
         <Link
           className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
           to={`/rewards/${userId}`}>
@@ -238,10 +254,8 @@ const Dashboard = ({ userId: propUserId }) => {
         </Link>
       </div>
 
-      {/* Titre animé avec le nom de l'utilisateur */}
       <AnimatedTitle title={profileUser.username} stickyStatus={false}/>
 
-      {/* Affichage des paris et rôles */}
       <div>
         {isAuthenticated && profileUser && profileUser.role !== 'visitor' ? (
           <CurrentBets loggedUser={user} user={profileUser} token={token}/>

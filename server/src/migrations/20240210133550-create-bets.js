@@ -104,6 +104,21 @@ module.exports = {
         allowNull: true,
         field: 'points'
       },
+      result_points: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        field: 'result_points'
+      },
+      score_points: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        field: 'score_points'
+      },
+      scorer_points: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        field: 'scorer_points'
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

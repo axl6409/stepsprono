@@ -219,9 +219,12 @@ const EditUser = () => {
             <input type="file" id="avatar"
                    className="block w-full font-sans text-sm text-black cursor-pointer file:me-4 file:py-2 file:px-4 file:cursor-pointer file:border-2 file:border-solid file:border-black file:text-sm file:font-bold file:bg-black file:text-white hover:file:bg-white hover:file:text-black file:disabled:opacity-50 file:disabled:pointer-events-none"
                    onChange={handleFileChange}/>
-            {userEdited.avatarUrl && <div
-              className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black">
-              <img src={apiUrl + "/uploads/users/" + userEdited.id + "/" + userEdited.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto"/></div>}
+            {userEdited.avatarUrl &&
+              <div
+                className="w-[200px] h-[200px] mx-auto my-4 flex flex-col justify-center rounded-full bg-white border-black border-2 shadow-flat-black overflow-hidden">
+                <img src={apiUrl + "/uploads/users/" + userEdited.id + "/" + userEdited.avatarUrl} alt="Avatar actuel" className="block my-auto mx-auto w-full h-full object-cover object-center"/>
+              </div>
+            }
           </div>
           <button
             type="submit"
