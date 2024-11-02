@@ -59,9 +59,9 @@ const getNullBets = async () => {
       include: [{
         model: Match,
         as: 'MatchId',
-        // where: {
-        //   status: 'FT'
-        // },
+        where: {
+          status: 'FT'
+        },
         include: [
           {
             model: Team,
@@ -418,7 +418,7 @@ const checkBetByMatchId = async (ids) => {
             { match_id: { [Op.in]: ids } },
             { id: { [Op.in]: ids } },
           ],
-          points: { [Op.not]: null }
+          points: null
         }
       });
     } else {
@@ -428,11 +428,12 @@ const checkBetByMatchId = async (ids) => {
             { match_id: ids },
             { id: ids },
           ],
-          points: { [Op.not]: null }
+          points: null
         }
       });
     }
-
+    logger.info('[BETS => ]')
+    console.log(ids)
     if (bets.length === 0) {
       logger.info("Aucun pronostic à mettre à jour.");
       return { success: true, message: "Aucun pronostic à mettre à jour." };
