@@ -501,7 +501,8 @@ const checkKhalassTrophy = async () => {
  */
 const checkChallengerTrophy = async () => {
   try {
-    const reward = await getRewardById(9);
+    const reward = await getRewardById(17);
+
     if (reward.active === false) {
       logger.info("Trophee Le Challenger non actif");
       return;

@@ -79,7 +79,7 @@ const getUserRankByPeriod = async (userId, startDate, endDate) => {
       },
       include: [{
         model: User,
-        as: 'User',
+        as: 'UserId',
         attributes: ['id', 'username']
       }]
     });
@@ -90,10 +90,10 @@ const getUserRankByPeriod = async (userId, startDate, endDate) => {
       if (!pointsPerUser[bet.matchday]) {
         pointsPerUser[bet.matchday] = {};
       }
-      if (!pointsPerUser[bet.matchday][bet.User.id]) {
-        pointsPerUser[bet.matchday][bet.User.id] = 0;
+      if (!pointsPerUser[bet.matchday][bet.UserId.id]) {
+        pointsPerUser[bet.matchday][bet.UserId.id] = 0;
       }
-      pointsPerUser[bet.matchday][bet.User.id] += bet.points;
+      pointsPerUser[bet.matchday][bet.UserId.id] += bet.points;
     });
 
     // Déterminer les classements pour chaque journée sportive
