@@ -8,10 +8,13 @@ import monthPointsShape from "../../assets/components/dashboard/month/month-poin
 import monthPointsText from "../../assets/components/dashboard/month/month-points-txt.png";
 import seasonPointsShape from "../../assets/components/dashboard/season/season-points-shape.png";
 import seasonPointsText from "../../assets/components/dashboard/season/season-points-txt.png";
+import statsIcon from "../../assets/icons/stats.svg";
 import {Link, useNavigate} from "react-router-dom";
 import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
+import curveTextTrophies from "../../assets/components/texts/les-trophees.svg";
+import trophyIcon from "../../assets/components/icons/icon-trophees.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -158,13 +161,26 @@ const CurrentBets = ({ loggedUser, user, token }) => {
 
   return (
     <div key={user.id}>
-      <div
-        className="flex fade-in flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
-        <img
-          className="w-full h-full object-cover"
-          src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
-          alt="Image de profil"
-        />
+      <div className="relative">
+        <div
+          className="flex fade-in flex-col justify-center items-center overflow-hidden w-[200px] h-[200px] mx-auto rounded-full bg-white border-2 border-black">
+          <img
+            className="w-full h-full object-cover"
+            src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
+            alt="Image de profil"
+          />
+        </div>
+        <Link
+          className="absolute fade-in block bg-white rounded-full top-1/3 right-4 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+          to={`/stats`}>
+          <div
+            className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            <span
+              className="block relative z-[3] w-full h-full border-2 border-black text-black p-4 rounded-full text-center shadow-md bg-white">
+              <img className="mx-auto w-full h-full object-contain object-center" src={statsIcon} alt=""/>
+            </span>
+          </div>
+        </Link>
       </div>
       <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
         <div

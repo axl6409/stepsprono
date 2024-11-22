@@ -2,8 +2,8 @@ const cron = require('node-cron')
 const eventBus = require('./src/events/eventBus')
 const moment = require("moment");
 const { updatePlayers } = require('./src/services/playerService')
-const { checkAndScheduleSeasonEndTasks, scheduleBetsCloseEvent} = require("./src/services/appService");
-const { fetchAndProgramWeekMatches, fetchWeekMatches} = require('./src/services/matchService');
+const { checkAndScheduleSeasonEndTasks, scheduleBetsCloseEvent, scheduleWeeklyRankingUpdate} = require("./src/services/appService");
+const { fetchAndProgramWeekMatches} = require('./src/services/matchService');
 const logger = require("./src/utils/logger/logger");
 const {getAllTeams} = require("./src/services/teamService");
 const {sendNotificationsToAll} = require("./src/services/fcmService");
@@ -31,7 +31,9 @@ const runCronJob = () => {
   cron.schedule('30 23 * * 0', async () => {
     logger.info("[CRON]=> 30 23 * * 0 => eventBus.emit('weekEnded')")
     await autoContribution()
+    await scheduleWeeklyRankingUpdate()
     eventBus.emit('weekEnded');
+    eventBus.emit('betsChecked');
   })
 
   // Every monday at 0:00
