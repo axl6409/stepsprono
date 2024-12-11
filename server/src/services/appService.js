@@ -10,7 +10,6 @@ const moment = require("moment-timezone");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
-const {updateWeeklyRankings, getClosestPastMatchday} = require("./betService");
 
 /**
  * Retrieves the number of API calls made by the server.
@@ -448,18 +447,6 @@ const scheduleBetsCloseEvent = async () => {
   }
 };
 
-const scheduleWeeklyRankingUpdate = async () => {
-  try {
-    const competitionId = await getCurrentCompetitionId();
-    const seasonId = await getCurrentSeasonId(competitionId);
-    const matchday = await getClosestPastMatchday(seasonId);
-
-    await updateWeeklyRankings(matchday, competitionId, seasonId);
-  } catch (error) {
-    console.error('Erreur lors de l\'exécution de la tâche cron:', error);
-  }
-};
-
 module.exports = {
   getAPICallsCount,
   getAdjustedMoment,
@@ -479,5 +466,4 @@ module.exports = {
   getMidSeasonDate,
   getFirstMatchOfCurrentWeek,
   scheduleBetsCloseEvent,
-  scheduleWeeklyRankingUpdate
 }
