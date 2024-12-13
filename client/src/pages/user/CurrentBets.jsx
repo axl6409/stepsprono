@@ -41,12 +41,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       {/*     alt=""/>*/}
       <div className="relative z-[2]">
         <div
-          className="relative w-[200px] h-[200px] mx-auto"
+          className="relative w-[200px] h-[200px] mx-auto profile-pic_shadow"
           style={{perspective: '1000px'}}
           onClick={() => setFlipped(!flipped)}
         >
           <div
-            className={`relative w-full h-full transition-transform duration-500 ease-in-out`}
+            className={`profile_pic-container anim-rotate-attract relative w-full h-full transition-transform duration-500 ease-in-out`}
             style={{
               transformStyle: 'preserve-3d',
               transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
@@ -54,11 +54,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           >
             <div
               className="absolute inset-0 bg-white rounded-full border-2 border-black"
-              style={{
-                backfaceVisibility: 'hidden',
-                transformStyle: 'preserve-3d',
-                transform: 'translateZ(1px)'
-              }}
             >
               <img
                 className="w-full h-full object-cover rounded-full"
@@ -67,15 +62,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
               />
             </div>
             <div
-              className="absolute inset-0 bg-white rounded-full border-2 border-black flex justify-center items-center p-4"
-              style={{
-                backfaceVisibility: 'hidden',
-                transformStyle: 'preserve-3d',
-                transform: 'rotateY(180deg) translateZ(1px)'
-              }}
+              className="absolute inset-0 bg-white rounded-full border-2 border-black flex justify-center items-center p-8"
             >
               <img
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain -scale-x-100"
                 src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}
                 alt=""
               />
@@ -84,7 +74,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
           <div
-            className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in">
+            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.3s'}}>
             {/*<MonthPoints />*/}
             <div className="w-full relative">
               <img className="block" src={monthPointsShape} alt=""/>
@@ -98,7 +88,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
           <div
-            className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12 fade-in">
+            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12 fade-in"  style={{animationDelay: '0.1s'}}>
             {/*<WeekPoints/>*/}
             <div className="w-full relative">
               <img className="block" src={weekPointsShape} alt=""/>
@@ -111,7 +101,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
           <div
-            className="h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in">
+            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.2s'}}>
             {/*<SeasonPoints/>*/}
             <div className="w-full relative">
               <img className="block" src={seasonPointsShape} alt=""/>
