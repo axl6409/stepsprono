@@ -1,5 +1,5 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team, Player, User, Setting} = require("../models");
+const {Bet, Match, Team, Player, User, Setting, UserRanking} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
@@ -79,31 +79,6 @@ const getNullBets = async () => {
   }
 }
 
-const getClosestPastMatchday = async (seasonId) => {
-  try {
-    const match = await Match.findOne({
-      where: {
-        season_id: seasonId,
-        utc_date: {
-          [Op.lte]: new Date(),
-        },
-      },
-      order: [['utc_date', 'DESC']],
-      attributes: ['matchday'],
-    });
-
-    if (!match) {
-      console.warn('Aucun match trouvé pour la saison donnée.');
-      return null;
-    }
-
-    return match.matchday;
-  } catch (error) {
-    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
-    throw error;
-  }
-};
-
 /**
  * Retrieves the total points earned by a user for the last matchday of a season.
  *
@@ -155,7 +130,7 @@ const getWeekPoints = async (userId) => {
   try {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
-    const matchdays = await getCurrentWeekMatchdays(seasonId);
+    const matchdays = await getCurrentWeekMatchdays();
 
     const bets = await Bet.findAll({
       where: {
@@ -800,6 +775,101 @@ const updateAllBetsForCurrentSeason = async () => {
   }
 };
 
+const updateWeeklyRankings = async (matchday, competitionId, seasonId) => {
+  try {
+    const bets = await Bet.findAll({
+      where: {
+        matchday,
+        competition_id: competitionId,
+        season_id: seasonId,
+        points: { [Op.not]: null },
+      },
+      include: [{ model: User, as: 'UserId' }],
+    });
+
+    const rankings = bets.reduce((acc, bet) => {
+      const userId = bet.user_id;
+
+      if (!acc[userId]) {
+        acc[userId] = {
+          user_id: userId,
+          points: 0,
+          result_points: 0,
+          score_points: 0,
+          scorer_points: 0,
+        };
+      }
+
+      acc[userId].points += bet.points;
+      acc[userId].result_points += bet.result_points;
+      acc[userId].score_points += bet.score_points;
+      acc[userId].scorer_points += bet.scorer_points;
+
+      return acc;
+    }, {});
+
+    const sortedRankings = Object.values(rankings).sort((a, b) => b.points - a.points);
+
+    let position = 1;
+    for (const rank of sortedRankings) {
+      await UserRanking.create({
+        user_id: rank.user_id,
+        competition_id: competitionId,
+        season_id: seasonId,
+        matchday,
+        position,
+        points: rank.points,
+        result_points: rank.result_points,
+        score_points: rank.score_points,
+        scorer_points: rank.scorer_points,
+      });
+      position++;
+    }
+
+    console.log(`Classement hebdomadaire pour la journée ${matchday} mis à jour avec succès.`);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des classements hebdomadaires:', error);
+    throw error;
+  }
+};
+
+const scheduleWeeklyRankingUpdate = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+    const matchday = await getClosestPastMatchday(seasonId);
+
+    await updateWeeklyRankings(matchday, competitionId, seasonId);
+  } catch (error) {
+    console.error('Erreur lors de l\'exécution de la tâche cron:', error);
+  }
+};
+
+const getClosestPastMatchday = async (seasonId) => {
+  try {
+    const match = await Match.findOne({
+      where: {
+        season_id: seasonId,
+        utc_date: {
+          [Op.lte]: new Date(),
+        },
+      },
+      order: [['utc_date', 'DESC']],
+      attributes: ['matchday'],
+    });
+
+    if (!match) {
+      console.warn('Aucun match trouvé pour la saison donnée.');
+      return null;
+    }
+
+    return match.matchday;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du matchday antérieur le plus proche:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   calculatePoints,
   checkBetByMatchId,
@@ -807,6 +877,7 @@ module.exports = {
   getNullBets,
   getLastMatchdayPoints,
   getWeekPoints,
+  getClosestPastMatchday,
   getMonthPoints,
   getSeasonPoints,
   createBet,
@@ -816,5 +887,7 @@ module.exports = {
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,
-  updateAllBetsForCurrentSeason
+  updateAllBetsForCurrentSeason,
+  updateWeeklyRankings,
+  scheduleWeeklyRankingUpdate
 };

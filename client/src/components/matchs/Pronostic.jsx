@@ -67,11 +67,9 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
       try {
         const params = new URLSearchParams();
 
-        // Vérifie si l'équipe non sélectionnée a un score non nul
         const otherTeamScore = selectedTeam === match.HomeTeam.id ? awayScore : homeScore;
         const showBothTeams = otherTeamScore > 0;
 
-        // Si aucune équipe n'est sélectionnée ou si le score de l'autre équipe est non nul, affiche les joueurs des deux équipes
         if (selectedTeam === null || showBothTeams) {
           params.append('teamId1', match.HomeTeam.id);
           params.append('teamId2', match.AwayTeam.id);
@@ -111,6 +109,23 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
     setAwayTeamColor(getRandomColor(initialHomeColor));
   }, []);
 
+  useEffect(() => {
+    if (match.require_details) {
+      if (homeScore !== '' && awayScore !== '') {
+        const home = parseInt(homeScore, 10);
+        const away = parseInt(awayScore, 10);
+
+        if (home > away) {
+          setSelectedTeam(match.HomeTeam.id);
+        } else if (home < away) {
+          setSelectedTeam(match.AwayTeam.id);
+        } else {
+          setSelectedTeam(null);
+        }
+      }
+    }
+  }, [homeScore, awayScore, match.require_details]);
+
   useImperativeHandle(ref, () => ({
     triggerSubmit: () => {
       handleSubmit(onSubmit)();
@@ -141,8 +156,6 @@ const Pronostic = forwardRef(({ match, utcDate, userId, lastMatch, token, disabl
           handleError('Score obligatoire');
           return
         }
-        console.log(selectedTeam)
-        console.log(match.AwayTeam.id)
         if (selectedTeam === match.AwayTeam.id) {
           if (data.homeScore > data.awayScore) {
             handleError('Le score n\'est pas cohérent avec l\'équipe sélectionnée');

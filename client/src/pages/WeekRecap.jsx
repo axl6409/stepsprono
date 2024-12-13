@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';  // Import pour rediriger
@@ -6,12 +6,14 @@ import { useCookies } from "react-cookie";
 import DashboardButton from "../components/nav/DashboardButton.jsx";
 import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 import nullSymbol from "../assets/icons/null-symbol.svg";
+import {UserContext} from "../contexts/UserContext.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const WeekRecap = () => {
   const [cookies] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token;
+  const { user } = useContext(UserContext);
   const [matchs, setMatchs] = useState([]);
   const [predictions, setPredictions] = useState([]);
   const [betColors, setBetColors] = useState({});
@@ -85,6 +87,15 @@ const WeekRecap = () => {
 
   const uniqueUsers = [...new Map(predictions.map(prediction => [prediction.user_id, prediction.UserId])).values()];
 
+  const userFromCookie = user;
+  if (userFromCookie && userFromCookie.id) {
+    const currentUserIndex = uniqueUsers.findIndex(u => u.id === userFromCookie.id);
+    if (currentUserIndex > 0) {
+      const [currentUser] = uniqueUsers.splice(currentUserIndex, 1);
+      uniqueUsers.unshift(currentUser);
+    }
+  }
+
   return (
     <div className="recap-container pb-20">
       <div className="portrait-warning">
@@ -132,7 +143,7 @@ const WeekRecap = () => {
             <div className="relative z-[5] flex flex-col justify-start border border-black border-r-0 rounded-tl-2xl overflow-hidden shadow-flat-black-adjust-left">
               <div className="overflow-y-scroll h-[65vh] recap_table_body_inner_shadow">
                 {uniqueUsers.map(user => (
-                  <div key={user.id} className="h-[60px] relative z-[-1] bg-white border-dashed border-b border-black hover:bg-gray-100 flex flex-row justify-start items-center">
+                  <div key={user.id} className={`h-[60px] ${user.id === userFromCookie.id ? 'bg-yellow-light sticky top-0 left-0 z-[5] shadow-md' : 'bg-white relative'} z-[-1] bg-white border-dashed border-b border-black hover:bg-gray-100 flex flex-row justify-start items-center`}>
                     <div className="px-2 py-2 w-[20%] h-full border-r border-black flex flex-col justify-center">
                       <p className="font-rubik text-sm font-medium text-black">{user.username}</p>
                     </div>

@@ -16,7 +16,7 @@ const {getCurrentSeasonId} = require("../services/seasonService");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
-const {updateLastConnect} = require("../services/userService");
+const {updateLastConnect, getUserStats} = require("../services/userService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -108,6 +108,16 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error });
   }
 });
+router.get('/user/:id/stats', authenticateJWT, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const userStats = await getUserStats(userId);
+    return res.json(userStats);
+  } catch (error) {
+    console.error('Impossible de récupérer les statistiques:', error);
+    res.status(400).json({ error: 'Impossible de récupérer les statistiques : ' + error });
+  }
+})
 
 /* PUBLIC - PUT */
 router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {

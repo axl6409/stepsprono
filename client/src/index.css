@@ -503,3 +503,114 @@ body {
         display: none;
     }
 }
+
+.anim-rotate-attract {
+    animation: rotate-attract 1.4s ease-in-out;
+}
+@-webkit-keyframes rotate-attract {
+    0% {
+        transform: rotateY(0);
+    }
+    20% {
+        transform: rotateY(25deg);
+    }
+    40% {
+        transform: rotateY(-25deg);
+    }
+    60% {
+        transform: rotateY(15deg);
+    }
+    80% {
+        transform: rotateY(-15deg);
+    }
+    100% {
+        transform: rotateY(0);
+    }
+}
+@keyframes rotate-attract {
+    0% {
+        transform: rotateY(0);
+    }
+    20% {
+        transform: rotateY(25deg);
+    }
+    40% {
+        transform: rotateY(-25deg);
+    }
+    60% {
+        transform: rotateY(15deg);
+    }
+    80% {
+        transform: rotateY(-15deg);
+    }
+    100% {
+        transform: rotateY(0);
+    }
+}
+
+.profile-pic_shadow:before {
+    content: "";
+    position: absolute;
+    left: 3rem;
+    bottom: 0;
+    right: 3rem;
+    height: 0;
+    z-index: 1;
+    box-shadow: 0 0px 27px 7px rgba(0 0 0 / 75%);
+    background: transparent;
+    border-radius: 500px;
+}
+.profile_pic-container {
+    transform: rotateY(180deg);
+    background: rgb(96 83 0);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 5;
+    transform-style: preserve-3d;
+}
+.profile_pic-container div:nth-child(0n+1) {
+    transform-style: preserve-3d;
+    transform: translateZ(1px);
+    position: absolute;
+    border-radius: 50%;
+    content: "";
+    height: 200px;
+    width: 200px;
+    border: 1px solid #000000;
+    overflow: hidden;
+}
+.profile_pic-container div:nth-child(0n+2) {
+    transform-style: preserve-3d;
+    transform: rotateY(180deg) translateZ(1px);
+    position: absolute;
+    border-radius: 50%;
+    content: "";
+    height: 200px;
+    width: 200px;
+    -webkit-transform: translateZ(-0.755em);
+    border: 1px solid #000000;
+    overflow: hidden;
+}
+.profile_pic-container:before {
+    background-color: rgb(96 83 0);
+    position: absolute;
+    border-radius: 50%;
+    content: "";
+    inset: 0;
+    height: 200px;
+    width: 200px;
+    -webkit-transform: translateZ(-0.75em);
+}
+.profile_pic-container:after {
+    background-color: rgb(96 83 0);
+    content: "";
+    left: 5.5em;
+    position: absolute;
+    height: 200px;
+    width: 0.70em;
+    z-index: -10;
+    -webkit-transform: rotateY(-90deg);
+    -webkit-transform-origin: 100% 50%;
+}

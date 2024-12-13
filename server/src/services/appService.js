@@ -465,5 +465,5 @@ module.exports = {
   getSeasonStartDate,
   getMidSeasonDate,
   getFirstMatchOfCurrentWeek,
-  scheduleBetsCloseEvent
+  scheduleBetsCloseEvent,
 }

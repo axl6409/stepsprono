@@ -19,6 +19,7 @@ import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
+import statsIcon from "../assets/icons/stats.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = ({ userId: propUserId }) => {
@@ -74,7 +75,7 @@ const Dashboard = ({ userId: propUserId }) => {
       setProfileUser(user);
       setIsLoading(false);
     }
-  }, [userId, user, token]);
+  }, [userId, user, token, isAuthenticated]);
 
 
   useEffect(() => {
@@ -211,6 +212,17 @@ const Dashboard = ({ userId: propUserId }) => {
               </span>
             </div>
           </Link>
+          // <Link
+          //   className="absolute fade-in block bg-white rounded-full top-1/3 right-4 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+          //   to={`/stats`}>
+          //   <div
+          //     className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+          //   <span
+          //     className="block relative z-[3] w-full h-full border-2 border-black text-black p-4 rounded-full text-center shadow-md bg-white">
+          //     <img className="mx-auto w-full h-full object-contain object-center" src={statsIcon} alt=""/>
+          //   </span>
+          //   </div>
+          // </Link>
         ) : (
           <div
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
