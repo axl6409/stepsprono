@@ -119,7 +119,7 @@ const AuthenticatedApp = () => {
               )} />
             } />
             <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
-            <Route path="/stats" element={<ProtectedRoute component={UserStats} />} />
+            <Route path="/stats/:userId?" element={<ProtectedRoute component={UserStats} />} />
             <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
             <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
             <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
