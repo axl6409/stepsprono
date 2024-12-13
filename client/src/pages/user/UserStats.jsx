@@ -15,7 +15,8 @@ import {
 } from 'chart.js';
 import {useParams} from "react-router-dom";
 import {useCookies} from "react-cookie";
-
+import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
+import DashboardButton from "../../components/nav/DashboardButton.jsx";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -60,18 +61,49 @@ const UserStats = () => {
 
   if (loading) return <p>Chargement des statistiques...</p>;
   if (error) return <p>{error}</p>;
+  console.log(stats.pointsByMatchdayForAllUsers)
 
-  const weeklySuccessRateData = {
-    labels: stats.weeklySuccessRate.map(item => `Semaine ${item.week}`),
-    datasets: [
-      {
-        label: 'Taux de Réussite (%)',
-        data: stats.weeklySuccessRate.map(item => item.successRate * 100),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.3,
+  const labels = Array.from(new Set(stats.pointsByMatchday.map(item => `Journée ${item.matchday}`))); // Journées sportives uniques
+console.log(stats.pointsByMatchdayForAllUsers)
+  const pointsByMatchdayData = {
+    labels: labels,
+    datasets: stats.pointsByMatchdayForAllUsers.reduce((datasets, item) => {
+      let userDataset = datasets.find(ds => ds.label === item.user_name);
+      if (!userDataset) {
+        userDataset = {
+          label: item.user_name,
+          data: Array(labels.length).fill(0),
+          borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+          backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`,
+          tension: 0.3,
+          hidden: item.user_id !== parseInt(userId, 10),
+        };
+        datasets.push(userDataset);
+      }
+
+      const matchdayIndex = labels.indexOf(`Journée ${item.matchday}`);
+      if (matchdayIndex !== -1) {
+        userDataset.data[matchdayIndex] = item.totalPoints || 0; // Défaut à 0 si `totalPoints` est manquant
+      }
+
+      return datasets;
+    }, []),
+  };
+
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false, // Permet d'ajuster la hauteur
+    scales: {
+      y: {
+        beginAtZero: true,
+        min: 0,
+        max: 20, // Plage fixe pour l'axe Y
+        ticks: {
+          stepSize: 1, // Intervalle de l'axe Y
+        },
       },
-    ],
+    },
   };
 
   const homeAwayData = {
@@ -100,8 +132,9 @@ const UserStats = () => {
   // };
 
   return (
-    <div className="stats-page">
-      <h1 className="text-2xl font-bold">Statistiques de l'utilisateur</h1>
+    <div className="inline-block relative w-full h-auto py-20">
+      <DashboardButton/>
+      <SimpleTitle title={"Classement Steps"} stickyStatus={false}/>
 
       {/* Total des pronostics corrects */}
       <div className="stat-item">
@@ -110,15 +143,15 @@ const UserStats = () => {
       </div>
 
       {/* Taux de réussite par semaine */}
-      <div className="chart-container">
-        <h2>Taux de Réussite par Semaine</h2>
-        <Line data={weeklySuccessRateData} />
+      <div className="chart-container" style={{height: '600px'}}> {/* Augmenter la hauteur */}
+        <h2>Points par Journée Sportive</h2>
+        <Line data={pointsByMatchdayData} options={options}/>
       </div>
 
       {/* Performances à domicile vs extérieur */}
       <div className="chart-container">
         <h2>Performances : Domicile vs Extérieur</h2>
-        <Doughnut data={homeAwayData} />
+        <Doughnut data={homeAwayData}/>
       </div>
 
       {/* Joueurs les plus souvent pronostiqués */}

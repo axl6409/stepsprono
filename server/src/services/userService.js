@@ -8,6 +8,8 @@ const { User, Bet, Match, UserReward, Season, Player } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
 const { getPeriodMatchdays, getAdjustedMoment} = require("./appService");
+const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentCompetitionId} = require("./competitionService");
 
 const updateLastConnect = async (userId) => {
   const adjustedTime = getAdjustedMoment(new Date()).format("YYYY-MM-DD HH:mm:ss");
@@ -1332,38 +1334,60 @@ const getUserPointsForSeason = async (userId, seasonId) => {
 
 const getUserStats = async (userId) => {
   try {
-    // Total de pronostics corrects
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    // Total de pronostics corrects pour l'utilisateur courant
     const correctPredictions = await Bet.count({
       where: {
         user_id: userId,
+        season_id: seasonId,
         result_points: 1, // Vérifie les points corrects
       },
     });
 
-    // Pourcentage de pronostics réussis par semaine
-    const weeklySuccessRate = await Bet.findAll({
+    // Points par journée sportive pour l'utilisateur courant
+    const pointsByMatchday = await Bet.findAll({
       attributes: [
-        [Sequelize.fn('EXTRACT', Sequelize.literal('WEEK FROM "created_at"')), 'week'], // Semaine
-        [
-          Sequelize.fn(
-            'AVG',
-            Sequelize.literal('CASE WHEN result_points = 1 THEN 1 ELSE 0 END')
-          ),
-          'successRate',
-        ], // Moyenne des réussites
+        'matchday', // Colonne pour regrouper par journée sportive
+        [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints'], // Somme des points
       ],
-      where: { user_id: userId },
-      group: ['week'],
+      include: {
+        model: User,
+        as: 'UserId',
+        attributes: ['id', 'username'], // Ajout de l'ID utilisateur
+      },
+      where: { user_id: userId, season_id: seasonId },
+      group: ['matchday', 'UserId.id', 'UserId.username'], // Ajout dans le GROUP BY
+      order: [['matchday', 'ASC']], // Trier par ordre croissant des journées
     });
 
-    // Performances à domicile vs extérieur
+    // Points par journée sportive pour tous les utilisateurs
+    const pointsByMatchdayForAllUsers = await Bet.findAll({
+      attributes: [
+        'matchday', // Colonne pour regrouper par journée sportive
+        'user_id', // Inclure l'ID utilisateur
+        [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints'], // Somme des points
+      ],
+      include: {
+        model: User,
+        as: 'UserId',
+        attributes: ['id', 'username'], // Inclure les noms des utilisateurs
+      },
+      where: { season_id: seasonId },
+      group: ['matchday', 'user_id', 'UserId.id', 'UserId.username'], // Ajout dans le GROUP BY
+      order: [['matchday', 'ASC'], ['user_id', 'ASC']], // Trier par journées et utilisateurs
+    });
+    logger.info('pointsByMatchdayForAllUsers');
+    console.log(pointsByMatchdayForAllUsers);
+    // Performances à domicile vs extérieur pour l'utilisateur courant
     const homeAwayPerformance = await Bet.findAll({
       include: {
         model: Match,
-        as: 'MatchId',
+        as: 'MatchId', // Utilisez l'alias correct défini dans votre modèle Sequelize
         attributes: ['home_team_id'], // Vérifie si c'est à domicile
       },
-      where: { user_id: userId },
+      where: { user_id: userId, season_id: seasonId },
     });
     const homePerformance = homeAwayPerformance.filter(
       (bet) => bet.MatchId.home_team_id
@@ -1372,41 +1396,26 @@ const getUserStats = async (userId) => {
       (bet) => !bet.MatchId.home_team_id
     ).length;
 
-    // // Joueurs pronostiqués comme buteurs et taux de réussite
-    // const scorerStats = await Bet.findAll({
-    //   attributes: [
-    //     'player_goal',
-    //     [Sequelize.fn('COUNT', Sequelize.col('player_goal')), 'predictions'], // Total de prédictions
-    //     [
-    //       Sequelize.fn(
-    //         'AVG',
-    //         Sequelize.literal('CASE WHEN scorer_points = 1 THEN 1 ELSE 0 END')
-    //       ),
-    //       'successRate',
-    //     ], // Moyenne des réussites
-    //   ],
-    //   include: {
-    //     model: Player,
-    //     as: 'PlayerGoal',
-    //     attributes: ['name'], // Nom du joueur
-    //   },
-    //   where: { user_id: userId },
-    //   group: ['player_goal', 'PlayerGoal.name'],
-    // });
+    // Structuration des résultats avec noms des utilisateurs
+    const formattedPointsByMatchdayForAllUsers = pointsByMatchdayForAllUsers.map(item => ({
+      matchday: item.dataValues.matchday, // Extraire depuis dataValues
+      user_id: item.dataValues.user_id, // Extraire depuis dataValues
+      user_name: item.dataValues.UserId.dataValues.username, // Extraire depuis UserId -> dataValues
+      totalPoints: parseInt(item.dataValues.totalPoints, 10), // Assurez-vous que totalPoints est un nombre entier
+    }));
 
     return {
       correctPredictions,
-      weeklySuccessRate,
+      pointsByMatchday,
+      pointsByMatchdayForAllUsers: formattedPointsByMatchdayForAllUsers, // Retourner les données formatées
       homePerformance,
       awayPerformance,
-      // scorerStats,
     };
   } catch (error) {
     console.error(error);
     throw new Error('Erreur lors de la récupération des statistiques utilisateur.');
   }
 };
-
 
 module.exports = {
   getUserRank,
