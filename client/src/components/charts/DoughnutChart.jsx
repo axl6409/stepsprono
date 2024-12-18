@@ -1,26 +1,53 @@
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DoughnutChart = ({ homePerformance, awayPerformance }) => {
+const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrectScore, correctScorer, incorrectScorer }) => {
+  // Données pour le graphique
   const data = {
-    labels: ['Domicile', 'Extérieur'],
+    labels: ['Prono Correct', 'Prono Incorrect', 'Score Exact', 'Score Incorrect', 'Buteur Correct', 'Buteur Incorrect'], // Légendes
     datasets: [
       {
-        data: [homePerformance, awayPerformance],
-        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+        data: [correctResult, incorrectResult, correctScore, incorrectScore, correctScorer, incorrectScorer], // Valeurs dynamiques
+        backgroundColor: ['#00CC99', '#CC99FF', '#F7B009', '#6666FF', '#FDD41D', '#FFB5BE'], // Couleurs
+        hoverBackgroundColor: ['#1af0ba', '#dab8fc', '#fcc43f', '#9595fc', '#fce165', '#fcccd2'], // Couleurs au survol
         borderWidth: 1,
+        borderColor: 'black',
       },
     ],
   };
 
+  // Options pour le graphique
+  const options = {
+    plugins: {
+      legend: {
+        display: true,
+        position: 'right', // Position de la légende
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            const label = data.labels[tooltipItem.dataIndex] || '';
+            const value = tooltipItem.raw || 0;
+            return `${label}: ${value}`;
+          },
+        },
+      },
+    },
+    maintainAspectRatio: false, // Permet de gérer la taille du graphique
+    responsive: true,
+  };
+
   return (
-    <div className="chart-container">
-      <h2>Performances : Domicile vs Extérieur</h2>
-      <Doughnut data={data} />
+    <div className="chart-container" style={{ width: '80%', height: '270px', margin: '0 auto' }}>
+      <Doughnut translate="no" data={data} options={options} />
     </div>
   );
 };

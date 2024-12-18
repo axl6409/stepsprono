@@ -1370,6 +1370,17 @@ const getUserStats = async (userId) => {
 
     const stats = globalStats || defaultStats;
 
+    const averageStats = await Bet.findOne({
+      attributes: [
+        [Sequelize.fn('AVG', Sequelize.literal(`CASE WHEN result_points = 1 THEN 1 ELSE 0 END`)), 'averageCorrectPredictions'],
+      ],
+      where: { season_id: seasonId },
+      raw: true,
+    });
+
+    const averageCorrectPredictions = parseFloat(averageStats.averageCorrectPredictions) || 0;
+    const formattedAverageCorrectPredictions = (averageCorrectPredictions * 100).toFixed(1);
+
     // Requête pour les points par journée
     const pointsByMatchday = await Bet.findAll({
       attributes: [
@@ -1413,6 +1424,7 @@ const getUserStats = async (userId) => {
       incorrectScorePredictions: parseInt(stats.incorrectScorePredictions, 10),
       correctScorerPredictions: parseInt(stats.correctScorerPredictions, 10),
       incorrectScorerPredictions: parseInt(stats.incorrectScorerPredictions, 10),
+      formattedAverageCorrectPredictions,
       pointsByMatchday: pointsByMatchday.map(item => ({
         matchday: item.dataValues.matchday,
         totalPoints: parseInt(item.dataValues.totalPoints, 10) || 0,
