@@ -14,12 +14,12 @@ import Loader from "../components/partials/Loader.jsx";
 import defaultTeamImage from "../assets/components/icons/hidden-trophy.webp";
 import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
-import curveTextTeam from "../assets/components/texts/equipe-de-coeur.svg";
+import curveTextStats from "../assets/components/texts/statistiques.svg";
 import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
-import statsIcon from "../assets/icons/stats.svg";
+import statsIcon from "../assets/icons/chart-simple-solid.svg";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = ({ userId: propUserId }) => {
@@ -198,45 +198,33 @@ const Dashboard = ({ userId: propUserId }) => {
         {userId === user.id ? (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-            to={`/settings/team`}>
+            to={`/stats/${user.id}`}>
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <span className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
-                <img className="mx-auto" src={curveTextTeam} alt=""/>
+                <img className="mx-auto" src={curveTextStats} alt=""/>
               </span>
               <span
-                className="block relative z-[3] w-full h-full border-2 border-black text-black p-2 pt-4 rounded-full text-center shadow-md bg-white">
-                <img className="mx-auto h-full"
-                     src={profileUser.team_id ? `${apiUrl}/uploads/teams/${profileUser.team_id}/${teamLogoUrl}` : defaultTeamImage}
-                     alt=""/>
+                className="block relative z-[3] w-full h-full border-2 border-black text-black p-5 rounded-full text-center shadow-md bg-white">
+                <img className="mx-auto w-full h-full object-contain object-center" src={statsIcon} alt=""/>
               </span>
             </div>
           </Link>
-          // <Link
-          //   className="absolute fade-in block bg-white rounded-full top-1/3 right-4 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-          //   to={`/stats`}>
-          //   <div
-          //     className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
-          //   <span
-          //     className="block relative z-[3] w-full h-full border-2 border-black text-black p-4 rounded-full text-center shadow-md bg-white">
-          //     <img className="mx-auto w-full h-full object-contain object-center" src={statsIcon} alt=""/>
-          //   </span>
-          //   </div>
-          // </Link>
         ) : (
-          <div
-            className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group">
-            <div className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5">
-              <span className="absolute top-1.5 no-correct left-0 right-0 z-[4]">
-                <img className="mx-auto" src={curveTextTeam} alt=""/>
+          <Link
+            className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
+            to={`/stats/${userId}`}>
+            <div
+              className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <span className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
+                <img className="mx-auto" src={curveTextStats} alt=""/>
               </span>
               <span
-                className="block relative z-[3] w-full h-full border-2 border-black text-black p-2 pt-4 rounded-full text-center shadow-md bg-white">
-                <img className="mx-auto h-full"
-                     src={apiUrl + "/uploads/teams/" + profileUser.team_id + "/" + teamLogoUrl} alt=""/>
-              </span>
+                className="block relative z-[3] w-full h-full border-2 border-black text-black p-5 rounded-full text-center shadow-md bg-white">
+              <img className="mx-auto w-full h-full object-contain object-center" src={statsIcon} alt=""/>
+            </span>
             </div>
-          </div>
+          </Link>
         )}
         <div>
           <p translate="no"  className="fade-in">

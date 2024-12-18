@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import SimpleTitle from '../../components/partials/SimpleTitle.jsx';
-import DashboardButton from '../../components/nav/DashboardButton.jsx';
 import StatItem from '../../components/stats/StatItem.jsx';
 import LoadingMessage from '../../components/feedback/LoadingMessage.jsx';
 import ErrorMessage from '../../components/feedback/ErrorMessage.jsx';
-
 import LineChartWithSelection from '../../components/charts/LineChartWithSelection.jsx';
 import RadarChart from '../../components/charts/RadarChart.jsx';
 import BarChartGrouped from '../../components/charts/BarChartGrouped.jsx';
 import HeatmapChart from '../../components/charts/HeatmapChart.jsx';
+import BackButton from "../../components/nav/BackButton.jsx";
+import {UserContext} from "../../contexts/UserContext.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserStats = () => {
+  const { user } = useContext(UserContext);
   const [cookies] = useCookies(['user']);
   const token = localStorage.getItem('token') || cookies.token;
 
@@ -48,16 +49,35 @@ const UserStats = () => {
 
   return (
     <div className="inline-block relative w-full h-auto py-20">
-      <DashboardButton />
-      <SimpleTitle title="Classement Steps" stickyStatus={false} />
+      <BackButton />
+      <SimpleTitle title="Statistiques" stickyStatus={false} />
 
       {/* Statistique Totale */}
-      <StatItem title="Pronostics Corrects" value={stats.correctPredictions} />
+      <div className="flex flex-row flex-wrap justify-center items-center py-4 my-4">
+        <StatItem title="Pronostics Corrects" value={stats.correctPredictions} status={true} />
+        <StatItem title="Pronostics Incorrects" value={stats.incorrectPredictions} status={false} />
+        <StatItem title="Bons Scores" value={stats.correctScorePredictions} status={true} />
+        <StatItem title="Mauvais Scores" value={stats.incorrectScorePredictions} status={false} />
+        <StatItem title="Bons Buteur" value={stats.correctScorerPredictions} status={true} />
+        <StatItem title="Mauvais Buteur" value={stats.incorrectScorerPredictions} status={false} />
+      </div>
 
       {/* Line Chart avec sélection dynamique */}
-      <div className="chart-container" style={{ height: '600px' }}>
-        <h2>Comparaison des Points par Journée</h2>
-        <LineChartWithSelection data={stats.pointsByMatchdayForAllUsers} userId={parseInt(userId, 10)} />
+      <div className="chart-container py-4 my-4" style={{ height: '600px' }}>
+        <h2 className={`relative fade-in mb-12 w-fit mx-auto`}>
+          <span
+            className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
+          <span
+            className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+          <span
+            translate="no"
+            className="relative no-correct bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Points par journées</span>
+        </h2>
+        <LineChartWithSelection
+          data={stats.pointsByMatchdayForAllUsers}
+          userId={parseInt(userId, 10)}
+          currentUserId={user.id} // Passe l'ID de l'utilisateur connecté
+        />
       </div>
 
       {/* Radar Chart*/}

@@ -1,12 +1,10 @@
 import React from 'react';
-import CircularText from "../partials/CircularText.jsx";
 
-const StatItem = ({ title, value }) => (
-  <div>
-    <h2>{title}</h2>
-    <div className="stat-item relative w-fit">
-      <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-rubik font-bold text-3xl">{value}</p>
-      <CircularText text={title} radius={50}/>
+const StatItem = ({ title, value, status }) => (
+  <div className={`w-[100px] h-[120px] border border-black m-4 p-2 rounded-xl shadow-flat-black-adjust ${status ? 'bg-green-light' : 'bg-red-light'}`}>
+    <h2 className="font-rubik font-light text-sm text-center leading-4">{title}</h2>
+    <div className="stat-item mt-4 text-center">
+      <p className="font-rubik font-bold text-3xl text-center">{value}</p>
     </div>
   </div>
 );
