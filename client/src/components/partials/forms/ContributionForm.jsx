@@ -62,10 +62,10 @@ const ContributionForm = ({ onSubmit, onClose }) => {
     <form
       className="rounded-[18px] mb-6 relative overflow-hidden p-2"
       onSubmit={handleSubmit}>
-      <h2 className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">Ajouter une <br/>contribution</h2>
+      <h2 translate="no" className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">Ajouter une <br/>contribution</h2>
 
       <div className="form-group mb-6 flex flex-row justify-between">
-        <label className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
+        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
         <div className="relative w-2/3">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           </div>
@@ -83,30 +83,31 @@ const ContributionForm = ({ onSubmit, onClose }) => {
                       alt={user.username}
                       className="w-8 h-8 rounded-full mr-3"
                     />
-                    <span className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
+                    <span translate="no" className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
                     {selectedUsers.includes(user.id) && (
-                      <span className="ml-auto text-white font-bold">✔</span>
+                      <span translate="no" className="ml-auto text-white font-bold">✔</span>
                     )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="p-4">Chargement des utilisateurs...</div>
+              <div translate="no" className="p-4">Chargement des utilisateurs...</div>
             )}
           </div>
         </div>
       </div>
 
       <div className="form-group mb-6 flex flex-row justify-between">
-        <label className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="matchday">Matchday</label>
+        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="matchday">Matchday</label>
         <select
+          translate="no"
           id="matchday"
           className="relative w-2/3 border border-black rounded-md shadow-flat-black-adjust py-1"
           value={selectedMatchday}
           onChange={(e) => setSelectedMatchday(e.target.value)}
           required
         >
-          <option value="">Quelle journée ?</option>
+          <option translate="no" value="">Quelle journée ?</option>
           {matchdays.map((matchday) => (
             <option key={matchday} value={matchday}>
               Journée {matchday}
@@ -117,6 +118,7 @@ const ContributionForm = ({ onSubmit, onClose }) => {
 
       <div className="form-actions">
         <button
+          translate="no"
           className="form-submit-btn relative mt-16 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
           type="submit">
           <span translate="no"

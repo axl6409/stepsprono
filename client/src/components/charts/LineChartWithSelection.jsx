@@ -110,10 +110,11 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
 
   return (
     <div>
-      <label className="font-rubik text-sm text-center block font-medium">
+      <label translate="no" className="font-rubik text-sm text-center block font-medium">
         Sélectionnez des steps ⬇️
       </label>
       <Select
+        translate="no"
         options={uniqueUsers}
         isMulti
         value={selectedUsers}
@@ -126,7 +127,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
         className="border border-black shadow-flat-black-adjust rounded-xl w-11/12 mx-auto"
         style={{ marginTop: '20px' }}
       >
-        <Line data={chartData} options={options} />
+        <Line translate="no" data={chartData} options={options} />
       </div>
     </div>
   );
