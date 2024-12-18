@@ -8,6 +8,8 @@ const { User, Bet, Match, UserReward, Season, Player } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
 const { getPeriodMatchdays, getAdjustedMoment} = require("./appService");
+const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentCompetitionId} = require("./competitionService");
 
 const updateLastConnect = async (userId) => {
   const adjustedTime = getAdjustedMoment(new Date()).format("YYYY-MM-DD HH:mm:ss");
@@ -1332,74 +1334,90 @@ const getUserPointsForSeason = async (userId, seasonId) => {
 
 const getUserStats = async (userId) => {
   try {
-    // Total de pronostics corrects
-    const correctPredictions = await Bet.count({
-      where: {
-        user_id: userId,
-        result_points: 1, // Vérifie les points corrects
-      },
-    });
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
 
-    // Pourcentage de pronostics réussis par semaine
-    const weeklySuccessRate = await Bet.findAll({
+    // Requête pour les statistiques globales
+    const globalStats = await Bet.findOne({
       attributes: [
-        [Sequelize.fn('EXTRACT', Sequelize.literal('WEEK FROM "created_at"')), 'week'], // Semaine
-        [
-          Sequelize.fn(
-            'AVG',
-            Sequelize.literal('CASE WHEN result_points = 1 THEN 1 ELSE 0 END')
-          ),
-          'successRate',
-        ], // Moyenne des réussites
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN result_points = 1 THEN 1 END`)), 'correctPredictions'],
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN result_points = 0 THEN 1 END`)), 'incorrectPredictions'],
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN score_points = 3 AND "MatchId"."require_details" = true THEN 1 END`)), 'correctScorePredictions'],
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN score_points = 0 AND "MatchId"."require_details" = true THEN 1 END`)), 'incorrectScorePredictions'],
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN scorer_points = 1 AND "MatchId"."require_details" = true THEN 1 END`)), 'correctScorerPredictions'],
+        [Sequelize.fn('COUNT', Sequelize.literal(`CASE WHEN scorer_points = 0 AND "MatchId"."require_details" = true THEN 1 END`)), 'incorrectScorerPredictions'],
       ],
-      where: { user_id: userId },
-      group: ['week'],
+      include: [
+        {
+          model: Match,
+          as: 'MatchId',
+          attributes: [],
+        },
+      ],
+      where: { user_id: userId, season_id: seasonId },
+      raw: true,
     });
 
-    // Performances à domicile vs extérieur
-    const homeAwayPerformance = await Bet.findAll({
+    // Gérer le cas où globalStats est null
+    const defaultStats = {
+      correctPredictions: 0,
+      incorrectPredictions: 0,
+      correctScorePredictions: 0,
+      incorrectScorePredictions: 0,
+      correctScorerPredictions: 0,
+      incorrectScorerPredictions: 0,
+    };
+
+    const stats = globalStats || defaultStats;
+
+    // Requête pour les points par journée
+    const pointsByMatchday = await Bet.findAll({
+      attributes: [
+        'matchday',
+        [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints']
+      ],
+      where: { user_id: userId, season_id: seasonId },
+      group: ['matchday'],
+      order: [['matchday', 'ASC']],
+    });
+
+    // Points pour tous les utilisateurs
+    const pointsByMatchdayForAllUsers = await Bet.findAll({
+      attributes: [
+        'matchday',
+        'user_id',
+        [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints'],
+      ],
       include: {
-        model: Match,
-        as: 'MatchId',
-        attributes: ['home_team_id'], // Vérifie si c'est à domicile
+        model: User,
+        as: 'UserId',
+        attributes: ['id', 'username'],
       },
-      where: { user_id: userId },
+      where: { season_id: seasonId },
+      group: ['matchday', 'user_id', 'UserId.id', 'UserId.username'],
+      order: [['matchday', 'ASC'], ['user_id', 'ASC']],
     });
-    const homePerformance = homeAwayPerformance.filter(
-      (bet) => bet.MatchId.home_team_id
-    ).length;
-    const awayPerformance = homeAwayPerformance.filter(
-      (bet) => !bet.MatchId.home_team_id
-    ).length;
 
-    // // Joueurs pronostiqués comme buteurs et taux de réussite
-    // const scorerStats = await Bet.findAll({
-    //   attributes: [
-    //     'player_goal',
-    //     [Sequelize.fn('COUNT', Sequelize.col('player_goal')), 'predictions'], // Total de prédictions
-    //     [
-    //       Sequelize.fn(
-    //         'AVG',
-    //         Sequelize.literal('CASE WHEN scorer_points = 1 THEN 1 ELSE 0 END')
-    //       ),
-    //       'successRate',
-    //     ], // Moyenne des réussites
-    //   ],
-    //   include: {
-    //     model: Player,
-    //     as: 'PlayerGoal',
-    //     attributes: ['name'], // Nom du joueur
-    //   },
-    //   where: { user_id: userId },
-    //   group: ['player_goal', 'PlayerGoal.name'],
-    // });
+    // Formatter les résultats
+    const formattedPointsByMatchdayForAllUsers = pointsByMatchdayForAllUsers.map(item => ({
+      matchday: item.dataValues.matchday,
+      user_id: item.dataValues.user_id,
+      user_name: item.dataValues.UserId.username,
+      totalPoints: parseInt(item.dataValues.totalPoints, 10),
+    }));
 
     return {
-      correctPredictions,
-      weeklySuccessRate,
-      homePerformance,
-      awayPerformance,
-      // scorerStats,
+      correctPredictions: parseInt(stats.correctPredictions, 10),
+      incorrectPredictions: parseInt(stats.incorrectPredictions, 10),
+      correctScorePredictions: parseInt(stats.correctScorePredictions, 10),
+      incorrectScorePredictions: parseInt(stats.incorrectScorePredictions, 10),
+      correctScorerPredictions: parseInt(stats.correctScorerPredictions, 10),
+      incorrectScorerPredictions: parseInt(stats.incorrectScorerPredictions, 10),
+      pointsByMatchday: pointsByMatchday.map(item => ({
+        matchday: item.dataValues.matchday,
+        totalPoints: parseInt(item.dataValues.totalPoints, 10) || 0,
+      })),
+      pointsByMatchdayForAllUsers: formattedPointsByMatchdayForAllUsers,
     };
   } catch (error) {
     console.error(error);

@@ -1,38 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
-import { Line, Doughnut, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import {useParams} from "react-router-dom";
-import {useCookies} from "react-cookie";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useParams } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import SimpleTitle from '../../components/partials/SimpleTitle.jsx';
+import StatItem from '../../components/stats/StatItem.jsx';
+import LoadingMessage from '../../components/feedback/LoadingMessage.jsx';
+import ErrorMessage from '../../components/feedback/ErrorMessage.jsx';
+import LineChartWithSelection from '../../components/charts/LineChartWithSelection.jsx';
+import RadarChart from '../../components/charts/RadarChart.jsx';
+import BarChartGrouped from '../../components/charts/BarChartGrouped.jsx';
+import HeatmapChart from '../../components/charts/HeatmapChart.jsx';
+import BackButton from "../../components/nav/BackButton.jsx";
+import {UserContext} from "../../contexts/UserContext.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserStats = () => {
-  const [cookies, setCookie] = useCookies(["user"]);
+  const { user } = useContext(UserContext);
+  const [cookies] = useCookies(['user']);
   const token = localStorage.getItem('token') || cookies.token;
+
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,10 +30,9 @@ const UserStats = () => {
     const fetchUserStats = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${userId}/stats`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(response.data)
         setStats(response.data);
         setLoading(false);
       } catch (err) {
@@ -58,73 +44,58 @@ const UserStats = () => {
     fetchUserStats();
   }, [userId, token]);
 
-  if (loading) return <p>Chargement des statistiques...</p>;
-  if (error) return <p>{error}</p>;
-
-  const weeklySuccessRateData = {
-    labels: stats.weeklySuccessRate.map(item => `Semaine ${item.week}`),
-    datasets: [
-      {
-        label: 'Taux de Réussite (%)',
-        data: stats.weeklySuccessRate.map(item => item.successRate * 100),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.3,
-      },
-    ],
-  };
-
-  const homeAwayData = {
-    labels: ['Domicile', 'Extérieur'],
-    datasets: [
-      {
-        data: [stats.homePerformance, stats.awayPerformance],
-        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  // const scorerStatsData = {
-  //   labels: stats.scorerStats.map(item => item.name),
-  //   datasets: [
-  //     {
-  //       label: 'Taux de Réussite (%)',
-  //       data: stats.scorerStats.map(item => item.successRate * 100),
-  //       backgroundColor: 'rgba(153, 102, 255, 0.2)',
-  //       borderColor: 'rgba(153, 102, 255, 1)',
-  //       borderWidth: 1,
-  //     },
-  //   ],
-  // };
+  if (loading) return <LoadingMessage message="Chargement des statistiques..." />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="stats-page">
-      <h1 className="text-2xl font-bold">Statistiques de l'utilisateur</h1>
+    <div className="inline-block relative w-full h-auto py-20">
+      <BackButton />
+      <SimpleTitle title="Statistiques" stickyStatus={false} />
 
-      {/* Total des pronostics corrects */}
-      <div className="stat-item">
-        <h2>Total des Pronostics Corrects</h2>
-        <p>{stats.correctPredictions}</p>
+      {/* Statistique Totale */}
+      <div className="flex flex-row flex-wrap justify-center items-center py-4 my-4">
+        <StatItem title="Pronostics Corrects" value={stats.correctPredictions} status={true} />
+        <StatItem title="Pronostics Incorrects" value={stats.incorrectPredictions} status={false} />
+        <StatItem title="Bons Scores" value={stats.correctScorePredictions} status={true} />
+        <StatItem title="Mauvais Scores" value={stats.incorrectScorePredictions} status={false} />
+        <StatItem title="Bons Buteur" value={stats.correctScorerPredictions} status={true} />
+        <StatItem title="Mauvais Buteur" value={stats.incorrectScorerPredictions} status={false} />
       </div>
 
-      {/* Taux de réussite par semaine */}
-      <div className="chart-container">
-        <h2>Taux de Réussite par Semaine</h2>
-        <Line data={weeklySuccessRateData} />
+      {/* Line Chart avec sélection dynamique */}
+      <div className="chart-container py-4 my-4" style={{ height: '600px' }}>
+        <h2 className={`relative fade-in mb-12 w-fit mx-auto`}>
+          <span
+            className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
+          <span
+            className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+          <span
+            translate="no"
+            className="relative no-correct bg-white left-0 top-0 right-0 font-rubik font-black text-xl2 border border-black text-black px-4 leading-6 z-[3] translate-x-1 translate-y-1">Points par journées</span>
+        </h2>
+        <LineChartWithSelection
+          data={stats.pointsByMatchdayForAllUsers}
+          userId={parseInt(userId, 10)}
+          currentUserId={user.id} // Passe l'ID de l'utilisateur connecté
+        />
       </div>
 
-      {/* Performances à domicile vs extérieur */}
-      <div className="chart-container">
-        <h2>Performances : Domicile vs Extérieur</h2>
-        <Doughnut data={homeAwayData} />
-      </div>
+      {/* Radar Chart*/}
+      {/*<div className="chart-container" style={{ height: '600px' }}>*/}
+      {/*  <h2>Vue Circulaire des Performances</h2>*/}
+      {/*  <RadarChart data={stats.pointsByMatchdayForAllUsers} userId={parseInt(userId, 10)} />*/}
+      {/*</div>*/}
 
-      {/* Joueurs les plus souvent pronostiqués */}
-      {/*<div className="chart-container">*/}
-      {/*  <h2>Joueurs les Plus Souvent Pronostiqués</h2>*/}
-      {/*  <Bar data={scorerStatsData} options={{ indexAxis: 'y' }} />*/}
+      {/* Bar Chart Groupé */}
+      {/*<div className="chart-container" style={{ height: '600px' }}>*/}
+      {/*  <h2>Évolution des Points en Barres Groupées</h2>*/}
+      {/*  <BarChartGrouped data={stats.pointsByMatchdayForAllUsers} userId={parseInt(userId, 10)} />*/}
+      {/*</div>*/}
+
+      {/* Heatmap */}
+      {/*<div className="chart-container" style={{ height: '600px' }}>*/}
+      {/*  <h2>Tableau Comparatif des Points (Heatmap)</h2>*/}
+      {/*  <HeatmapChart data={stats.pointsByMatchdayForAllUsers} />*/}
       {/*</div>*/}
     </div>
   );

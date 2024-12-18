@@ -74,7 +74,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         </div>
         <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
           <div
-            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.3s'}}>
+            className="anim-rotate-attract perspective-distant h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.3s'}}>
             {/*<MonthPoints />*/}
             <div className="w-full relative">
               <img className="block" src={monthPointsShape} alt=""/>
@@ -88,7 +88,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
           <div
-            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12 fade-in"  style={{animationDelay: '0.1s'}}>
+            className="anim-rotate-attract perspective-distant h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative mt-12 fade-in"  style={{animationDelay: '0.1s'}}>
             {/*<WeekPoints/>*/}
             <div className="w-full relative">
               <img className="block" src={weekPointsShape} alt=""/>
@@ -101,7 +101,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
           <div
-            className="anim-rotate-attract h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.2s'}}>
+            className="anim-rotate-attract perspective-distant h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.2s'}}>
             {/*<SeasonPoints/>*/}
             <div className="w-full relative">
               <img className="block" src={seasonPointsShape} alt=""/>
