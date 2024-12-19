@@ -42,7 +42,13 @@ const BarChart = ({ userCorrectPredictions, averageCorrectPredictions }) => {
       },
       title: {
         display: true,
-        text: 'Comparaison des bons pronostics',
+        text: 'Mes pronos / Moyenne générale',
+        font: {
+          size: 14,
+          family: 'Montserrat',
+          weight: '600',
+        },
+        color: '#333333',
       },
     },
     scales: {
@@ -50,13 +56,53 @@ const BarChart = ({ userCorrectPredictions, averageCorrectPredictions }) => {
         beginAtZero: true,
         ticks: {
           stepSize: 1,
+          font: {
+            size: 14,
+            family: 'Rubik',
+            weight: 'medium',
+            style: 'normal',
+          },
+          color: '#6666FF',
+        },
+        title: {
+          display: true,
+          text: 'Pourcentage',
+          font: {
+            size: 12,
+            family: 'Rubik',
+            weight: '600',
+            style: 'normal',
+          },
+          color: '#414141',
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 14,
+            family: 'Rubik',
+            weight: 'medium',
+            style: 'normal',
+          },
+          color: '#6666FF',
+        },
+        title: {
+          display: true,
+          text: 'Bons pronos',
+          font: {
+            size: 14,
+            family: 'Rubik',
+            weight: '600',
+            style: 'normal',
+          },
+          color: '#414141',
         },
       },
     },
   };
 
   return (
-    <div className="chart-container" style={{width: '90%', margin: '0 auto'}}>
+    <div className="chart-container border border-black shadow-flat-black-adjust rounded-xl bg-white" style={{width: '90%', margin: '0 auto'}}>
       <Bar data={data} options={options}/>
     </div>
   )

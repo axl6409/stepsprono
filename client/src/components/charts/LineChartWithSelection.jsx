@@ -95,16 +95,56 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { stepSize: 1, font: { size: 12, family: 'Roboto Mono', weight: 'medium' } },
-        title: { display: true, text: 'Points' },
+        ticks: {
+          stepSize: 1,
+          font: {
+            size: 12, // Taille de la police
+            family: 'Montserrat', // Police
+            weight: 'regular', // Épaisseur de la police
+            style: 'normal', // Style de la police (normal, italic, oblique)
+          },
+          color: '#414141', // Couleur des ticks
+        },
+        title: {
+          display: true,
+          text: 'Points', // Texte de l’axe des ordonnées
+          font: {
+            size: 12,
+            family: 'Montserrat',
+            weight: 'regular',
+            style: 'normal',
+          },
+          color: '#414141', // Couleur du titre
+        },
       },
       x: {
-        ticks: { font: { size: 12, family: 'Montserrat', weight: 'medium' } },
-        title: { display: true, text: 'Journées' },
+        ticks: {
+          font: {
+            size: 12,
+            family: 'Montserrat',
+            weight: 'bold',
+            style: 'normal',
+          },
+          color: '#414141', // Couleur des ticks
+        },
+        title: {
+          display: true,
+          text: 'Journées', // Texte de l’axe des abscisses
+          font: {
+            size: 12,
+            family: 'Montserrat',
+            weight: 'regular',
+            style: 'normal',
+          },
+          color: '#414141', // Couleur du titre
+        },
       },
     },
     plugins: {
-      legend: { display: true, position: 'top' },
+      legend: {
+        display: true,
+        position: 'top',
+      },
     },
   };
 
@@ -124,7 +164,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
         classNamePrefix="select"
       />
       <div
-        className="border border-black shadow-flat-black-adjust rounded-xl w-11/12 mx-auto"
+        className="border border-black shadow-flat-black-adjust rounded-xl bg-white w-11/12 mx-auto"
         style={{ marginTop: '20px' }}
       >
         <Line translate="no" data={chartData} options={options} />

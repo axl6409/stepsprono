@@ -57,9 +57,9 @@ const UserStats = () => {
     : 0;
 
   return (
-    <div className="inline-block relative w-full h-auto py-20">
+    <div className="inline-block relative w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white">
       <BackButton/>
-      <SimpleTitle title="Statistiques" stickyStatus={false}/>
+      <SimpleTitle title="Statistiques" stickyStatus={false} backgroundColor="bg-transparent"/>
 
       <div className="chart-container py-4">
         <h2 translate="no" className={`relative fade-in mb-12 w-fit mx-auto`}>
