@@ -30,6 +30,16 @@ const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrect
       legend: {
         display: true,
         position: 'right', // Position de la légende
+        labels: {
+          font: {
+            size: 12,
+            family: 'Montserrat',
+            style: 'normal',
+            weight: '700',
+          },
+          color: '#414141',
+          padding: 15,
+        },
       },
       tooltip: {
         callbacks: {
@@ -46,7 +56,7 @@ const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrect
   };
 
   return (
-    <div className="chart-container" style={{ width: '80%', height: '270px', margin: '0 auto' }}>
+    <div className="chart-container border border-black shadow-flat-black-adjust rounded-xl bg-white px-4" style={{ width: '90%', height: '240px', margin: '0 auto' }}>
       <Doughnut translate="no" data={data} options={options} />
     </div>
   );

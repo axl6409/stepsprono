@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import useSticky from "../../hooks/useSticky.jsx";
 
-const SimpleTitle = ({ title, stickyStatus = true}) => {
+const SimpleTitle = ({ title, stickyStatus = true, backgroundColor}) => {
   const { isSticky } = useSticky(50);
 
   return (
     <h1
       translate="no"
       style={isSticky ? { top: `0px` } : {}}
-      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full bg-white fade-in mb-12 text-center relative mx-auto text-xl5 leading-[50px]`}>
+      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full ${backgroundColor ? backgroundColor : 'bg-white'} fade-in mb-12 text-center relative mx-auto text-xl5 leading-[50px]`}>
       <span translate="no" className="relative z-[3]">{title}</span>
       <span
         translate="no"
