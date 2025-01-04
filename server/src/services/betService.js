@@ -1,6 +1,6 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team, Player, User, Setting, UserRanking} = require("../models");
-const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./appService");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getWeekDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
@@ -131,14 +131,16 @@ const getWeekPoints = async (userId) => {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentWeekMatchdays();
+    const date = getWeekDateRange();
 
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
         user_id: userId,
-        matchday: {
-          [Op.in]: matchdays
-        },
+        created_at: {
+          [Op.gte]: date.start,
+          [Op.lte]: date.end
+        }
       }
     });
     let points = 0;
