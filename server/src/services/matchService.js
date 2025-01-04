@@ -407,7 +407,7 @@ const fetchMatchsNoChecked = async () => {
           [Op.lte]: endOfWeek
         },
         status: {
-          [Op.in]: ['NS', 'PST', 'HT', '1H', '2H', 'ET', 'BT', 'P']
+          [Op.in]: ['NS', 'TBD', 'PST', 'HT', '1H', '2H', 'ET', 'BT', 'P']
         }
       },
       include: [
