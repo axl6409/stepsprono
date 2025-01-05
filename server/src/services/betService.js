@@ -295,10 +295,13 @@ const getRanking = async (seasonId, period) => {
     const rankingMode = setting?.active_option;
 
     let matchdays = [];
+    let dateRange = {};
+
     if (period === 'month') {
       matchdays = await getCurrentMonthMatchdays();
     } else if (period === 'week') {
-      matchdays = await getCurrentWeekMatchdays();
+      const { start, end } = getWeekDateRange();
+      dateRange = { created_at: { [Op.between]: [start, end] } };
     }
 
     const users = await User.findAll({
@@ -321,7 +324,7 @@ const getRanking = async (seasonId, period) => {
       where: {
         season_id: seasonId,
         points: { [Op.not]: null },
-        ...(period !== 'season' && { matchday: { [Op.in]: matchdays } })
+        ...(period === 'month' ? { matchday: { [Op.in]: matchdays } } : dateRange)
       },
       include: [
         {
