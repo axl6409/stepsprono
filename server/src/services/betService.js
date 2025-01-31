@@ -1,6 +1,6 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team, Player, User, Setting, UserRanking} = require("../models");
-const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getWeekDateRange} = require("./appService");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getWeekDateRange, getMonthDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
@@ -296,13 +296,68 @@ const getRanking = async (seasonId, period) => {
 
     let matchdays = [];
     let dateRange = {};
+    let excludedMatchIds = [];
 
     if (period === 'month') {
+      const { start, end } = getMonthDateRange();
       matchdays = await getCurrentMonthMatchdays();
+
+      if (matchdays.length > 0) {
+        const firstMatchday = matchdays[0];
+
+        const firstMatchdayMatches = await Match.findAll({
+          where: {
+            matchday: firstMatchday,
+            season_id: seasonId
+          },
+          order: [['utc_date', 'ASC']]
+        });
+
+        if (firstMatchdayMatches.length > 1) {
+          const matchDates = firstMatchdayMatches.map(m => ({
+            id: m.id,
+            date: new Date(m.utc_date)
+          }));
+
+          const currentYear = new Date(start).getFullYear();
+          const currentMonth = new Date(start).getMonth();
+
+          const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+          const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+          const matchesPreviousMonth = matchDates.filter(m =>
+            m.date.getFullYear() === previousYear && m.date.getMonth() === previousMonth
+          );
+
+          const matchesCurrentMonth = matchDates.filter(m =>
+            m.date.getFullYear() === currentYear && m.date.getMonth() === currentMonth
+          );
+
+          logger.info(`📅 Matchs du mois précédent:`, matchesPreviousMonth);
+          logger.info(`📅 Matchs du mois en cours:`, matchesCurrentMonth);
+
+          if (matchesPreviousMonth.length > 0 && matchesCurrentMonth.length > 0) {
+            const firstCurrentMonthMatch = matchesCurrentMonth[0];
+
+            matchesPreviousMonth.forEach(matchPrev => {
+              const diffInDays = Math.abs((firstCurrentMonthMatch.date - matchPrev.date) / (1000 * 60 * 60 * 24));
+
+              if (diffInDays >= 5) {
+                logger.info(`🚨 Exclusion du match (ID: ${matchPrev.id}) car il est décalé de ${diffInDays} jours et appartient au mois précédent.`);
+                excludedMatchIds.push(matchPrev.id);
+              }
+            });
+
+            logger.info("📌 Liste des matchs exclus après correction:", excludedMatchIds);
+          }
+        }
+      }
     } else if (period === 'week') {
       const { start, end } = getWeekDateRange();
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
+
+    logger.info("✅ Liste finale des matchs exclus:", excludedMatchIds);
 
     const users = await User.findAll({
       attributes: ['id', 'username', 'img']
@@ -320,12 +375,20 @@ const getRanking = async (seasonId, period) => {
       return acc;
     }, {});
 
+    const whereCondition = {
+      season_id: seasonId,
+      points: { [Op.not]: null },
+      ...(period === 'month'
+          ? {
+            matchday: { [Op.in]: matchdays },
+            ...(excludedMatchIds.length > 0 ? { match_id: { [Op.notIn]: excludedMatchIds } } : {})
+          }
+          : dateRange
+      )
+    };
+
     const bets = await Bet.findAll({
-      where: {
-        season_id: seasonId,
-        points: { [Op.not]: null },
-        ...(period === 'month' ? { matchday: { [Op.in]: matchdays } } : dateRange)
-      },
+      where: whereCondition,
       include: [
         {
           model: User,
@@ -357,10 +420,11 @@ const getRanking = async (seasonId, period) => {
 
     return sortedRanking;
   } catch (error) {
-    console.error(`Erreur lors de la récupération du classement pour ${period}:`, error);
+    console.error(`❌ Erreur lors de la récupération du classement pour ${period}:`, error);
     throw new Error('Erreur lors de la récupération du classement.');
   }
 };
+
 
 /**
  * Calculates the total points based on the number of wins, draws, and losses.
