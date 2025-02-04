@@ -122,7 +122,7 @@ const getWeekDateRange = () => {
  */
 const getMonthDateRange = () => {
   const moment = require('moment');
-  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
+  // const now = moment().set({ 'year': 2025, 'month': 0, 'date': 25 });
   const now = moment()
   const start = now.clone().startOf('month');
   const end = now.clone().endOf('month');

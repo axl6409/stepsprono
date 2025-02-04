@@ -166,7 +166,40 @@ const getMonthPoints = async (userId) => {
   try {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
-    const matchdays = await getCurrentMonthMatchdays(seasonId);
+    let matchdays = await getCurrentMonthMatchdays(seasonId);
+
+    let excludedMatchdays = new Set();
+
+    if (matchdays.length > 0) {
+      for (const matchday of matchdays) {
+        const matchdayMatches = await Match.findAll({
+          where: {
+            matchday,
+            season_id: seasonId
+          },
+          order: [['utc_date', 'ASC']]
+        });
+
+        if (matchdayMatches.length > 0) {
+          const firstMatchDate = new Date(matchdayMatches[0].utc_date);
+
+          const { start } = getMonthDateRange();
+          const currentYear = new Date(start).getFullYear();
+          const currentMonth = new Date(start).getMonth();
+          const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+          const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+          if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
+            logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
+            excludedMatchdays.add(matchday);
+          }
+        }
+      }
+
+      matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
+    }
+
+    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
 
     const bets = await Bet.findAll({
       where: {
@@ -180,16 +213,19 @@ const getMonthPoints = async (userId) => {
         }
       }
     });
+
     let points = 0;
     for (const bet of bets) {
       points += bet.points;
     }
+
     return points;
   } catch (error) {
-    console.log('Erreur lors de la recuperation des points:', error);
+    console.log('❌ Erreur lors de la récupération des points:', error);
     return 0;
   }
-}
+};
+
 
 /**
  * Retrieves the total points earned by a user for a specific season.
@@ -296,76 +332,45 @@ const getRanking = async (seasonId, period) => {
 
     let matchdays = [];
     let dateRange = {};
-    let excludedMatchIds = [];
+    let excludedMatchdays = new Set();
 
     if (period === 'month') {
       const { start, end } = getMonthDateRange();
       matchdays = await getCurrentMonthMatchdays();
 
       if (matchdays.length > 0) {
-        const firstMatchday = matchdays[0];
+        for (const matchday of matchdays) {
+          const matchdayMatches = await Match.findAll({
+            where: {
+              matchday,
+              season_id: seasonId
+            },
+            order: [['utc_date', 'ASC']]
+          });
 
-        const firstMatchdayMatches = await Match.findAll({
-          where: {
-            matchday: firstMatchday,
-            season_id: seasonId
-          },
-          order: [['utc_date', 'ASC']]
-        });
+          if (matchdayMatches.length > 0) {
+            const firstMatchDate = new Date(matchdayMatches[0].utc_date);
 
-        console.log(`🔍 Vérification des matchs pour la journée ${firstMatchday}:`);
-        console.log(firstMatchdayMatches.map(m => ({
-          id: m.id,
-          date: m.utc_date
-        })));
+            const currentYear = new Date(start).getFullYear();
+            const currentMonth = new Date(start).getMonth(); // 0-indexé (janvier = 0)
+            const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-        if (firstMatchdayMatches.length > 1) {
-          const matchDates = firstMatchdayMatches.map(m => ({
-            id: m.id,
-            date: new Date(m.utc_date)
-          }));
-
-          // 📅 Déterminer le mois précédent
-          const currentYear = new Date(start).getFullYear();
-          const currentMonth = new Date(start).getMonth(); // 0-indexé (janvier = 0)
-
-          const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-          const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-          // Séparer les matchs du mois précédent et ceux du mois en cours
-          const matchesPreviousMonth = matchDates.filter(m =>
-            m.date.getFullYear() === previousYear && m.date.getMonth() === previousMonth
-          );
-
-          const matchesCurrentMonth = matchDates.filter(m =>
-            m.date.getFullYear() === currentYear && m.date.getMonth() === currentMonth
-          );
-
-          console.log(`📅 Matchs du mois précédent:`, matchesPreviousMonth);
-          console.log(`📅 Matchs du mois en cours:`, matchesCurrentMonth);
-
-          if (matchesPreviousMonth.length > 0 && matchesCurrentMonth.length > 0) {
-            const firstCurrentMonthMatch = matchesCurrentMonth[0]; // Premier match du mois en cours
-
-            matchesPreviousMonth.forEach(matchPrev => {
-              const diffInDays = Math.abs((firstCurrentMonthMatch.date - matchPrev.date) / (1000 * 60 * 60 * 24));
-
-              if (diffInDays >= 5) {
-                logger.info(`🚨 Exclusion du match (ID: ${matchPrev.id}) car il est décalé de ${diffInDays} jours et appartient au mois précédent.`);
-                excludedMatchIds.push(matchPrev.id);
-              }
-            });
-
-            console.log("📌 Liste des matchs exclus après correction:", excludedMatchIds);
+            if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
+              logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
+              excludedMatchdays.add(matchday);
+            }
           }
         }
+
+        matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
       }
     } else if (period === 'week') {
       const { start, end } = getWeekDateRange();
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
 
-    console.log("✅ Liste finale des matchs exclus:", excludedMatchIds);
+    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
 
     const users = await User.findAll({
       attributes: ['id', 'username', 'img']
@@ -388,8 +393,7 @@ const getRanking = async (seasonId, period) => {
       points: { [Op.not]: null },
       ...(period === 'month'
           ? {
-            matchday: { [Op.in]: matchdays },
-            ...(excludedMatchIds.length > 0 ? { match_id: { [Op.notIn]: excludedMatchIds } } : {})
+            matchday: { [Op.in]: matchdays }
           }
           : dateRange
       )
@@ -441,6 +445,7 @@ const getRanking = async (seasonId, period) => {
     throw new Error('Erreur lors de la récupération du classement.');
   }
 };
+
 
 
 
