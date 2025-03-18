@@ -33,11 +33,11 @@ const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrect
         labels: {
           font: {
             size: 12,
-            family: 'Montserrat',
+            family: 'Rubik',
             style: 'normal',
-            weight: '700',
+            weight: '500',
           },
-          color: '#414141',
+          color: '#000000',
           padding: 15,
         },
       },
@@ -56,7 +56,7 @@ const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrect
   };
 
   return (
-    <div className="chart-container border border-black shadow-flat-black-adjust rounded-xl bg-white px-4" style={{ width: '90%', height: '240px', margin: '0 auto' }}>
+    <div className="chart-container border border-y-black shadow-flat-black-adjust bg-white px-2" style={{ width: '100%', height: '240px', margin: '0 auto' }}>
       <Doughnut translate="no" data={data} options={options} />
     </div>
   );

@@ -34,6 +34,7 @@ const Matchs = () => {
         });
         const sortedMatchs = response.data.data;
         if (sortedMatchs.length === 0) {
+          navigate('/dashboard');
           return;
         }
         setMatchs(sortedMatchs);

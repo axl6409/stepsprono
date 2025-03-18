@@ -38,7 +38,6 @@ const Dashboard = ({ userId: propUserId }) => {
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
   const navigate = useNavigate();
 
-
   useEffect(() => {
     const fetchProfileUser = async () => {
       try {
@@ -54,6 +53,7 @@ const Dashboard = ({ userId: propUserId }) => {
         setIsLoading(false);
       }
     };
+
     const updateLastConnected = async () => {
       try {
         const userId = user.id;
@@ -66,7 +66,7 @@ const Dashboard = ({ userId: propUserId }) => {
         console.error('Erreur lors de la mise à jour de la date de connexion', error);
       }
     };
-    if (isAuthenticated && (userId === user.id)) {
+    if (isAuthenticated && user) {
       updateLastConnected()
     }
     if (userId) {

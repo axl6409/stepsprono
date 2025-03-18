@@ -6,7 +6,7 @@ const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
-  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays
+  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
 } = require("../services/matchService");
 const logger = require("../utils/logger/logger");
 
@@ -213,6 +213,21 @@ router.patch('/admin/matchs/update-all', authenticateJWT, checkManager, async (r
       return res.status(400).json({ message: 'Aucun identifiant de competition fourni' });
     }
     await updateMatches(competitionId)
+    res.status(200).json({ message: 'Matchs mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+});
+router.patch('/admin/matchs/update-all/utc', authenticateJWT, checkManager, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
+    }
+    const { competitionId } = req.body;
+    if (!competitionId) {
+      return res.status(400).json({ message: 'Aucun identifiant de competition fourni' });
+    }
+    await updateExistingMatchDates(competitionId)
     res.status(200).json({ message: 'Matchs mis à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });

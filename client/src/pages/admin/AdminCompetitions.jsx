@@ -38,30 +38,24 @@ const AdminCompetitions = () => {
   }, [token]);
 
     const handleUpdateCompetitionTeamsNewSeason = async (competitionId) => {
-        try {
-            const response = await axios.post(`${apiUrl}/api/admin/competition/update-teams-new-season`, {
-                competitionId,
-            }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.status === 200) {
-                setUpdateStatus(true);
-                setUpdateMessage('Équipes mises à jour pour la nouvelle saison !');
-                setIsModalOpen(true)
-                setTimeout(function () {
-                    closeModal()
-                }, 1500)
-            } else {
-                setUpdateStatus(false);
-                setUpdateMessage('Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + response.data.message);
-                setIsModalOpen(true)
-            }
-        } catch (error) {
-            setUpdateStatus(false);
-            console.log(error)
-            setUpdateMessage('Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + error.response.data.message);
-            setIsModalOpen(true)
+      try {
+        const response = await axios.post(`${apiUrl}/api/admin/competition/update-teams-new-season`, {
+            competitionId,
+        }, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.status === 200) {
+          setLogMessage(true, 'Équipes mises à jour pour la nouvelle saison !', true)
+            setTimeout(function () {
+                closeModal()
+            }, 1500)
+        } else {
+          setLogMessage(false, 'Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + response.data.message, true)
         }
+      } catch (error) {
+        console.log(error)
+        setLogMessage(false, 'Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + error.response.data.message, true)
+      }
     };
 
     const updateAllMatchs = async (competitionId) => {
@@ -72,23 +66,45 @@ const AdminCompetitions = () => {
           headers: {'Authorization': `Bearer ${token}`}
         });
         if (response.status === 200) {
-          setUpdateStatus(true);
-          setUpdateMessage('Matchs mis à jour !');
-          setIsModalOpen(true)
+          setLogMessage(true, 'Matchs mis à jour !', true)
           setTimeout(function () {
             closeModal()
           }, 1500)
         } else {
-          setUpdateStatus(false);
-          setUpdateMessage('Erreur lors de la mise à jour des matchs : ' + response.data.message);
-          setIsModalOpen(true)
+          setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + response.data.message, true)
         }
       } catch (error) {
-        setUpdateStatus(false);
         console.log(error)
-        setUpdateMessage('Erreur lors de la mise à jour des matchs : ' + error.response.data.message);
+        setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + error.response.data.message, true)
       }
     };
+
+  const updateAllMatchsDates = async (competitionId) => {
+    try {
+      const response = await axios.patch(`${apiUrl}/api/admin/matchs/update-all/utc`, {
+        competitionId,
+      }, {
+        headers: {'Authorization': `Bearer ${token}`}
+      });
+      if (response.status === 200) {
+        setLogMessage(true, 'Matchs mis à jour !', true)
+        setTimeout(function () {
+          closeModal()
+        }, 1500)
+      } else {
+        setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + response.data.message, true)
+      }
+    } catch (error) {
+      console.log(error)
+      setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + error.response.data.message, true)
+    }
+  };
+
+  const setLogMessage = (updateStatus, modalStatus, message) => {
+    setUpdateStatus(updateStatus);
+    setUpdateMessage(message);
+    setIsModalOpen(modalStatus)
+  }
 
   const closeModal = () => {
     setUpdateStatus(false);
@@ -131,6 +147,13 @@ const AdminCompetitions = () => {
                           <div className="flex flex-row justify-between items-center my-2">
                             <p className="w-2/3">Mettre a jour les matchs</p>
                             <button onClick={() => updateAllMatchs(competition.id)}
+                                    className="border border-black rounded-xl px-8 py-2">
+                              <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
+                            </button>
+                          </div>
+                          <div className="flex flex-row justify-between items-center my-2">
+                            <p className="w-2/3">Mettre a jour les dates des matchs</p>
+                            <button onClick={() => updateAllMatchsDates(competition.id)}
                                     className="border border-black rounded-xl px-8 py-2">
                               <img className="w-[20px] h-[20px]" src={downloadIcon} alt=""/>
                             </button>

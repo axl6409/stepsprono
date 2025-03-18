@@ -26,22 +26,40 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
   // Obtenir les labels uniques des journées
   const labels = Array.from(new Set(data.map(item => `D ${item.matchday}`)));
 
-  // Créer une liste unique d'utilisateurs
-  const uniqueUsers = Array.from(
-    data.reduce((acc, item) => acc.set(item.user_id, item.user_name), new Map())
-  ).map(([id, name]) => ({ value: id, label: name }));
+  // Créer une liste unique d'utilisateurs avec leur score total
+  const userRanking = Array.from(
+    data.reduce((acc, item) => {
+      if (!acc.has(item.user_id)) {
+        acc.set(item.user_id, { id: item.user_id, name: item.user_name, totalPoints: 0 });
+      }
+      acc.get(item.user_id).totalPoints += item.totalPoints || 0;
+      return acc;
+    }, new Map()).values()
+  );
+
+  // Trier les utilisateurs par score total décroissant (classement)
+  userRanking.sort((a, b) => b.totalPoints - a.totalPoints);
+
+  // Trouver l'utilisateur visité dans le classement
+  const visitedUserIndex = userRanking.findIndex(user => user.id === userId);
+  const previousUser = visitedUserIndex > 0 ? userRanking[visitedUserIndex - 1] : null;
+  const nextUser = visitedUserIndex < userRanking.length - 1 ? userRanking[visitedUserIndex + 1] : null;
+
+  // Construire la liste des utilisateurs pour le sélecteur
+  const uniqueUsers = userRanking.map(user => ({ value: user.id, label: user.name }));
 
   // Utilisateur connecté
   const currentUser = uniqueUsers.find(user => user.value === currentUserId);
-
-  // Utilisateur visité
   const visitedUser = uniqueUsers.find(user => user.value === userId);
+  const previousUserOption = previousUser ? uniqueUsers.find(user => user.value === previousUser.id) : null;
+  const nextUserOption = nextUser ? uniqueUsers.find(user => user.value === nextUser.id) : null;
 
-  // Initialiser les utilisateurs sélectionnés
+  // Initialiser les utilisateurs sélectionnés avec visitedUser + previousUser + nextUser
   const [selectedUsers, setSelectedUsers] = useState(() => {
     const initialUsers = [];
     if (visitedUser) initialUsers.push(visitedUser);
-    if (currentUser && currentUser.value !== userId) initialUsers.push(currentUser);
+    if (previousUserOption) initialUsers.push(previousUserOption);
+    if (nextUserOption) initialUsers.push(nextUserOption);
     return initialUsers;
   });
 
@@ -76,7 +94,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
     labels,
     datasets: [
       // Courbe pour l'utilisateur connecté
-      currentUser ? buildDataset(currentUser, 'rgba(0, 204, 153, 1)', true) : null,
+      currentUser ? buildDataset(currentUser, 'rgb(0,166,53)', true) : null,
       // Courbes pour les utilisateurs sélectionnés
       ...selectedUsers
         .filter(user => user.value !== currentUserId) // Exclure l'utilisateur connecté pour éviter les doublons
@@ -98,45 +116,45 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
         ticks: {
           stepSize: 1,
           font: {
-            size: 12, // Taille de la police
-            family: 'Montserrat', // Police
-            weight: 'regular', // Épaisseur de la police
-            style: 'normal', // Style de la police (normal, italic, oblique)
-          },
-          color: '#414141', // Couleur des ticks
-        },
-        title: {
-          display: true,
-          text: 'Points', // Texte de l’axe des ordonnées
-          font: {
-            size: 12,
-            family: 'Montserrat',
+            size: 16,
+            family: 'roboto',
             weight: 'regular',
             style: 'normal',
           },
-          color: '#414141', // Couleur du titre
+          color: '#000',
+        },
+        title: {
+          display: true,
+          text: 'Points',
+          font: {
+            size: 16,
+            family: 'Montserrat',
+            weight: 'bold',
+            style: 'normal',
+          },
+          color: '#000',
         },
       },
       x: {
         ticks: {
           font: {
-            size: 12,
+            size: 13,
+            family: 'roboto',
+            weight: 'bold',
+            style: 'normal',
+          },
+          color: '#000',
+        },
+        title: {
+          display: true,
+          text: 'Journées',
+          font: {
+            size: 16,
             family: 'Montserrat',
             weight: 'bold',
             style: 'normal',
           },
-          color: '#414141', // Couleur des ticks
-        },
-        title: {
-          display: true,
-          text: 'Journées', // Texte de l’axe des abscisses
-          font: {
-            size: 12,
-            family: 'Montserrat',
-            weight: 'regular',
-            style: 'normal',
-          },
-          color: '#414141', // Couleur du titre
+          color: '#000',
         },
       },
     },
@@ -144,6 +162,15 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
       legend: {
         display: true,
         position: 'top',
+        labels: {
+          font: {
+            size: 16,
+            family: 'Montserrat',
+            weight: 'regular',
+            style: 'normal',
+          },
+          color: '#000',
+        }
       },
     },
   };
@@ -163,11 +190,21 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
         className="basic-multi-select border border-black rounded-md w-4/5 mx-auto font-rubik"
         classNamePrefix="select"
       />
+
+      {/* Conteneur scrollable */}
       <div
-        className="border border-black shadow-flat-black-adjust rounded-xl bg-white w-11/12 mx-auto"
-        style={{ marginTop: '20px' }}
+        className="border border-black shadow-flat-black-adjust bg-white w-full mx-auto overflow-x-auto custom-x-scrollbar"
+        style={{
+          marginTop: '20px',
+          whiteSpace: 'nowrap',
+          touchAction: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          overflowY: 'hidden',
+        }}
       >
-        <Line translate="no" data={chartData} options={options} />
+        <div style={{ minWidth: '800px' }}>
+          <Line translate="no" data={chartData} options={options} />
+        </div>
       </div>
     </div>
   );
