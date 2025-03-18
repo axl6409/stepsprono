@@ -4,7 +4,6 @@ const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const {Match, Team, Bet, User, Player} = require("../models");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
-const ProgressBar = require("progress");
 const {Op, Sequelize} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
@@ -195,12 +194,15 @@ async function updateMatches(competitionId = null) {
     }
     const seasonId = await getCurrentSeasonId(competitionId)
     const seasonYear = await getCurrentSeasonYear(competitionId)
+    const moment = require("moment-timezone")
+
     const options = {
       method: 'GET',
       url: apiBaseUrl + 'fixtures',
       params: {
-        league: competitionId,
-        season: seasonYear
+        // league: competitionId,
+        // season: seasonYear,
+        id: 1213984
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
@@ -209,7 +211,6 @@ async function updateMatches(competitionId = null) {
     };
     const response = await axios.request(options);
     const matches = response.data.response;
-    const bar = new ProgressBar(':bar :percent', { total: matches.length });
 
     for (const match of matches) {
       let winner = null
@@ -220,15 +221,19 @@ async function updateMatches(competitionId = null) {
         winner = match.teams.away.id
       }
 
-      bar.tick();
-
       let [stage, matchDay] = match.league.round.split(' - ');
       stage = stage.trim();
       matchDay = parseInt(matchDay, 10);
 
+      const parisTime = moment.utc(match.fixture.date)
+        .tz('Europe/Paris')
+        .format('YYYY-MM-DD HH:mm:ss');
+
+      logger.info(`[MATCH SERVICE] MatchID: ${match.fixture.id}, UTC: ${match.fixture.date}, Paris Time: ${parisTime}`);
+
       await Match.upsert({
         id: match.fixture.id,
-        utc_date: match.fixture.date,
+        utc_date: moment.tz(parisTime, 'Europe/Paris').toDate(),
         status: match.fixture.status.short,
         venue: match.fixture.venue.name,
         matchday: matchDay,
@@ -248,9 +253,52 @@ async function updateMatches(competitionId = null) {
         score_extra_time_away: match.score.extratime.away,
         score_penalty_home: match.score.penalty.home,
       })
+
+      logger.info(`[MATCH SERVICE] Match ${match.fixture.id} updated | MATCHDAY : ${matchDay} | UTC DATE : ${parisTime} | STAGE : ${stage} | WINNER : ${winner} | STATUS : ${match.fixture.status.short}`);
     }
   } catch (error) {
     console.log('Erreur lors de la mise à jour des données:', error);
+  }
+}
+
+/**
+ * Mise à jour des dates des matchs pour les adapter au fuseau horaire de Paris.
+ *
+ * @async
+ * @function updateExistingMatchDates
+ * @returns {Promise<void>}
+ */
+async function updateExistingMatchDates() {
+  try {
+    // Récupérer uniquement le match avec l'ID 1213984
+    const matches = await Match.findAll({
+      where: { id: 1213984 }
+    });
+
+    for (const match of matches) {
+      const utcDateStr = match.utc_date instanceof Date ? match.utc_date.toISOString() : match.utc_date;
+
+      logger.info(`[MATCH UTC] ${utcDateStr}`);
+
+      // Conversion au fuseau horaire de Paris
+      const parisTime = moment.utc(match.utc_date)
+        .tz("Europe/Paris")
+        .format("YYYY-MM-DD HH:mm:ss");
+
+      logger.info(`[MATCH UTC PARIS TIME] ${parisTime}`);
+
+      // Mise à jour du match avec la nouvelle date
+      await Match.update(
+        { utc_date: parisTime },
+        { where: { id: match.id } }
+      );
+
+      logger.info(`[MATCH SERVICE] Match ${match.id} updated | UTC DATE : ${parisTime}`);
+    }
+
+    logger.info("✅ Mise à jour des dates terminée !");
+  } catch (error) {
+    console.error("❌ Erreur lors de la mise à jour des dates :", error);
   }
 }
 
@@ -533,6 +581,7 @@ module.exports = {
   updateMatchAndPredictions,
   updateSingleMatch,
   updateMatches,
+  updateExistingMatchDates,
   getMatchsCronTasks,
   fetchAndProgramWeekMatches,
   fetchWeekMatches,
