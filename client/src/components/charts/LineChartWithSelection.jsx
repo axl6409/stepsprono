@@ -22,7 +22,7 @@ ChartJS.register(
   Legend
 );
 
-const LineChartWithSelection = ({ data, userId, currentUserId }) => {
+const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = false }) => {
   // Obtenir les labels uniques des journées
   const labels = Array.from(new Set(data.map(item => `D ${item.matchday}`)));
 
@@ -70,25 +70,43 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
   // Fonction pour construire un dataset
   const buildDataset = (user, color, isCurrentUser = false) => {
     const userData = data.filter(item => item.user_id === user.value);
-    const points = Array(labels.length).fill(0);
+    const points = Array(labels.length).fill(null);
 
     userData.forEach(item => {
       const index = labels.indexOf(`D ${item.matchday}`);
-      if (index !== -1) points[index] = item.totalPoints || 0;
+      if (index !== -1) points[index] = isRankingChart ? item.position : item.totalPoints || 0;
     });
 
     return {
       label: isCurrentUser ? `${user.label}` : user.label,
-      data: points,
+      data: points.map((point, i) => ({
+        x: labels[i],
+        y: point,
+      })),
       borderColor: color,
-      backgroundColor: 'rgba(0, 0, 0, 0)',
+      backgroundColor: color,
+      pointBackgroundColor: isRankingChart
+        ? points.map(p => getColorForRank(p, maxYValue))
+        : color,
       tension: 0.3,
       borderWidth: isCurrentUser ? 2 : 1,
       pointStyle: 'circle',
-      pointRadius: 3,
-      pointHoverRadius: 10
+      pointRadius: 4,
+      pointHoverRadius: 8
     };
   };
+
+
+  // Génère une couleur HSL du jaune au rouge selon la position
+  const getColorForRank = (position, maxPosition) => {
+    const percentage = (position - 1) / (maxPosition - 1); // de 0 à 1
+    const hue = 60 - (percentage * 120); // de 60 (jaune) à -60 (rouge)
+    return `hsl(${hue}, 100%, 50%)`;
+  };
+
+  const maxYValue = isRankingChart
+    ? Math.max(...data.map(item => item.position || 0))
+    : null;
 
   const chartData = {
     labels,
@@ -113,6 +131,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
     scales: {
       y: {
         beginAtZero: true,
+        reverse: isRankingChart,
         ticks: {
           stepSize: 1,
           font: {
@@ -121,11 +140,15 @@ const LineChartWithSelection = ({ data, userId, currentUserId }) => {
             weight: 'regular',
             style: 'normal',
           },
-          color: '#000',
+          color: (context) => {
+            const val = context.tick.value;
+            if (!isRankingChart || typeof val !== 'number') return '#000';
+            return getColorForRank(val, maxYValue);
+          }
         },
         title: {
           display: true,
-          text: 'Points',
+          text: isRankingChart ? 'Position' : 'Points',
           font: {
             size: 16,
             family: 'Montserrat',

@@ -4,7 +4,7 @@ const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const logger = require("../utils/logger/logger");
 const { Op, fn, col, literal, Sequelize} = require('sequelize');
-const { User, Bet, Match, UserReward, Season, Player } = require("../models");
+const { User, Bet, Match, UserReward, Season, Player, UserRanking } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
 const { getPeriodMatchdays, getAdjustedMoment} = require("./appService");
@@ -1437,6 +1437,49 @@ const getUserStats = async (userId) => {
   }
 };
 
+const getSeasonRanking = async (seasonId) => {
+  try {
+    const rankings = await UserRanking.findAll({
+      where: { season_id: seasonId },
+      order: [['position', 'ASC']],
+      include: [{
+        model: User,
+        as: 'User',
+        attributes: ['id', 'username']
+      }]
+    });
+
+    return rankings.map(r => ({
+      userId: r.user_id,
+      username: r.User.username,
+      position: r.position,
+      points: r.points,
+    }));
+  } catch (error) {
+    console.error("Erreur lors de la récupération du classement saison:", error);
+    throw error;
+  }
+};
+
+const getSeasonRankingEvolution = async (seasonId, userId) => {
+  const rankings = await UserRanking.findAll({
+    where: { season_id: seasonId },
+    order: [['matchday', 'ASC'], ['position', 'ASC']],
+  });
+
+  const userPositions = [];
+  const othersPositions = {};
+  for (const row of rankings) {
+    if (row.user_id === userId) {
+      userPositions.push({ matchday: row.matchday, position: row.position });
+    } else {
+      if (!othersPositions[row.user_id]) othersPositions[row.user_id] = [];
+      othersPositions[row.user_id].push({ matchday: row.matchday, position: row.position });
+    }
+  }
+
+  return { userId, userPositions, othersPositions };
+};
 
 module.exports = {
   getUserRank,
@@ -1470,5 +1513,7 @@ module.exports = {
   getSeasonWinner,
   hasUserWonPreviousSeason,
   getUserPointsForSeason,
-  getUserStats
+  getUserStats,
+  getSeasonRanking,
+  getSeasonRankingEvolution
 }
