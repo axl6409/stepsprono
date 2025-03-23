@@ -14,9 +14,10 @@ const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
-  getMatchdayRanking
+  getMatchdayRanking, getSeasonRanking
 } = require("../services/betService");
-const {updateLastConnect, getUserStats} = require("../services/userService");
+const {updateLastConnect, getUserStats, getSeasonRankingEvolution} = require("../services/userService");
+const {getCurrentCompetitionId} = require("../services/competitionService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -48,7 +49,6 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Route protégée', error: error.message })
   }
 })
-
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
     if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
@@ -118,6 +118,33 @@ router.get('/user/:id/stats', authenticateJWT, async (req, res) => {
     res.status(400).json({ error: 'Impossible de récupérer les statistiques : ' + error });
   }
 })
+router.get('/users/season-ranking', authenticateJWT, async (req, res) => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+    const rankings = await getSeasonRanking(seasonId);
+
+    res.status(200).json({ rankings });
+  } catch (error) {
+    console.error("Erreur dans /users/season-ranking :", error);
+    res.status(500).json({ error: "Impossible de récupérer le classement." });
+  }
+});
+router.get('/user/:id/rankings/season', authenticateJWT, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const data = await getSeasonRankingEvolution(seasonId, userId);
+    return res.json(data);
+
+  } catch (error) {
+    console.error("Erreur lors de la récupération du classement évolutif:", error);
+    res.status(500).json({ error: "Impossible de récupérer les données de classement" });
+  }
+});
+
 
 /* PUBLIC - PUT */
 router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (req, res) => {

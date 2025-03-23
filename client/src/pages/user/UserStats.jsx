@@ -20,12 +20,24 @@ const UserStats = () => {
   const { user } = useContext(UserContext);
   const [cookies] = useCookies(['user']);
   const token = localStorage.getItem('token') || cookies.token;
-
+  const [positionsByMatchdayForAllUsers, setPositionsByMatchdayForAllUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const { userId } = useParams();
+
+  const fetchPositions = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/api/user/${userId}/rankings/season`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPositionsByMatchdayForAllUsers(res.data);
+      console.log(res.data)
+    } catch (err) {
+      console.error('Erreur lors du chargement des positions:', err);
+    }
+  };
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -43,6 +55,7 @@ const UserStats = () => {
     };
 
     fetchUserStats();
+    fetchPositions();
   }, [userId, token]);
 
   if (loading) return <LoadingMessage message="Chargement des statistiques..." />;
@@ -78,6 +91,46 @@ const UserStats = () => {
           data={stats.pointsByMatchdayForAllUsers}
           userId={parseInt(userId, 10)}
           currentUserId={user.id} // Passe l'ID de l'utilisateur connecté
+        />
+      </div>
+
+      <div className="chart-container py-4 my-4">
+        <h2 translate="no" className={`relative h-16 fade-in mb-12 w-11/12 mx-auto`}>
+          <span
+            translate="no"
+            className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>
+          <span
+            translate="no"
+            className="absolute inset-0 py-4 w-full h-full bg-green-soft z-[1] translate-x-2 translate-y-1.5"></span>
+          <span
+            translate="no"
+            className="absolute inset-0 py-4 w-full h-full bg-white border border-black z-[3] -translate-x-0.5 -translate-y-0.5"></span>
+          <span
+            translate="no"
+            className="absolute no-correct left-0 top-0 right-0 font-rubik font-black text-xl text-black leading-6 z-[3] p-2">
+            Position au classement par journées
+          </span>
+        </h2>
+        <LineChartWithSelection
+          data={[
+            ...(positionsByMatchdayForAllUsers?.userPositions || []).map(pos => ({
+              user_id: positionsByMatchdayForAllUsers.userId,
+              user_name: user.username,
+              matchday: pos.matchday,
+              position: pos.position
+            })),
+            ...Object.entries(positionsByMatchdayForAllUsers?.othersPositions || {}).flatMap(([otherUserId, userData]) =>
+              userData.positions.map(pos => ({
+                user_id: parseInt(otherUserId, 10),
+                user_name: userData.username || `User ${otherUserId}`,
+                matchday: pos.matchday,
+                position: pos.position
+              }))
+            )
+          ]}
+          userId={parseInt(userId, 10)}
+          currentUserId={user.id}
+          isRankingChart={true}
         />
       </div>
 
