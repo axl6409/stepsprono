@@ -119,10 +119,10 @@ const UserStats = () => {
               matchday: pos.matchday,
               position: pos.position
             })),
-            ...Object.entries(positionsByMatchdayForAllUsers?.othersPositions || {}).flatMap(([otherUserId, positions]) =>
-              positions.map(pos => ({
+            ...Object.entries(positionsByMatchdayForAllUsers?.othersPositions || {}).flatMap(([otherUserId, userData]) =>
+              userData.positions.map(pos => ({
                 user_id: parseInt(otherUserId, 10),
-                user_name: `User ${otherUserId}`,
+                user_name: userData.username || `User ${otherUserId}`,
                 matchday: pos.matchday,
                 position: pos.position
               }))
