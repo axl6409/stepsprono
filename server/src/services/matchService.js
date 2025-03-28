@@ -200,9 +200,8 @@ async function updateMatches(competitionId = null) {
       method: 'GET',
       url: apiBaseUrl + 'fixtures',
       params: {
-        // league: competitionId,
-        // season: seasonYear,
-        id: 1213984
+        league: competitionId,
+        season: seasonYear,
       },
       headers: {
         'X-RapidAPI-Key': apiKey,
@@ -225,15 +224,11 @@ async function updateMatches(competitionId = null) {
       stage = stage.trim();
       matchDay = parseInt(matchDay, 10);
 
-      const parisTime = moment.utc(match.fixture.date)
-        .tz('Europe/Paris')
-        .format('YYYY-MM-DD HH:mm:ss');
-
-      logger.info(`[MATCH SERVICE] MatchID: ${match.fixture.id}, UTC: ${match.fixture.date}, Paris Time: ${parisTime}`);
+      logger.info(`[MATCH SERVICE] MatchID: ${match.fixture.id}, UTC: ${match.fixture.date}`);
 
       await Match.upsert({
         id: match.fixture.id,
-        utc_date: moment.tz(parisTime, 'Europe/Paris').toDate(),
+        utc_date: match.fixture.date,
         status: match.fixture.status.short,
         venue: match.fixture.venue.name,
         matchday: matchDay,
@@ -254,7 +249,7 @@ async function updateMatches(competitionId = null) {
         score_penalty_home: match.score.penalty.home,
       })
 
-      logger.info(`[MATCH SERVICE] Match ${match.fixture.id} updated | MATCHDAY : ${matchDay} | UTC DATE : ${parisTime} | STAGE : ${stage} | WINNER : ${winner} | STATUS : ${match.fixture.status.short}`);
+      logger.info(`[MATCH SERVICE] Match ${match.fixture.id} updated | MATCHDAY : ${matchDay} | STAGE : ${stage} | WINNER : ${winner} | STATUS : ${match.fixture.status.short}`);
     }
   } catch (error) {
     console.log('Erreur lors de la mise à jour des données:', error);
@@ -280,20 +275,13 @@ async function updateExistingMatchDates() {
 
       logger.info(`[MATCH UTC] ${utcDateStr}`);
 
-      // Conversion au fuseau horaire de Paris
-      const parisTime = moment.utc(match.utc_date)
-        .tz("Europe/Paris")
-        .format("YYYY-MM-DD HH:mm:ss");
-
-      logger.info(`[MATCH UTC PARIS TIME] ${parisTime}`);
-
       // Mise à jour du match avec la nouvelle date
       await Match.update(
-        { utc_date: parisTime },
+        { utc_date: utcDateStr },
         { where: { id: match.id } }
       );
 
-      logger.info(`[MATCH SERVICE] Match ${match.id} updated | UTC DATE : ${parisTime}`);
+      logger.info(`[MATCH SERVICE] Match ${match.id} updated | UTC DATE : ${utcDateStr}`);
     }
 
     logger.info("✅ Mise à jour des dates terminée !");
@@ -309,15 +297,16 @@ async function updateExistingMatchDates() {
  */
 async function fetchAndProgramWeekMatches() {
   try {
-    // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
     const now = moment().tz("Europe/Paris");
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
+
     const startOfWeek = now.clone().startOf('isoWeek');
     const endOfWeek = now.clone().endOf('isoWeek');
 
     const startDate = startOfWeek.clone().utc().format();
     const endDate = endOfWeek.clone().utc().format();
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
+
     const matches = await Match.findAll({
       where: {
         utc_date: {
@@ -329,34 +318,24 @@ async function fetchAndProgramWeekMatches() {
         }
       }
     });
+
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
+
     matches.forEach(match => {
-      logger.info(`[CRON]=> fetchAndProgramWeekMatches => MatchID: ${match.id}, UTC: ${match.utc_date}`);
-      const matchTime = new Date(match.utc_date);
-      const initialDelay = 110 * 60000;
-      const initialTime = new Date(matchTime.getTime() + initialDelay);
+      const matchTimeUtc = moment.utc(match.utc_date.toISOString());
 
-      scheduleJob(initialTime, function executeJob() {
-        updateMatchAndPredictions(match.id);
-        createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
-        logger.info(`[CRON]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
+      const jobParisTime = matchTimeUtc.clone()
+        .add(108, 'minutes')
+        .tz("Europe/Paris")
+        .format("YYYY-MM-DD HH:mm:ss");
 
-        const recurringJob = setInterval(() => {
-          updateMatchAndPredictions(match.id);
-          createOrUpdateTeams([match.home_team_id, match.away_team_id], match.season_id, match.competition_id, false, true);
-          logger.info(`[CRON RECURRING]=> updateMatchAndPredictions : ID: ${match.id}, UTC: ${match.utc_date}`);
-        }, 2 * 60000);
+      logger.info(`[CRON SETUP]=> Smart job set for match ID: ${match.id}, First check at (Paris): ${jobParisTime}`);
 
-        setTimeout(() => {
-          clearInterval(recurringJob);
-          logger.info(`[CRON RECURRING STOPPED]=> Stopped recurring updates for match ID: ${match.id}`);
-        }, 15 * 60000);
-      });
-
-      logger.info(`[CRON SETUP]=> Initial job set for match ID: ${match.id}, Start at: ${initialTime}`);
+      // Nouvelle stratégie intelligente
+      scheduleSmartMatchCheck(match);
     });
   } catch (error) {
-    console.log('Erreur lors de la récupération des matchs du weekend:', error);
+    console.error('❌ Erreur lors de la récupération des matchs du weekend:', error);
   }
 }
 
@@ -574,6 +553,60 @@ const getCurrentMatchday = async () => {
     console.error('Erreur lors de la recuperation du matchday : ', error);
     throw error;
   }
+};
+
+const scheduleSmartMatchCheck = (match) => {
+  const matchStart = moment.utc(match.utc_date.toISOString());
+  const firstCheckTime = matchStart.clone().add(108, 'minutes').toDate();
+
+  let retryCount = 0;
+  const maxRetries = 3;
+  const retryDelayMs = 3 * 60 * 1000; // 3 minutes
+
+  const checkJob = async () => {
+    try {
+      const options = {
+        method: 'GET',
+        url: `${apiBaseUrl}fixtures`,
+        params: { id: match.id },
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': apiHost
+        }
+      };
+
+      const response = await axios.request(options);
+      const apiMatchData = response.data.response[0];
+
+      const status = apiMatchData.fixture.status.short;
+      logger.info(`[MATCH CHECK] Match ${match.id} status from API: ${status}`);
+
+      if (status === 'FT' || status === 'PST') {
+        await updateMatchAndPredictions(match.id);
+        await createOrUpdateTeams(
+          [match.home_team_id, match.away_team_id],
+          match.season_id,
+          match.competition_id,
+          false,
+          true
+        );
+        logger.info(`[MATCH CHECK DONE] Match ${match.id} updated and teams synced.`);
+        return;
+      }
+
+      if (retryCount < maxRetries) {
+        retryCount++;
+        logger.info(`[MATCH CHECK RETRY] Match ${match.id} not finished. Retry #${retryCount}`);
+        setTimeout(checkJob, retryDelayMs);
+      } else {
+        logger.warn(`[MATCH CHECK] Max retries reached for match ${match.id}.`);
+      }
+    } catch (error) {
+      logger.error(`[MATCH CHECK ERROR] Failed to check match ${match.id}:`, error);
+    }
+  };
+
+  scheduleJob(firstCheckTime, checkJob);
 };
 
 module.exports = {
