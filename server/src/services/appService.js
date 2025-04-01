@@ -245,8 +245,6 @@ const getCurrentMonthMatchdays = async () => {
 
     if (matches.length > 0) {
       const uniqueMatchdays = Array.from(new Set(matches.map(match => match.matchday)));
-
-      logger.info('UNIQUE MATCHDAYS FOR THIS MONTH')
       return uniqueMatchdays;
     } else {
       logger.info('Aucun match prévu ce mois-ci.');

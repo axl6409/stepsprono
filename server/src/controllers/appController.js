@@ -38,18 +38,13 @@ router.get('/app/reglement', authenticateJWT, async (req, res) => {
 router.get('/app/settings/rankingMode', authenticateJWT, async (req, res) => {
   try {
     const rankingMode = await getRankingMode();
-    logger.info('[RankingMode]')
-    console.log(rankingMode)
     if (rankingMode !== null) {
-      logger.info("Mode de classement: " + rankingMode);
       res.status(200).json({ active_option: rankingMode });
     } else {
-      logger.info("Mode de classement: " + rankingMode);
       res.status(404).json({ message: "Aucun mode de classement trouvé." });
     }
   } catch (error) {
     logger.info("Mode de classement erreur : " + error);
-    console.error("Erreur dans /rankingMode route:", error.message);
     res.status(500).json({ message: "Erreur interne lors de la récupération du rankingMode." });
   }
 })
