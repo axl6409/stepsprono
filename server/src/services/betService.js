@@ -148,7 +148,6 @@ const getWeekPoints = async (userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
-    logger.info(`Total points for user ${userId} in week:`, points);
     return points;
   } catch (error) {
     logger.error('Erreur lors de la recuperation des points:', error);
@@ -198,8 +197,6 @@ const getMonthPoints = async (userId) => {
 
       matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
     }
-
-    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
 
     const bets = await Bet.findAll({
       where: {
@@ -370,8 +367,6 @@ const getRanking = async (seasonId, period) => {
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
 
-    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
-
     const users = await User.findAll({
       attributes: ['id', 'username', 'img']
     });
@@ -399,8 +394,6 @@ const getRanking = async (seasonId, period) => {
       )
     };
 
-    console.log("🔍 Condition WHERE pour les pronostics:", whereCondition);
-
     const bets = await Bet.findAll({
       where: whereCondition,
       include: [
@@ -411,13 +404,6 @@ const getRanking = async (seasonId, period) => {
         }
       ]
     });
-
-    console.log('🧐 Vérification des paris pour l\'utilisateur 2 après exclusion:');
-    console.log(bets.filter(bet => bet.user_id === 2).map(b => ({
-      bet_id: b.id,
-      match_id: b.match_id,
-      matchday: b.matchday
-    })));
 
     for (const bet of bets) {
       const userId = bet.user_id;
@@ -594,7 +580,7 @@ const checkBetByMatchId = async (ids) => {
  */
 const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
   try {
-    logger.info('DATAS =>', { userId, matchday, matchId, winnerId, homeScore, awayScore, scorer });
+    logger.info({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer });
     const match = await Match.findOne({
       where: {id: matchId},
     });
@@ -622,7 +608,6 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
     const competitionId = 61
     const seasonId = await getCurrentSeasonId(competitionId);
 
-    console.log("Scorer => ", scorer);
     const bet = await Bet.create({
       user_id: userId,
       season_id: seasonId,
@@ -634,6 +619,7 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
       away_score: awayScore,
       player_goal: scorer ? scorer : null
     });
+    logger.info(`[createBet] => Prono créé avec succès (MatchID: ${matchId}, Utilisateur: ${userId})`);
     return bet;
   } catch (error) {
     logger.error('Erreur lors de la creation du pronostic :', error);
@@ -656,7 +642,7 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
  * @return {Promise<Object>} The updated bet object.
  */
 const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer }) => {
-  logger.info('updateBet', { id, userId, matchId, winnerId, homeScore, awayScore, scorer });
+  logger.info({ id, userId, matchId, winnerId, homeScore, awayScore, scorer });
   try {
     const match = await Match.findOne({
       where: { id: matchId },
@@ -686,6 +672,7 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       }
     }
     await bet.update(updatedFields);
+    logger.info(`[updateBet] => Prono mis à jour avec succès (MatchID: ${matchId}, Utilisateur: ${userId})`);
     return bet;
   } catch (error) {
     logger.error('Erreur lors de la mise à jour du prono: ', error);
@@ -829,8 +816,6 @@ const getMatchdayRanking = async (matchday) => {
       }
     });
 
-    logger.info('[USERS]')
-    console.log(ranking)
     return Object.values(ranking).sort((a, b) => b.points - a.points);
   } catch (error) {
     logger.error(`Erreur lors de la récupération du classement de la journée ${matchday}:`, error);
