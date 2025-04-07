@@ -7,12 +7,12 @@ const { Op, fn, col, literal, Sequelize} = require('sequelize');
 const { User, Bet, Match, UserReward, Season, Player, UserRanking } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
-const { getPeriodMatchdays, getAdjustedMoment} = require("./appService");
+const { getPeriodMatchdays } = require("./appService");
 const {getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
 
 const updateLastConnect = async (userId) => {
-  const adjustedTime = getAdjustedMoment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+  const adjustedTime = new Date();
   await User.update(
     { last_connect: adjustedTime },
     { where: { id: userId } }

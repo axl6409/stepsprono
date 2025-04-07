@@ -95,7 +95,7 @@ const UserStats = () => {
       </div>
 
       <div className="chart-container py-4 my-4">
-        <h2 translate="no" className={`relative h-16 fade-in mb-12 w-11/12 mx-auto`}>
+        <h2 translate="no" className={`relative h-16 text-center fade-in mb-12 w-11/12 mx-auto`}>
           <span
             translate="no"
             className="absolute inset-0 py-4 w-full h-full bg-purple-soft z-[2] translate-x-1 translate-y-0.5"></span>

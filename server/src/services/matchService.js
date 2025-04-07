@@ -265,10 +265,7 @@ async function updateMatches(competitionId = null) {
  */
 async function updateExistingMatchDates() {
   try {
-    // Récupérer uniquement le match avec l'ID 1213984
-    const matches = await Match.findAll({
-      where: { id: 1213984 }
-    });
+    const matches = await Match.findAll();
 
     for (const match of matches) {
       const utcDateStr = match.utc_date instanceof Date ? match.utc_date.toISOString() : match.utc_date;
@@ -300,18 +297,16 @@ async function fetchAndProgramWeekMatches() {
     const now = moment().tz("Europe/Paris");
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
 
-    const startOfWeek = now.clone().startOf('isoWeek');
-    const endOfWeek = now.clone().endOf('isoWeek');
+    const startOfWeek = now.clone().startOf('isoWeek').format(); // ISO string en heure locale
+    const endOfWeek = now.clone().endOf('isoWeek').format();
 
-    const startDate = startOfWeek.clone().utc().format();
-    const endDate = endOfWeek.clone().utc().format();
-    logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startDate} - End Date: ${endDate}`);
+    logger.info(`[CRON]=> fetchAndProgramWeekMatches => Start Date: ${startOfWeek} - End Date: ${endOfWeek}`);
 
     const matches = await Match.findAll({
       where: {
         utc_date: {
-          [Op.gte]: startDate,
-          [Op.lte]: endDate
+          [Op.gte]: startOfWeek,
+          [Op.lte]: endOfWeek
         },
         status: {
           [Op.not]: ['PST', 'FT', 'TBD']
@@ -322,16 +317,15 @@ async function fetchAndProgramWeekMatches() {
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
 
     matches.forEach(match => {
-      const matchTimeUtc = moment.utc(match.utc_date.toISOString());
+      // Plus besoin de moment.utc() ici — utc_date est déjà en timezone correcte
+      const matchTime = moment(match.utc_date).tz("Europe/Paris");
 
-      const jobParisTime = matchTimeUtc.clone()
+      const jobParisTime = matchTime.clone()
         .add(108, 'minutes')
-        .tz("Europe/Paris")
         .format("YYYY-MM-DD HH:mm:ss");
 
       logger.info(`[CRON SETUP]=> Smart job set for match ID: ${match.id}, First check at (Paris): ${jobParisTime}`);
 
-      // Nouvelle stratégie intelligente
       scheduleSmartMatchCheck(match);
     });
   } catch (error) {
@@ -339,15 +333,19 @@ async function fetchAndProgramWeekMatches() {
   }
 }
 
-async function fetchWeekMatches() {
+
+async function fetchWeekMatches(weekStart = false) {
   try {
     // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
     const now = moment().tz("Europe/Paris");
 
-    const startOfWeek = now.clone().startOf('isoWeek');
+    var startOf = now.clone();
+    if (weekStart === true) {
+      startOf = now.clone().startOf('isoWeek');
+    }
     const endOfWeek = now.clone().endOf('isoWeek');
 
-    const startDate = startOfWeek.clone().utc().format();
+    const startDate = startOf.clone().utc().format();
     const endDate = endOfWeek.clone().utc().format();
 
     const matches = await Match.findAll({
@@ -415,11 +413,13 @@ async function updateRequireDetails() {
   }
 }
 
+
 /**
- * Fetches matchs that have not been checked within the current week.
+ * Retrieves all matches that have not been checked yet (i.e., matches that are not
+ * finished and have not been checked for updates) for the current week.
  *
- * @return {Promise<{data: Array<Match>, count: number}>} An object containing an array of matchs and the count of matchs.
- * @throws {Error} If there is an error fetching the matchs.
+ * @return {Promise<{data: Match[], count: number}>} A promise that resolves with an object
+ * containing an array of matches and the total count of matches.
  */
 const fetchMatchsNoChecked = async () => {
   try {
@@ -434,7 +434,7 @@ const fetchMatchsNoChecked = async () => {
           [Op.lte]: endOfWeek
         },
         status: {
-          [Op.in]: ['NS', 'TBD', 'PST', 'HT', '1H', '2H', 'ET', 'BT', 'P']
+          [Op.in]: ['NS', 'TBD', 'PST','1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'PST']
         }
       },
       include: [
@@ -581,7 +581,7 @@ const scheduleSmartMatchCheck = (match) => {
       const status = apiMatchData.fixture.status.short;
       logger.info(`[MATCH CHECK] Match ${match.id} status from API: ${status}`);
 
-      if (status === 'FT' || status === 'PST') {
+      if (status === 'FT' || status === 'PST' || status === '1H' || status === '2H') {
         await updateMatchAndPredictions(match.id);
         await createOrUpdateTeams(
           [match.home_team_id, match.away_team_id],

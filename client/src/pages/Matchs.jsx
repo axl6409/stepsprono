@@ -47,8 +47,9 @@ const Matchs = () => {
         const now = moment();
 
         if (now.isBetween(firstMatchDeadline, lastMatchDeadline)) {
-          setCanDisplayBets(false);
-          navigate('/dashboard');
+          // setCanDisplayBets(false);
+          setCanDisplayBets(true);
+          // navigate('/dashboard');
         } else {
           setCanDisplayBets(true);
         }
