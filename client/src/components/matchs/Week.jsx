@@ -71,6 +71,7 @@ const Week = ({token, user}) => {
         const sortedMatchs = response.data.data.sort((a, b) => {
           return new Date(a.utc_date) - new Date(b.utc_date);
         })
+        console.log(response.data.data)
         setMatchs(sortedMatchs)
         setLastMatch(sortedMatchs[sortedMatchs.length - 1])
         setIsLoading(false)

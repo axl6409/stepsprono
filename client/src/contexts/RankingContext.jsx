@@ -35,7 +35,6 @@ const RankingProvider = ({ children }) => {
       const response = await axios.get(`${apiUrl}/api/app/settings/rankingMode`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log("Mode de classement chargé depuis l'API", response.data.active_option);
       setRankingMode(response.data.active_option);
     } catch (error) {
       console.error("Erreur lors de la récupération du rankingMode", error);
@@ -57,7 +56,6 @@ const RankingProvider = ({ children }) => {
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log(`Classement ${type} chargé depuis l'API`, response.data.ranking);
       const sortedRanking = (response.data.ranking || []).sort((a, b) => {
         if (b.points === a.points) {
           return b.tie_breaker_points - a.tie_breaker_points;

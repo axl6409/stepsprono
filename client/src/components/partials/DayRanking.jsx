@@ -21,6 +21,7 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
           },
         });
         const rankingDatas = response.data.ranking;
+        console.log(rankingDatas)
         setRanking(rankingDatas);
         const newUsersColors = {};
         rankingDatas.forEach((user, index) => {

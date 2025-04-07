@@ -34,13 +34,6 @@ const getAPICallsCount = async () => {
   }
 }
 
-const getAdjustedMoment = (date) => {
-  const localTime = moment.tz(date, "Europe/Paris");
-  const isDST = localTime.isDST();
-  return isDST ? localTime.add(1, 'hours') : localTime;
-};
-
-
 /**
  * Returns the start and end dates of the current month.
  *
@@ -448,7 +441,6 @@ const scheduleBetsCloseEvent = async () => {
 
 module.exports = {
   getAPICallsCount,
-  getAdjustedMoment,
   getWeekDateRange,
   getMonthDateRange,
   getPeriodMatchdays,

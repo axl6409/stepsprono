@@ -4,7 +4,7 @@ const moment = require('moment');
 
 async function betsCloseNotification(type) {
   try {
-    const matches = await fetchWeekMatches();
+    const matches = await fetchWeekMatches(true);
     if (!type) type = 'all';
 
     if (matches.length > 0) {
