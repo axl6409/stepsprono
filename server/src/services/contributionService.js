@@ -181,46 +181,47 @@ const validateUserContribution = async (contributionId, userId) => {
   }
 }
 
-const autoContribution = async (userId) => {
+const autoContribution = async () => {
   try {
-    const competitionId = await getCurrentCompetitionId()
+    const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
-    let currentMatchday = await getCurrentMatchday();
+    const currentMatchday = await getCurrentMatchday();
     const createdAt = await getMatchdayPeriod(currentMatchday);
-
     const ranking = await getMatchdayRanking(currentMatchday);
+
+    const allPoints = ranking.map(user => user.points);
+    const allAreZero = allPoints.every(points => points === 0);
+
+    if (allAreZero) {
+      logger.info(`Tous les utilisateurs ont 0 points pour la journée ${currentMatchday}. Aucune contribution nécessaire.`);
+      return { success: false, message: "Pas de contribution car aucun match n'a encore été joué." };
+    }
+
     const usersWithZeroPoints = ranking.filter(user => user.points === 0);
     const minPoints = Math.min(...ranking.filter(user => user.points > 0).map(user => user.points));
     const usersWithMinPoints = ranking.filter(user => user.points === minPoints);
-    const usersEligibleForContribution = [...usersWithZeroPoints, ...usersWithMinPoints];
-    const userNeedsContribution = usersEligibleForContribution.some(user => user.user_id === userId);
 
-    if (userNeedsContribution) {
-      const userContribution = await UserContribution.create({
-        user_id: userId,
+    const usersToContribute = [...usersWithZeroPoints, ...usersWithMinPoints];
+
+    const contributions = await Promise.all(usersToContribute.map(user =>
+      UserContribution.create({
+        user_id: user.user_id,
         status: 'pending',
         matchday: currentMatchday,
         season_id: seasonId,
         competition_id: competitionId,
         createdAt: createdAt.endDate,
         updatedAt: createdAt.endDate
-      });
+      })
+    ));
 
-      if (userContribution) {
-        logger.info(`Contribution ajoutée pour l'utilisateur avec l'ID ${userId}`);
-        return { success: true, message: `Contribution validée avec succès.` };
-      } else {
-        return { success: false, message: 'Erreur lors de la validation de la contribution.' };
-      }
-    } else {
-      logger.info(`Pas de contribution ajoutée pour l'utilisateur avec l'ID ${userId}, car il ne fait pas partie des utilisateurs ayant 0 points ou le moins de points sur la journée actuelle (${currentMatchday}).`);
-      return { success: false, message: 'Pas de contribution nécessaire.' };
-    }
+    logger.info(`${contributions.length} contributions ajoutées pour la journée ${currentMatchday}.`);
+    return { success: true, message: `${contributions.length} contributions créées.` };
   } catch (error) {
-    logger.error('Erreur lors de la sélection des contributions :', error);
+    logger.error('Erreur lors de la génération automatique des contributions :', error);
     throw error;
   }
-}
+};
 /**
  * Refuses a contribution made by a user.
  *

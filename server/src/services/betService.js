@@ -7,6 +7,7 @@ const eventBus = require("../events/eventBus");
 const sequelize = require("../../database");
 const {getCurrentCompetitionId} = require("./competitionService");
 const moment = require("moment-timezone");
+const {getCurrentMatchday} = require("./matchService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -914,7 +915,7 @@ const scheduleWeeklyRankingUpdate = async () => {
   try {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
-    const matchday = await getClosestPastMatchday(seasonId);
+    const matchday = await getCurrentMatchday();
 
     await updateWeeklyRankings(matchday, competitionId, seasonId);
   } catch (error) {

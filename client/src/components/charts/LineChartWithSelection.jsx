@@ -85,9 +85,6 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
       })),
       borderColor: color,
       backgroundColor: color,
-      pointBackgroundColor: isRankingChart
-        ? points.map(p => getColorForRank(p, maxYValue))
-        : color,
       tension: 0.3,
       borderWidth: isCurrentUser ? 2 : 1,
       pointStyle: 'circle',
@@ -135,16 +132,11 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
         ticks: {
           stepSize: 1,
           font: {
-            size: 16,
-            family: 'roboto',
-            weight: 'regular',
+            size: 15,
+            family: 'Roboto Mono',
+            weight: 'bold',
             style: 'normal',
           },
-          color: (context) => {
-            const val = context.tick.value;
-            if (!isRankingChart || typeof val !== 'number') return '#000';
-            return getColorForRank(val, maxYValue);
-          }
         },
         title: {
           display: true,
@@ -187,10 +179,9 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
         position: 'top',
         labels: {
           font: {
+            family: 'Rubik',
             size: 16,
-            family: 'Montserrat',
             weight: 'regular',
-            style: 'normal',
           },
           color: '#000',
         }

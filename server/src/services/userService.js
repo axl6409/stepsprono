@@ -1331,7 +1331,6 @@ const getUserPointsForSeason = async (userId, seasonId) => {
   }
 };
 
-
 const getUserStats = async (userId) => {
   try {
     const competitionId = await getCurrentCompetitionId();

@@ -18,7 +18,6 @@ async function getAccessToken() {
   }
 }
 
-
 async function sendNotification(token, title, message) {
   const accessToken = await getAccessToken();
 
