@@ -210,7 +210,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     isLoading ? (
       <Loader />
     ) : (
-      <div className="relative pt-12 pb-20">
+      <div className="relative z-20 pt-12 pb-20">
         <div
           style={isSticky ? { top: `60px` } : {}}
           className={`bg-white ${isSticky ? 'sticky-element pb-2' : ''}`}
@@ -227,7 +227,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
             onSlideChange={handleSlideChange}
             onInit={updateSlideClasses}
             modules={[Navigation]}
-            className={`historySwiper flex flex-col justify-start px-8 relative mb-12 ${isSticky ? '!mb-0' : ''} before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl after:content-[''] after:absolute`}
+            className={`historySwiper flex flex-col justify-start px-8 relative mb-12 ${isSticky ? '!mb-0' : ''} before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-white before:border before:border-black before:rounded-xl after:content-[''] after:absolute`}
             ref={swiperRef}
           >
             {matchdays.map((day, index) => (

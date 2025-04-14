@@ -486,8 +486,6 @@ const checkBetByMatchId = async (ids) => {
         }
       });
     }
-    logger.info('[BETS => ]')
-    console.log(ids)
     if (bets.length === 0) {
       logger.info("Aucun pronostic à mettre à jour.");
       return { success: true, message: "Aucun pronostic à mettre à jour." };
@@ -497,11 +495,11 @@ const checkBetByMatchId = async (ids) => {
     for (const bet of bets) {
       const match = await Match.findByPk(bet.match_id);
       if (!match) {
-        logger.info("Match non trouvé.");
-        return { success: false, message: "Match non trouvé." };
+        logger.info("[betService] Match non trouvé.");
+        return { success: false, message: "[betService] Match non trouvé." };
       }
       if (match.status !== 'FT') {
-        logger.info("Le match n'est pas fini.");
+        logger.info("[betService] Le match n'est pas fini.");
         return { success: false, message: "Le match n'est pas fini." };
       }
 
@@ -525,19 +523,19 @@ const checkBetByMatchId = async (ids) => {
         if (bet.player_goal) {
           const scorerFound = matchScorers.some(scorer => {
             const isScorerMatch = String(scorer.playerId) === String(bet.player_goal);
-            logger.info(`Vérification du buteur - ID du pronostic: ${bet.player_goal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
+            logger.info(`[betService] Vérification du buteur - ID du pronostic: ${bet.player_goal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
             return isScorerMatch;
           });
 
           if (scorerFound) {
             scorerPoints = 1;
-            logger.info(`Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
+            logger.info(`[betService] Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
           } else {
-            logger.info(`Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
+            logger.info(`[betService] Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
           }
         } else if (matchScorers.length === 0) {
           scorerPoints = 1;
-          logger.info(`Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point pour buteur par défaut.`);
+          logger.info(`[betService] Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point pour buteur par défaut.`);
         }
       }
 
@@ -557,10 +555,10 @@ const checkBetByMatchId = async (ids) => {
       betsUpdated++;
     }
 
-    logger.info(`Pronostics mis à jour : ${betsUpdated}`);
+    logger.info(`[betService] Pronostics mis à jour : ${betsUpdated}`);
     return { success: true, message: `${betsUpdated} pronostics ont été mis à jour.`, updatedBets: betsUpdated };
   } catch (error) {
-    logger.error("Erreur lors de la mise à jour des pronostics :", error);
+    logger.error("[betService] Erreur lors de la mise à jour des pronostics :", error);
     return { success: false, message: "Une erreur est survenue lors de la mise à jour des pronostics.", error: error.message };
   }
 };

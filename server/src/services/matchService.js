@@ -14,6 +14,7 @@ const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
 const {getCurrentCompetitionId} = require("./competitionService");
+const {matchEndedNotification} = require("./notificationService");
 let cronTasks = [];
 
 const getMatchAndBets = async (matchId) => {
@@ -315,13 +316,12 @@ async function fetchAndProgramWeekMatches() {
     });
 
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
-
     matches.forEach(match => {
       // Plus besoin de moment.utc() ici — utc_date est déjà en timezone correcte
       const matchTime = moment(match.utc_date).tz("Europe/Paris");
 
       const jobParisTime = matchTime.clone()
-        .add(108, 'minutes')
+        .add(100, 'minutes')
         .format("YYYY-MM-DD HH:mm:ss");
 
       logger.info(`[CRON SETUP]=> Smart job set for match ID: ${match.id}, First check at (Paris): ${jobParisTime}`);
@@ -560,8 +560,10 @@ const scheduleSmartMatchCheck = (match) => {
   const firstCheckTime = matchStart.clone().add(108, 'minutes').toDate();
 
   let retryCount = 0;
-  const maxRetries = 3;
-  const retryDelayMs = 3 * 60 * 1000; // 3 minutes
+  const maxRetries = 10;
+  const retryDelayMs = 3 * 60 * 1000;
+
+  const acceptedStatuses = ['FT', 'PST', 'AET', 'PEN'];
 
   const checkJob = async () => {
     try {
@@ -581,7 +583,7 @@ const scheduleSmartMatchCheck = (match) => {
       const status = apiMatchData.fixture.status.short;
       logger.info(`[MATCH CHECK] Match ${match.id} status from API: ${status}`);
 
-      if (status === 'FT' || status === 'PST' || status === '1H' || status === '2H') {
+      if (acceptedStatuses.includes(status)) {
         await updateMatchAndPredictions(match.id);
         await createOrUpdateTeams(
           [match.home_team_id, match.away_team_id],
@@ -591,7 +593,10 @@ const scheduleSmartMatchCheck = (match) => {
           true
         );
         logger.info(`[MATCH CHECK DONE] Match ${match.id} updated and teams synced.`);
+        matchEndedNotification(apiMatchData.teams.home.name, apiMatchData.teams.away.name, apiMatchData.goals.home, apiMatchData.goals.away);
         return;
+      } else {
+        logger.info(`[MATCH CHECK] Match ${match.id} not finished. Status: ${status}`);
       }
 
       if (retryCount < maxRetries) {
