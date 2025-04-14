@@ -62,7 +62,38 @@ async function testNotification() {
   }
 }
 
+async function weekEndedNotification() {
+  try {
+    const notificationMessage = {
+      title: `📢 C'est fini ! `,
+      body: `Consulte tes points et ton classement de la semaine sur l'appli StepsProno !`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+
+    await sendNotificationsToAll(notificationMessage);
+    console.log('Notification test envoyée.');
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification de test :', error);
+  }
+}
+
+async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore = null, awayTeamScore = null) {
+  try {
+    const notificationMessage = {
+      title: `🎙️⚽️ Match Terminé ! `,
+      body: `${awayTeamName} ${awayTeamScore} - ${homeTeamScore} ${homeTeamName}`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+
+    await sendNotificationsToAll(notificationMessage);
+    console.log('Notification test envoyée.');
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification de test :', error);
+  }
+}
+
 module.exports = {
   betsCloseNotification,
-  testNotification
+  testNotification,
+  weekEndedNotification
 };

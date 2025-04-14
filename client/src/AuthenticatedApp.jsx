@@ -35,6 +35,7 @@ import WeekRecap from "./pages/WeekRecap.jsx";
 import RankingProvider from "./contexts/RankingContext.jsx";
 import Contributions from "./pages/Contributions.jsx";
 import UserStats from "./pages/user/UserStats.jsx";
+import Particles from "./components/animated/Particles.jsx";
 
 /**
  * Composant qui englobe les routes nécessitant le `RankingProvider`
@@ -60,6 +61,18 @@ const AuthenticatedApp = () => {
     <>
       <Navbar />
       <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
+        {/*<div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0' }}>*/}
+        {/*  <Particles*/}
+        {/*    particleColors={['#000000', '#000000']}*/}
+        {/*    particleCount={500}*/}
+        {/*    particleSpread={10}*/}
+        {/*    speed={0.2}*/}
+        {/*    particleBaseSize={100}*/}
+        {/*    moveParticlesOnHover={true}*/}
+        {/*    alphaParticles={false}*/}
+        {/*    disableRotation={true}*/}
+        {/*  />*/}
+        {/*</div>*/}
         <AnimatePresence>
           <Routes>
             {/* Routes qui nécessitent le RankingProvider */}

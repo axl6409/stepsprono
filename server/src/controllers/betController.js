@@ -51,11 +51,9 @@ router.get('/bets/season-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
     const ranking = await getRanking(seasonId, 'season');
-
     if (!ranking || ranking.length === 0) {
       return res.status(204).json({ message: 'Aucun classement trouvé pour cette saison.' });
     }
-
     res.status(200).json({ ranking });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
@@ -65,12 +63,9 @@ router.get('/bets/month-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
     const ranking = await getRanking(seasonId, 'month');
-    logger.info('MONTH RANKING')
-    console.log(ranking)
     if (!ranking || ranking.length === 0) {
       return res.status(204).json({ message: 'Aucun classement trouvé pour ce mois.' });
     }
-
     res.status(200).json({ ranking });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
@@ -80,11 +75,9 @@ router.get('/bets/week-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
     const ranking = await getRanking(seasonId, 'week');
-
     if (!ranking || ranking.length === 0) {
       return res.status(204).json({ message: 'Aucun classement trouvé pour cette semaine.' });
     }
-
     res.status(200).json({ ranking });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });

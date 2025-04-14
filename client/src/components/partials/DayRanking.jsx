@@ -49,7 +49,7 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
   }
 
   return (
-    <div className="relative p-8 px-2 pt-8">
+    <div className="relative z-20 p-8 px-0 pt-8">
       <h2
         translate="no"
         style={isSticky ? { top: `60px` } : {}}
@@ -59,7 +59,7 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
           <Link
             to={`/dashboard/${user.user_id}`}
             key={user.user_id}
-            className="relative flex justify-between border border-black rounded-xl my-4 shadow-flat-black-adjust">
+            className="relative bg-white flex justify-between border border-black rounded-xl my-4 shadow-flat-black-adjust">
             <div
               className="absolute z-[25] bg-white -top-3 -left-4 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust"
               style={{backgroundColor: usersColors[user.user_id]}}

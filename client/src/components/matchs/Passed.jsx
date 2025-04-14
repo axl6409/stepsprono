@@ -66,11 +66,17 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
           const days = response.data;
           setMatchdays(days);
           setIsLoading(false);
-          const storedMatchdayIndex = localStorage.getItem('selectedMatchdayIndex');
-          const initialMatchdayIndex = storedMatchdayIndex ? parseInt(storedMatchdayIndex, 10) : 0;
 
           if (days.length > 0) {
-            setSelectedMatchday(days[initialMatchdayIndex]);
+            const storedMatchdayIndex = localStorage.getItem('selectedMatchdayIndex');
+            console.log(storedMatchdayIndex);
+            const initialMatchdayIndex = storedMatchdayIndex ? parseInt(storedMatchdayIndex, 10) : days.length;
+
+            setSelectedMatchday(initialMatchdayIndex);
+            setMatchday(initialMatchdayIndex);
+
+            localStorage.setItem('selectedMatchdayIndex', initialMatchdayIndex);
+
             if (swiperRef.current) {
               swiperRef.current.swiper.slideTo(initialMatchdayIndex, 0);
             }
@@ -83,7 +89,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       };
       fetchMatchdays();
     }
-  }, [selectedSeason, token]);
+  }, [selectedSeason, token, apiUrl]);
 
   useEffect(() => {
     if (selectedMatchday && selectedSeason) {
@@ -128,10 +134,6 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       fetchBets();
     }
   }, [matchs, selectedSeason, token, user]);
-
-  useEffect(() => {
-    handleMatchdayChange(matchday);
-  }, [matchday]);
 
   const handleSeasonChange = (event) => {
     const selectedSeasonId = event.target.value;
@@ -181,10 +183,10 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
   };
 
   const handleSlideChange = (swiper) => {
+    console.log(swiper)
     const day = matchdays[swiper.activeIndex];
     if (selectedMatchday !== day) {
-      handleMatchdayChange(day);
-      localStorage.setItem('selectedMatchdayIndex', swiper.activeIndex);
+      handleMatchdayChange(day, swiper.activeIndex);
       updateSlideClasses();
     }
   };
@@ -194,7 +196,6 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     if (swiperRef.current) {
       const swiper = swiperRef.current.swiper;
       swiper.slideTo(index);
-      localStorage.setItem('selectedMatchdayIndex', index);
       updateSlideClasses();
     }
   };
@@ -209,7 +210,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     isLoading ? (
       <Loader />
     ) : (
-      <div className="relative pt-12 pb-20">
+      <div className="relative z-20 pt-12 pb-20">
         <div
           style={isSticky ? { top: `60px` } : {}}
           className={`bg-white ${isSticky ? 'sticky-element pb-2' : ''}`}
@@ -226,7 +227,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
             onSlideChange={handleSlideChange}
             onInit={updateSlideClasses}
             modules={[Navigation]}
-            className={`historySwiper flex flex-col justify-start px-8 relative mb-12 ${isSticky ? '!mb-0' : ''} before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl after:content-[''] after:absolute`}
+            className={`historySwiper flex flex-col justify-start px-8 relative mb-12 ${isSticky ? '!mb-0' : ''} before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-white before:border before:border-black before:rounded-xl after:content-[''] after:absolute`}
             ref={swiperRef}
           >
             {matchdays.map((day, index) => (

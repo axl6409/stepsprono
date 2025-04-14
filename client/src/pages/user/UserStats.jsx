@@ -33,7 +33,7 @@ const UserStats = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPositionsByMatchdayForAllUsers(res.data);
-      console.log(res.data)
+      console.log(positionsByMatchdayForAllUsers)
     } catch (err) {
       console.error('Erreur lors du chargement des positions:', err);
     }
@@ -45,7 +45,6 @@ const UserStats = () => {
         const response = await axios.get(`${apiUrl}/api/user/${userId}/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(response.data)
         setStats(response.data);
         setLoading(false);
       } catch (err) {
@@ -90,7 +89,7 @@ const UserStats = () => {
         <LineChartWithSelection
           data={stats.pointsByMatchdayForAllUsers}
           userId={parseInt(userId, 10)}
-          currentUserId={user.id} // Passe l'ID de l'utilisateur connecté
+          currentUserId={user.id}
         />
       </div>
 

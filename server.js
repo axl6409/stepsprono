@@ -47,19 +47,19 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
   try {
     await models.sequelize.authenticate()
-    console.log('[START] => Connection to the database has been established successfully')
+    logger.info('[START] => Connection to the database has been established successfully');
     await sequelize.sync({ force: false })
-    console.log('[START] => Database synchronized')
+    logger.info('[START] => Database synchronized');
     await fetchAndProgramWeekMatches().then(r => {
       logger.info('[MATCHS] => Week Matches Fetched : Success');
     })
     runCronJob()
-    console.log('[CRON] => Cron job started')
+    logger.info('[CRON] => Cron job started');
   } catch (error) {
-    console.log('[START] => Unable to connect to the database: ', error)
+    logger.info('[START] => Unable to connect to the database: ', error);
   }
 })
 

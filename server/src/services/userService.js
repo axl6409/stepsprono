@@ -11,6 +11,7 @@ const { getPeriodMatchdays } = require("./appService");
 const {getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
 
+
 const updateLastConnect = async (userId) => {
   const adjustedTime = new Date();
   await User.update(
@@ -1330,7 +1331,6 @@ const getUserPointsForSeason = async (userId, seasonId) => {
     throw error;
   }
 };
-
 
 const getUserStats = async (userId) => {
   try {

@@ -26,7 +26,6 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
     if (!seasonId) {
       seasonId = await getCurrentSeasonId(61);
     }
-    logger.info(matchday)
     const matchs = await Match.findAndCountAll({
       where: {
         matchday: matchday,
