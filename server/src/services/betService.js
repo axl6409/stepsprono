@@ -190,7 +190,6 @@ const getMonthPoints = async (userId) => {
           const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
           if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
-            logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
             excludedMatchdays.add(matchday);
           }
         }
@@ -198,8 +197,6 @@ const getMonthPoints = async (userId) => {
 
       matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
     }
-
-    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
 
     const bets = await Bet.findAll({
       where: {
@@ -367,10 +364,10 @@ const getRanking = async (seasonId, period) => {
       }
     } else if (period === 'week') {
       const { start, end } = getWeekDateRange();
+      console.log("Start", start)
+      console.log("End", end)
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
-
-    console.log("✅ Liste finale des journées exclues:", [...excludedMatchdays]);
 
     const users = await User.findAll({
       attributes: ['id', 'username', 'img']
@@ -399,8 +396,6 @@ const getRanking = async (seasonId, period) => {
       )
     };
 
-    console.log("🔍 Condition WHERE pour les pronostics:", whereCondition);
-
     const bets = await Bet.findAll({
       where: whereCondition,
       include: [
@@ -411,13 +406,6 @@ const getRanking = async (seasonId, period) => {
         }
       ]
     });
-
-    console.log('🧐 Vérification des paris pour l\'utilisateur 2 après exclusion:');
-    console.log(bets.filter(bet => bet.user_id === 2).map(b => ({
-      bet_id: b.id,
-      match_id: b.match_id,
-      matchday: b.matchday
-    })));
 
     for (const bet of bets) {
       const userId = bet.user_id;
