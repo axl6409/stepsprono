@@ -191,7 +191,6 @@ const getMonthPoints = async (userId) => {
           const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
           if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
-            logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
             excludedMatchdays.add(matchday);
           }
         }
@@ -366,6 +365,8 @@ const getRanking = async (seasonId, period) => {
       }
     } else if (period === 'week') {
       const { start, end } = getWeekDateRange();
+      console.log("Start", start)
+      console.log("End", end)
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
 

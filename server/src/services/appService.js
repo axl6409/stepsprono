@@ -6,7 +6,7 @@ const logger = require("../utils/logger/logger");
 const {Op} = require("sequelize");
 const {Season, Setting, Match} = require("../models");
 const schedule = require('node-schedule');
-const moment = require("moment-timezone");
+const moment = require("moment");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
@@ -99,12 +99,13 @@ const getMidSeasonDate = async (seasonYear) => {
  * @return {Object} An object containing the start and end dates of the current ISO week.
  */
 const getWeekDateRange = () => {
-  const moment = require('moment');
-  const now = moment().utc()
+  const now = moment().tz("Europe/Paris");
   // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 })
   const start = now.clone().startOf('isoWeek');
   const end = now.clone().endOf('isoWeek');
-  return { start: start.toDate(), end: end.toDate() };
+  const startDate = start.clone().utc().format();
+  const endDate = end.clone().utc().format();
+  return { start: startDate, end: endDate };
 }
 
 /**
@@ -240,7 +241,6 @@ const getCurrentMonthMatchdays = async () => {
       const uniqueMatchdays = Array.from(new Set(matches.map(match => match.matchday)));
       return uniqueMatchdays;
     } else {
-      logger.info('Aucun match prévu ce mois-ci.');
       return [];
     }
 
