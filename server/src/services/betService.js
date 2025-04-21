@@ -534,6 +534,7 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       where: { id: matchId },
     });
     if (!match) {
+      logger.error('Match non trouvé');
       throw new Error('Match non trouvé');
     }
     const bet = await Bet.findByPk(id);
@@ -725,15 +726,15 @@ const updateAllBetsForCurrentSeason = async () => {
     const matchIds = matches.map(match => match.id);
 
     if (matchIds.length === 0) {
-      console.log("Aucun match trouvé pour la saison en cours.");
+      logger.info("Aucun match trouvé pour la saison en cours.");
       return;
     }
 
     const result = await checkBetByMatchId(matchIds);
-    console.log("Mise à jour des pronostics de la saison :", result.message);
+    logger.info("Mise à jour des pronostics de la saison :", result.message);
     return { success: true, message: "Mise à jour des pronostics de la saison :" + result.message };
   } catch (error) {
-    console.error("Erreur lors de la mise à jour des pronostics de la saison :", error);
+    logger.error("Erreur lors de la mise à jour des pronostics de la saison :", error);
     return { success: false, message: "Erreur lors de la mise à jour des pronostics de la saison :" + error };
   }
 };
@@ -789,9 +790,9 @@ const updateWeeklyRankings = async (matchday, competitionId, seasonId) => {
       position++;
     }
 
-    console.log(`Classement hebdomadaire pour la journée ${matchday} mis à jour avec succès.`);
+    logger.info(`Classement hebdomadaire pour la journée ${matchday} mis à jour avec succès.`);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour des classements hebdomadaires:', error);
+    logger.error('Erreur lors de la mise à jour des classements hebdomadaires:', error);
     throw error;
   }
 };
@@ -804,7 +805,7 @@ const scheduleWeeklyRankingUpdate = async () => {
 
     await updateWeeklyRankings(matchday, competitionId, seasonId);
   } catch (error) {
-    console.error('Erreur lors de l\'exécution de la tâche cron:', error);
+    logger.error('Erreur lors de l\'exécution de la tâche cron:', error);
   }
 };
 

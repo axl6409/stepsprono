@@ -81,10 +81,20 @@ async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore 
   try {
     const notificationMessage = {
       title: `🎙️⚽️ Match Terminé ! `,
-      body: `${awayTeamName} ${awayTeamScore} - ${homeTeamScore} ${homeTeamName}`,
+      body : {
+        title: () => {
+          if (homeTeamScore && awayTeamScore) {
+            if (awayTeamScore > homeTeamScore) {
+              return `Match terminé : ${awayTeamName} ${awayTeamScore} - ${homeTeamScore} ${homeTeamName}`;
+            }
+            return `Match terminé : ${homeTeamName} ${homeTeamScore} - ${awayTeamScore} ${awayTeamName}`;
+          } else {
+            return `Match terminé : ${awayTeamName} - ${homeTeamName}`;
+          }
+        }
+      },
       icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
     };
-
     await sendNotificationsToAll(notificationMessage);
     console.log('Notification test envoyée.');
   } catch (error) {
@@ -95,5 +105,6 @@ async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore 
 module.exports = {
   betsCloseNotification,
   testNotification,
-  weekEndedNotification
+  weekEndedNotification,
+  matchEndedNotification
 };

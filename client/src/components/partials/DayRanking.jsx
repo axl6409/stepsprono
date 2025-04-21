@@ -52,7 +52,7 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
     <div className="relative z-20 p-8 px-0 pt-8">
       <h2
         translate="no"
-        style={isSticky ? { top: `60px` } : {}}
+        style={isSticky ? { top: `50px` } : {}}
         className={`bg-white ${isSticky ? 'sticky-element pb-2 !text-xl border-b-black border-b' : ''} font-rubik text-xl4 font-black text-black text-center leading-9 text-balance`}>Classement de la journée {matchday}</h2>
       <ul className="px-6">
         {ranking.map((user, index) => (
