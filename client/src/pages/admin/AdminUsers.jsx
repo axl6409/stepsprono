@@ -89,7 +89,7 @@ const AdminUsers = () => {
     ) : (
       <div className="inline-block w-full h-auto py-12">
         <BackButton />
-        <SimpleTitle title={"Gestion des utilisateurs"} />
+        <SimpleTitle title={"Gestion des utilisateurs"} stickyStatus={false} uppercase={true} fontSize={'2.5rem'} />
         <div className="py-3.5 mb-20 px-6 pr-0 bg-flat-yellow mx-2.5 border-2 border-black shadow-flat-black">
           <ul className="flex flex-col justify-start">
             {users.map(user => {
@@ -108,8 +108,8 @@ const AdminUsers = () => {
                         )}
                       </p>
                       <p
-                        className="font-rubik mt-2 text-center text-xxs px-2 text-black font-medium leading-6 border border-black bg-white shadow-flat-black-adjust">
-                        Dernière connexion : {formatDate(user.last_connect)}
+                        className="font-rubik mt-2 px-4 text-center text-balance text-xxs px-2 text-black font-medium leading-4 border border-black bg-white shadow-flat-black-adjust">
+                        Dernière connexion : <br /> {formatDate(user.last_connect)}
                       </p>
                     </div>
                     <div className="flex flex-row">

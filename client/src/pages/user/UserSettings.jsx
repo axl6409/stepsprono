@@ -16,6 +16,7 @@ import iconTropheesBg from "../../assets/components/user/icon-trophees-star-opac
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import AnimatedTitle from "../../components/partials/AnimatedTitle.jsx";
 import DashboardButton from "../../components/nav/DashboardButton.jsx";
+import NotificationToggle from "../../components/notifications/NotificationToggle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserSettings = (props) => {
@@ -68,7 +69,7 @@ const UserSettings = (props) => {
         </span>
       </Link>
       <div className="relative">
-        <AnimatedTitle title={user.username} />
+        <AnimatedTitle title={user.username} stickyStatus={false} />
         <div>
           <div className="profile-picture mt-4 w-fit mx-auto">
             <img
@@ -84,6 +85,9 @@ const UserSettings = (props) => {
           </div>
         </div>
         <div className="links mt-4 pb-20">
+          <div className="py-4 fade-in delay-150">
+            <NotificationToggle />
+          </div>
           <ul className="px-8">
             <li className="my-3 fade-in delay-150">
               <Link

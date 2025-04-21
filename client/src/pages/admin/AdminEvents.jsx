@@ -6,6 +6,8 @@ import Loader from "../../components/partials/Loader.jsx";
 import AlertModal from "../../components/partials/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
+import CustomToggle from "../../components/partials/buttons/JoystickButton.jsx";
+import JoystickButton from "../../components/partials/buttons/JoystickButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminEvents = () => {
@@ -20,7 +22,7 @@ const AdminEvents = () => {
 
   const triggerNotification = async (notificationType) => {
     try {
-      const response = await axios.post(`${apiUrl}/api/notifications/bets-close`, {
+      const response = await axios.post(`${apiUrl}/api/admin/notifications/bets-close`, {
         notificationType: notificationType
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -52,7 +54,7 @@ const AdminEvents = () => {
 
   const triggerTestNotification = async () => {
     try {
-      const response = await axios.post(`${apiUrl}/api/notifications/test`, null, {
+      const response = await axios.post(`${apiUrl}/api/admin/notifications/test`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
@@ -132,7 +134,7 @@ const AdminEvents = () => {
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
       <BackButton />
-      <SimpleTitle title={"Gestion des évènements"} />
+      <SimpleTitle title={"Gestion des notifications"} />
       <div className="flex flex-col justify-start items-center px-4">
         <div className="flex flex-row justify-between items-center w-full my-4">
           <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
@@ -140,13 +142,7 @@ const AdminEvents = () => {
             <span>Pronos fermés demain</span>
           </p>
           <div>
-            <button
-              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerNotification('dayBefore')}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
-            </button>
+            <JoystickButton mode="trigger" onChange={() => triggerNotification('dayBefore')} />
           </div>
         </div>
 
@@ -156,13 +152,7 @@ const AdminEvents = () => {
             <span>Pronos fermés dans 3h</span>
           </p>
           <div>
-            <button
-              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerNotification('matchDay')}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
-            </button>
+            <JoystickButton mode="trigger" onChange={() => triggerNotification('matchDay')} />
           </div>
         </div>
 
@@ -172,13 +162,7 @@ const AdminEvents = () => {
             <span>Notif test</span>
           </p>
           <div>
-            <button
-              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerTestNotification()}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
-            </button>
+            <JoystickButton mode="trigger" onChange={() => triggerTestNotification()} />
           </div>
         </div>
 
@@ -188,13 +172,7 @@ const AdminEvents = () => {
             <span>Test Fonction</span>
           </p>
           <div>
-            <button
-              className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust transition-all duration-200 ease-out group focus:outline-none bg-gray-400 ${buttonActive ? 'bg-green-lime-deep' : ''}`}
-              onClick={() => triggerTestFonction()}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform transition-all duration-200 ease-out ${buttonActive ? 'translate-x-6' : ''}`}></div>
-            </button>
+            <JoystickButton mode="trigger" onChange={() => triggerTestFonction()} />
           </div>
         </div>
       </div>

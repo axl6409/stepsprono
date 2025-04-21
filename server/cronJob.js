@@ -24,7 +24,7 @@ const runCronJob = () => {
 
   // Every day at 00:01
   cron.schedule('0 1 * * *', async () => {
-    console.log('[CRON] EVERY DAY 1:AM task running');
+    logger.log('[CRON] EVERY DAY 1:AM task running');
     await betsCloseNotification();
   });
 

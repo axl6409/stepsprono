@@ -212,7 +212,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     ) : (
       <div className="relative z-20 pt-12 pb-20">
         <div
-          style={isSticky ? { top: `60px` } : {}}
+          style={isSticky ? { top: `50px` } : {}}
           className={`bg-white ${isSticky ? 'sticky-element pb-2' : ''}`}
         >
           <Swiper
@@ -252,7 +252,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
           </Swiper>
         </div>
         <div className="mt-4">
-          <div className={`bg-white ${isSticky ? 'sticky-element !top-[125px]' : ''} flex fade-in flex-row justify-end border-t border-b border-black`}>
+          <div className={`bg-white ${isSticky ? 'sticky-element !top-[115px]' : ''} flex fade-in flex-row justify-end border-t border-b border-black`}>
             <div className="flex justify-end">
               <label translate="no" className="opacity-0 no-correct h-0 w-0">Saison :</label>
               <select translate="no" value={selectedSeason?.id || ''} onChange={handleSeasonChange}

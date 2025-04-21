@@ -117,7 +117,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
             <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
             <Route path="/admin/bets" element={<ProtectedRoute component={AdminBets} />} />
-            <Route path="/admin/events" element={<ProtectedRoute component={AdminEvents} />} />
+            <Route path="/admin/notifications" element={<ProtectedRoute component={AdminEvents} />} />
           </Routes>
         </AnimatePresence>
       </div>

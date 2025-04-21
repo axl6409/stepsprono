@@ -593,7 +593,8 @@ const scheduleSmartMatchCheck = (match) => {
           true
         );
         logger.info(`[MATCH CHECK DONE] Match ${match.id} updated and teams synced.`);
-        matchEndedNotification(apiMatchData.teams.home.name, apiMatchData.teams.away.name, apiMatchData.goals.home, apiMatchData.goals.away);
+        await matchEndedNotification(apiMatchData.teams.home.name, apiMatchData.teams.away.name, apiMatchData.goals.home, apiMatchData.goals.away);
+        logger.info(`[MATCH CHECK DONE] Match ${match.id} ended notification sent.`);
         return;
       } else {
         logger.info(`[MATCH CHECK] Match ${match.id} not finished. Status: ${status}`);
