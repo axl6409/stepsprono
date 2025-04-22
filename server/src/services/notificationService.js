@@ -1,6 +1,7 @@
-const { sendNotificationsToAll } = require('./fcmService');
+const { sendNotificationsToAll, sendNotificationToOne} = require('./fcmService');
 const { fetchWeekMatches } = require('./matchService');
 const moment = require('moment');
+const logger = require("../utils/logger/logger");
 
 async function betsCloseNotification(type) {
   try {
@@ -34,16 +35,16 @@ async function betsCloseNotification(type) {
 
       if (type === 'dayBefore' || (type === 'all' && now.getTime() === dayBeforeAt18h.getTime())) {
         await sendNotificationsToAll(notificationMessage1);
-        console.log('Notification envoyée pour la veille à 18h.');
+        logger.info('Notification envoyée pour la veille à 18h.');
       }
 
       if (type === 'matchDay' || (type === 'all' && now.getTime() === matchDayAt09h.getTime())) {
         await sendNotificationsToAll(notificationMessage2);
-        console.log('Notification envoyée pour le jour même à 9h.');
+        logger.info('Notification envoyée pour le jour même à 9h.');
       }
     }
   } catch (error) {
-    console.error('Erreur lors de l\'envoi des notifications de fermeture des pronos :', error);
+    logger.error('Erreur lors de l\'envoi des notifications de fermeture des pronos :', error);
   }
 }
 
@@ -56,9 +57,9 @@ async function testNotification() {
     };
 
     await sendNotificationsToAll(notificationMessage);
-    console.log('Notification test envoyée.');
+    logger.info('Notification test envoyée.');
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification de test :', error);
+    logger.error('Erreur lors de l\'envoi de la notification de test :', error);
   }
 }
 
@@ -71,9 +72,9 @@ async function weekEndedNotification() {
     };
 
     await sendNotificationsToAll(notificationMessage);
-    console.log('Notification test envoyée.');
+    logger.info('Notification de fin de semaine envoyée.');
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification de test :', error);
+    logger.error('Erreur lors de l\'envoi de la notification de fin de semaine :', error);
   }
 }
 
@@ -96,9 +97,23 @@ async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore 
       icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
     };
     await sendNotificationsToAll(notificationMessage);
-    console.log('Notification test envoyée.');
+    logger.info('Notification de fin de match envoyée.');
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification de test :', error);
+    logger.error('Erreur lors de l\'envoi de la notification de fin de match :', error);
+  }
+}
+
+async function earnTrophyNotification(user, trophyName) {
+  try {
+    const notificationMessage = {
+      title: `🏅 Nouveau badge gagné !`,
+      body : `Adio ${user.username} ! tu as remporté le badge ${trophyName}`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+    await sendNotificationToOne(user.id, notificationMessage);
+    logger.info('Notification de badge gagné '+ trophyName +' pour l\'utilisateur '+ user.username +' envoyée.');
+  } catch (error) {
+    logger.error('Erreur lors de l\'envoi de la notification de badge '+ trophyName +' gagné pour '+ user.username +' :', error);
   }
 }
 
@@ -106,5 +121,6 @@ module.exports = {
   betsCloseNotification,
   testNotification,
   weekEndedNotification,
-  matchEndedNotification
+  matchEndedNotification,
+  earnTrophyNotification
 };

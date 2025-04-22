@@ -11,6 +11,17 @@ const { getPeriodMatchdays } = require("./appService");
 const {getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
 
+const getUserDatas = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return null;
+    }
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
 
 const updateLastConnect = async (userId) => {
   const adjustedTime = new Date();
@@ -1437,78 +1448,8 @@ const getUserStats = async (userId) => {
   }
 };
 
-const getSeasonRanking = async (seasonId) => {
-  try {
-    const rankings = await UserRanking.findAll({
-      where: { season_id: seasonId },
-      order: [['position', 'ASC']],
-      include: [{
-        model: User,
-        as: 'User',
-        attributes: ['id', 'username']
-      }]
-    });
-
-    return rankings.map(r => ({
-      userId: r.user_id,
-      username: r.User.username,
-      position: r.position,
-      points: r.points,
-    }));
-  } catch (error) {
-    console.error("Erreur lors de la récupération du classement saison:", error);
-    throw error;
-  }
-};
-
-const getSeasonRankingEvolution = async (seasonId, userId) => {
-  const rankings = await UserRanking.findAll({
-    where: { season_id: seasonId },
-    order: [['matchday', 'ASC'], ['position', 'ASC']],
-  });
-
-  const userPositions = [];
-  const othersPositions = {};
-
-  // Récupère tous les autres user_id uniques
-  const otherUserIds = [
-    ...new Set(rankings.filter(r => r.user_id !== userId).map(r => r.user_id)),
-  ];
-
-  // Récupère tous les pseudos d'un coup
-  const users = await User.findAll({
-    where: { id: otherUserIds },
-    attributes: ['id', 'username'],
-  });
-
-  // Crée une map user_id -> username
-  const pseudoMap = {};
-  users.forEach(u => {
-    pseudoMap[u.id] = u.username;
-  });
-
-  for (const row of rankings) {
-    if (row.user_id === userId) {
-      userPositions.push({ matchday: row.matchday, position: row.position });
-    } else {
-      if (!othersPositions[row.user_id]) {
-        othersPositions[row.user_id] = {
-          username: pseudoMap[row.user_id] || `User ${row.user_id}`,
-          positions: [],
-        };
-      }
-      othersPositions[row.user_id].positions.push({
-        matchday: row.matchday,
-        position: row.position,
-      });
-    }
-  }
-
-  return { userId, userPositions, othersPositions };
-};
-
-
 module.exports = {
+  getUserDatas,
   getUserRank,
   updateLastConnect,
   getUserPointsForWeek,
@@ -1540,7 +1481,5 @@ module.exports = {
   getSeasonWinner,
   hasUserWonPreviousSeason,
   getUserPointsForSeason,
-  getUserStats,
-  getSeasonRanking,
-  getSeasonRankingEvolution
+  getUserStats
 }

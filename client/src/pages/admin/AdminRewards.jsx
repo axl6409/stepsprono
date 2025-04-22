@@ -129,7 +129,7 @@ const AdminRewards = () => {
   return (
     <div className="inline-block w-full h-auto py-20">
       <BackButton />
-      <SimpleTitle title={"Gestion des trophées"} />
+      <SimpleTitle title={"Gestion des trophées"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
       <button
         onClick={() => {
           setSelectedReward(null);

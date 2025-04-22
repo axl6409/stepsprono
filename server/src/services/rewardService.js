@@ -9,13 +9,14 @@ const {getUserRank, getUserPointsForWeek, getUserRankByPeriod, checkUserCorrectP
   getExactScorePredictionsCount, getUserTopRankingForTwoMonths, getUserSecondPlaceForTwoMonths,
   getLongestCorrectPredictionStreak, getLongestIncorrectPredictionStreak, getCorrectPredictionsForFavoriteTeam,
   getPredictedVictoriesForFavoriteTeam, getCorrectScorerPredictionsCount, getUniqueTrophiesCount,
-  getTotalPointsForSeason, hasUserWonPreviousSeason, getSeasonWinner, getUserPointsForSeason
+  getTotalPointsForSeason, hasUserWonPreviousSeason, getSeasonWinner, getUserPointsForSeason, getUserDatas
 } = require("./userService");
 const {getWeekDateRange, getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDate,
   getStartAndEndOfCurrentMonth
 } = require("./appService");
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
 const {Op} = require("sequelize");
+const {earnTrophyNotification} = require("./notificationService");
 
 /**
  * Retrieves all rewards from the database.
@@ -155,6 +156,7 @@ const toggleActivation = async (id, active) => {
 const assignReward = async (data) => {
   try {
     const { user_id, reward_id, count } = data;
+    const userData = getUserDatas(user_id)
     const existingReward = await UserReward.findOne({
       where: {
         user_id: user_id,
@@ -167,16 +169,17 @@ const assignReward = async (data) => {
         reward_id,
         count
       });
-      logger.info(`Trophée attribué à l'utilisateur ${user_id}`);
+      logger.info(`[assignReward] Trophée attribué à l'utilisateur ${user_id}`);
     } else {
-      console.log(`Avant incrémentation : ${JSON.stringify(existingReward)}`);
+      logger.info(`[assignReward] Avant incrémentation : ${JSON.stringify(existingReward)}`);
       existingReward.count += 1;
       await existingReward.save();
-      console.log(`Après incrémentation : ${JSON.stringify(existingReward)}`);
-      logger.info(`Trophée réattribué à l'utilisateur ${user_id}`);
+      logger.info(`[assignReward] Après incrémentation : ${JSON.stringify(existingReward)}`);
+      logger.info(`[assignReward] Trophée réattribué à l'utilisateur ${user_id}`);
+      await earnTrophyNotification(userData, existingReward.reward.name);
     }
   } catch (error) {
-    logger.warn("Error assigning reward => ", error);
+    logger.error("[assignReward] Error assigning reward => ", error);
     throw error;
   }
 };

@@ -151,7 +151,7 @@ const AdminPlayers = () => {
         ) : (
             <div className="inline-block w-full h-auto py-20">
                 <BackButton />
-                <SimpleTitle title={"Données des joueurs"} />
+                <SimpleTitle title={"Données des joueurs"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
                 <Swiper
                     slidesPerView={5}
                     spaceBetween={10}

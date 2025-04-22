@@ -120,7 +120,7 @@ const AdminCompetitions = () => {
       ) : (
           <div className="inline-block w-full h-auto py-20">
             <BackButton />
-            <SimpleTitle title={"Données des competitions"} />
+            <SimpleTitle title={"Données des competitions"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
             <div className="mt-4 px-8 flex flex-row flex-wrap justify-evenly items-center">
               {competitions.length > 0 ? (
                   competitions.map(competition => (

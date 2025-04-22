@@ -14,9 +14,10 @@ const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
-  getMatchdayRanking, getSeasonRanking
+  getMatchdayRanking
 } = require("../services/betService");
-const {updateLastConnect, getUserStats, getSeasonRankingEvolution} = require("../services/userService");
+const {updateLastConnect, getUserStats} = require("../services/userService");
+const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 
 /* PUBLIC - GET */
