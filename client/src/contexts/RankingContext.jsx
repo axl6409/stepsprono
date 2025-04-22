@@ -107,6 +107,7 @@ const RankingProvider = ({ children }) => {
     <RankingContext.Provider value={{
       ranking: rankingCache[rankingType].data,
       rankingType,
+      fetchRanking,
       changeRankingType,
       refreshRanking,
       isLoading,
