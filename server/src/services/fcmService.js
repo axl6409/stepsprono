@@ -65,7 +65,17 @@ const sendNotificationsToAll = async (message) => {
   }
 };
 
+const sendNotificationToOne = async (userId, message) => {
+  const subscription = await NotificationSubscription.findAll({
+    where: {
+      user_id: userId,
+    }
+  })
+  await sendNotification(subscription.endpoint, message.title, message.body)
+}
+
 module.exports = {
   sendNotification,
+  sendNotificationToOne,
   sendNotificationsToAll
 };

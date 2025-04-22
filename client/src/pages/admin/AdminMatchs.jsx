@@ -111,7 +111,7 @@ const AdminMatchs = () => {
     <div className="inline-block w-full h-auto py-20">
       <AlertModal message={alertMessage} type={alertType}/>
       <BackButton />
-      <SimpleTitle title={"Données des matchs"} />
+      <SimpleTitle title={"Données des matchs"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
       <button
         onClick={() => handleProgramMatchsTasks()}
         className="w-fit block mx-auto relative my-4 ml-4 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"

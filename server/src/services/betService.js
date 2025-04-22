@@ -224,7 +224,6 @@ const getMonthPoints = async (userId) => {
   }
 };
 
-
 /**
  * Retrieves the total points earned by a user for a specific season.
  *
@@ -254,189 +253,6 @@ const getSeasonPoints = async (userId) => {
     return 0;
   }
 }
-
-/**
- * Récupère le classement des utilisateurs pour une saison donnée
- * @param {number} seasonId - L'ID de la saison
- * @return {Promise<Array>} Le classement des utilisateurs avec leurs points
- */
-const getSeasonRanking = async (seasonId) => {
-  try {
-    const bets = await Bet.findAll({
-      where: {
-        season_id: seasonId,
-        points: { [Op.not]: null }
-      },
-      include: [
-        {
-          model: User,
-          as: 'UserId',
-          attributes: ['id', 'username', 'img']
-        }
-      ]
-    });
-
-    const ranking = await bets.reduce(async (accPromise, bet) => {
-      const acc = await accPromise;
-      const userId = bet.user_id;
-      const username = bet.UserId.username;
-      const lastDaymatchdayPoints = await getLastMatchdayPoints(seasonId, userId);
-
-      if (acc[userId]) {
-        acc[userId].points += bet.points;
-      } else {
-        acc[userId] = {
-          user_id: userId,
-          username: username,
-          points: bet.points,
-          img: bet.UserId.img,
-          lastMatchdayPoints: lastDaymatchdayPoints
-        };
-      }
-
-      return acc;
-    }, Promise.resolve({}));
-
-    const sortedRanking = Object.values(ranking).sort((a, b) => {
-      if (b.points === a.points) {
-        return b.lastMatchdayPoints - a.lastMatchdayPoints;
-      }
-      return b.points - a.points;
-    });
-
-    return sortedRanking;
-  } catch (error) {
-    console.error('Erreur lors de la récupération du classement de la saison:', error);
-    throw new Error('Erreur lors de la récupération du classement.');
-  }
-};
-
-/**
- * Retrieves the ranking of users for a given season and period.
- *
- * @param {number} seasonId - The ID of the season.
- * @param {string} period - The period for which to retrieve the ranking ('month', 'week', or 'season').
- * @return {Promise<Array<Object>>} A promise that resolves to an array of user ranking objects, sorted by points.
- * Each object contains user_id, username, points, tie_breaker_points, mode, and img.
- * @throws {Error} If there is an error while retrieving the ranking.
- */
-const getRanking = async (seasonId, period) => {
-  try {
-    const setting = await Setting.findOne({
-      where: { key: 'rankingMode' },
-      attributes: ['active_option']
-    });
-    const rankingMode = setting?.active_option;
-
-    let matchdays = [];
-    let dateRange = {};
-    let excludedMatchdays = new Set();
-
-    if (period === 'month') {
-      const { start, end } = getMonthDateRange();
-      matchdays = await getCurrentMonthMatchdays();
-
-      if (matchdays.length > 0) {
-        for (const matchday of matchdays) {
-          const matchdayMatches = await Match.findAll({
-            where: {
-              matchday,
-              season_id: seasonId
-            },
-            order: [['utc_date', 'ASC']]
-          });
-
-          if (matchdayMatches.length > 0) {
-            const firstMatchDate = new Date(matchdayMatches[0].utc_date);
-
-            const currentYear = new Date(start).getFullYear();
-            const currentMonth = new Date(start).getMonth(); // 0-indexé (janvier = 0)
-            const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-            const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-            if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
-              logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
-              excludedMatchdays.add(matchday);
-            }
-          }
-        }
-
-        matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
-      }
-    } else if (period === 'week') {
-      const { start, end } = getWeekDateRange();
-      console.log("Start", start)
-      console.log("End", end)
-      dateRange = { created_at: { [Op.between]: [start, end] } };
-    }
-
-    const users = await User.findAll({
-      attributes: ['id', 'username', 'img']
-    });
-
-    const ranking = users.reduce((acc, user) => {
-      acc[user.id] = {
-        user_id: user.id,
-        username: user.username,
-        points: 0,
-        tie_breaker_points: 0,
-        mode: rankingMode,
-        img: user.img
-      };
-      return acc;
-    }, {});
-
-    const whereCondition = {
-      season_id: seasonId,
-      points: { [Op.not]: null },
-      ...(period === 'month'
-          ? {
-            matchday: { [Op.in]: matchdays }
-          }
-          : dateRange
-      )
-    };
-
-    const bets = await Bet.findAll({
-      where: whereCondition,
-      include: [
-        {
-          model: User,
-          as: 'UserId',
-          attributes: ['id', 'username', 'img']
-        }
-      ]
-    });
-
-    for (const bet of bets) {
-      const userId = bet.user_id;
-      if (ranking[userId]) {
-        ranking[userId].points += bet.points;
-
-        if (rankingMode === 'legit') {
-          ranking[userId].tie_breaker_points += bet.result_points;
-        } else if (rankingMode === 'history') {
-          ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
-        }
-      }
-    }
-
-    const sortedRanking = Object.values(ranking).sort((a, b) => {
-      if (b.points === a.points) {
-        return b.tie_breaker_points - a.tie_breaker_points;
-      }
-      return b.points - a.points;
-    });
-
-    return sortedRanking;
-  } catch (error) {
-    console.error(`❌ Erreur lors de la récupération du classement pour ${period}:`, error);
-    throw new Error('Erreur lors de la récupération du classement.');
-  }
-};
-
-
-
 
 /**
  * Calculates the total points based on the number of wins, draws, and losses.
@@ -845,8 +661,6 @@ module.exports = {
   getSeasonPoints,
   createBet,
   updateBet,
-  getSeasonRanking,
-  getRanking,
   getLastBetsByUserId,
   getAllLastBets,
   getMatchdayRanking,

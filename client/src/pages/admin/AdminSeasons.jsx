@@ -40,7 +40,7 @@ const AdminSeasons = () => {
         {isModalOpen && (
             <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
         )}
-        <SimpleTitle title={"Données des saisons"} />
+        <SimpleTitle title={"Données des saisons"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
         <div className="flex flex-col justify-start items-center">
           <div className="flex flex-row justify-between items-center">
             <p className="btn btn-primary w-4/5">

@@ -82,36 +82,6 @@ const AdminEvents = () => {
     }
   };
 
-  const triggerTestFonction = async () => {
-    try {
-      const response = await axios.post(`${apiUrl}/api/admin/events/test`, null, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.status === 200) {
-        setUpdateStatus(true);
-        setUpdateMessage('Notification déclenchée avec succès !');
-        setIsModalOpen(true);
-        setTimeout(closeModal, 1500);
-      } else {
-        setUpdateStatus(false);
-        setUpdateMessage('Erreur lors du déclenchement : ' + response.data.message);
-        setIsModalOpen(true);
-        setTimeout(closeModal, 2500);
-      }
-    } catch (error) {
-      setUpdateStatus(false);
-      console.log(error);
-      setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
-      setIsModalOpen(true);
-      setTimeout(closeModal, 2500);
-    } finally {
-      setButtonActive(true);
-      setTimeout(() => {
-        setButtonActive(false);
-      }, 200);
-    }
-  };
-
   const closeModal = () => {
     setUpdateStatus(false);
     setUpdateMessage('');
@@ -163,16 +133,6 @@ const AdminEvents = () => {
           </p>
           <div>
             <JoystickButton mode="trigger" onChange={() => triggerTestNotification()} />
-          </div>
-        </div>
-
-        <div className="flex flex-row justify-between items-center w-full my-4">
-          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
-            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
-            <span>Test Fonction</span>
-          </p>
-          <div>
-            <JoystickButton mode="trigger" onChange={() => triggerTestFonction()} />
           </div>
         </div>
       </div>

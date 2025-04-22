@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import paperplane from "../../assets/icons/paper-plane-solid.svg";
+import JoystickButton from "../partials/buttons/JoystickButton.jsx";
+import {useCookies} from "react-cookie";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const WeekMatchesToggle = ({ token }) => {
   const [weekMatches, setWeekMatches] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [buttonActive, setButtonActive] = useState(false);
 
   useEffect(() => {
     const fetchWeekMatches = async () => {
@@ -44,6 +52,42 @@ const WeekMatchesToggle = ({ token }) => {
     }
   };
 
+  const triggerMatchEndedNotification = async (datas) => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/admin/notifications/match-ended`, datas, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setUpdateStatus(true);
+        setUpdateMessage('Notification déclenchée avec succès !');
+        setIsModalOpen(true);
+        setTimeout(closeModal, 1500);
+      } else {
+        setUpdateStatus(false);
+        setUpdateMessage('Erreur lors du déclenchement : ' + response.data.message);
+        setIsModalOpen(true);
+        setTimeout(closeModal, 2500);
+      }
+    } catch (error) {
+      setUpdateStatus(false);
+      console.log(error);
+      setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
+      setIsModalOpen(true);
+      setTimeout(closeModal, 2500);
+    } finally {
+      setButtonActive(true);
+      setTimeout(() => {
+        setButtonActive(false);
+      }, 200);
+    }
+  };
+
+  const closeModal = () => {
+    setUpdateStatus(false);
+    setUpdateMessage('');
+    setIsModalOpen(false);
+  };
+
   return (
     <div>
       <ul>
@@ -74,13 +118,24 @@ const WeekMatchesToggle = ({ token }) => {
                      src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
                      alt={match.AwayTeam.name}/>
               </div>
-              <button
-                className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust focus:outline-none ${match.require_details ? 'bg-green-lime-deep' : 'bg-white'}`}
-                onClick={() => handleToggleRequireDetails(match.id, !match.require_details)}
-              >
-                <div
-                  className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform ${match.require_details ? 'translate-x-6' : 'translate-x-0'}`}></div>
-              </button>
+              <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-row justify-between items-center w-full mt-4">
+                  <div>
+                    <JoystickButton mode="trigger" onChange={() => triggerMatchEndedNotification(match.HomeTeam.code, match.AwayTeam.code, match.score_full_time_home, match.score_full_time_away)} />
+                  </div>
+                </div>
+                <p className="font-sans font-bold text-xxs uppercase text-center block">Notif</p>
+              </div>
+              <div className="flex flex-col justify-center items-center">
+                <p className="font-sans font-bold text-xxs uppercase text-center block">bonus</p>
+                <button
+                  className={`w-14 h-7 flex items-center rounded-full border-2 border-black mx-3 px-1 shadow-flat-black-adjust focus:outline-none ${match.require_details ? 'bg-green-lime-deep' : 'bg-white'}`}
+                  onClick={() => handleToggleRequireDetails(match.id, !match.require_details)}
+                >
+                  <div
+                    className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transform ${match.require_details ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                </button>
+              </div>
             </div>
           </li>
         ))}

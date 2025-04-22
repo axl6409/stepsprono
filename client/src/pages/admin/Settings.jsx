@@ -74,7 +74,7 @@ const Settings = () => {
   return (
     <div className="inline-block w-full h-auto py-12">
       <BackButton />
-      <SimpleTitle title={"Gestion des réglages"} />
+      <SimpleTitle title={"Gestion des réglages"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
       {settings.map((setting) => (
         <DynamicFormComponent
           key={setting.id}
