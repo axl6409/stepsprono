@@ -85,16 +85,16 @@ const Dashboard = ({ userId: propUserId }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    fetchRanking(rankingType);
+  }, [fetchRanking, rankingType]);
 
   useEffect(() => {
-    if (!ranking.length && !rankingIsLoading) {
-      fetchRanking(rankingType);
-    }
-    if (ranking.length > 0 && !rankingIsLoading) {
-      const index = ranking.findIndex(u => u.user_id === parseInt(userId));
+    if (!rankingIsLoading && ranking.length > 0) {
+      const index = ranking.findIndex(u => u.user_id === parseInt(userId, 10));
       setCurrentUserIndex(index);
     }
-  }, [ranking, rankingType, userId, fetchRanking, rankingIsLoading]);
+  }, [ranking, userId, rankingIsLoading]);
 
 
   const goToNextUser = () => {
