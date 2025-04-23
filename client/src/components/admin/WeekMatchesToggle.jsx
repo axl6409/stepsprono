@@ -52,8 +52,9 @@ const WeekMatchesToggle = ({ token }) => {
     }
   };
 
-  const triggerMatchEndedNotification = async (datas) => {
+  const triggerMatchEndedNotification = async (homeTeam, awayTeam, homeScore, awayScore) => {
     try {
+      const datas = {homeTeam, awayTeam, homeScore, awayScore}
       const response = await axios.post(`${apiUrl}/api/admin/notifications/match-ended`, datas, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -17,11 +17,10 @@ router.get('/notifications/status', authenticateJWT, async (req, res) => {
 
     res.status(200).json({ subscribed: !!subscription });
   } catch (error) {
-    logger.error('[NOTIFICATION/subscribe]-> Erreur lors de la vérification du statut de souscription :', error);
+    logger.error('[NOTIFICATION/status]-> Erreur lors de la vérification du statut de souscription :', error);
     res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 });
-
 
 router.post('/notifications/subscribe', authenticateJWT, async (req, res) => {
   const { token } = req.body;
@@ -103,10 +102,12 @@ router.post('/admin/notifications/bets-close', async (req, res) => {
 
 router.post('/admin/notifications/match-ended', async (req, res) => {
   try {
-    await matchEndedNotification();
-    res.status(200).json({ message: 'Notifications programmées avec succès' });
+    const { homeTeam, awayTeam, homeScore, awayScore } = req.body;
+    logger.info(`[NOTIFICATION/match-ended]-> Match terminé : ${homeTeam} ${homeScore} - ${awayScore} ${awayTeam}`);
+    await matchEndedNotification(homeTeam, awayTeam, homeScore, awayScore);
+    res.status(200).json({ message: 'Notifications de match terminé envoyées avec succès' });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la programmation des notifications', error });
+    res.status(500).json({ message: 'Erreur lors de l\'envoi des notifications de match terminé', error });
   }
 });
 

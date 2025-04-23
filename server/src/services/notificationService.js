@@ -80,21 +80,21 @@ async function weekEndedNotification() {
 
 async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore = null, awayTeamScore = null) {
   try {
+    let bodyText;
+    if (homeTeamScore != null && awayTeamScore != null) {
+      if (awayTeamScore > homeTeamScore) {
+        bodyText = `Match terminé : ${awayTeamName} ${awayTeamScore} - ${homeTeamScore} ${homeTeamName}`;
+      } else {
+        bodyText = `Match terminé : ${homeTeamName} ${homeTeamScore} - ${awayTeamScore} ${awayTeamName}`;
+      }
+    } else {
+      bodyText = `Match terminé : ${awayTeamName} - ${homeTeamName}`;
+    }
+
     const notificationMessage = {
-      title: `🎙️⚽️ Match Terminé ! `,
-      body : {
-        title: () => {
-          if (homeTeamScore && awayTeamScore) {
-            if (awayTeamScore > homeTeamScore) {
-              return `Match terminé : ${awayTeamName} ${awayTeamScore} - ${homeTeamScore} ${homeTeamName}`;
-            }
-            return `Match terminé : ${homeTeamName} ${homeTeamScore} - ${awayTeamScore} ${awayTeamName}`;
-          } else {
-            return `Match terminé : ${awayTeamName} - ${homeTeamName}`;
-          }
-        }
-      },
-      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+      title: `🎙️⚽️ Match Terminé !`,
+      body:  bodyText,
+      icon:  'https://stepsprono.fr/img/logo-steps-150x143.png'
     };
     await sendNotificationsToAll(notificationMessage);
     logger.info('Notification de fin de match envoyée.');
