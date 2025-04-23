@@ -14,8 +14,8 @@ const JoystickButton = ({
 
     if (mode === 'trigger') {
       setTriggered(true);
-      onChange?.(e); // Exécute la fonction passée (ex: déclencher notif)
-      setTimeout(() => setTriggered(false), 300); // Revient à l’état initial
+      onChange?.(e);
+      setTimeout(() => setTriggered(false), 300);
     } else {
       onChange?.({ target: { checked: !checked } });
     }

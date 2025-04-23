@@ -53,15 +53,22 @@ async function sendNotification(token, title, message) {
     });
 
     console.log('Notification envoyée avec succès:', response.data);
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification:', error);
+  } catch (err) {
+    const status = err.response?.status;
+    const details = err.response?.data?.error?.details?.[0]?.errorCode;
+    if (status === 404 && details === 'UNREGISTERED') {
+      await NotificationSubscription.destroy({ where: { endpoint: token } });
+      console.log('Token supprimé :', token);
+    } else {
+      console.error('Erreur FCM inattendue pour', token, err);
+    }
   }
 }
 
 const sendNotificationsToAll = async (message) => {
   const subscriptions = await NotificationSubscription.findAll();
-  for (const subscription of subscriptions) {
-    await sendNotification(subscription.endpoint, message.title, message.body);
+  for (const sub of subscriptions) {
+    await sendNotification(sub.endpoint, message.title, message.body);
   }
 };
 

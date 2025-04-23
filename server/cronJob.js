@@ -51,9 +51,9 @@ const runCronJob = () => {
 
   // Every day at 23:30
   cron.schedule('30 23 * * *', async () => {
-    logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
     const tomorrow = moment().add(1, 'days')
     if (tomorrow.date() === 1) {
+      logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
       eventBus.emit('monthEnded');
     }
   })
