@@ -56,7 +56,16 @@ export default function useUserData(user, token, apiUrl) {
 
       const firstMatchDate = moment(sortedMatchs[0].utc_date);
       const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
-      const closingTime = firstMatchDate.clone().hour(12).minute(0).second(0);
+
+      let closingTime;
+      if (firstMatchDate.day() === 6) {
+        // Si samedi => closingTime = vendredi 12h
+        closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
+      } else {
+        // Sinon => closingTime = jour du premier match à 12h
+        closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
+      }
+
       const now = moment();
 
       if (now.isBefore(closingTime)) {
@@ -72,6 +81,7 @@ export default function useUserData(user, token, apiUrl) {
       } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
         setCanDisplayBets(true);
       }
+
     };
 
     fetchMatchs();
