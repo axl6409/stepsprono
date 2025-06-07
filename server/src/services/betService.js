@@ -84,7 +84,6 @@ const getNullBets = async () => {
 /**
  * Retrieves the total points earned by a user for the last matchday of a season.
  *
- * @param {number} seasonId - The ID of the season.
  * @param {number} userId - The ID of the user.
  * @return {Promise<number>} The total points earned by the user for the last matchday. Returns 0 if there was an error.
  */
@@ -252,18 +251,6 @@ const getSeasonPoints = async (userId) => {
     console.log('Erreur lors de la recuperation des points:', error);
     return 0;
   }
-}
-
-/**
- * Calculates the total points based on the number of wins, draws, and losses.
- *
- * @param {number} wins - The number of wins.
- * @param {number} draws - The number of draws.
- * @param {number} loses - The number of losses.
- * @return {number} The total points.
- */
-const calculatePoints = (wins, draws, loses) => {
-  return (wins * 3) + draws;
 }
 
 /**
@@ -651,7 +638,6 @@ const getClosestPastMatchday = async (seasonId) => {
 };
 
 module.exports = {
-  calculatePoints,
   checkupBets,
   getNullBets,
   getLastMatchdayPoints,

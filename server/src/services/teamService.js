@@ -6,7 +6,7 @@ const {Team, TeamCompetition} = require("../models");
 const {downloadImage} = require("./imageService");
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
 const logger = require("../utils/logger/logger");
-const {calculatePoints} = require("./betService");
+const {calculatePoints} = require("../utils/betUtils");
 
 /**
  * Retrieves all teams from the database.
