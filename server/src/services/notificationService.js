@@ -1,9 +1,9 @@
 const { sendNotificationsToAll, sendNotificationToOne} = require('./fcmService');
-const { fetchWeekMatches } = require('./matchService');
 const moment = require('moment');
 const logger = require("../utils/logger/logger");
 
 async function betsCloseNotification(type) {
+  const { fetchWeekMatches } = require('./matchService');
   try {
     const matches = await fetchWeekMatches(true);
     if (!type) type = 'all';
