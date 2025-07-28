@@ -77,7 +77,8 @@ router.get('/users/bets/last', authenticateJWT, async (req, res) => {
 })
 router.get('/users/bets/ranking/:matchday', authenticateJWT, async (req, res) => {
   try {
-    const ranking = await getMatchdayRanking(req.params.matchday);
+    const { seasonId } = req.query;
+    const ranking = await getMatchdayRanking(req.params.matchday, seasonId);
     if (ranking.length === 0) {
       res.status(200).json({ ranking: ranking, message: `Aucun classement pour la journée ${req.params.matchday}` })
     } else {

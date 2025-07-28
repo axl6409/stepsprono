@@ -26,6 +26,15 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'reward_id'
     },
+    season_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Season',
+        key: 'id'
+      },
+      field: 'season_id'
+    },
     count: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -55,6 +64,7 @@ module.exports = (sequelize, DataTypes) => {
   UserReward.associate = (models) => {
     UserReward.belongsTo(models.User, { foreignKey: 'user_id' });
     UserReward.belongsTo(models.Reward, { foreignKey: 'reward_id' });
+    UserReward.belongsTo(models.Season, { foreignKey: 'season_id' });
   }
 
   return UserReward

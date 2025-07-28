@@ -48,7 +48,11 @@ router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
   try {
-    const matchdays = await getPastAndCurrentMatchdays();
+    let seasonId = req.query.seasonId;
+    if (!seasonId) {
+      seasonId = await getCurrentSeasonId(61);
+    }
+    const matchdays = await getPastAndCurrentMatchdays(seasonId);
     res.json(matchdays);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });

@@ -271,7 +271,7 @@ const Dashboard = ({ userId: propUserId }) => {
                 onClick={handleRequestRoleUpdate}>
                 <span
                   className="font-roboto no-correct text-black text-sm font-medium leading-4">Devenir un Steps</span>
-                <span className="w-fit mx-auto relative">
+                <span className="w-fit mx-auto relative"> 
                   <FontAwesomeIcon icon={faPersonPraying} className="text-black h-6 w-6 mx-auto ml-4 relative z-[2]"/>
                 </span>
               </button>

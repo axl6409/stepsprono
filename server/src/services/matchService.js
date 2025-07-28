@@ -484,10 +484,9 @@ const getAvailableMonthsWithMatches = async () => {
   }
 };
 
-const getPastAndCurrentMatchdays = async () => {
+const getPastAndCurrentMatchdays = async (seasonId) => {
   try {
     const competitionId = await getCurrentCompetitionId();
-    const seasonId = await getCurrentSeasonId(competitionId);
 
     const today = new Date();
 

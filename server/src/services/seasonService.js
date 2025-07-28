@@ -117,7 +117,7 @@ const checkAndAddNewSeason = async (competitionId) => {
       method: 'GET',
       url: apiBaseUrl + 'leagues',
       params: {
-        team: `${competitionId}`,
+        id: `${competitionId}`,
         season: newYearChecked,
       },
       headers: {

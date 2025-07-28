@@ -457,11 +457,14 @@ const getAllLastBets = async () => {
   return bets;
 }
 
-const getMatchdayRanking = async (matchday) => {
+const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
   try {
     const competitionId = await getCurrentCompetitionId();
-    const seasonId = await getCurrentSeasonId(competitionId);
-
+    let seasonId = seasonIdParam;
+    if (!seasonId) {
+      seasonId = await getCurrentSeasonId(competitionId);
+    }
+    logger.info('Classement de la journée', seasonIdParam);
     const users = await User.findAll();
 
     const bets = await Bet.findAll({
@@ -505,7 +508,6 @@ const getMatchdayRanking = async (matchday) => {
         };
       }
     });
-
     return Object.values(ranking).sort((a, b) => b.points - a.points);
   } catch (error) {
     logger.error(`Erreur lors de la récupération du classement de la journée ${matchday}:`, error);

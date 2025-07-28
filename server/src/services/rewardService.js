@@ -35,14 +35,16 @@ const getRewardById = async (id) => {
  * Retrieves all rewards for a given user from the database.
  *
  * @param {number} userId - The ID of the user.
+ * @param {number} seasonId - The ID of the season.
  * @return {Promise<Array<UserReward>>} A promise that resolves to an array of UserReward objects.
  * @throws {Error} If there is an error retrieving the rewards.
  */
-const getUserRewards = async (userId) => {
+const getUserRewards = async (userId, seasonId) => {
   try {
     const rewards = await UserReward.findAll({
       where: {
-        user_id: userId
+        user_id: userId,
+        season_id: seasonId
       }
     });
     return rewards;

@@ -4,7 +4,7 @@ import axios from "axios";
 import useSticky from "../../hooks/useSticky.jsx";
 import {Link} from "react-router-dom";
 
-const DayRanking = ({ matchday, token, apiUrl }) => {
+const DayRanking = ({ matchday, season, token, apiUrl }) => {
   const { isSticky } = useSticky(100);
   const [isLoading, setIsLoading] = useState(true);
   const [ranking, setRanking] = useState([]);
@@ -13,15 +13,15 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
 
   useEffect(() => {
     const fetchRanking = async () => {
+      if (!season) return;
       try {
         setIsLoading(true);
-        const response = await axios.get(`${apiUrl}/api/users/bets/ranking/${matchday}`, {
+        const response = await axios.get(`${apiUrl}/api/users/bets/ranking/${matchday}?seasonId=${season}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const rankingDatas = response.data.ranking;
-        console.log(rankingDatas)
         setRanking(rankingDatas);
         const newUsersColors = {};
         rankingDatas.forEach((user, index) => {
@@ -35,10 +35,10 @@ const DayRanking = ({ matchday, token, apiUrl }) => {
       }
     };
 
-    if (matchday && token) {
+    if (matchday && season && token) {
       fetchRanking();
     }
-  }, [matchday, token, apiUrl]);
+  }, [matchday, season, token, apiUrl]);
 
   if (isLoading) {
     return (

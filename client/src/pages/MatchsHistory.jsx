@@ -11,10 +11,14 @@ const MatchsHistory = () => {
   const [cookies] = useCookies(['token']);
   const { user } = useContext(UserContext)
   const [currentPage, setCurrentPage] = useState(1)
+  const [currentSeason, setCurrentSeason] = useState(null)
   const token = localStorage.getItem('token') || cookies.token
 
   const handleDayChange = (newMatchday) => {
     setCurrentPage(newMatchday);
+  }
+  const handleSeasonChange = (newSeason) => {
+    setCurrentSeason(newSeason);
   }
 
   return (
@@ -22,8 +26,8 @@ const MatchsHistory = () => {
       <DashboardButton />
       <AnimatedTitle title={"Historique"} stickyStatus={true}/>
       <div className="relative">
-        <Passed token={token} user={user} onDayChange={handleDayChange} selectedDay={currentPage} apiUrl={apiUrl}/>
-        <DayRanking matchday={currentPage} token={token} apiUrl={apiUrl} />
+        <Passed token={token} user={user} onDayChange={handleDayChange} selectedDay={currentPage} onSeasonChange={handleSeasonChange} selectedSeason={currentSeason} apiUrl={apiUrl}/>
+        <DayRanking matchday={currentPage} season={currentSeason} token={token} apiUrl={apiUrl} />
       </div>
     </div>
   );
