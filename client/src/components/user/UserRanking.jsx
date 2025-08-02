@@ -16,7 +16,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
   const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode } = useContext(RankingContext);
-  console.log("UserRanking: ", ranking)
+
   const handleFilterChange = (newFilter) => {
     changeRankingType(newFilter);
   };

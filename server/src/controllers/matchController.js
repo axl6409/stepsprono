@@ -6,9 +6,10 @@ const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
-  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
+  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates, getCurrentMatchday
 } = require("../services/matchService");
 const logger = require("../utils/logger/logger");
+const {match} = require("sinon");
 
 /* PUBLIC - GET */
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
@@ -17,6 +18,14 @@ router.get('/match/:matchId', authenticateJWT, async (req, res) => {
     res.json(match);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération du match et des pronostics', error: error.message })
+  }
+})
+router.get('/matchs/current-matchday', authenticateJWT, async (req, res) => {
+  try {
+    const matchday = await getCurrentMatchday();
+    res.json(matchday);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération de la journée sportive actuelle', error: error.message })
   }
 })
 router.get('/matchs/day/:matchday', authenticateJWT, async (req, res) => {

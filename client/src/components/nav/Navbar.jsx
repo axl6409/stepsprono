@@ -138,7 +138,7 @@ const UserMenu = () => {
   return (
     <>
       <header className="fixed bottom-1 right-1 z-[9999]" ref={menuRef}>
-        <nav className="px-2 py-2 relative z-[10]">
+        <nav className={`px-2 py-2 relative z-[10] ${user.status === 'pending' ? 'hidden' : ''}`}>
           {user && (
             <button
               className="relative z-[80] w-[70px] h-[70px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"

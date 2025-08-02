@@ -1,5 +1,5 @@
 const logger = require("../utils/logger/logger");
-const {Bet, Match, User, Setting, UserRanking} = require("../models");
+const {Bet, Match, User, Setting, UserRanking, UserSeason} = require("../models");
 const {getMonthDateRange, getCurrentMonthMatchdays, getWeekDateRange} = require("./appService");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
@@ -63,7 +63,31 @@ const getRanking = async (seasonId, period) => {
       dateRange = { created_at: { [Op.between]: [start, end] } };
     }
 
+    // Récupérer uniquement les utilisateurs actifs pour la saison actuelle
+    const activeUsers = await UserSeason.findAll({
+      where: {
+        season_id: seasonId,
+        is_active: true
+      },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username', 'img'],
+        required: true
+      }]
+    });
+
+    // Créer un tableau d'IDs d'utilisateurs actifs pour le filtrage
+    const activeUserIds = activeUsers.map(userSeason => userSeason.user_id);
+
+    // Si aucun utilisateur actif, retourner un tableau vide
+    if (activeUserIds.length === 0) {
+      return [];
+    }
+
+    // Récupérer les utilisateurs actifs avec leurs détails
     const users = await User.findAll({
+      where: { id: activeUserIds },
       attributes: ['id', 'username', 'img']
     });
 
@@ -81,6 +105,7 @@ const getRanking = async (seasonId, period) => {
 
     const whereCondition = {
       season_id: seasonId,
+      user_id: activeUserIds, // Ne prendre en compte que les paris des utilisateurs actifs
       points: { [Op.not]: null },
       ...(period === 'month'
           ? {
@@ -130,8 +155,28 @@ const getRanking = async (seasonId, period) => {
 
 const getSeasonRanking = async (seasonId) => {
   try {
+    // Récupérer les utilisateurs actifs pour la saison
+    const activeUsers = await UserSeason.findAll({
+      where: {
+        season_id: seasonId,
+        is_active: true
+      },
+      attributes: ['user_id']
+    });
+
+    const activeUserIds = activeUsers.map(user => user.user_id);
+
+    // Si aucun utilisateur actif, retourner un tableau vide
+    if (activeUserIds.length === 0) {
+      return [];
+    }
+
+    // Récupérer le classement uniquement pour les utilisateurs actifs
     const rankings = await UserRanking.findAll({
-      where: { season_id: seasonId },
+      where: { 
+        season_id: seasonId,
+        user_id: activeUserIds
+      },
       order: [['position', 'ASC']],
       include: [{
         model: User,
@@ -153,22 +198,40 @@ const getSeasonRanking = async (seasonId) => {
 };
 
 const getSeasonRankingEvolution = async (seasonId, userId) => {
+  // Récupérer les utilisateurs actifs pour la saison
+  const activeUsers = await UserSeason.findAll({
+    where: {
+      season_id: seasonId,
+      is_active: true
+    },
+    attributes: ['user_id']
+  });
+
+  const activeUserIds = activeUsers.map(user => user.user_id);
+  
+  // Si l'utilisateur demandé n'est pas actif, retourner des tableaux vides
+  if (!activeUserIds.includes(userId)) {
+    return { userId, userPositions: [], othersPositions: {} };
+  }
+
+  // Récupérer l'historique des classements uniquement pour les utilisateurs actifs
   const rankings = await UserRanking.findAll({
-    where: { season_id: seasonId },
+    where: { 
+      season_id: seasonId,
+      user_id: activeUserIds
+    },
     order: [['matchday', 'ASC'], ['position', 'ASC']],
   });
 
   const userPositions = [];
   const othersPositions = {};
 
-  // Récupère tous les autres user_id uniques
-  const otherUserIds = [
-    ...new Set(rankings.filter(r => r.user_id !== userId).map(r => r.user_id)),
-  ];
+  // Filtrer les autres utilisateurs actifs (sauf l'utilisateur courant)
+  const otherActiveUserIds = activeUserIds.filter(id => id !== userId);
 
-  // Récupère tous les pseudos d'un coup
+  // Récupérer les pseudos des autres utilisateurs actifs
   const users = await User.findAll({
-    where: { id: otherUserIds },
+    where: { id: otherActiveUserIds },
     attributes: ['id', 'username'],
   });
 
@@ -178,10 +241,11 @@ const getSeasonRankingEvolution = async (seasonId, userId) => {
     pseudoMap[u.id] = u.username;
   });
 
+  // Traiter les classements
   for (const row of rankings) {
     if (row.user_id === userId) {
       userPositions.push({ matchday: row.matchday, position: row.position });
-    } else {
+    } else if (otherActiveUserIds.includes(row.user_id)) {
       if (!othersPositions[row.user_id]) {
         othersPositions[row.user_id] = {
           username: pseudoMap[row.user_id] || `User ${row.user_id}`,
