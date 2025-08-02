@@ -36,9 +36,14 @@ const Dashboard = ({ userId: propUserId }) => {
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
+  const [isSeasonStarted, setIsSeasonStarted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (user.status === 'pending') {
+      navigate('/reglement');
+    }
+
     const fetchProfileUser = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/${userId}`, {
@@ -66,11 +71,27 @@ const Dashboard = ({ userId: propUserId }) => {
         console.error('Erreur lors de la mise à jour de la date de connexion', error);
       }
     };
+
+    const isSeasonStarted = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/matchs/days/passed?seasonId=5`, {
+           headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (response.data.length > 0) {
+          setIsSeasonStarted(true);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du matchday actuel', error);
+      }
+    };
     if (isAuthenticated && user) {
       updateLastConnected()
     }
     if (userId) {
       fetchProfileUser();
+      isSeasonStarted();
     } else {
       setProfileUser(user);
       setIsLoading(false);
@@ -231,10 +252,10 @@ const Dashboard = ({ userId: propUserId }) => {
             <span className="block text-black uppercase font-bold text-xs font-roboto">Position</span>
           </p>
           <p translate="no"  className="relative fade-in">
-            <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl4 stroke-black font-black leading-8">{currentUserIndex !== null ? currentUserIndex + 1 : 'Non classé'}</span>
+            <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl3 stroke-black font-black leading-8">{(currentUserIndex !== null && isSeasonStarted !== false) ? currentUserIndex + 1 : 'Non classé'}</span>
             <span
-              className={`block relative z-[10] font-rubik text-xl4 stroke-black font-black leading-8 ${getColorClass(currentUserIndex, ranking.length)}`}>
-              {currentUserIndex !== null ? currentUserIndex + 1 : 'Non classé'}
+              className={`block relative z-[10] font-rubik text-xl3 stroke-black font-black leading-8 ${(currentUserIndex !== null && isSeasonStarted !== false) ? getColorClass(currentUserIndex, ranking.length) : 'text-white'}`}>
+              {(currentUserIndex !== null && isSeasonStarted !== false) ? currentUserIndex + 1 : 'Non classé'}
             </span>
           </p>
         </div>
@@ -271,7 +292,7 @@ const Dashboard = ({ userId: propUserId }) => {
                 onClick={handleRequestRoleUpdate}>
                 <span
                   className="font-roboto no-correct text-black text-sm font-medium leading-4">Devenir un Steps</span>
-                <span className="w-fit mx-auto relative">
+                <span className="w-fit mx-auto relative"> 
                   <FontAwesomeIcon icon={faPersonPraying} className="text-black h-6 w-6 mx-auto ml-4 relative z-[2]"/>
                 </span>
               </button>

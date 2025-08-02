@@ -40,6 +40,17 @@ module.exports = {
         onDelete: 'CASCADE',
         field: 'reward_id',
       },
+      season_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'seasons',
+          key: 'id',
+        },
+        field: 'season_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
       count: {
         type: Sequelize.INTEGER,
         allowNull: false,

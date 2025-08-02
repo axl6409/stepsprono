@@ -15,14 +15,14 @@ import Loader from "../partials/Loader.jsx";
 import {useNavigate} from "react-router-dom";
 import useSticky from "../../hooks/useSticky.jsx";
 
-const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
+const Passed = ({ token, user, onDayChange, selectedDay, onSeasonChange, selectedSeason, apiUrl }) => {
   const { isSticky } = useSticky(100);
   const navigate = useNavigate()
   const [matchs, setMatchs] = useState([]);
   const [matchday, setMatchday] = useState(selectedDay);
   const [matchdays, setMatchdays] = useState([]);
   const [seasons, setSeasons] = useState([]);
-  const [selectedSeason, setSelectedSeason] = useState(null);
+  const [season, setSeason] = useState(selectedSeason);
   const [selectedMatchday, setSelectedMatchday] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,8 +44,9 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
         const currentSeason = storedSeasonId
           ? seasonsData.find(season => season.id === parseInt(storedSeasonId, 10))
           : seasonsData.find(season => season.current) || seasonsData[0];
-
-        setSelectedSeason(currentSeason);
+        localStorage.setItem('selectedSeasonId', currentSeason.id);
+        setSeason(currentSeason);
+        onSeasonChange(currentSeason.id);
       } catch (error) {
         console.error('Erreur lors de la récupération des saisons :', error);
         setError(error);
@@ -55,10 +56,10 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
   }, [token]);
 
   useEffect(() => {
-    if (selectedSeason) {
+    if (season) {
       const fetchMatchdays = async () => {
         try {
-          const response = await axios.get(`${apiUrl}/api/matchs/days/passed`, {
+          const response = await axios.get(`${apiUrl}/api/matchs/days/passed?seasonId=${season.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -68,17 +69,25 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
           setIsLoading(false);
 
           if (days.length > 0) {
-            const storedMatchdayIndex = localStorage.getItem('selectedMatchdayIndex');
-            console.log(storedMatchdayIndex);
-            const initialMatchdayIndex = storedMatchdayIndex ? parseInt(storedMatchdayIndex, 10) : days.length;
+            const matchdayKey = `selectedMatchdayIndex_${season.id}`;
+            let storedMatchday = localStorage.getItem(matchdayKey);
+            let initialMatchday;
 
-            setSelectedMatchday(initialMatchdayIndex);
-            setMatchday(initialMatchdayIndex);
+            if (storedMatchday && days.includes(parseInt(storedMatchday, 10))) {
+              initialMatchday = parseInt(storedMatchday, 10);
+            } else {
+              // Par défaut : la première journée de la saison
+              initialMatchday = days[0];
+            }
 
-            localStorage.setItem('selectedMatchdayIndex', initialMatchdayIndex);
+            setSelectedMatchday(initialMatchday);
+            setMatchday(initialMatchday);
+
+            localStorage.setItem(matchdayKey, initialMatchday);
 
             if (swiperRef.current) {
-              swiperRef.current.swiper.slideTo(initialMatchdayIndex, 0);
+              const idx = days.indexOf(initialMatchday);
+              swiperRef.current.swiper.slideTo(idx >= 0 ? idx : 0, 0);
             }
           }
         } catch (error) {
@@ -89,13 +98,13 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       };
       fetchMatchdays();
     }
-  }, [selectedSeason, token, apiUrl]);
+  }, [season, token, apiUrl]);
 
   useEffect(() => {
-    if (selectedMatchday && selectedSeason) {
+    if (selectedMatchday && season) {
       const fetchMatchs = async () => {
         try {
-          const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}?seasonId=${selectedSeason.id}`, {
+          const response = await axios.get(`${apiUrl}/api/matchs/day/${selectedMatchday}?seasonId=${season.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -111,14 +120,14 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       }
       fetchMatchs();
     }
-  }, [selectedMatchday, selectedSeason, token]);
+  }, [selectedMatchday, season, token]);
 
   useEffect(() => {
     if (matchs.length > 0) {
       const fetchBets = async () => {
         const matchIds = matchs.map(match => match.id);
         try {
-          const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}?seasonId=${selectedSeason.id}`, { matchIds }, {
+          const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}?seasonId=${season.id}`, { matchIds }, {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -133,12 +142,13 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
       }
       fetchBets();
     }
-  }, [matchs, selectedSeason, token, user]);
+  }, [matchs, season, token, user]);
 
   const handleSeasonChange = (event) => {
     const selectedSeasonId = event.target.value;
     const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
-    setSelectedSeason(season);
+    setSeason(season);
+    onSeasonChange(season);
     localStorage.setItem('selectedSeasonId', selectedSeasonId);
   };
 
@@ -146,7 +156,9 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
     setSelectedMatchday(newMatchday);
     setMatchday(newMatchday);
     onDayChange(newMatchday);
-    localStorage.setItem('selectedMatchdayIndex', newMatchday);
+    if (season) {
+      localStorage.setItem(`selectedMatchdayIndex_${season.id}`, newMatchday);
+    }
   };
 
   const isBetPlaced = (matchId) => {
@@ -255,7 +267,7 @@ const Passed = ({ token, user, onDayChange, selectedDay, apiUrl }) => {
           <div className={`bg-white ${isSticky ? 'sticky-element !top-[115px]' : ''} flex fade-in flex-row justify-end border-t border-b border-black`}>
             <div className="flex justify-end">
               <label translate="no" className="opacity-0 no-correct h-0 w-0">Saison :</label>
-              <select translate="no" value={selectedSeason?.id || ''} onChange={handleSeasonChange}
+              <select translate="no" value={season?.id || ''} onChange={handleSeasonChange}
                       className="border-y-0 border-x border-black px-2 py-1">
                 {seasons.map(season => (
                   <option key={season.id} value={season.id} className="no-correct">

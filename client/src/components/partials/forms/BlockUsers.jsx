@@ -4,13 +4,12 @@ import { useCookies } from "react-cookie";
 import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const ContributionForm = ({ onSubmit, onClose }) => {
+const BlockUsers = ({ onSubmit, onClose, blocked }) => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
   const [users, setUsers] = useState([]);
-  const [matchdays, setMatchdays] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectedMatchday, setSelectedMatchday] = useState("");
+  const [currentSeason, setCurrentSeason] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -26,21 +25,21 @@ const ContributionForm = ({ onSubmit, onClose }) => {
       }
     };
 
-    const fetchMatchdays = async () => {
+    const fetchCurrentSeason = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/matchs/days/passed`, {
+        const response = await axios.get(`${apiUrl}/api/seasons/current/61`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        setMatchdays(response.data);
+        setCurrentSeason(response.data.currentSeason);
       } catch (error) {
-        console.error("Erreur lors de la récupération des matchdays:", error);
+        console.error("Erreur lors de la récupération de la saison actuelle:", error);
       }
     };
 
+    fetchCurrentSeason();
     fetchUsers();
-    fetchMatchdays();
   }, [token]);
 
   const toggleUserSelection = (userId) => {
@@ -55,14 +54,14 @@ const ContributionForm = ({ onSubmit, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ userId: selectedUsers, matchday: selectedMatchday });
+    onSubmit({ userId: selectedUsers });
   };
 
   return (
     <form
       className="rounded-[18px] mb-6 relative overflow-hidden p-2"
       onSubmit={handleSubmit}>
-      <h2 translate="no" className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">Ajouter une <br/>contribution</h2>
+      <h2 translate="no" className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">Bloquer des utilisateurs</h2>
 
       <div className="form-group mb-6 flex flex-row justify-between">
         <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
@@ -72,7 +71,17 @@ const ContributionForm = ({ onSubmit, onClose }) => {
           <div className="w-full border border-black rounded-md shadow-flat-black-adjust">
             {users.length > 0 ? (
               <ul className="w-full bg-white border border-gray-300 rounded-md max-h-40 overflow-auto">
-                {users.map(user => (
+                {users
+                  .filter(user =>
+                    user.user_seasons &&
+                    user.Roles.some(role => role.name !== 'admin') &&
+                    user.user_seasons.some(season =>
+                      season.season_id === currentSeason && season.is_active
+                    )
+                    &&
+                    (blocked ? user.status === 'approved' : user.status === 'blocked')
+                  )
+                  .map(user => (
                   <li
                     key={user.id}
                     onClick={() => toggleUserSelection(user.id)}
@@ -81,7 +90,7 @@ const ContributionForm = ({ onSubmit, onClose }) => {
                     <img
                       src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
                       alt={user.username}
-                      className="w-8 h-8 rounded-full object-cover object-center mr-3"
+                      className="w-8 h-8 rounded-full object-cover object-centermr-3"
                     />
                     <span translate="no" className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
                     {selectedUsers.includes(user.id) && (
@@ -97,38 +106,19 @@ const ContributionForm = ({ onSubmit, onClose }) => {
         </div>
       </div>
 
-      <div className="form-group mb-6 flex flex-row justify-between">
-        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="matchday">Matchday</label>
-        <select
-          translate="no"
-          id="matchday"
-          className="relative w-2/3 border border-black rounded-md shadow-flat-black-adjust py-1"
-          value={selectedMatchday}
-          onChange={(e) => setSelectedMatchday(e.target.value)}
-          required
-        >
-          <option translate="no" value="">Quelle journée ?</option>
-          {matchdays.map((matchday) => (
-            <option key={matchday} value={matchday}>
-              Journée {matchday}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div className="form-actions">
         <button
           translate="no"
           className="form-submit-btn relative mt-16 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
           type="submit">
           <span translate="no"
-                className={`relative z-[2] w-full flex flex-row justify-center border border-black text-black px-8 py-1 rounded-full text-center font-roboto text-base uppercase font-bold shadow-md bg-green-soft transition -translate-y-1 -translate-x-0 group-hover:-translate-y-0 group-hover:-translate-x-0`}>
-              Ajouter
-            </span>
+              className={`relative z-[2] w-full flex flex-row justify-center border border-black  px-8 py-1 rounded-full text-center font-roboto text-base uppercase font-bold shadow-md ${blocked === true ? 'bg-red-medium text-white' : 'bg-green-medium text-black'} transition -translate-y-1 -translate-x-0 group-hover:-translate-y-0 group-hover:-translate-x-0`}>
+            {blocked === true ? 'Bloquer' : 'Débloquer'}
+          </span>
         </button>
       </div>
     </form>
   );
 };
 
-export default ContributionForm;
+export default BlockUsers;

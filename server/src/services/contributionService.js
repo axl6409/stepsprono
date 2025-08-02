@@ -61,7 +61,10 @@ const addUserContribution = async (userId, matchday) => {
  */
 const getContributionsByUsers = async () => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const currentSeasonId = await getCurrentSeasonId(competitionId);
     const contributions = await UserContribution.findAll({
+      where: currentSeasonId,
       include: [
         {
           model: User,

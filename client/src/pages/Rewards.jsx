@@ -17,14 +17,18 @@ const Rewards = () => {
   const [cookies, setCookie] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token;
   const [rewards, setRewards] = useState([]);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(null);
+  const [error, setError] = useState(null);
   const [userRewards, setUserRewards] = useState([]);
   const [selectedReward, setSelectedReward] = useState(null);
 
   const { userId } = useParams();
 
-  const fetchUserRewards = async () => {
+  const fetchUserRewards = async (season = selectedSeason) => {
+    if (!season) return;
     try {
-      const response = await axios.get(`${apiUrl}/api/rewards/user/${userId}`, {
+      const response = await axios.get(`${apiUrl}/api/rewards/user/${userId}?seasonId=${selectedSeason.id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -38,6 +42,30 @@ const Rewards = () => {
       console.error('Erreur lors de la sélection des recompenses', error);
     }
   };
+
+  useEffect(() => {
+    const fetchSeasons = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/seasons/61`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        const seasonsData = response.data;
+        setSeasons(seasonsData);
+        const storedSeasonId = localStorage.getItem('selectedSeasonId');
+        const currentSeason = storedSeasonId
+          ? seasonsData.find(season => season.id === parseInt(storedSeasonId, 10))
+          : seasonsData.find(season => season.current) || seasonsData[0];
+        localStorage.setItem('selectedSeasonId', currentSeason.id);
+        setSelectedSeason(currentSeason);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des saisons :', error);
+        setError(error);
+      }
+    };
+    fetchSeasons();
+  }, [token]);
 
   useEffect(() => {
     const fetchRewards = async () => {
@@ -59,9 +87,12 @@ const Rewards = () => {
 
     if (user) {
       fetchRewards();
-      fetchUserRewards();
     }
   }, [user, userId, token]);
+
+  useEffect(() => {
+    fetchUserRewards();
+  }, [token, selectedSeason, userId]);
 
   const sortedRewards = rewards.sort((a, b) => {
     const aUserHasReward = userRewards.some(userReward => userReward.reward_id === a.id);
@@ -109,11 +140,30 @@ const Rewards = () => {
     }
   };
 
+  const handleSeasonChange = (event) => {
+    const selectedSeasonId = event.target.value;
+    const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
+    setSelectedSeason(season);
+    localStorage.setItem('selectedSeasonId', selectedSeasonId);
+    fetchUserRewards(season);
+  };
+
   return (
       <div className="text-center relative py-10 flex flex-col justify-center">
         <BackButton />
         <AnimatedTitle title={"Trophées"} stickyStatus={false}/>
         <div className="flex flex-row flex-wrap justify-around px-4">
+          <div className="w-full flex justify-end">
+            <label translate="no" className="opacity-0 no-correct h-0 w-0">Saison :</label>
+            <select translate="no" value={selectedSeason?.id || ''} onChange={handleSeasonChange}
+                    className="border-y-0 border-x border-black px-2 py-1">
+              {seasons.map(season => (
+                <option key={season.id} value={season.id} className="no-correct">
+                  {season.year}
+                </option>
+              ))}
+            </select>
+          </div>
           {sortedRewards.map((reward) => {
             const userReward = userRewards.find(userReward => userReward.reward_id === reward.id);
             const userHasReward = !!userReward;

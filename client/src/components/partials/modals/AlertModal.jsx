@@ -12,7 +12,7 @@ const AlertModal = ({ message, type }) => {
       <div className={`absolute w-full h-auto rounded-xl block z-[1] inset-0 ${color} border-black border translate-x-1 translate-y-1`}></div>
       <div className={`relative p-4 w-full h-auto border border-black rounded-xl z-[2] bg-white`}>
         <img className="w-[50px] block mx-auto" src={`${type === 'error' ? redcardIcon : correctIcon}`} alt=""/>
-        <p translate="no" className={`font-roboto no-correct uppercase ${ type === 'error' ? 'text-deep-red' : 'text-green-soft' } font-black text-l`}>{message}</p>
+        <p translate="no" className={`font-roboto no-correct uppercase ${ type === 'error' ? 'text-deep-red' : 'text-green-soft' } font-black text-center text-l`}>{message}</p>
       </div>
     </div>
   );

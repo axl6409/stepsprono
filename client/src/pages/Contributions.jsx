@@ -8,13 +8,18 @@ import Modal from "../components/partials/modals/Modal.jsx";
 import defaultUserImage from "../assets/components/user/default-user-profile.png";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-  faCheck, faMoneyBillTrendUp,
+  faCheck,
   faSackDollar,
-  faSackXmark, faTrash, faWallet, faXmark
+  faSackXmark, faTrash, faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import {UserContext} from "../contexts/UserContext.jsx";
 import monthPointsShape from "../assets/components/dashboard/month/month-points-shape.png";
 import totalContribText from "../assets/components/contributions/total-cagnotte.webp";
+import userLockIcon from "../assets/icons/lock.svg";
+import userUnlockIcon from "../assets/icons/unlock.svg";
+import BlockUsers from "../components/partials/forms/BlockUsers.jsx";
+import InformationModal from "../components/partials/modals/InformationModal.jsx";
+import AlertModal from "../components/partials/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Contributions = () => {
@@ -22,11 +27,13 @@ const Contributions = () => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
   const [isLoading, setIsLoading] = useState(true);
-  const [statusMessage, setStatusMessage] = useState('');
-  const [status, setStatus] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState(null);
   const [contributions, setContributions] = useState([]);
   const [bestContributor, setBestContributor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalBlockedOpen, setIsModalBlockedOpen] = useState(false);
+  const [isModalUnlockedOpen, setIsModalUnlockedOpen] = useState(false);
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
@@ -65,6 +72,76 @@ const Contributions = () => {
     }
   }
 
+  const handleBlockUser = async (data) => {
+    try {
+      const promises = data.userId.map(async (userId) => {
+        const response = await axios.patch(`${apiUrl}/api/user/${userId}/blocked`, {
+          id: data.userId
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        return response.data;
+      });
+
+      const results = await Promise.all(promises);
+
+      if (results) {
+        setAlertType('success');
+        setAlertMessage('Utilisateur bloqué avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
+        window.location.reload();
+      } else {
+        setAlertType('error');
+        setAlertMessage('Erreur lors du blocage de l\'utilisateur.');
+        setTimeout( () => { setAlertMessage('') }, 2000);
+      }
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Erreur lors du blocage de l\'utilisateur :', error);
+      setAlertType(error);
+      setAlertMessage('Erreur lors du blocage : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
+    }
+  };
+
+  const handleUnlockUser = async (data) => {
+    try {
+      const promises = data.userId.map(async (userId) => {
+        const response = await axios.patch(`${apiUrl}/api/user/${userId}/accepted`, {
+          id: data.userId
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        return response.data;
+      });
+
+      const results = await Promise.all(promises);
+
+      if (results) {
+        setAlertType('success');
+        setAlertMessage('Utilisateur débloqué avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
+        window.location.reload();
+      } else {
+        setAlertType('error');
+        setAlertMessage('Erreur lors du déblocage de l\'utilisateur.');
+        setTimeout( () => { setAlertMessage('') }, 2000);
+      }
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Erreur lors du déblocage de l\'utilisateur :', error);
+      setAlertType(error);
+      setAlertMessage('Erreur lors du déblocage : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
+    }
+  };
+
   const handleAddContribution = async (data) => {
     try {
       const promises = data.userId.map(async (userId) => {
@@ -82,19 +159,22 @@ const Contributions = () => {
       const results = await Promise.all(promises);
 
       if (results) {
-        setStatus(true);
-        setStatusMessage('Événement déclenché avec succès !');
+        setAlertType(true);
+        setAlertMessage('Contribution ajoutée avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
         await fetchContributions();
       } else {
-        setStatus(false);
-        setStatusMessage('Erreur lors du déclenchement de l\'événement.');
+        setAlertType(false);
+        setAlertMessage('Erreur lors de l\'ajout de la contribution.');
+        setTimeout( () => { setAlertMessage('') }, 2000);
       }
 
       setIsModalOpen(false);
     } catch (error) {
       console.error('Erreur lors de la création des contributions:', error);
-      setStatus(false);
-      setStatusMessage('Erreur lors de la création des contributions : ' + error.message);
+      setAlertType(false);
+      setAlertMessage('Erreur lors de la création des contributions : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
     }
   };
 
@@ -108,14 +188,16 @@ const Contributions = () => {
       });
 
       if (response.status === 200) {
-        setStatus(true);
-        setStatusMessage('Contribution validée avec succès !');
+        setAlertType(true);
+        setAlertMessage('Contribution validée avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
         await fetchContributions();
       }
     } catch (error) {
       console.error('Erreur lors de la validation de la contribution :', error);
-      setStatus(false);
-      setStatusMessage('Erreur lors de la validation : ' + error.message);
+      setAlertType(false);
+      setAlertMessage('Erreur lors de la validation : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
     }
   };
 
@@ -129,14 +211,16 @@ const Contributions = () => {
       });
 
       if (response.status === 200) {
-        setStatus(true);
-        setStatusMessage('Contribution passée en attente avec succès !');
+        setAlertType(true);
+        setAlertMessage('Contribution passée en attente avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
         await fetchContributions();
       }
     } catch (error) {
       console.error('Erreur lors du passage en attente de la contribution :', error);
-      setStatus(false);
-      setStatusMessage('Erreur lors du passage en attente : ' + error.message);
+      setAlertType(false);
+      setAlertMessage('Erreur lors du passage en attente : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
     }
   };
 
@@ -148,14 +232,16 @@ const Contributions = () => {
       });
 
       if (response.status === 200) {
-        setStatus(true);
-        setStatusMessage('Contribution supprimée avec succès !');
+        setAlertType(true);
+        setAlertMessage('Contribution supprimée avec succès !');
+        setTimeout( () => { setAlertMessage('') }, 2000);
         await fetchContributions();
       }
     } catch (error) {
       console.error('Erreur lors de la suppression de la contribution :', error);
-      setStatus(false);
-      setStatusMessage('Erreur lors de la suppression : ' + error.message);
+      setAlertType(false);
+      setAlertMessage('Erreur lors de la suppression : ' + error.message);
+      setTimeout( () => { setAlertMessage('') }, 2000);
     }
   };
 
@@ -168,11 +254,23 @@ const Contributions = () => {
       <BackButton/>
       <SimpleTitle title={"Steps d'épargne"} stickyStatus={false}/>
       {(user.role === 'admin' || user.role === 'treasurer') && (
-        <button
-          className="absolute z-[25] bg-green-medium top-2 right-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-          onClick={() => setIsModalOpen(true)}>
-          <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">+</span>
-        </button>
+        <>
+          <button
+            className="absolute z-[25] bg-green-medium top-2 right-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+            onClick={() => setIsModalOpen(true)}>
+            <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">+</span>
+          </button>
+          <button
+            className="absolute z-[25] bg-red-medium top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+            onClick={() => setIsModalBlockedOpen(true)}>
+            <img className="w-full h-full object-contain object-center" src={userLockIcon} alt=""/>
+          </button>
+          <button
+            className="absolute z-[25] bg-blue-medium top-2 right-32 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+            onClick={() => setIsModalUnlockedOpen(true)}>
+            <img className="w-full h-full object-contain object-center" src={userUnlockIcon} alt=""/>
+          </button>
+        </>
       )}
       <div className="mb-4 flex flex-row justify-evenly items-center">
         <div
@@ -293,6 +391,22 @@ const Contributions = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+      <Modal isOpen={isModalBlockedOpen} onClose={() => setIsModalBlockedOpen(false)}>
+        <BlockUsers
+          onSubmit={handleBlockUser}
+          onClose={() => setIsModalOpen(false)}
+          blocked={true}
+        />
+      </Modal>
+      <Modal isOpen={isModalUnlockedOpen} onClose={() => setIsModalUnlockedOpen(false)}>
+        <BlockUsers
+          onSubmit={handleUnlockUser}
+          onClose={() => setIsModalOpen(false)}
+          blocked={false}
+        />
+      </Modal>
+
+      <AlertModal message={alertMessage} type={alertType} />
     </div>
   )
 

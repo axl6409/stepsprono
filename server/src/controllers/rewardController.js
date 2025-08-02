@@ -11,6 +11,7 @@ const { getAllRewards, assignReward, toggleActivation, deleteReward, updateRewar
   checkPhoenixTrophy, checkRisingStarTrophy
 } = require('../services/rewardService');
 const { upload } = require('../utils/utils');
+const {getCurrentSeasonId} = require("../services/seasonService");
 
 /* PUBLIC - GET */
 router.get('/rewards', authenticateJWT, async (req, res) => {
@@ -23,7 +24,11 @@ router.get('/rewards', authenticateJWT, async (req, res) => {
 });
 router.get('/rewards/user/:id', authenticateJWT, async (req, res) => {
   try {
-    const rewards = await getUserRewards(req.params.id);
+    let seasonId = req.query.seasonId;
+    if (!seasonId) {
+      seasonId = await getCurrentSeasonId(61);
+    }
+    const rewards = await getUserRewards(req.params.id, seasonId);
     res.json(rewards);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la sélection des trophées', error: error.message });
