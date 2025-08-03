@@ -285,7 +285,7 @@ const Dashboard = ({ userId: propUserId }) => {
             <p translate="no" className="font-rubik no-correct font-base">
               Vous ête un <span className="font-bold">Visiteur</span>
             </p>
-            {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'aproved' ? (
+            {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'approved' ? (
               <button
                 translate="no"
                 className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"
