@@ -21,7 +21,6 @@
     "framer-motion": "^11.0.28",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
-    "nextstepjs": "^2.1.1",
     "ogl": "^1.0.11",
     "postcss-import": "^16.1.0",
     "postcss-nested": "^6.2.0",
