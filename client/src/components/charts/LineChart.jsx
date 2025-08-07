@@ -46,7 +46,7 @@ const LineChart = ({ pointsByMatchday, userId }) => {
   };
 
   return (
-    <div className="chart-container" style={{ height: '600px' }}>
+    <div className="chart-container relative z-[12]" style={{ height: '600px' }}>
       <h2>Points par Journée Sportive</h2>
       <Line data={data} options={options} />
     </div>

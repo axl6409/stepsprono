@@ -32,6 +32,12 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`${apiUrl}/api/login`, formData);
+      
+      if (response.data.user && response.data.user.status === 'retired') {
+        setErrorMessage('Désolé, vous ne participez pas à la saison actuelle.');
+        return;
+      }
+      
       localStorage.setItem('token', response.data.token);
       setCookie('token', response.data.token, { path: '/' });
       setIsAuthenticated(true);
@@ -46,7 +52,7 @@ const Login = () => {
   }
 
   return (
-    <div className="w-full h-100vh">
+    <div className="w-full h-100vh relative z-10">
       <div className="h-4/5 relative z-[2] bg-cover bg-no-repeat bg-bottom flex flex-col justify-center px-4"
            style={{backgroundImage: `url(${background})`}}>
         <div
@@ -89,7 +95,11 @@ const Login = () => {
             `}>
             <span className="relative z-[3]">Hello!</span>
           </h2>
-          <p className="font-sans text-sm font-medium text-center">{errorMessage}</p>
+          {errorMessage && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 mx-4 rounded">
+              <p className="font-sans text-sm font-medium">{errorMessage}</p>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="flex flex-col items-center px-8">
             <label htmlFor="username" className="my-4 w-full relative flex flex-row justify-start">
               <div className="w-[15%] absolute -top-4 -left-4 -rotate-2 flex flex-col justify-center">

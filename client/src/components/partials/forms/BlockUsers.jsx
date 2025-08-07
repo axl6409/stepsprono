@@ -68,41 +68,41 @@ const BlockUsers = ({ onSubmit, onClose, blocked }) => {
         <div className="relative w-2/3">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           </div>
+          {users.length > 0 ? (
           <div className="w-full border border-black rounded-md shadow-flat-black-adjust">
-            {users.length > 0 ? (
-              <ul className="w-full bg-white border border-gray-300 rounded-md max-h-40 overflow-auto">
-                {users
-                  .filter(user =>
-                    user.user_seasons &&
-                    user.Roles.some(role => role.name !== 'admin') &&
-                    user.user_seasons.some(season =>
-                      season.season_id === currentSeason && season.is_active
-                    )
-                    &&
-                    (blocked ? user.status === 'approved' : user.status === 'blocked')
+            <ul className="w-full bg-white border border-gray-300 rounded-md max-h-40 overflow-auto">
+              {users
+                .filter(user =>
+                  user.user_seasons &&
+                  user.Roles.some(role => role.name !== 'admin') &&
+                  user.user_seasons.some(season =>
+                    season.season_id === currentSeason && season.is_active
                   )
-                  .map(user => (
-                  <li
-                    key={user.id}
-                    onClick={() => toggleUserSelection(user.id)}
-                    className={`cursor-pointer p-2 flex items-center ${selectedUsers.includes(user.id) ? 'bg-blue-medium' : ''}`}
-                  >
-                    <img
-                      src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
-                      alt={user.username}
-                      className="w-8 h-8 rounded-full object-cover object-centermr-3"
-                    />
-                    <span translate="no" className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
-                    {selectedUsers.includes(user.id) && (
-                      <span translate="no" className="ml-auto text-white font-bold">✔</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div translate="no" className="p-4">Chargement des utilisateurs...</div>
-            )}
+                  &&
+                  (blocked ? user.status === 'approved' : user.status === 'blocked')
+                )
+                .map(user => (
+                <li
+                  key={user.id}
+                  onClick={() => toggleUserSelection(user.id)}
+                  className={`cursor-pointer p-2 flex items-center ${selectedUsers.includes(user.id) ? 'bg-blue-medium' : ''}`}
+                >
+                  <img
+                    src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
+                    alt={user.username}
+                    className="w-8 h-8 rounded-full object-cover object-centermr-3"
+                  />
+                  <span translate="no" className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
+                  {selectedUsers.includes(user.id) && (
+                    <span translate="no" className="ml-auto text-white font-bold">✔</span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
+          ) : (
+            <div translate="no" className="p-4">Chargement des utilisateurs...</div>
+          )}
         </div>
       </div>
 

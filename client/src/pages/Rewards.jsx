@@ -149,7 +149,7 @@ const Rewards = () => {
   };
 
   return (
-      <div className="text-center relative py-10 flex flex-col justify-center">
+      <div className="text-center relative z-10 py-10 flex flex-col justify-center">
         <BackButton />
         <AnimatedTitle title={"Trophées"} stickyStatus={false}/>
         <div className="flex flex-row flex-wrap justify-around px-4">

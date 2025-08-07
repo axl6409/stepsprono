@@ -250,7 +250,7 @@ const Contributions = () => {
   }, 0);
 
   return (
-    <div className="inline-block relative w-full h-auto py-20 overflow-x-hidden">
+    <div className="inline-block relative z-10 w-full h-auto py-20 overflow-x-hidden">
       <BackButton/>
       <SimpleTitle title={"Steps d'épargne"} stickyStatus={false}/>
       {(user.role === 'admin' || user.role === 'treasurer') && (

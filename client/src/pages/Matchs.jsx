@@ -61,7 +61,7 @@ const Matchs = () => {
   }, [currentPage, itemsPerPage, navigate, token]);
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden py-12">
+    <div className="text-center relative z-10 h-auto flex flex-col justify-center overflow-x-hidden py-12">
       <DashboardButton />
       <AnimatedTitle title={"Pronostics"} stickyStatus={false}/>
       <div className="px-4 relative">

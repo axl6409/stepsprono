@@ -95,6 +95,18 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ where: { username } });
     if (!user) return res.status(400).json({ error: 'Utilisateur inconnu' });
 
+    // Check if user is retired
+    if (user.status === 'retired') {
+      return res.status(403).json({ 
+        error: 'Désolé, vous ne participez pas à la saison actuelle.',
+        user: {
+          id: user.id,
+          username: user.username,
+          status: user.status
+        }
+      });
+    }
+
     const userRoles = await user.getRoles();
     const userRole = userRoles && userRoles.length > 0 ? userRoles[0].name : 'user';
 
@@ -103,7 +115,6 @@ router.post('/login', async (req, res) => {
 
     user.last_connect = new Date();
     await user.save();
-    logger.info(`User ${user.username} updated at: ${user.updatedAt }, last connect: ${user.last_connect}`);
 
     const token = jwt.sign({ userId: user.id, role: userRole }, secretKey, { expiresIn: '365d' });
 
@@ -117,7 +128,24 @@ router.post('/login', async (req, res) => {
       cookieConfig.secure = false;
     }
     res.cookie('token', token, cookieConfig);
-    res.status(200).json({ message: 'Connexion réussie', user, token });
+    
+    // Include user status in the response
+    const userResponse = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      status: user.status,
+      role: userRole,
+      img: user.img,
+      teamId: user.teamId,
+      last_connect: user.last_connect
+    };
+    
+    res.status(200).json({ 
+      message: 'Connexion réussie', 
+      user: userResponse, 
+      token 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
   }

@@ -26,7 +26,7 @@ const TeamPlayers = () => {
   }, [teamId]);
 
   return (
-    <div>
+    <div className="relative z-10">
       <h1 translate="no" className="text-3xl font-black mt-8 uppercase relative w-fit mx-auto">Liste des joueurs
         <span
           translate="no"

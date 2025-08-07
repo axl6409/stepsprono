@@ -33,7 +33,6 @@ const UserStats = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPositionsByMatchdayForAllUsers(res.data);
-      console.log(positionsByMatchdayForAllUsers)
     } catch (err) {
       console.error('Erreur lors du chargement des positions:', err);
     }
@@ -69,7 +68,7 @@ const UserStats = () => {
     : 0;
 
   return (
-    <div className="inline-block relative w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white overflow-x-hidden">
+    <div className="inline-block relative z-11 w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white overflow-x-hidden">
       <BackButton/>
       <SimpleTitle title="Statistiques" stickyStatus={false} backgroundColor="bg-transparent"/>
 
@@ -158,7 +157,7 @@ const UserStats = () => {
       </div>
 
       {/* Statistique Totale */}
-      <div className="flex flex-row flex-wrap justify-center items-center py-4">
+      <div className="relative z-[11] flex flex-row flex-wrap justify-center items-center py-4">
         <StatItem title="Pronostics Corrects" value={`${correctPredictionPercentage}%`} status={true}/>
         <StatItem title="Pronostics Incorrects" value={`${incorrectPredictionPercentage}%`} status={false}/>
         <StatItem title="Bons Scores" value={`${stats.correctScorePredictions} X`} status={true}/>

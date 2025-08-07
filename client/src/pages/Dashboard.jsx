@@ -40,6 +40,12 @@ const Dashboard = ({ userId: propUserId }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    if (!isAuthenticated || !user) {
+      setIsLoading(true);
+      return;
+    }
+
     if (user.status === 'pending') {
       navigate('/reglement');
     }
@@ -278,14 +284,14 @@ const Dashboard = ({ userId: propUserId }) => {
       <AnimatedTitle title={profileUser.username} stickyStatus={false}/>
 
       <div>
-        {isAuthenticated && profileUser && profileUser.role !== 'visitor' ? (
+        {isAuthenticated && profileUser && profileUser.role !== 'visitor' && profileUser.status !== 'retired' ? (
           <CurrentBets loggedUser={user} user={profileUser} token={token}/>
         ) : (
           <div className="px-4 fade-in">
             <p translate="no" className="font-rubik no-correct font-base">
               Vous ête un <span className="font-bold">Visiteur</span>
             </p>
-            {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'approved' ? (
+            {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'approved' && user.status !== 'retired' ? (
               <button
                 translate="no"
                 className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"
@@ -314,6 +320,12 @@ const Dashboard = ({ userId: propUserId }) => {
                 <span className="w-fit mx-auto my-auto relative">
                   <FontAwesomeIcon icon={faHourglassHalf} className="text-black h-4 w-4 mx-auto ml-4 relative z-[2]"/>
                 </span>
+              </p>
+            ) : user.status === 'retired' ? (
+              <p
+                translate="no"
+                className="font-sans w-fit relative bg-yellow-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust">
+                <span className="font-roboto no-correct text-black text-xs leading-4">Tu ne joue pas sur la saison actuelle</span>
               </p>
             ) : null}
           </div>

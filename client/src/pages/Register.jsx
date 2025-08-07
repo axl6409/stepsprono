@@ -75,7 +75,7 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container w-full h-100vh">
+    <div className="register-container relative z-10 w-full h-100vh">
       {renderStep()}
     </div>
   );

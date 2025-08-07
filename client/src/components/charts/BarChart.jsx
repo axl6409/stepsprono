@@ -102,7 +102,7 @@ const BarChart = ({ userCorrectPredictions, averageCorrectPredictions }) => {
   };
 
   return (
-    <div className="chart-container border border-black shadow-flat-black-adjust rounded-xl bg-white" style={{width: '90%', margin: '0 auto'}}>
+    <div className="relative z-[12] chart-container border border-black shadow-flat-black-adjust rounded-xl bg-white" style={{width: '90%', margin: '0 auto'}}>
       <Bar data={data} options={options}/>
     </div>
   )
