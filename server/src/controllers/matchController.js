@@ -109,6 +109,7 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
     const now = moment();
+    // const now = moment().add(1, 'weeks');
     const startOfCurrentWeek = now.tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({

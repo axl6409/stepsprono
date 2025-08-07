@@ -100,7 +100,7 @@ const MatchDetails = () => {
   const isHistoricalMatch = matchDate.isBefore(moment());
 
   return (
-    <div className="text-center relative h-auto flex flex-col justify-center overflow-x-hidden pt-20 pb-28">
+    <div className="text-center relative z-10 h-auto flex flex-col justify-center overflow-x-hidden pt-20 pb-28">
       <BackButton/>
       <AnimatedTitle title={"Détails du match"} stickyStatus={false}/>
       <div>

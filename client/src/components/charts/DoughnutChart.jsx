@@ -56,7 +56,7 @@ const DoughnutChart = ({ correctResult, incorrectResult, correctScore, incorrect
   };
 
   return (
-    <div className="chart-container border border-y-black shadow-flat-black-adjust bg-white px-2" style={{ width: '100%', height: '240px', margin: '0 auto' }}>
+    <div className="relative z-[12] chart-container border border-y-black shadow-flat-black-adjust bg-white px-2" style={{ width: '100%', height: '240px', margin: '0 auto' }}>
       <Doughnut translate="no" data={data} options={options} />
     </div>
   );

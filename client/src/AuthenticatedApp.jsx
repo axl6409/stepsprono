@@ -53,26 +53,39 @@ const AuthenticatedApp = () => {
   const { menuOpen } = useContext(AppContext);
   const location = useLocation();
 
-  if (isAuthenticated && location.pathname === "/") {
-    return <Navigate to="/dashboard/" replace />;
+  const publicPaths = ['/', '/login', '/register'];
+
+  if (!isAuthenticated && !publicPaths.includes(location.pathname)) {
+    return <Navigate to="/" replace />;
   }
 
-  return isAuthenticated ? (
+  if (isAuthenticated
+    && user?.status === 'pending'
+    && location.pathname !== '/reglement') {
+    return <Navigate to="/reglement" replace />;
+  }
+
+  if (isAuthenticated && location.pathname === '/') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (isAuthenticated) {
+    return (
     <>
       <Navbar />
       <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
-        {/*<div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0' }}>*/}
-        {/*  <Particles*/}
-        {/*    particleColors={['#000000', '#000000']}*/}
-        {/*    particleCount={500}*/}
-        {/*    particleSpread={10}*/}
-        {/*    speed={0.2}*/}
-        {/*    particleBaseSize={100}*/}
-        {/*    moveParticlesOnHover={true}*/}
-        {/*    alphaParticles={false}*/}
-        {/*    disableRotation={true}*/}
-        {/*  />*/}
-        {/*</div>*/}
+        <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: '0.2', pointerEvents: 'none' }}>
+          <Particles
+            particleColors={['#000000', '#000000']}
+            particleCount={500}
+            particleSpread={12}
+            speed={0.2}
+            particleBaseSize={100}
+            moveParticlesOnHover={false}
+            alphaParticles={false}
+            disableRotation={true}
+          />
+        </div>
         <AnimatePresence>
           <Routes>
             {/* Routes qui nécessitent le RankingProvider */}
@@ -122,19 +135,19 @@ const AuthenticatedApp = () => {
         </AnimatePresence>
       </div>
     </>
-  ) : (
-    <>
-      <div className="container mx-auto">
-        <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-        </AnimatePresence>
-      </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="container mx-auto">
+      <AnimatePresence mode="wait" initial={false}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </AnimatePresence>
+    </div>
   );
 };
-
 export default AuthenticatedApp;

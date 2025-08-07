@@ -54,7 +54,7 @@ const Teams = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto pt-20">
+    <div className="inline-block relative z-10 w-full h-auto pt-20">
       <DashboardButton />
       <SimpleTitle title={"Classement Ligue 1"} stickyStatus={false}/>
       <div className="relative py-8 px-2 pt-0">

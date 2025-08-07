@@ -55,7 +55,7 @@ const UserSettings = (props) => {
   };
 
   return (
-    <div className="inline-block w-full h-auto pt-20">
+    <div className="inline-block relative z-[11] w-full h-auto pt-20">
       <DashboardButton />
       <Link
         to="/reglement"

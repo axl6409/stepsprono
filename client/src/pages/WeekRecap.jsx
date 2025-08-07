@@ -97,7 +97,7 @@ const WeekRecap = () => {
   }
 
   return (
-    <div className="recap-container pb-20">
+    <div className="recap-container pb-20 relative z-10">
       <div className="portrait-warning">
         <p className="font-roboto text-xl text-black font-bold">Tourne le téléphone bandit !</p>
       </div>

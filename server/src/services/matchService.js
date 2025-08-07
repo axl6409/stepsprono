@@ -296,6 +296,7 @@ async function updateExistingMatchDates() {
 async function fetchAndProgramWeekMatches() {
   try {
     const now = moment().tz("Europe/Paris");
+    // const now = moment().add(1, 'weeks');
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
 
     const startOfWeek = now.clone().startOf('isoWeek').format(); // ISO string en heure locale

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import useSticky from "../../hooks/useSticky.jsx";
 
 const AnimatedTitle = ({ title, stickyStatus = true }) => {
-  const { isSticky } = useSticky(50);
+  const { isSticky } = useSticky(48);
   const [animateTitle, setAnimateTitle] = useState(false);
 
   useEffect(() => {

@@ -10,7 +10,7 @@ const Home = () => {
 
   return (
     <>
-      <div className="h-100vh flex flex-col justify-start">
+      <div className="relative z-10 h-100vh flex flex-col justify-start">
         <div className="h-40vh bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${background})`}}></div>
         <div className="block -mt-40">
           <img className="w-auto mx-auto pl-8" src={logo} alt="Logo de l'application Steps Prono"/>

@@ -190,7 +190,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
   };
 
   return (
-    <div>
+    <div className="relative z-[12]">
       <label translate="no" className="font-rubik text-sm text-center block font-medium">
         Sélectionnez des steps ⬇️
       </label>
@@ -201,7 +201,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
         value={selectedUsers}
         onChange={handleSelectionChange}
         placeholder="Choisissez les utilisateurs"
-        className="basic-multi-select border border-black rounded-md w-4/5 mx-auto font-rubik"
+        className="basic-multi-select border border-black bg-white rounded-md w-4/5 mx-auto font-rubik"
         classNamePrefix="select"
       />
 
