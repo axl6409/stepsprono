@@ -23,6 +23,18 @@ const getUserDatas = async (userId) => {
   }
 }
 
+const setAllUsersPending = async () => {
+  try {
+    await User.update(
+      { status: "pending" },
+      { where: { status: "approved" } }
+    );
+  } catch (error) {
+    logger.info('Erreur lors de la mise a jour des status en pending : ', error)
+    throw new Error(error);
+  }
+}
+
 const updateLastConnect = async (userId) => {
   const adjustedTime = new Date();
   await User.update(
@@ -1450,6 +1462,7 @@ const getUserStats = async (userId) => {
 
 module.exports = {
   getUserDatas,
+  setAllUsersPending,
   getUserRank,
   updateLastConnect,
   getUserPointsForWeek,

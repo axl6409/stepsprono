@@ -10,6 +10,7 @@ const {getAllTeams} = require("./src/services/teamService");
 const {sendNotificationsToAll} = require("./src/services/fcmService");
 const {betsCloseNotification, weekEndedNotification} = require("./src/services/notificationService");
 const {autoContribution} = require("./src/services/contributionService");
+const {setAllUsersPending} = require("./src/services/userService");
 
 async function updatePlayersForAllTeamsSequentially(teams) {
   for (let i = 0; i < teams.length; i++) {
@@ -21,6 +22,11 @@ async function updatePlayersForAllTeamsSequentially(teams) {
 }
 
 const runCronJob = () => {
+
+  cron.schedule('50 23 10 08 *', async () => {
+    logger.info('[CRON]=> 50 23 10 08 * => updateUsersStatus');
+    await setAllUsersPending();
+  })
 
   // Every day at 00:01
   cron.schedule('0 1 * * *', async () => {

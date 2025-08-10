@@ -35,6 +35,7 @@ const Rewards = () => {
       });
       const fetchedUserRewards = response.data;
       if (fetchedUserRewards.length === undefined || fetchedUserRewards.length === 0) {
+        setUserRewards([]);
         return;
       }
       setUserRewards(fetchedUserRewards);
@@ -88,7 +89,7 @@ const Rewards = () => {
     if (user) {
       fetchRewards();
     }
-  }, [user, userId, token]);
+  }, [user, userId, token, rewards]);
 
   useEffect(() => {
     fetchUserRewards();

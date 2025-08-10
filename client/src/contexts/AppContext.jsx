@@ -19,8 +19,12 @@ export const AppProvider = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userRequests, setUserRequests] = useState([]);
   const [matchsCronTasks, setMatchsCronTasks] = useState([]);
+  const [currentSeason, setCurrentSeason] = useState([]);
 
   useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchCurrentSeason();
+    }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
       fetchUsersRequests()
@@ -102,8 +106,38 @@ export const AppProvider = ({ children }) => {
     }
   }
 
+  const fetchCurrentSeason = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/seasons/current/datas/61`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      setCurrentSeason(response.data.currentSeason)
+    } catch (error) {
+      console.log('Erreur lors de la récupération de la saison actuelle', error);
+    }
+  }
+
   return (
-    <AppContext.Provider value={{ fetchAPICalls, apiCalls, isDebuggerActive, toggleDebugger, isDebuggerOpen, toggleDebuggerModal, userRequests, refreshUserRequests, isCountDownPopupOpen, toggleCountDownModal, menuOpen, setMenuOpen, matchsCronTasks, fetchMatchsCronJobs, isLoading, setIsLoading }}>
+    <AppContext.Provider
+      value={{
+        fetchAPICalls,
+        apiCalls,
+        isDebuggerActive,
+        toggleDebugger,
+        isDebuggerOpen,
+        toggleDebuggerModal,
+        userRequests,
+        currentSeason,
+        refreshUserRequests,
+        isCountDownPopupOpen,
+        toggleCountDownModal,
+        menuOpen,
+        setMenuOpen,
+        matchsCronTasks,
+        fetchMatchsCronJobs,
+        isLoading,
+        setIsLoading
+      }}>
       {children}
     </AppContext.Provider>
   );

@@ -1,5 +1,5 @@
 // Reglement.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -18,6 +18,10 @@ const Reglement = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
   const navigate = useNavigate();
+  const [showVideo, setShowVideo] = useState(user?.status === "pending");
+  const [videoEnded, setVideoEnded] = useState(false);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   // Récupère le texte du règlement
   useEffect(() => {
@@ -64,9 +68,68 @@ const Reglement = () => {
     setTimeout(() => setAlertMessage(''), 2000);
   };
 
+  const handleReplay = () => {
+    setShowVideo(true);
+    setVideoEnded(false);
+  };
+
+  useEffect(() => {
+    if (!showVideo) return;
+    const v = videoRef.current;
+    if (!v) return;
+
+    const tryPlay = async () => {
+      try {
+        await v.play(); // essaie avec l’état courant
+      } catch {
+        v.muted = true; // force muet si bloqué
+        try { await v.play(); } catch {}
+      }
+    };
+
+    v.load(); // certains navigateurs exigent load() avant play()
+    tryPlay();
+  }, [showVideo]);
+
   return (
     <div className="reglement-container relative z-10 px-8 py-12">
       <AlertModal message={alertMessage} type={alertType} />
+
+      {showVideo && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          <video
+            ref={videoRef}
+            src="/videos/presentation-SP-25-26.mp4"
+            className="w-full h-full object-contain md:object-cover"
+            autoPlay
+            muted={isMuted}
+            playsInline
+            preload="auto"
+            onEnded={() => { setShowVideo(false); setVideoEnded(true); }}
+            onContextMenu={(e)=>e.preventDefault()}
+            controls={false}
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+          />
+          {isMuted && (
+            <button
+              onClick={() => { setIsMuted(false); videoRef.current?.play(); }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white text-white"
+            >
+              Activer le son
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="w-full flex justify-center mb-4">
+        <button
+          onClick={handleReplay}
+          className="bg-blue-medium text-white px-4 py-2 rounded-full"
+        >
+          Voir la vidéo
+        </button>
+      </div>
 
       {user.status !== "pending" && (
         <BackButton/>
