@@ -11,6 +11,7 @@ const ContributionForm = ({ onSubmit, onClose }) => {
   const [matchdays, setMatchdays] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedMatchday, setSelectedMatchday] = useState("");
+  const [amount, setAmount] = useState(0);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,17 +46,15 @@ const ContributionForm = ({ onSubmit, onClose }) => {
 
   const toggleUserSelection = (userId) => {
     if (selectedUsers.includes(userId)) {
-      // Si l'utilisateur est déjà sélectionné, on le retire du tableau
       setSelectedUsers(selectedUsers.filter(id => id !== userId));
     } else {
-      // Sinon, on l'ajoute
       setSelectedUsers([...selectedUsers, userId]);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ userId: selectedUsers, matchday: selectedMatchday });
+    onSubmit({ userId: selectedUsers, matchday: selectedMatchday, amount: amount });
   };
 
   return (
@@ -108,11 +107,38 @@ const ContributionForm = ({ onSubmit, onClose }) => {
           required
         >
           <option translate="no" value="">Quelle journée ?</option>
+          <option translate="no" value="1">1</option>
           {matchdays.map((matchday) => (
             <option key={matchday} value={matchday}>
               Journée {matchday}
             </option>
           ))}
+        </select>
+      </div>
+
+      <div className="form-group mb-6 flex flex-row justify-between">
+        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="matchday">Montant</label>
+        <select
+          translate="no"
+          id="matchday"
+          className="relative w-2/3 border border-black rounded-md shadow-flat-black-adjust py-1"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+        >
+          <option translate="no" value="">Montant</option>
+          <option translate="no" key="5" value="5">
+            5€
+          </option>
+          <option translate="no" key="10" value="10">
+            10€
+          </option>
+          <option translate="no" key="15" value="15">
+            15€
+          </option>
+          <option translate="no" key="20" value="20">
+            20€
+          </option>
         </select>
       </div>
 

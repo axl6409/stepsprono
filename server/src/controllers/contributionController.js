@@ -28,8 +28,9 @@ router.delete('/contribution/delete', authenticateJWT, checkTreasurer, async (re
 router.post('/contribution/new/:userId', authenticateJWT, checkTreasurer, async (req, res) => {
   try {
     const userId = req.params.userId;
-    const matchday = req.body.matchday
-    const contribution = await addUserContribution(userId, matchday);
+    const matchday = req.body.matchday;
+    const amount = req.body.amount;
+    const contribution = await addUserContribution(userId, matchday, amount);
     res.status(201).json(contribution);
   } catch (error) {
     res.status(500).json({ error: error.message });

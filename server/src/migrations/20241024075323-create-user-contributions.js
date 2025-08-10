@@ -32,6 +32,11 @@ module.exports = {
         allowNull: false,
         field: 'matchday'
       },
+      amount: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        field: 'amount'
+      },
       season_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

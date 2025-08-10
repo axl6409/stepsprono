@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'matchday'
     },
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: 'amount'
+    },
     season_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

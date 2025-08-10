@@ -17,22 +17,20 @@ const {getMatchdayRanking} = require("./betService");
  * @return {Promise<{success: boolean, message: string}>} A promise that resolves to an object with a `success` boolean and a `message` string indicating the result of the operation.
  * @throws {Error} If there is an error while adding the contribution.
  */
-const addUserContribution = async (userId, matchday) => {
+const addUserContribution = async (userId, matchday, amount = 10) => {
   try {
     const competitionId = await getCurrentCompetitionId()
     const seasonId = await getCurrentSeasonId(competitionId);
     let currentMatchday = matchday || await getCurrentMatchday();
     const createdAt = await getMatchdayPeriod(currentMatchday)
 
-    logger.info('[ADD Contribution]')
-    console.log(matchday)
-    console.log(currentMatchday)
-    console.log(createdAt.endDate)
+    logger.info(`[ADD Contribution] matchday ${matchday} userId ${userId} amount ${amount} currentMatchday ${currentMatchday} createdAt ${createdAt.endDate}`)
 
     const userContribution = await UserContribution.create({
       user_id: userId,
       status: 'pending',
       matchday: currentMatchday,
+      amount: amount,
       season_id: seasonId,
       competition_id: competitionId,
       createdAt: createdAt.endDate,
@@ -64,7 +62,10 @@ const getContributionsByUsers = async () => {
     const competitionId = await getCurrentCompetitionId();
     const currentSeasonId = await getCurrentSeasonId(competitionId);
     const contributions = await UserContribution.findAll({
-      where: currentSeasonId,
+      where: {
+        season_id: currentSeasonId,
+        competition_id: competitionId
+      },
       include: [
         {
           model: User,
@@ -93,6 +94,7 @@ const getContributionsByUsers = async () => {
         id: contribution.id,
         status: contribution.status,
         matchday: contribution.matchday,
+        amount: contribution.amount,
         createdAt: contribution.createdAt,
         updatedAt: contribution.updatedAt
       });
@@ -211,6 +213,7 @@ const autoContribution = async () => {
         user_id: user.user_id,
         status: 'pending',
         matchday: currentMatchday,
+        amount: 10,
         season_id: seasonId,
         competition_id: competitionId,
         createdAt: createdAt.endDate,

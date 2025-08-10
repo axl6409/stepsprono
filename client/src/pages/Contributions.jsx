@@ -36,6 +36,7 @@ const Contributions = () => {
   const [isModalUnlockedOpen, setIsModalUnlockedOpen] = useState(false);
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
+  const formatEUR = (n) => `${Math.round(Number(n) || 0)}`;
 
   useEffect(() => {
     fetchContributions();
@@ -50,9 +51,14 @@ const Contributions = () => {
         }
       });
 
-      const sortedContributions = response.data.sort((a, b) => {
-        return b.contributions.length - a.contributions.length;
+      const enriched = response.data.map(u => {
+        const totalReceived = u.contributions.reduce((sum, c) => {
+          return sum + (c.status === 'received' ? (Number(c.amount) || 0) : 0);
+        }, 0);
+        return { ...u, totalReceived };
       });
+
+      const sortedContributions = enriched.sort((a, b) => b.totalReceived - a.totalReceived);
 
       setContributions(sortedContributions);
 
@@ -146,7 +152,8 @@ const Contributions = () => {
     try {
       const promises = data.userId.map(async (userId) => {
         const response = await axios.post(`${apiUrl}/api/contribution/new/${userId}`, {
-          matchday: data.matchday
+          matchday: data.matchday,
+          amount: data.amount
         }, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -245,8 +252,10 @@ const Contributions = () => {
     }
   };
 
-  const totalContributions = contributions.reduce((total, contribution) => {
-    return total + contribution.contributions.length;
+  const totalContributions = contributions.reduce((sumUsers, u) => {
+    return sumUsers + u.contributions.reduce((sum, c) => {
+      return sum + (c.status === 'received' ? (Number(c.amount) || 0) : 0);
+    }, 0);
   }, 0);
 
   return (
@@ -260,6 +269,10 @@ const Contributions = () => {
             onClick={() => setIsModalOpen(true)}>
             <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">+</span>
           </button>
+        </>
+      )}
+      {(user.role === 'admin' || user.role === 'manager') && (
+        <>
           <button
             className="absolute z-[25] bg-red-medium top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
             onClick={() => setIsModalBlockedOpen(true)}>
@@ -282,7 +295,7 @@ const Contributions = () => {
           <p
             translate="no"
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-rubik text-xl4 stroke-black font-black text-white leading-7">
-            {totalContributions}0
+            {formatEUR(totalContributions)}
           </p>
         </div>
         <div>
@@ -300,7 +313,7 @@ const Contributions = () => {
               </p>
               <p
                 className="absolute top-6 left-14 font-black font-rubik text-xl5 text-yellow-light text-stroke-black-2">
-                {bestContributor.contributions.length}
+                {formatEUR(bestContributor.totalReceived)}
               </p>
             </div>
           )}
@@ -314,14 +327,17 @@ const Contributions = () => {
               key={index}>
               {contribution.user ? (
                 <div
-                  className="relative flex flex-row justify-start items-center rounded-t-xl rounded-l-2xl bg-purple-light border-b border-black py-2 pl-10"
+                  className="relative flex flex-col justify-start items-center rounded-t-xl rounded-l-2xl bg-purple-light border-b border-black py-2 pl-10"
                   style={{backgroundColor: userColors[contribution.user.id] + "60"}}>
                 <img
                     className="object-center absolute -left-3.5 -top-3.5 w-[60px] h-[60px] rounded-full object-cover border-l-2 border-t-2 border-b border-r border-black"
                     src={contribution.user.img ? `${apiUrl}/uploads/users/${contribution.user.id}/${contribution.user.img}` : defaultUserImage}
                     alt={contribution.user.username}/>
-                  <p className="w-full text-center font-rubik text-base font-medium text-black">
+                  <p className="w-full text-center font-rubik text-base font-medium text-black leading-5">
                     {contribution.user.username}
+                  </p>
+                  <p className="w-full text-center font-rubik text-xxs font-regular text-black leading-3">
+                    Total reçu : {formatEUR(contribution.totalReceived)}
                   </p>
                 </div>
               ) : (
@@ -329,7 +345,7 @@ const Contributions = () => {
                   Utilisateur non défini
                 </p>
               )}
-              <ul className="p-5">
+              <ul className="p-4">
                 {contribution.contributions.map((contrib, index) => (
                   <li
                     className="flex flex-row justify-between relative my-2"
@@ -344,19 +360,22 @@ const Contributions = () => {
                       </button>
                     )}
                     <p
-                      className="font-sans text-sm font-medium text-black mr-4">
+                      className="font-sans text-xs font-regular text-black">
                       Journée {contrib.matchday}
+                    </p>
+                    <p className="font-sans text-xs font-semibold text-black">
+                      {formatEUR(contrib.amount)}€
                     </p>
                     <p className="font-sans text-base font-medium text-black">
                       {contrib.status === 'pending' ? (
                         <span className="text-center flex flex-row justify-center items-center">
                           <FontAwesomeIcon icon={faSackXmark}
-                                           className="font-rubik w-full font-black text-red-medium text-l inline-block"/>
+                                           className="font-rubik w-full font-black text-red-medium text-sm inline-block"/>
                         </span>
                       ) : (
                         <span className="text-center flex flex-row justify-center items-center">
                           <FontAwesomeIcon icon={faSackDollar}
-                                           className="font-rubik w-full font-black text-green-soft text-l inline-block"/>
+                                           className="font-rubik w-full font-black text-green-soft text-sm inline-block"/>
                         </span>
                       )}
                     </p>

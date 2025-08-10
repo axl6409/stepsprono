@@ -113,6 +113,7 @@ const Reglement = () => {
           />
           {isMuted && (
             <button
+              translate="no"
               onClick={() => { setIsMuted(false); videoRef.current?.play(); }}
               className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white text-white"
             >
@@ -124,6 +125,7 @@ const Reglement = () => {
 
       <div className="w-full flex justify-center mb-4">
         <button
+          translate="no"
           onClick={handleReplay}
           className="bg-blue-medium text-white px-4 py-2 rounded-full"
         >
@@ -151,6 +153,7 @@ const Reglement = () => {
       {user.status === "pending" && (
         <>
           <button
+            translate="no"
             onClick={handleRefuse}
             className="w-4/5 block my-4 mx-auto relative before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-black before:border before:border-black group"
           >
@@ -159,6 +162,7 @@ const Reglement = () => {
             </span>
           </button>
           <button
+            translate="no"
             onClick={handleAccept}
             className="w-4/5 block my-4 mx-auto relative before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-black before:border before:border-black group"
           >
