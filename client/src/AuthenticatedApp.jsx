@@ -74,11 +74,11 @@ const AuthenticatedApp = () => {
     <>
       <Navbar />
       <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
-        <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: '0.2', pointerEvents: 'none' }}>
+        <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: '0.3', pointerEvents: 'none' }}>
           <Particles
             particleColors={['#000000', '#000000']}
             particleCount={500}
-            particleSpread={12}
+            particleSpread={15}
             speed={0.2}
             particleBaseSize={100}
             moveParticlesOnHover={false}

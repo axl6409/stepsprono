@@ -20,9 +20,13 @@ import AlertModal from "../components/partials/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
 import statsIcon from "../assets/icons/chart-simple-solid.svg";
+import {AppContext} from "../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = ({ userId: propUserId }) => {
+  const {
+    currentSeason
+  } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
   const { ranking, rankingType, fetchRanking, isLoading: rankingIsLoading } = useContext(RankingContext);
@@ -217,11 +221,11 @@ const Dashboard = ({ userId: propUserId }) => {
   const teamLogoUrl = profileUser.team?.logo_url;
 
   return (
-    <div {...handlers} className="text-center relative flex flex-col justify-center overflow-x-hidden" key={userId}>
+    <div {...handlers} className="text-center relative z-[12] flex flex-col justify-center overflow-x-hidden" key={userId}>
       {isModalOpen && (
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
-      <div className="flex flex-row justify-between px-4 py-2 mb-4">
+      <div className="flex flex-row justify-between px-4 py-2 mb-12">
         {userId === user.id ? (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
@@ -254,6 +258,13 @@ const Dashboard = ({ userId: propUserId }) => {
           </Link>
         )}
         <div>
+          <p translate="no"  className="relative fade-in">
+            <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-l stroke-black font-black leading-8">{currentSeason.year} - {currentSeason.year + 1}</span>
+            <span
+              className={`block relative z-[10] font-rubik text-l stroke-black font-black text-green-light leading-8`}>
+              {currentSeason.year} - {currentSeason.year + 1}
+            </span>
+          </p>
           <p translate="no"  className="fade-in">
             <span className="block text-black uppercase font-bold text-xs font-roboto">Position</span>
           </p>

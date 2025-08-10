@@ -69,7 +69,6 @@ const RankingProvider = ({ children }) => {
           lastFetched: now
         }
       }));
-      console.log("RankingContext: ",sortedRanking);
     } catch (error) {
       console.error(`Erreur lors de la récupération du classement ${type}`, error);
     } finally {

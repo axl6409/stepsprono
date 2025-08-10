@@ -55,6 +55,21 @@ const getCurrentSeasonId = async (competitionId) => {
   }
 }
 
+const getCurrentSeasonDatas = async (competitionId) => {
+  try {
+    if (!competitionId) return "Please provide a competition id";
+    const currentSeason = await Season.findOne({
+      where: {
+        competition_id: competitionId,
+        current: true,
+      }
+    });
+    return currentSeason;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des données:', error);
+  }
+}
+
 /**
  * Retrieves the year of the current season for a given competition ID.
  *
@@ -168,6 +183,7 @@ module.exports = {
   getCurrentSeason,
   updateSeasons,
   getCurrentSeasonId,
+  getCurrentSeasonDatas,
   getCurrentSeasonYear,
   checkAndAddNewSeason,
   getSeasonDates,
