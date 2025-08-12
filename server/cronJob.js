@@ -23,10 +23,10 @@ async function updatePlayersForAllTeamsSequentially(teams) {
 
 const runCronJob = () => {
 
-  cron.schedule('50 23 10 08 *', async () => {
-    logger.info('[CRON]=> 50 23 10 08 * => updateUsersStatus');
-    await setAllUsersPending();
-  })
+  // cron.schedule('50 23 10 08 *', async () => {
+  //   logger.info('[CRON]=> 50 23 10 08 * => updateUsersStatus');
+  //   await setAllUsersPending();
+  // })
 
   // Every day at 00:01
   cron.schedule('0 1 * * *', async () => {

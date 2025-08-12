@@ -127,7 +127,7 @@ const AdminRewards = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto py-20">
+    <div className="relative z-[11] inline-block w-full h-auto py-20">
       <BackButton />
       <SimpleTitle title={"Gestion des trophées"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
       <button
@@ -144,23 +144,19 @@ const AdminRewards = () => {
         </button>
         <ul className="px-4">
           {rewards.map((reward) => (
-            <li key={reward.id} className="relative border-2 border-black shadow-flat-black rounded my-6 py-2 px-4 flex flex-row flex-wrap justify-between items-center space-x-4">
+            <li key={reward.id} className="relative border-2 border-black shadow-flat-black rounded-xl my-6 py-2 px-4 flex flex-row flex-wrap justify-between items-center bg-white">
               <p className="absolute -top-3 -left-3 font-roboto text-center before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:translate-x-0.5 before:translate-y-0.5 before:border-black before:border group">
                 <span className="relative block z-[2] text-white bg-black rounded-full font-[100%] w-[25px] h-[25px]">{reward.id}</span>
               </p>
               <p className="w-full font-roboto text-base text-center font-medium">{reward.name}</p>
-              <div className="flex flex-col max-w-[50%]">
-                <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name} className="w-auto h-[135px]"/>
+              <div className="flex flex-col max-w-[35%]">
+                <img src={`${apiUrl}/uploads/trophies/${reward.id}/${reward.image}`} alt={reward.name} className="w-auto h-[100px]"/>
               </div>
-              <div className="flex flex-row justify-end max-w-[50%]">
+              <div className="flex flex-row justify-end max-w-[65%]">
                 <button onClick={() => handleEdit(reward)}
                         className="bg-yellow-500 text-white px-2 py-1 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">
                   <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
                 </button>
-                {/*<button onClick={() => handleDelete(reward.id)}*/}
-                {/*        className="bg-red-500 text-white px-2 py-1 mx-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none">*/}
-                {/*  <img className="w-auto h-[20px]" src={navClose} alt="Icone modifier"/>*/}
-                {/*</button>*/}
                 <button
                   className="bg-blue-500 text-white px-2 py-1 ml-2 rounded shadow-flat-black-adjust transition-shadow duration-300 ease-out hover:shadow-none"
                   onClick={() => triggerEvent(reward.slug)}
@@ -173,11 +169,11 @@ const AdminRewards = () => {
                   <img className="w-auto h-[20px]" src={userAdd} alt="Icone modifier"/>
                 </button>
                 <button
-                  className={`w-[70px] h-[27px] flex items-center rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
+                  className={`w-[50px] h-[27px] inline-block rounded-full ml-2 border-2 border-black px-1 shadow-flat-black-adjust focus:outline-none ${reward.active ? 'bg-green-lime-deep' : 'bg-gray-400'}`}
                   onClick={() => toggleActive(reward)}
                 >
                   <div
-                    className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-6' : ''}`}
+                    className={`bg-white w-5 h-5 rounded-full border-2 border-black shadow-md transition-transform duration-200 ease-out transform ${reward.active ? 'translate-x-5' : ''}`}
                   ></div>
                 </button>
               </div>

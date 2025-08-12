@@ -149,7 +149,7 @@ const EditUser = () => {
   };
 
   return (
-    <div className="py-20">
+    <div className="py-20 relative z-[11]">
       {isModalOpen && (
         <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
       )}
