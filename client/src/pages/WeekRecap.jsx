@@ -165,9 +165,12 @@ const WeekRecap = () => {
                             : prediction.winner_id === match.away_team_id
                               ? match.AwayTeam
                               : null;
-
+                          const matchResult = match.status === 'FT'
+                            ? match.winner_id
+                            : null;
+                          console.log(matchResult)
                           return (
-                            <div key={`${user.id}-${match.id}`} className="px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center" style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${matchResult === prediction.winner_id ? 'bg-green-light' : matchResult === null ? 'bg-yellow-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               {winnerTeam ? (
                                 <img className="h-[50px] w-[50px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
                               ) : (
