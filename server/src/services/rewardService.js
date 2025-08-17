@@ -17,6 +17,7 @@ const {getWeekDateRange, getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDa
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
 const {Op} = require("sequelize");
 const {earnTrophyNotification} = require("./notificationService");
+const {getCurrentCompetitionId} = require("./competitionService");
 
 /**
  * Retrieves all rewards from the database.
@@ -157,28 +158,44 @@ const toggleActivation = async (id, active) => {
  */
 const assignReward = async (data) => {
   try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
     const { user_id, reward_id, count } = data;
-    const userData = getUserDatas(user_id)
+    const userData = await getUserDatas(user_id)
     const existingReward = await UserReward.findOne({
-      where: {
-        user_id: user_id,
-        reward_id: reward_id
-      }
+      where: { user_id, reward_id, season_id: seasonId },
+      include: [{ model: Reward, as: 'Reward', attributes: ['name'] }]
     });
     if (!existingReward) {
-      await UserReward.create({
+      const newReward = await UserReward.create({
         user_id,
         reward_id,
-        count
+        count,
+        season_id: seasonId
+      }, {
+        include: [{ model: Reward, as: 'Reward', attributes: ['name'] }]
+      });
+      await newReward.reload({
+        include: [{ model: Reward, as: 'Reward', attributes: ['name'] }]
       });
       logger.info(`[assignReward] Trophée attribué à l'utilisateur ${user_id}`);
+      if (!userData || !userData.id) {
+        logger.warn('[assignReward] userData manquant ou invalide pour la notification', { user_id });
+      } else {
+        await earnTrophyNotification(userData, newReward.Reward.name);
+      }
     } else {
+      await existingReward.reload({ include: [{ model: Reward, as: 'Reward', attributes: ['name'] }] });
       logger.info(`[assignReward] Avant incrémentation : ${JSON.stringify(existingReward)}`);
       existingReward.count += 1;
       await existingReward.save();
       logger.info(`[assignReward] Après incrémentation : ${JSON.stringify(existingReward)}`);
       logger.info(`[assignReward] Trophée réattribué à l'utilisateur ${user_id}`);
-      await earnTrophyNotification(userData, existingReward.reward.name);
+      if (!userData || !userData.id) {
+        logger.warn('[assignReward] userData manquant ou invalide pour la notification', { user_id });
+      } else {
+        await earnTrophyNotification(userData, existingReward.Reward.name);
+      }
     }
   } catch (error) {
     logger.error("[assignReward] Error assigning reward => ", error);

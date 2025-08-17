@@ -24,23 +24,9 @@ async function betsCloseNotification(type) {
         icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
       };
 
-      const matchDayAt09h = new Date(firstMatchDate);
-      matchDayAt09h.setHours(9, 0, 0, 0);
-
-      const notificationMessage2 = {
-        title: '🚨 Fermeture des pronostics dans 3 heures !',
-        body: `Attention bandit ! Les pronostics seront fermés dans 3 heures !`,
-        icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
-      };
-
       if (type === 'dayBefore' || (type === 'all' && now.getTime() === dayBeforeAt18h.getTime())) {
         await sendNotificationsToAll(notificationMessage1);
         logger.info('Notification envoyée pour la veille à 18h.');
-      }
-
-      if (type === 'matchDay' || (type === 'all' && now.getTime() === matchDayAt09h.getTime())) {
-        await sendNotificationsToAll(notificationMessage2);
-        logger.info('Notification envoyée pour le jour même à 9h.');
       }
     }
   } catch (error) {
@@ -105,6 +91,7 @@ async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore 
 
 async function earnTrophyNotification(user, trophyName) {
   try {
+    console.log(user.id);
     const notificationMessage = {
       title: `🏅 Nouveau badge gagné !`,
       body : `Adio ${user.username} ! tu as remporté le badge ${trophyName}`,
