@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
    */
   UserReward.associate = (models) => {
     UserReward.belongsTo(models.User, { foreignKey: 'user_id' });
-    UserReward.belongsTo(models.Reward, { foreignKey: 'reward_id' });
+    UserReward.belongsTo(models.Reward, { foreignKey: 'reward_id', as: 'Reward' });
     UserReward.belongsTo(models.Season, { foreignKey: 'season_id' });
   }
 

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useCookies } from "react-cookie";
 import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
+import UserMultiSelect from "./fields/UserMultiSelect.jsx";
 
 const ContributionForm = ({ onSubmit, onClose }) => {
   const [cookies] = useCookies(['token']);
@@ -65,35 +66,14 @@ const ContributionForm = ({ onSubmit, onClose }) => {
 
       <div className="form-group mb-6 flex flex-row justify-between">
         <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
-        <div className="relative w-2/3">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          </div>
-          <div className="w-full border border-black rounded-md shadow-flat-black-adjust">
-            {users.length > 0 ? (
-              <ul className="w-full bg-white border border-gray-300 rounded-md max-h-40 overflow-auto">
-                {users.map(user => (
-                  <li
-                    key={user.id}
-                    onClick={() => toggleUserSelection(user.id)}
-                    className={`cursor-pointer p-2 flex items-center ${selectedUsers.includes(user.id) ? 'bg-blue-medium' : ''}`}
-                  >
-                    <img
-                      src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
-                      alt={user.username}
-                      className="w-8 h-8 rounded-full object-cover object-center mr-3"
-                    />
-                    <span translate="no" className={`${selectedUsers.includes(user.id) ? 'text-white' : ''}`}>{user.username}</span>
-                    {selectedUsers.includes(user.id) && (
-                      <span translate="no" className="ml-auto text-white font-bold">✔</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div translate="no" className="p-4">Chargement des utilisateurs...</div>
-            )}
-          </div>
-        </div>
+        <UserMultiSelect
+          items={users}
+          value={selectedUsers}
+          onChange={setSelectedUsers}
+          getLabel={(u) => u.username}
+          getAvatar={(u) => u.img ? `${apiUrl}/uploads/users/${u.id}/${u.img}` : defaultUserImage}
+          placeholder="Choisir des utilisateurs…"
+        />
       </div>
 
       <div className="form-group mb-6 flex flex-row justify-between">

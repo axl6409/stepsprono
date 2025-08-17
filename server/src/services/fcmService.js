@@ -3,6 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const serviceAccount = require(path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS));
 const {NotificationSubscription} = require("../models");
+const logger = require("../utils/logger/logger");
 
 async function getAccessToken() {
   try {
@@ -11,20 +12,20 @@ async function getAccessToken() {
       scopes: ['https://www.googleapis.com/auth/firebase.messaging']
     });
     const accessToken = await auth.getAccessToken();
-    console.log('AccessToken obtenu:', accessToken);
+    logger.info('[sendNotification] AccessToken obtenu:', accessToken);
     return accessToken;
   } catch (error) {
-    console.error('Erreur lors de l\'obtention du token d\'accès:', error);
+    logger.error('[sendNotification] Erreur lors de l\'obtention du token d\'accès:', error);
   }
 }
 
 async function sendNotification(token, title, message) {
   const accessToken = await getAccessToken();
 
-  if (!accessToken) return console.error('Empty accessToken var');
-  if (!message) return console.error('Empty message var');
-  if (!title) return console.error('Empty title var');
-  if (!token) return console.error('Empty token var');
+  if (!accessToken) return logger.error('[sendNotification] Empty accessToken var');
+  if (!message) return logger.error('[sendNotification] Empty message var');
+  if (!title) return logger.error('[sendNotification] Empty title var');
+  if (!token) return logger.error('[sendNotification] Empty token var');
 
   const payload = {
     message: {
@@ -52,15 +53,15 @@ async function sendNotification(token, title, message) {
       },
     });
 
-    console.log('Notification envoyée avec succès:', response.data);
+    logger.info('[sendNotification] Notification envoyée avec succès:', response.data);
   } catch (err) {
     const status = err.response?.status;
     const details = err.response?.data?.error?.details?.[0]?.errorCode;
     if (status === 404 && details === 'UNREGISTERED') {
       await NotificationSubscription.destroy({ where: { endpoint: token } });
-      console.log('Token supprimé :', token);
+      logger.info('[sendNotification] Token supprimé :', token);
     } else {
-      console.error('Erreur FCM inattendue pour', token, err);
+      logger.error('[sendNotification] Erreur FCM inattendue pour', token, err);
     }
   }
 }
@@ -73,13 +74,25 @@ const sendNotificationsToAll = async (message) => {
 };
 
 const sendNotificationToOne = async (userId, message) => {
-  const subscription = await NotificationSubscription.findAll({
-    where: {
-      user_id: userId,
+  if (!userId) throw new Error('userId manquant pour l’envoi de notification');
+
+  const subscriptions = await NotificationSubscription.findAll({
+    where: { user_id: userId }
+  });
+
+  if (!subscriptions || subscriptions.length === 0) {
+    logger.info(`Aucun abonnement de notification pour l’utilisateur ${userId}`);
+    return;
+  }
+
+  for (const sub of subscriptions) {
+    try {
+      await sendNotification(sub.endpoint, message.title, message.body);
+    } catch (e) {
+      logger.error(`Échec d’envoi de notif à ${sub.endpoint} (user ${userId})`, e);
     }
-  })
-  await sendNotification(subscription.endpoint, message.title, message.body)
-}
+  }
+};
 
 module.exports = {
   sendNotification,

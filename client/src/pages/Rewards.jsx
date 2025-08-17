@@ -89,7 +89,7 @@ const Rewards = () => {
     if (user) {
       fetchRewards();
     }
-  }, [user, userId, token, rewards]);
+  }, [user, userId, token]);
 
   useEffect(() => {
     fetchUserRewards();
