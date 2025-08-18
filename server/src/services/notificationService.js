@@ -104,10 +104,25 @@ async function earnTrophyNotification(user, trophyName) {
   }
 }
 
+async function newContributionNeededNotification(user, amount) {
+  try {
+    const notificationMessage = {
+      title: `💵 Steps d'épargne`,
+      body : `tu passes à la banque l'ami ! Tu dois une contribution de ${amount}€ dans la steps d'épargne. A régler avant le ${moment().add(21, 'days').format('DD/MM/YYYY')} !`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+    await sendNotificationToOne(user.id, notificationMessage);
+    logger.info('Notification de contribution requise envoyée.');
+  } catch (error) {
+    logger.error('Erreur lors de l\'envoi de la notification de contribution requise :', error);
+  }
+}
+
 module.exports = {
   betsCloseNotification,
   testNotification,
   weekEndedNotification,
   matchEndedNotification,
-  earnTrophyNotification
+  earnTrophyNotification,
+  newContributionNeededNotification
 };

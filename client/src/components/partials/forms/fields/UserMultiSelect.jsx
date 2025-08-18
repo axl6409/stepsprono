@@ -35,7 +35,7 @@ export default function UserMultiSelect({
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative w-2/3 ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${className}`}>
       <button
         type="button"
         aria-haspopup="listbox"
@@ -53,13 +53,13 @@ export default function UserMultiSelect({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher..."
-              className="w-full border rounded px-2 py-1"
+              className="w-full font-roboto text-xxs border rounded px-2 py-1"
             />
             <div className="mt-2 flex gap-2">
-              <button type="button" onClick={selectAllFiltered} className="px-2 py-1 border rounded">
+              <button type="button" onClick={selectAllFiltered} className="px-2 py-1 font-roboto text-xxs border rounded">
                 Tout sélectionner (filtré)
               </button>
-              <button type="button" onClick={clearAll} className="px-2 py-1 border rounded">
+              <button type="button" onClick={clearAll} className="px-2 py-1 font-roboto text-xxs border rounded">
                 Effacer
               </button>
             </div>

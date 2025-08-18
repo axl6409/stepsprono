@@ -6,6 +6,7 @@ const {getCurrentSeasonId} = require("./seasonService");
 const {getCurrentMatchday} = require("./matchService");
 const {getMatchdayPeriod} = require("./appService");
 const {getMatchdayRanking} = require("./betService");
+const {newContributionNeededNotification} = require("./notificationService");
 
 /**
  * Adds a new contribution for a user.
@@ -22,28 +23,45 @@ const addUserContribution = async (userId, matchday, amount = 10) => {
     const competitionId = await getCurrentCompetitionId()
     const seasonId = await getCurrentSeasonId(competitionId);
     let currentMatchday = matchday || await getCurrentMatchday();
-    const createdAt = await getMatchdayPeriod(currentMatchday)
+    let createdAt;
+    if (currentMatchday > 0) {
+      createdAt = await getMatchdayPeriod(matchday);
+    }
 
-    logger.info(`[ADD Contribution] matchday ${matchday} userId ${userId} amount ${amount} currentMatchday ${currentMatchday} createdAt ${createdAt.endDate}`)
+    let userContribution;
 
-    const userContribution = await UserContribution.create({
-      user_id: userId,
-      status: 'pending',
-      matchday: currentMatchday,
-      amount: amount,
-      season_id: seasonId,
-      competition_id: competitionId,
-      createdAt: createdAt.endDate,
-      updatedAt: createdAt.endDate
-    });
-
+    if (currentMatchday > 0) {
+      userContribution = await UserContribution.create({
+        user_id: userId,
+        status: 'pending',
+        matchday: currentMatchday,
+        amount: amount,
+        season_id: seasonId,
+        competition_id: competitionId,
+        createdAt: createdAt.startDate,
+        updatedAt: createdAt.endDate
+      });
+      logger.info(`[ADD Contribution] matchday ${matchday} userId ${userId} amount ${amount} currentMatchday ${currentMatchday}`)
+      await newContributionNeededNotification(await User.findByPk(userId), amount);
+    } else {
+      userContribution = await UserContribution.create({
+        user_id: userId,
+        status: 'received',
+        matchday: currentMatchday,
+        amount: amount,
+        season_id: seasonId,
+        competition_id: competitionId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      logger.info(`[ADD Contribution] Adhésion réglée pour ${matchday} userId ${userId} amount ${amount}`)
+    }
     if (userContribution[0] > 0) {
       logger.info(`Contribution ajoutée`);
       return { success: true, message: `Contribution validée avec succès.` };
     } else {
       return { success: false, message: 'Erreur lors de la validation de la contribution.' };
     }
-
   } catch (error) {
     logger.error('Erreur lors de l\'ajout de la contribution :', error);
     throw error;

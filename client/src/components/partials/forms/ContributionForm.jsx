@@ -64,8 +64,8 @@ const ContributionForm = ({ onSubmit, onClose }) => {
       onSubmit={handleSubmit}>
       <h2 translate="no" className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">Ajouter une <br/>contribution</h2>
 
-      <div className="form-group mb-6 flex flex-row justify-between">
-        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
+      <div className="form-group mb-6 flex flex-col justify-between">
+        <label translate="no" className="w-full font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
         <UserMultiSelect
           items={users}
           value={selectedUsers}
@@ -87,7 +87,7 @@ const ContributionForm = ({ onSubmit, onClose }) => {
           required
         >
           <option translate="no" value="">Quelle journée ?</option>
-          <option translate="no" value="1">1</option>
+          <option translate="no" value="0">Contribution</option>
           {matchdays.map((matchday) => (
             <option key={matchday} value={matchday}>
               Journée {matchday}
