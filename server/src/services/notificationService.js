@@ -118,11 +118,41 @@ async function newContributionNeededNotification(user, amount) {
   }
 }
 
+async function blockedUserNotification(user) {
+  try {
+    const notificationMessage = {
+      title: `⛔️ Tu es bloqué ⛔️`,
+      body : `Tu as été bloqué par un administrateur ! Règle tes dettes et tu seras débloqué !`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+    await sendNotificationToOne(user.id, notificationMessage);
+    logger.info('Notification de blocage envoyée.');
+  } catch (error) {
+    logger.error('Erreur lors de l\'envoi de la notification de blocage :', error);
+  }
+}
+
+async function unlockedUserNotification(user) {
+  try {
+    const notificationMessage = {
+      title: `🚀 Tu es débloqué 🚀️`,
+      body : `Tu as été débloqué par un administrateur ! Tu peux maintenant rejouer !`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+    await sendNotificationToOne(user.id, notificationMessage);
+    logger.info('Notification de blocage envoyée.');
+  } catch (error) {
+    logger.error('Erreur lors de l\'envoi de la notification de blocage :', error);
+  }
+}
+
 module.exports = {
   betsCloseNotification,
   testNotification,
   weekEndedNotification,
   matchEndedNotification,
   earnTrophyNotification,
-  newContributionNeededNotification
+  newContributionNeededNotification,
+  blockedUserNotification,
+  unlockedUserNotification
 };

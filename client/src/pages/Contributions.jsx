@@ -116,7 +116,7 @@ const Contributions = () => {
   const handleUnlockUser = async (data) => {
     try {
       const promises = data.userId.map(async (userId) => {
-        const response = await axios.patch(`${apiUrl}/api/user/${userId}/accepted`, {
+        const response = await axios.patch(`${apiUrl}/api/user/${userId}/unlocked`, {
           id: data.userId
         }, {
           headers: {
@@ -271,7 +271,7 @@ const Contributions = () => {
           </button>
         </>
       )}
-      {(user.role === 'admin' || user.role === 'manager') && (
+      {(user.role === 'admin' || user.role === 'manager' || user.role === 'treasurer') && (
         <>
           <button
             className="absolute z-[25] bg-red-medium top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"

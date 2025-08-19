@@ -133,12 +133,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                       to="/matchs"
                       className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                     >
-                <span
-                  translate="no"
-                  className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
-                >
-                  {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
-                </span>
+                      <span
+                        translate="no"
+                        className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                      >
+                        {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                      </span>
                     </Link>
                   ) : (
                     <>
@@ -146,12 +146,12 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         to="/week-recap"
                         className="w-4/5 fade-in block relative mt-12 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                       >
-                  <span
-                    translate="no"
-                    className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
-                  >
-                    Voir tous les pronos
-                  </span>
+                        <span
+                          translate="no"
+                          className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
+                        >
+                          Voir tous les pronos
+                        </span>
                       </Link>
                     </>
                   )}
@@ -226,13 +226,13 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                               {bet.home_score !== null && bet.away_score !== null ? (
                                 <>
                                   <div className="relative flex flex-row justify-center items-center">
-                                    <img className="h-[50px] w-auto mt-[-15px] mr-[-10px] relative z-[1]"
+                                    <img className="h-[60px] w-auto mt-[-15px] mr-[-10px] relative z-[1]"
                                          src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                          alt={bet.MatchId.HomeTeam.name}/>
-                                    <img className="h-[40px] relative z-[3]"
+                                    <img className="h-[50px] relative z-[3] -ml-2"
                                          src={vsIcon}
                                          alt=""/>
-                                    <img className="h-[50px] w-auto mb-[-15px] ml-[-10px] relative z-[2]"
+                                    <img className="h-[60px] w-auto mb-[-15px] ml-[-10px] relative z-[2]"
                                          src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                          alt={bet.MatchId.AwayTeam.name}/>
                                   </div>
@@ -263,11 +263,11 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                 </div>
                               ) : (
                                 bet.winner_id === bet.MatchId.HomeTeam.id ? (
-                                  <img className="h-auto w-8"
+                                  <img className="h-auto w-10"
                                        src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
                                        alt={bet.MatchId.HomeTeam.name}/>
                                 ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
-                                  <img className="h-auto w-8"
+                                  <img className="h-auto w-10"
                                        src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
                                        alt={bet.MatchId.AwayTeam.name}/>
                                 ) : (

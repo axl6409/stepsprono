@@ -63,9 +63,9 @@ const BlockUsers = ({ onSubmit, onClose, blocked }) => {
       onSubmit={handleSubmit}>
       <h2 translate="no" className="font-rubik uppercase font-bold text-l text-pretty leading-6 mb-8">{!blocked ? "Débloquer des utilisateurs" : "Bloquer des utilisateurs" }</h2>
 
-      <div className="form-group mb-6 flex flex-row justify-between">
-        <label translate="no" className="w-1/3 font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
-        <div className={`relative w-2/3`}>
+      <div className="form-group mb-6 flex flex-col justify-between">
+        <label translate="no" className="w-full font-rubik font-medium text-sm text-pretty" htmlFor="user">Utilisateur(s)</label>
+        <div className={`relative w-full`}>
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           </div>
           {users.length > 0 ? (
