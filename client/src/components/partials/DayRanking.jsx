@@ -14,9 +14,11 @@ const DayRanking = ({ matchday, season, token, apiUrl }) => {
   useEffect(() => {
     const fetchRanking = async () => {
       if (!season) return;
+      const seasonId = typeof season === 'object' && season !== null ? season.id : season;
+      if (!seasonId) return;
       try {
         setIsLoading(true);
-        const response = await axios.get(`${apiUrl}/api/users/bets/ranking/${matchday}?seasonId=${season}`, {
+        const response = await axios.get(`${apiUrl}/api/users/bets/ranking/${matchday}?seasonId=${seasonId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

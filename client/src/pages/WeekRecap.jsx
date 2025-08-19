@@ -152,25 +152,25 @@ const WeekRecap = () => {
                       const prediction = getPredictionForMatchAndUser(match.id, user.id);
 
                       if (prediction) {
+                        const winnerTeam = prediction.winner_id === match.home_team_id
+                          ? match.HomeTeam
+                          : prediction.winner_id === match.away_team_id
+                            ? match.AwayTeam
+                            : null;
+                        const matchResult = match.status === 'FT'
+                          ? match.winner_id
+                          : null;
+
                         if (match.require_details) {
                           return (
-                            <div key={`${user.id}-${match.id}`} className="px-1 py-2 h-full relative text-xxs flex flex-col justify-center border-r border-black" style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 h-full relative text-xxs flex flex-col justify-center border-r border-black ${ matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               <span className="font-rubik font-bold text-l text-center">{prediction.home_score} : {prediction.away_score}</span>
                               <span className="font-rubik font-medium text-xxxs text-center leading-[10px]">{prediction.PlayerGoal ? `${prediction.PlayerGoal.name.length > 8 ? prediction.PlayerGoal.name.substring(0, 8) + '...' : prediction.PlayerGoal.name}` : 'Aucun butteur'}</span>
                             </div>
                           );
                         } else {
-                          const winnerTeam = prediction.winner_id === match.home_team_id
-                            ? match.HomeTeam
-                            : prediction.winner_id === match.away_team_id
-                              ? match.AwayTeam
-                              : null;
-                          const matchResult = match.status === 'FT'
-                            ? match.winner_id
-                            : null;
-                          console.log(matchResult)
                           return (
-                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${matchResult === prediction.winner_id ? 'bg-green-light' : matchResult === null ? 'bg-yellow-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${ matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               {winnerTeam ? (
                                 <img className="h-[50px] w-[50px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
                               ) : (

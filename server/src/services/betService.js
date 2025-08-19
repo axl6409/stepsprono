@@ -1,5 +1,5 @@
 const {Op} = require("sequelize");
-const {Bet, Match, Team, Player, User, Setting, UserRanking} = require("../models");
+const {Bet, Match, Team, Player, User, Setting, UserRanking, UserSeason} = require("../models");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getWeekDateRange, getMonthDateRange} = require("./appService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
@@ -465,7 +465,29 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
       seasonId = await getCurrentSeasonId(competitionId);
     }
     logger.info('Classement de la journée', seasonIdParam);
-    const users = await User.findAll();
+    const activeUsers = await UserSeason.findAll({
+      where: {
+        season_id: seasonId,
+        is_active: true
+      },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username', 'img'],
+        required: true
+      }]
+    });
+    console.log(activeUsers);
+    const activeUserIds = activeUsers.map(userSeason => userSeason.user_id);
+
+    if (activeUserIds.length === 0) {
+      return [];
+    }
+
+    const users = await User.findAll({
+      where: { id: activeUserIds },
+      attributes: ['id', 'username', 'img']
+    });
 
     const bets = await Bet.findAll({
       where: {

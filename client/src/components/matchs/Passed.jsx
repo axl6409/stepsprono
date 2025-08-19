@@ -145,11 +145,11 @@ const Passed = ({ token, user, onDayChange, selectedDay, onSeasonChange, selecte
   }, [matchs, season, token, user]);
 
   const handleSeasonChange = (event) => {
-    const selectedSeasonId = event.target.value;
-    const season = seasons.find(season => season.id === parseInt(selectedSeasonId, 10));
+    const selectedSeasonId = parseInt(event.target.value, 10);
+    const season = seasons.find(s => s.id === selectedSeasonId);
     setSeason(season);
-    onSeasonChange(season);
-    localStorage.setItem('selectedSeasonId', selectedSeasonId);
+    onSeasonChange(season.id);
+    localStorage.setItem('selectedSeasonId', String(selectedSeasonId));
   };
 
   const handleMatchdayChange = (newMatchday) => {

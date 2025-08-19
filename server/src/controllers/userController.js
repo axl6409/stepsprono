@@ -19,6 +19,7 @@ const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, ge
 const {updateLastConnect, getUserStats} = require("../services/userService");
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
+const {blockedUserNotification, unlockedUserNotification} = require("../services/notificationService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -255,11 +256,12 @@ router.patch('/user/:id/last-connect', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la mise à jour de la date de dernière connexion' });
   }
 });
-router.patch('/user/:id/accepted', authenticateJWT, async (req, res) => {
+router.patch('/user/:id/unlocked', authenticateJWT, async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
     await user.update({ status: 'approved' });
+    await unlockedUserNotification(user);
     res.status(200).json({ message: 'Utilisateur approuvé avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de l\'approuvage de l\'utilisateur' });
@@ -270,6 +272,7 @@ router.patch('/user/:id/blocked', authenticateJWT, async (req, res) => {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
     await user.update({ status: 'blocked' });
+    await blockedUserNotification(user);
     res.status(200).json({ message: 'Utilisateur bloqué avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors du blocage de l\'utilisateur' });
