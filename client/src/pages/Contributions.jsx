@@ -20,6 +20,7 @@ import userUnlockIcon from "../assets/icons/unlock.svg";
 import BlockUsers from "../components/partials/forms/BlockUsers.jsx";
 import InformationModal from "../components/partials/modals/InformationModal.jsx";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
+import InlineCopy from "../components/buttons/InlineCopy.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Contributions = () => {
@@ -37,6 +38,7 @@ const Contributions = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalBlockedOpen, setIsModalBlockedOpen] = useState(false);
   const [isModalUnlockedOpen, setIsModalUnlockedOpen] = useState(false);
+  const [isRibModalOpen, setIsRibModalOpen] = useState(false);
 
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [selectedContribution, setSelectedContribution] = useState(null);
@@ -275,6 +277,11 @@ const Contributions = () => {
     <div className="inline-block relative z-10 w-full h-auto py-20 overflow-x-hidden">
       <BackButton/>
       <SimpleTitle title={"Steps d'épargne"} stickyStatus={false}/>
+      <button
+        className="absolute z-[25] bg-orange-medium top-2 right-1/2 -translate-x-4 border-2 border-black w-[70px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+        onClick={() => setIsRibModalOpen(true)}>
+        <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">RIB</span>
+      </button>
       {(user.role === 'admin' || user.role === 'treasurer') && (
         <>
           <button
@@ -420,6 +427,19 @@ const Contributions = () => {
           onClose={() => setIsModalOpen(false)}
           blocked={false}
         />
+      </Modal>
+      <Modal isOpen={isRibModalOpen} onClose={() => setIsRibModalOpen(false)}>
+        <div>
+          <p className="text-center font-rubik text-base font-medium text-black mb-6">RIB Steps d'épargne</p>
+          <InlineCopy
+            label="IBAN"
+            value="FR76 1759 8000 0100 0190 2206 106"
+          />
+          <InlineCopy
+            label="BIC"
+            value="LYDIFRP2XXX"
+          />
+        </div>
       </Modal>
       <Modal isOpen={isActionModalOpen} onClose={() => setIsActionModalOpen(false)}>
         {selectedContribution && (

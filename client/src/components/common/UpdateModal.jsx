@@ -63,7 +63,6 @@ const UpdateModal = () => {
                 Une nouvelle version de l'application est disponible. Voulez-vous l'installer maintenant ?
               </p>
               <div className="font-roboto text-xs text-gray-600 mb-6">
-                {console.log(updateInfo)}
                 <span className="text-red-medium">Version actuelle: {updateInfo.currentVersion}</span> → <br />
                 <span className="text-green-lime-deep">Nouvelle version: {updateInfo.latestVersion}</span>
               </div>
