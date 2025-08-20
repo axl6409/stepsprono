@@ -9,7 +9,7 @@ const errorTransport = new transports.DailyRotateFile({
   level: 'error',
   zippedArchive: true,
   maxSize: '10m',
-  maxFiles: '4d'
+  maxFiles: '7d'
 });
 
 const warningTransport = new transports.DailyRotateFile({
@@ -18,7 +18,7 @@ const warningTransport = new transports.DailyRotateFile({
   level: 'warning',
   zippedArchive: true,
   maxSize: '10m',
-  maxFiles: '4d'
+  maxFiles: '7d'
 });
 
 const infoTransport = new transports.DailyRotateFile({
@@ -26,7 +26,7 @@ const infoTransport = new transports.DailyRotateFile({
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '10m',
-  maxFiles: '4d'
+  maxFiles: '7d'
 });
 
 const logger = createLogger({

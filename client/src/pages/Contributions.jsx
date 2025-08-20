@@ -8,7 +8,7 @@ import Modal from "../components/partials/modals/Modal.jsx";
 import defaultUserImage from "../assets/components/user/default-user-profile.png";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-  faCheck,
+  faCheck, faEuroSign,
   faSackDollar,
   faSackXmark, faTrash, faXmark
 } from "@fortawesome/free-solid-svg-icons";
@@ -26,14 +26,21 @@ const Contributions = () => {
   const { user, isAuthenticated } = useContext(UserContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
+
   const [isLoading, setIsLoading] = useState(true);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
+
   const [contributions, setContributions] = useState([]);
   const [bestContributor, setBestContributor] = useState(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalBlockedOpen, setIsModalBlockedOpen] = useState(false);
   const [isModalUnlockedOpen, setIsModalUnlockedOpen] = useState(false);
+
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [selectedContribution, setSelectedContribution] = useState(null);
+
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
   const formatEUR = (n) => `${Math.round(Number(n) || 0)}`;
@@ -252,6 +259,12 @@ const Contributions = () => {
     }
   };
 
+  const openActionModal = (contrib, userId) => {
+    if (!(user.role === 'admin' || user.role === 'treasurer')) return;
+    setSelectedContribution({ contrib, userId });
+    setIsActionModalOpen(true);
+  };
+
   const totalContributions = contributions.reduce((sumUsers, u) => {
     return sumUsers + u.contributions.reduce((sum, c) => {
       return sum + (c.status === 'received' ? (Number(c.amount) || 0) : 0);
@@ -274,14 +287,14 @@ const Contributions = () => {
       {(user.role === 'admin' || user.role === 'manager' || user.role === 'treasurer') && (
         <>
           <button
-            className="absolute z-[25] bg-red-medium top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+            className="absolute z-[25] bg-red-light top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
             onClick={() => setIsModalBlockedOpen(true)}>
-            <img className="w-full h-full object-contain object-center" src={userLockIcon} alt=""/>
+            <img className="w-full h-full object-contain object-center brightness-0" src={userLockIcon} alt=""/>
           </button>
           <button
-            className="absolute z-[25] bg-blue-medium top-2 right-32 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
+            className="absolute z-[25] bg-blue-light top-2 right-32 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
             onClick={() => setIsModalUnlockedOpen(true)}>
-            <img className="w-full h-full object-contain object-center" src={userUnlockIcon} alt=""/>
+            <img className="w-full h-full object-contain object-center brightness-0" src={userUnlockIcon} alt=""/>
           </button>
         </>
       )}
@@ -303,17 +316,17 @@ const Contributions = () => {
             <div className="flex flex-col items-center justify-center relative">
               <h2 className="font-rubik text-base font-medium text-black uppercase text-center leading-5">Meilleur <br/>contributeur
               </h2>
+              <p className="relative z-10 font-rubik text-xl3 -mt-2 -mb-8 text-center uppercase">
+                <span className="text-stroke-black-2 font-black text-white">{bestContributor.user.username}</span>
+              </p>
               <img
-                className="object-center w-[150px] h-[150px] my-2 rounded-full object-cover border-l-2 border-t-2 border-b border-r border-black"
+                className="object-center w-[150px] h-[150px] my-2 rounded-2xl shadow-flat-black object-cover border-l-2 border-t-2 border-b border-r border-black"
                 src={bestContributor.user.img ? `${apiUrl}/uploads/users/${bestContributor.user.id}/${bestContributor.user.img}` : defaultUserImage}
                 alt={bestContributor.user.username}
               />
-              <p className="font-rubik text-xl2 -mt-8 font-black text-center uppercase text-stroke-black-2 text-white">
-                {bestContributor.user.username}
-              </p>
               <p
-                className="absolute top-6 left-14 font-black font-rubik text-xl5 text-yellow-light text-stroke-black-2">
-                {formatEUR(bestContributor.totalReceived)}
+                className="relative z-10 font-black font-rubik text-xl5 text-yellow-light leading-4 -mt-4">
+                <span className="text-stroke-black-2">{formatEUR(bestContributor.totalReceived)}</span><span className="font-sans text-xl2 font-bold text-black absolute z-[5] -bottom-5 -right-3">€</span>
               </p>
             </div>
           )}
@@ -323,21 +336,21 @@ const Contributions = () => {
         <ul className="flex flex-row flex-wrap justify-between items-stretch">
           {contributions.map((contribution, index) => (
             <li
-              className="w-[46%] my-4 border border-black border-l-2 border-t-2 shadow-flat-black-adjust rounded-xl"
+              className="w-[46%] my-4 border border-black bg-white border-l-2 border-t-2 shadow-flat-black rounded-xl"
               key={index}>
               {contribution.user ? (
                 <div
                   className="relative flex flex-col justify-start items-center rounded-t-xl rounded-l-2xl bg-purple-light border-b border-black py-2 pl-10"
                   style={{backgroundColor: userColors[contribution.user.id] + "60"}}>
-                <img
-                    className="object-center absolute -left-3.5 -top-3.5 w-[60px] h-[60px] rounded-full object-cover border-l-2 border-t-2 border-b border-r border-black"
+                  <img
+                    className="object-center absolute -left-3.5 top-[-0.8rem] w-[60px] h-[60px] rounded-xl rounded-br-none object-cover border-l-2 border-t-2 border-b border-r border-black shadow-flat-black-adjust"
                     src={contribution.user.img ? `${apiUrl}/uploads/users/${contribution.user.id}/${contribution.user.img}` : defaultUserImage}
                     alt={contribution.user.username}/>
                   <p className="w-full text-center font-rubik text-base font-medium text-black leading-5">
                     {contribution.user.username}
                   </p>
                   <p className="w-full text-center font-rubik text-xxs font-regular text-black leading-3">
-                    Total reçu : {formatEUR(contribution.totalReceived)}
+                    Total reçu : {formatEUR(contribution.totalReceived)}€
                   </p>
                 </div>
               ) : (
@@ -345,60 +358,44 @@ const Contributions = () => {
                   Utilisateur non défini
                 </p>
               )}
-              <ul className="p-4">
-                {contribution.contributions.map((contrib, index) => (
-                  <li
-                    className="flex flex-row justify-between relative my-2"
-                    key={index}>
-                    {(user.role === 'admin' || user.role === 'treasurer') && (
-                      <button
-                        className="absolute -left-8 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-                        onClick={() => handleDeleteContribution(contrib.id, contribution.user.id)}>
-                        <span className="font-rubik w-full font-black text-black text-xs inline-block">
-                          <FontAwesomeIcon icon={faTrash}/>
-                        </span>
-                      </button>
-                    )}
-                    <p
-                      className="font-sans text-xs font-regular text-black">
-                      Journée {contrib.matchday}
-                    </p>
-                    <p className="font-sans text-xs font-semibold text-black">
-                      {formatEUR(contrib.amount)}€
-                    </p>
-                    <p className="font-sans text-base font-medium text-black">
-                      {contrib.status === 'pending' ? (
-                        <span className="text-center flex flex-row justify-center items-center">
-                          <FontAwesomeIcon icon={faSackXmark}
-                                           className="font-rubik w-full font-black text-red-medium text-sm inline-block"/>
-                        </span>
-                      ) : (
-                        <span className="text-center flex flex-row justify-center items-center">
-                          <FontAwesomeIcon icon={faSackDollar}
-                                           className="font-rubik w-full font-black text-green-soft text-sm inline-block"/>
-                        </span>
-                      )}
-                    </p>
-                    {(user.role === 'admin' || user.role === 'treasurer') && contrib.status === 'pending' && (
-                      <button
-                        className="absolute -right-7 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-                        onClick={() => handleValidateContribution(contrib.id, contribution.user.id)}>
-                        <span className="font-rubik w-full font-black text-black text-xs inline-block">
-                          <FontAwesomeIcon icon={faCheck}/>
-                        </span>
-                      </button>
-                    )}
-                    {(user.role === 'admin' || user.role === 'treasurer') && contrib.status === 'received' && (
-                      <button
-                        className="absolute -right-7 z-[25] bg-white border border-black w-[23px] text-center h-[23px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
-                        onClick={() => handlePendingContribution(contrib.id, contribution.user.id)}>
-                        <span className="font-rubik w-full font-black text-black text-xs inline-block">
-                          <FontAwesomeIcon icon={faXmark}/>
-                        </span>
-                      </button>
-                    )}
-                  </li>
-                ))}
+              <ul className="py-2 px-1">
+                {contribution.contributions.map((contrib, index) => {
+
+                  const isAdminOrTreasurer = (user.role === 'admin' || user.role === 'treasurer');
+                  const rowInteractive =
+                    isAdminOrTreasurer ? 'cursor-pointer hover:bg-black/5 active:scale-[0.995] transition-all duration-300 hover:shadow-none focus:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 focus:translate-x-0.5 focus:translate-y-0.5' : '';
+
+                  return (
+                    <li
+                      className={`flex flex-row justify-between shadow-flat-black-adjust border border-black relative my-2 rounded-md px-1 py-1 ${rowInteractive}`}
+                      style={{backgroundColor: userColors[contribution.user.id] + "20"}}
+                      key={index}
+                      onClick={() => openActionModal(contrib, contribution.user.id)}
+                      aria-disabled={!isAdminOrTreasurer}
+                    >
+                      <p
+                        className="font-sans text-xs font-regular text-black">
+                        {contrib.matchday === 0 ? 'Adhésion' : 'Journée ' + contrib.matchday}
+                      </p>
+                      <p className="font-sans text-xs font-semibold text-black">
+                        {formatEUR(contrib.amount)}€
+                      </p>
+                      <p className="font-sans text-base font-medium text-black">
+                        {contrib.status === 'pending' ? (
+                          <span className="text-center flex flex-row justify-center items-center">
+                            <FontAwesomeIcon icon={faSackXmark}
+                                             className="font-rubik w-full font-black text-red-medium text-sm inline-block"/>
+                          </span>
+                        ) : (
+                          <span className="text-center flex flex-row justify-center items-center">
+                            <FontAwesomeIcon icon={faSackDollar}
+                                             className="font-rubik w-full font-black text-green-soft text-sm inline-block"/>
+                          </span>
+                        )}
+                      </p>
+                    </li>
+                  )
+                })}
               </ul>
             </li>
           ))}
@@ -424,7 +421,72 @@ const Contributions = () => {
           blocked={false}
         />
       </Modal>
+      <Modal isOpen={isActionModalOpen} onClose={() => setIsActionModalOpen(false)}>
+        {selectedContribution && (
+          <div className="p-2">
+            <h3 className="font-sans text-l leading-5 font-black uppercase mb-2">Action sur la contribution</h3>
+            <p className="text-sm mb-4">
+              <b>{selectedContribution.contrib.matchday === 0 ? 'Adhésion' : 'Journée ' + selectedContribution.contrib.matchday}</b> — Montant&nbsp;
+              <b>{formatEUR(selectedContribution.contrib.amount)}€</b><br/>
+              Statut actuel&nbsp;: <b>{selectedContribution.contrib.status === 'pending' ? 'En attente' : 'Reçue'}</b>
+            </p>
 
+            <div className="flex flex-col gap-2">
+              {/* Affiche Valider si en attente */}
+              {selectedContribution.contrib.status === 'pending' && (
+                <button
+                  className="w-full uppercase bg-green-medium text-black border-2 border-black rounded-lg py-2 font-sans font-regular shadow-flat-black-adjust hover:shadow-none"
+                  onClick={async () => {
+                    await handleValidateContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                    setIsActionModalOpen(false);
+                    setSelectedContribution(null);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCheck} className="mr-2"/> Valider (reçue)
+                </button>
+              )}
+
+              {/* Affiche Repasser en attente si reçue */}
+              {selectedContribution.contrib.status === 'received' && (
+                <button
+                  className="w-full uppercase bg-yellow-300 text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
+                  onClick={async () => {
+                    await handlePendingContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                    setIsActionModalOpen(false);
+                    setSelectedContribution(null);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faSackXmark} className="mr-2"/> Repasser en attente
+                </button>
+              )}
+
+              {/* Supprimer toujours disponible pour admin/treasurer */}
+              {(user.role === 'admin' || user.role === 'treasurer') && (
+                <button
+                  className="w-full uppercase bg-red-light text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
+                  onClick={async () => {
+                    await handleDeleteContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                    setIsActionModalOpen(false);
+                    setSelectedContribution(null);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrash} className="mr-2"/> Supprimer
+                </button>
+              )}
+
+              <button
+                className="w-full bg-gray-200 text-black border-2 border-black rounded-lg py-2 font-sans uppercase font-black shadow-flat-black-adjust hover:shadow-none"
+                onClick={() => {
+                  setIsActionModalOpen(false);
+                  setSelectedContribution(null);
+                }}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
       <AlertModal message={alertMessage} type={alertType} />
     </div>
   )

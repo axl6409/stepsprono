@@ -152,6 +152,18 @@ const Dashboard = ({ userId: propUserId }) => {
     }
   };
 
+  const getColorValueByClass = (cls) => {
+    const map = {
+      'text-bright-yellow': 'rgba(247,215,0,0.6)',
+      'text-green-medium' : 'rgba(0,204,153,0.6)',
+      'text-orange-medium': 'rgba(247,176,9,0.6)',
+      'text-red-medium'   : 'rgba(244,23,49,0.6)',
+      'text-white'        : 'rgba(255,255,255,0.6)',
+      'text-green-light'  : 'rgba(184,255,203,0.6)',
+    };
+    return map[cls] || '#FFFFFF';
+  };
+
   const goToPreviousUser = () => {
     if (currentUserIndex > 0) {
       const previousUserId = ranking[currentUserIndex - 1].user_id;
@@ -265,16 +277,37 @@ const Dashboard = ({ userId: propUserId }) => {
               {currentSeason.year} - {currentSeason.year + 1}
             </span>
           </p>
-          <p translate="no"  className="fade-in">
+          <p translate="no"  className="fade-in relative z-[11]">
             <span className="block text-black uppercase font-bold text-xs font-roboto">Position</span>
           </p>
-          <p translate="no"  className="relative fade-in">
-            <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl3 stroke-black font-black leading-8">{(currentUserIndex !== null && isSeasonStarted !== false) ? currentUserIndex + 1 : 'Non classé'}</span>
-            <span
-              className={`block relative z-[10] font-rubik text-xl3 stroke-black font-black leading-8 ${(currentUserIndex !== null && isSeasonStarted !== false) ? getColorClass(currentUserIndex, ranking.length) : 'text-white'}`}>
-              {(currentUserIndex !== null && isSeasonStarted !== false) ? currentUserIndex + 1 : 'Non classé'}
-            </span>
-          </p>
+          {(() => {
+            const active = (currentUserIndex !== null && isSeasonStarted !== false);
+            const colorClass = active ? getColorClass(currentUserIndex, ranking.length) : 'text-white';
+            const colorValue = getColorValueByClass(colorClass);
+
+            return (
+              <p
+                translate="no"
+                className="relative z-10 fade-in"
+                style={{
+                  // text-shadow complet: offset-x, offset-y, blur, couleur
+                  textShadow: active
+                    ? `0 0 21px ${colorValue}, 0 0 32px ${colorValue}, 0 0 45px ${colorValue}`
+                    : 'none'
+                }}
+              >
+                <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl3 stroke-black font-black leading-8">
+                  {active ? currentUserIndex + 1 : 'Non classé'}
+                </span>
+
+                <span
+                  className={`block relative z-[10] font-rubik text-xl3 stroke-black font-black leading-8 ${colorClass}`}
+                >
+                  {active ? currentUserIndex + 1 : 'Non classé'}
+                </span>
+              </p>
+            );
+          })()}
         </div>
         <Link
           className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"

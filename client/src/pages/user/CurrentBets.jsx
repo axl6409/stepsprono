@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import weekPointsShape from "../../assets/components/dashboard/week/week-points-shape.png";
 import weekPointsText from "../../assets/components/dashboard/week/week-points-txt.png";
@@ -28,6 +28,30 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   const [flipped, setFlipped] = useState(false);
   const navigate = useNavigate();
 
+  const [scrollTilt, setScrollTilt] = useState(0);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // On calcule la direction (vers le bas ou vers le haut)
+      const delta = currentScrollY - lastScrollY.current;
+      lastScrollY.current = currentScrollY;
+
+      // Limite la valeur entre -10 et 10 degrés
+      const tilt = Math.max(-30, Math.min(30, delta * 10));
+      setScrollTilt(tilt);
+
+      // Retour progressif à 0 après 300ms
+      clearTimeout(window._scrollTiltTimeout);
+      window._scrollTiltTimeout = setTimeout(() => setScrollTilt(0), 50);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleNavigate = (bet) => {
     navigate(`/matchs/history/${bet.MatchId.id}`, {
       state: { canDisplayBets: canDisplayBets }
@@ -36,9 +60,9 @@ const CurrentBets = ({ loggedUser, user, token }) => {
 
   return (
     <div key={user.id} className="relative">
-      {/*<img className="mx-auto h-full w-4/5 fixed opacity-10 z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"*/}
-      {/*     src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}*/}
-      {/*     alt=""/>*/}
+      <img className="mx-auto h-full w-4/5 object-contain object-center fixed opacity-10 z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-4"
+           src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}
+           alt=""/>
       <div className="relative z-[2]">
         <div
           className="relative w-[200px] h-[200px] mx-auto profile-pic_shadow"
@@ -46,10 +70,13 @@ const CurrentBets = ({ loggedUser, user, token }) => {
           onClick={() => setFlipped(!flipped)}
         >
           <div
-            className={`profile_pic-container anim-rotate-attract relative w-full h-full transition-transform duration-500 ease-in-out`}
+            className={`profile_pic-container anim-rotate-attract relative w-full h-full transition-transform duration-300 delay-50 ease-in-out`}
             style={{
               transformStyle: 'preserve-3d',
-              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+              transform: `
+                rotateY(${flipped ? 180 : 0}deg)
+                rotateX(${scrollTilt}deg)
+              `
             }}
           >
             <div

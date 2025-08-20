@@ -14,8 +14,8 @@ const Modal = ({ isOpen, onClose, children }) => {
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 fade-in delay-1000 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={handleClickOutside}>
-      <div ref={popupRef} className="bg-white w-11/12 h-auto py-4 px-4 rounded shadow-lg relative">
+    <div className="fixed inset-0 fade-in delay-1000 flex items-center justify-center bg-black bg-opacity-20 z-50" onClick={handleClickOutside}>
+      <div ref={popupRef} className="bg-white w-11/12 h-auto py-4 px-4 rounded-xl shadow-flat-black relative border border-black">
         <button
           onClick={onClose}
           className="swiper-button-prev fade-in w-[40px] h-[40px] rounded-full bg-white top-8 right-3 left-[inherit] shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none"
