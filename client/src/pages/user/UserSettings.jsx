@@ -24,8 +24,10 @@ const UserSettings = (props) => {
   const user = props.user || contextUser;
   const token = props.token || localStorage.getItem('token');
   const setUser = props.setUser || setContextUser;
+  const [isImageOpen, setIsImageOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(user?.img || null);
+  const fullScreenImageSrc = "/img/calendrier-2526.webp";
 
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
@@ -57,17 +59,31 @@ const UserSettings = (props) => {
   return (
     <div className="inline-block relative z-[11] w-full h-auto pt-20">
       <DashboardButton />
-      <Link
-        to="/reglement"
-        className="w-fit fade-in block absolute top-4 right-2 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
-      >
+      <div className="absolute top-4 right-2 flex flex-row gap-2">
+        <button
+          type="button"
+          onClick={() => setIsImageOpen(true)}
+          className="w-fit relative fade-in block mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        >
+        <span
+          translate="no"
+          className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+        >
+          Voir l’image
+        </span>
+        </button>
+        <Link
+          to="/reglement"
+          className="w-fit relative fade-in block mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        >
         <span
           translate="no"
           className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-medium transition -translate-y-1.5 group-hover:-translate-y-0"
         >
           Règlement
         </span>
-      </Link>
+        </Link>
+      </div>
       <div className="relative">
         <AnimatedTitle title={user.username} stickyStatus={false} />
         <div>
@@ -137,6 +153,29 @@ const UserSettings = (props) => {
           </ul>
         </div>
       </div>
+      {isImageOpen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center"
+          onClick={() => setIsImageOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setIsImageOpen(false); }}
+            className="absolute top-4 right-4 w-[40px] h-[40px] rounded-full bg-white border-2 border-black shadow-flat-black-adjust transition hover:shadow-none"
+            aria-label="Fermer"
+            title="Fermer"
+          >
+            <span className="block text-black font-bold text-2xl">×</span>
+          </button>
+
+          <img
+            src={fullScreenImageSrc}
+            alt="Aperçu"
+            className="max-w-[100vw] max-h-[100vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };
