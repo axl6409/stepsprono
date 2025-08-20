@@ -137,7 +137,7 @@ const UserMenu = () => {
 
   return (
     <>
-      <header className="fixed bottom-1 right-1 z-[9999]" ref={menuRef}>
+      <header className="fixed bottom-0 right-0 z-[9999]" ref={menuRef}>
         <nav className={`px-2 py-2 relative z-[10]`}>
           {user && (
             <button

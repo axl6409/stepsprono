@@ -6,8 +6,47 @@ const {Setting, Role} = require("../models");
 const {getCronTasks} = require("../../cronJob");
 const {fetchAndProgramWeekMatches, getMatchsCronTasks} = require("../services/matchService");
 const logger = require("../utils/logger/logger");
+const path = require("path");
+const fs = require("fs");
 
 /* PUBLIC - GET */
+router.get('/app/version', async (req, res) => {
+  try {
+    // Lire le package.json du client
+    const clientPackagePath = path.join(__dirname, '../../../client/package.json');
+    const clientPackage = JSON.parse(fs.readFileSync(clientPackagePath, 'utf8'));
+
+    // Lire le package.json du serveur
+    const serverPackagePath = path.join(__dirname, '../../../package.json');
+    const serverPackage = JSON.parse(fs.readFileSync(serverPackagePath, 'utf8'));
+
+    // Convertir les versions en nombres pour une comparaison précise
+    const normalizeVersion = (version) => {
+      return parseInt(version.replace(/\./g, ''), 10);
+    };
+
+    const clientVer = clientPackage.version || '0.0.0';
+    const serverVer = serverPackage.version || '0.0.0';
+
+    res.status(200).json({
+      success: true,
+      data: {
+        clientVersion: clientVer,
+        serverVersion: serverVer,
+        clientVersionNumber: normalizeVersion(clientVer),
+        serverVersionNumber: normalizeVersion(serverVer),
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error getting version:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de la version',
+      error: error.message
+    });
+  }
+})
 router.get('/app/calls', authenticateJWT, async (req, res) => {
   try {
     const calls = await getAPICallsCount();

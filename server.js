@@ -38,6 +38,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(morgan('combined', { stream: accessLogStream }));
 
+// Routes API
 app.use('/api', apiRoutes);
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'client', 'src', 'assets', 'uploads')));

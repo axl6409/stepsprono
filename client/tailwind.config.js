@@ -24,6 +24,7 @@ export default {
         'green-light': '#CCFFCC',
         'green-soft': '#00CC99',
         'green-medium': '#BDFF00',
+        'green-deep': '#02D302',
         'purple-light': '#FFCCFF',
         'purple-soft': '#CC99FF',
         'yellow-light': '#F3F5B2',
