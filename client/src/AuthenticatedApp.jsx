@@ -38,6 +38,7 @@ import UserStats from "./pages/user/UserStats.jsx";
 import Particles from "./components/animated/Particles.jsx";
 import {ViewedProfileProvider} from "./contexts/ViewedProfileContext.jsx";
 import ViewedProfileRouteSync from "./contexts/ViewedProfileRouteSync.jsx";
+import AdminRules from "./pages/admin/AdminRules.jsx";
 
 /**
  * Composant qui englobe les routes nécessitant le `RankingProvider`
@@ -135,6 +136,7 @@ const AuthenticatedApp = () => {
                 <Route path="/admin/users" element={<ProtectedRoute component={AdminUsers} />} />
                 <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
                 <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
+                <Route path="/admin/rules" element={<ProtectedRoute component={AdminRules} />} />
                 <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
                 <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
                 <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
