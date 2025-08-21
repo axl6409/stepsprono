@@ -85,50 +85,49 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
         </div>
+        {console.log(loggedUser.id !== user.id)}
 
-        {loggedUser.id !== user.id && (
+        {loggedUser.id === user.id && (
             loggedUser.status !== 'blocked' ? (
-              loggedUser.id === user.id && (
-                <div className="pt-8">
-                  {noMatches ? (
-                    <div
-                      className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
-                    <span
-                      translate="no"
-                      className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
-                    >
-                      Aucun match cette semaine
-                    </span>
-                    </div>
-                  ) : !canDisplayBets ? (
+              <div className="pt-8">
+                {noMatches ? (
+                  <div
+                    className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+                  <span
+                    translate="no"
+                    className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+                  >
+                    Aucun match cette semaine
+                  </span>
+                  </div>
+                ) : !canDisplayBets ? (
+                  <Link
+                    to="/matchs"
+                    className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+                  >
+                  <span
+                    translate="no"
+                    className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                  >
+                    {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                  </span>
+                  </Link>
+                ) : (
+                  <>
                     <Link
-                      to="/matchs"
-                      className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+                      to="/week-recap"
+                      className="w-4/5 fade-in block relative mt-12 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                     >
                     <span
                       translate="no"
-                      className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                      className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
                     >
-                      {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                      Voir tous les pronos
                     </span>
                     </Link>
-                  ) : (
-                    <>
-                      <Link
-                        to="/week-recap"
-                        className="w-4/5 fade-in block relative mt-12 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
-                      >
-                      <span
-                        translate="no"
-                        className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
-                      >
-                        Voir tous les pronos
-                      </span>
-                      </Link>
-                    </>
-                  )}
-                </div>
-              )
+                  </>
+                )}
+              </div>
             ) : (
               <div className="pt-8">
                 <div
