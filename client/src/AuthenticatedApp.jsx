@@ -36,6 +36,9 @@ import RankingProvider from "./contexts/RankingContext.jsx";
 import Contributions from "./pages/Contributions.jsx";
 import UserStats from "./pages/user/UserStats.jsx";
 import Particles from "./components/animated/Particles.jsx";
+import {ViewedProfileProvider} from "./contexts/ViewedProfileContext.jsx";
+import ViewedProfileRouteSync from "./contexts/ViewedProfileRouteSync.jsx";
+import AdminRules from "./pages/admin/AdminRules.jsx";
 
 /**
  * Composant qui englobe les routes nécessitant le `RankingProvider`
@@ -69,71 +72,84 @@ const AuthenticatedApp = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const AuthedShell = () => (
+    <>
+      <ViewedProfileRouteSync />
+      <Outlet />
+    </>
+  );
+
   if (isAuthenticated) {
     return (
     <>
       <Navbar />
-      <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
-        <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: '0.3', pointerEvents: 'none' }}>
-          <Particles
-            particleColors={['#000000', '#000000']}
-            particleCount={500}
-            particleSpread={15}
-            speed={0.2}
-            particleBaseSize={100}
-            moveParticlesOnHover={false}
-            alphaParticles={false}
-            disableRotation={true}
-          />
-        </div>
-        <AnimatePresence>
-          <Routes>
-            {/* Routes qui nécessitent le RankingProvider */}
-            <Route element={<RankingLayout />}>
-              <Route path="/dashboard/" element={<ProtectedRoute component={Dashboard} componentProps={{ userId: user?.id }} />} />
-              <Route path="/dashboard/:userId" element={<ProtectedRoute component={Dashboard} />} />
-              <Route path="/stats/:userId?" element={<ProtectedRoute component={UserStats} />} />
-              <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
-              <Route path="/matchs/history/:matchId" element={<ProtectedRoute component={MatchDetails} />} />
-              <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
-              <Route path="/week-recap" element={<ProtectedRoute component={WeekRecap} />} />
-            </Route>
+      <ViewedProfileProvider>
 
-            {/* Routes sans RankingProvider */}
-            <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
-            <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
-            <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
-            <Route path="/settings/username" element={<ProtectedRoute component={() => (
-              <EditField title="Changer le pseudo" fieldName="username" fieldLabel="Nouveau pseudo" user={user} token={token} setUser={setUser} />
-            )} />} />
-            <Route path="/settings/email" element={<ProtectedRoute component={() => (
-              <EditField title="Changer le mail" fieldName="email" fieldLabel="Nouveau mail" user={user} token={token} setUser={setUser} type="email" />
-            )} />} />
-            <Route path="/settings/password" element={<ProtectedRoute component={() => (
-              <EditField title="Changer le mot de passe" fieldName="password" fieldLabel="Nouveau mot de passe" user={user} token={token} setUser={setUser} type="password" />
-            )} />} />
-            <Route path="/settings/team" element={<ProtectedRoute component={() => (
-              <EditField title="Changer l'équipe de coeur" fieldName="team" fieldLabel="Changer l'équipe de coeur" user={user} token={token} setUser={setUser} />
-            )} />} />
-            <Route path="/contributions" element={<ProtectedRoute component={Contributions} />} />
-            <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
-            <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
-            <Route path="/user/settings" element={<ProtectedRoute component={() => <UserSettings user={user} token={token} setUser={setUser} />} />} />
-            <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
-            <Route path="/admin/users" element={<ProtectedRoute component={AdminUsers} />} />
-            <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
-            <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
-            <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
-            <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
-            <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
-            <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
-            <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
-            <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
-            <Route path="/admin/bets" element={<ProtectedRoute component={AdminBets} />} />
-            <Route path="/admin/notifications" element={<ProtectedRoute component={AdminEvents} />} />
-          </Routes>
-        </AnimatePresence>
-      </div>
+        <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
+          <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: '0.3', pointerEvents: 'none' }}>
+            <Particles
+              particleColors={['#000000', '#000000']}
+              particleCount={500}
+              particleSpread={15}
+              speed={0.2}
+              particleBaseSize={100}
+              moveParticlesOnHover={false}
+              alphaParticles={false}
+              disableRotation={true}
+            />
+          </div>
+          <AnimatePresence>
+            <Routes>
+              <Route element={<AuthedShell />}>
+                {/* Routes qui nécessitent le RankingProvider */}
+                <Route element={<RankingLayout />}>
+                  <Route path="/dashboard/" element={<ProtectedRoute component={Dashboard} componentProps={{ userId: user?.id }} />} />
+                  <Route path="/dashboard/:userId" element={<ProtectedRoute component={Dashboard} />} />
+                  <Route path="/stats/:userId?" element={<ProtectedRoute component={UserStats} />} />
+                  <Route path="/matchs/history" element={<ProtectedRoute component={MatchsHistory} />} />
+                  <Route path="/matchs/history/:matchId" element={<ProtectedRoute component={MatchDetails} />} />
+                  <Route path="/classement" element={<ProtectedRoute component={Classements} />} />
+                  <Route path="/week-recap" element={<ProtectedRoute component={WeekRecap} />} />
+                </Route>
+
+                {/* Routes sans RankingProvider */}
+                <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
+                <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
+                <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
+                <Route path="/settings/username" element={<ProtectedRoute component={() => (
+                  <EditField title="Changer le pseudo" fieldName="username" fieldLabel="Nouveau pseudo" user={user} token={token} setUser={setUser} />
+                )} />} />
+                <Route path="/settings/email" element={<ProtectedRoute component={() => (
+                  <EditField title="Changer le mail" fieldName="email" fieldLabel="Nouveau mail" user={user} token={token} setUser={setUser} type="email" />
+                )} />} />
+                <Route path="/settings/password" element={<ProtectedRoute component={() => (
+                  <EditField title="Changer le mot de passe" fieldName="password" fieldLabel="Nouveau mot de passe" user={user} token={token} setUser={setUser} type="password" />
+                )} />} />
+                <Route path="/settings/team" element={<ProtectedRoute component={() => (
+                  <EditField title="Changer l'équipe de coeur" fieldName="team" fieldLabel="Changer l'équipe de coeur" user={user} token={token} setUser={setUser} />
+                )} />} />
+                <Route path="/contributions" element={<ProtectedRoute component={Contributions} />} />
+                <Route path="/teams" element={<ProtectedRoute component={Teams} />} />
+                <Route path="/teams/:teamId/players" element={<TeamPlayers />} />
+                <Route path="/user/settings" element={<ProtectedRoute component={() => <UserSettings user={user} token={token} setUser={setUser} />} />} />
+                <Route path="/admin" element={<ProtectedRoute component={Admin} />} />
+                <Route path="/admin/users" element={<ProtectedRoute component={AdminUsers} />} />
+                <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
+                <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
+                <Route path="/admin/rules" element={<ProtectedRoute component={AdminRules} />} />
+                <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
+                <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
+                <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
+                <Route path="/admin/matchs" element={<ProtectedRoute component={AdminMatchs} />} />
+                <Route path="/admin/players" element={<ProtectedRoute component={AdminPlayers} />} />
+                <Route path="/admin/competitions" element={<ProtectedRoute component={AdminCompetitions} />} />
+                <Route path="/admin/bets" element={<ProtectedRoute component={AdminBets} />} />
+                <Route path="/admin/notifications" element={<ProtectedRoute component={AdminEvents} />} />
+              </Route>
+            </Routes>
+          </AnimatePresence>
+        </div>
+      </ViewedProfileProvider>
     </>
     );
   }

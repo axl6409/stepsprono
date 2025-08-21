@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {UserContext} from "../contexts/UserContext.jsx";
-import {Link, useParams, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useCookies} from "react-cookie";
 import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -11,29 +11,26 @@ import {
 import { useSwipeable } from "react-swipeable";
 import CurrentBets from "./user/CurrentBets.jsx";
 import Loader from "../components/partials/Loader.jsx";
-import defaultTeamImage from "../assets/components/icons/hidden-trophy.webp";
 import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextStats from "../assets/components/texts/statistiques.svg";
-import heartRed from "../assets/components/register/step-3/heart-red.png";
 import AlertModal from "../components/partials/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
 import statsIcon from "../assets/icons/chart-simple-solid.svg";
 import {AppContext} from "../contexts/AppContext.jsx";
+import {useViewedProfile} from "../contexts/ViewedProfileContext.jsx";
+import BackButton from "../components/nav/BackButton.jsx";
+
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const Dashboard = ({ userId: propUserId }) => {
-  const {
-    currentSeason
-  } = useContext(AppContext);
+const Dashboard = () => {
+  const { currentSeason } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
   const { ranking, rankingType, fetchRanking, isLoading: rankingIsLoading } = useContext(RankingContext);
-  const { userId: paramUserId } = useParams();
-  const userId = paramUserId || propUserId;
+  const { viewedUser, isOwnProfile, isLoading: viewedLoading } = useViewedProfile();
   const [cookies, setCookie] = useCookies(["user"]);
-  const [profileUser, setProfileUser] = useState(null);
   const token = localStorage.getItem('token') || cookies.token;
   const [animateTitle, setAnimateTitle] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,21 +51,6 @@ const Dashboard = ({ userId: propUserId }) => {
       navigate('/reglement');
     }
 
-    const fetchProfileUser = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setProfileUser(response.data);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données de l’utilisateur', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     const updateLastConnected = async () => {
       try {
         const userId = user.id;
@@ -81,7 +63,6 @@ const Dashboard = ({ userId: propUserId }) => {
         console.error('Erreur lors de la mise à jour de la date de connexion', error);
       }
     };
-
     const isSeasonStarted = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/matchs/days/passed?seasonId=5`, {
@@ -96,17 +77,14 @@ const Dashboard = ({ userId: propUserId }) => {
         console.error('Erreur lors de la récupération du matchday actuel', error);
       }
     };
+
     if (isAuthenticated && user) {
       updateLastConnected()
     }
-    if (userId) {
-      fetchProfileUser();
-      isSeasonStarted();
-    } else {
-      setProfileUser(user);
-      setIsLoading(false);
-    }
-  }, [userId, user, token, isAuthenticated]);
+
+    isSeasonStarted();
+    setIsLoading(false);
+  }, [user, token, isAuthenticated]);
 
 
   useEffect(() => {
@@ -121,11 +99,11 @@ const Dashboard = ({ userId: propUserId }) => {
   }, [fetchRanking, rankingType]);
 
   useEffect(() => {
-    if (!rankingIsLoading && ranking.length > 0) {
-      const index = ranking.findIndex(u => u.user_id === parseInt(userId, 10));
+    if (!rankingIsLoading && ranking.length > 0 && viewedUser?.id) {
+      const index = ranking.findIndex(u => u.user_id === Number(viewedUser.id));
       setCurrentUserIndex(index);
     }
-  }, [ranking, userId, rankingIsLoading]);
+  }, [ranking, viewedUser?.id, rankingIsLoading]);
 
 
   const goToNextUser = () => {
@@ -222,7 +200,7 @@ const Dashboard = ({ userId: propUserId }) => {
     );
   }
 
-  if (!profileUser) {
+  if (!viewedUser) {
     return (
       <div className="text-center flex flex-col justify-center">
         <span className="text-3xl no-correct font-black uppercase">Utilisateur introuvable</span>
@@ -230,15 +208,16 @@ const Dashboard = ({ userId: propUserId }) => {
     );
   }
 
-  const teamLogoUrl = profileUser.team?.logo_url;
-
   return (
-    <div {...handlers} className="text-center relative z-[12] flex flex-col justify-center overflow-x-hidden" key={userId}>
+    <div {...handlers} className="text-center relative z-[12] flex flex-col justify-center overflow-x-hidden" key={viewedUser?.id}>
       {isModalOpen && (
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
+      {viewedUser.id !== user.id && (
+        <BackButton bottom={true}/>
+      )}
       <div className="flex flex-row justify-between px-4 py-2 mb-12">
-        {userId === user.id ? (
+        {isOwnProfile ? (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
             to={`/stats/${user.id}`}>
@@ -256,7 +235,7 @@ const Dashboard = ({ userId: propUserId }) => {
         ) : (
           <Link
             className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-            to={`/stats/${userId}`}>
+            to={`/stats/${viewedUser.id}`}>
             <div
               className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <span className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
@@ -311,7 +290,7 @@ const Dashboard = ({ userId: propUserId }) => {
         </div>
         <Link
           className="relative fade-in block bg-white rounded-full top-2 right-0 z-[60] w-[80px] h-[80px] before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border-2 group"
-          to={`/rewards/${userId}`}>
+          to={`/rewards/${viewedUser.id}`}>
           <div
             className="relative z-[2] w-full h-full transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
             <span className="absolute no-correct top-1.5 left-0 right-0 z-[4]">
@@ -325,17 +304,17 @@ const Dashboard = ({ userId: propUserId }) => {
         </Link>
       </div>
 
-      <AnimatedTitle title={profileUser.username} stickyStatus={false}/>
+      <AnimatedTitle title={viewedUser.username} stickyStatus={false}/>
 
       <div>
-        {isAuthenticated && profileUser && profileUser.role !== 'visitor' && profileUser.status !== 'retired' ? (
-          <CurrentBets loggedUser={user} user={profileUser} token={token}/>
+        {isAuthenticated && user && user.role !== 'visitor' && user.status !== 'retired' ? (
+          <CurrentBets key={viewedUser.id} loggedUser={user} user={viewedUser} token={token}/>
         ) : (
           <div className="px-4 fade-in">
             <p translate="no" className="font-rubik no-correct font-base">
               Vous ête un <span className="font-bold">Visiteur</span>
             </p>
-            {profileUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'approved' && user.status !== 'retired' ? (
+            {viewedUser.role === 'visitor' && user.status !== 'pending' && user.status !== 'refused' && user.status !== 'approved' && user.status !== 'retired' ? (
               <button
                 translate="no"
                 className="font-sans relative bg-green-light flex flex-row items-center text-center border border-black rounded-xl py-2 px-8 mx-auto my-4 transition-shadow duration-300 shadow-flat-black-adjust hover:shadow-none focus:shadow-none"

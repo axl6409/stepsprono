@@ -1,7 +1,7 @@
 {
   "name": "steps-prono",
   "private": true,
-  "version": "2.2.21",
+  "version": "2.2.22",
   "type": "module",
   "scripts": {
     "dev": "vite  --host",
@@ -50,7 +50,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.38",
     "postcss-cli": "^11.0.0",
-    "postcss-nesting": "^13.0.0",
+    "postcss-nesting": "^13.0.2",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.5"
   }

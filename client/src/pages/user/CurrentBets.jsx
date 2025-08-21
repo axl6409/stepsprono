@@ -12,6 +12,7 @@ import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
 import defaultTeamImage from "../../assets/components/icons/hidden-trophy.webp";
+import ProfilePic from "../../components/user/ProfilePic.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -25,32 +26,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
     matchs,
     canDisplayBets
   } = useUserData(user, token, apiUrl);
-  const [flipped, setFlipped] = useState(false);
+
   const navigate = useNavigate();
-
-  const [scrollTilt, setScrollTilt] = useState(0);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      // On calcule la direction (vers le bas ou vers le haut)
-      const delta = currentScrollY - lastScrollY.current;
-      lastScrollY.current = currentScrollY;
-
-      // Limite la valeur entre -10 et 10 degrés
-      const tilt = Math.max(-30, Math.min(30, delta * 10));
-      setScrollTilt(tilt);
-
-      // Retour progressif à 0 après 300ms
-      clearTimeout(window._scrollTiltTimeout);
-      window._scrollTiltTimeout = setTimeout(() => setScrollTilt(0), 50);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleNavigate = (bet) => {
     navigate(`/matchs/history/${bet.MatchId.id}`, {
@@ -64,41 +41,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
            src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}
            alt=""/>
       <div className="relative z-[2]">
-        <div
-          className="relative w-[200px] h-[200px] mx-auto profile-pic_shadow"
-          style={{perspective: '1000px'}}
-          onClick={() => setFlipped(!flipped)}
-        >
-          <div
-            className={`profile_pic-container anim-rotate-attract relative w-full h-full transition-transform duration-300 delay-50 ease-in-out`}
-            style={{
-              transformStyle: 'preserve-3d',
-              transform: `
-                rotateY(${flipped ? 180 : 0}deg)
-                rotateX(${scrollTilt}deg)
-              `
-            }}
-          >
-            <div
-              className="absolute inset-0 bg-white rounded-full border-2 border-black"
-            >
-              <img
-                className="w-full h-full object-cover rounded-full"
-                src={user.img ? `${apiUrl}/uploads/users/${user.id}/${user.img}` : defaultUserImage}
-                alt="Image de profil"
-              />
-            </div>
-            <div
-              className="absolute inset-0 bg-white rounded-full border-2 border-black flex justify-center items-center p-8"
-            >
-              <img
-                className="h-full w-full object-contain -scale-x-100"
-                src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}
-                alt=""
-              />
-            </div>
-          </div>
-        </div>
+        <ProfilePic user={user} />
         <div className="flex flex-row flex-wrap justify-between px-4 -mt-8">
           <div
             className="anim-rotate-attract perspective-distant h-fit flex flex-col w-1/3 p-1 max-w-[120px] relative fade-in" style={{animationDelay: '0.3s'}}>
@@ -142,30 +85,32 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
         </div>
-        {loggedUser.status !== 'blocked' ? (
-            loggedUser.id === user.id && (
+
+        {loggedUser.id !== user.id && (
+            loggedUser.status !== 'blocked' ? (
+              loggedUser.id === user.id && (
                 <div className="pt-8">
                   {noMatches ? (
                     <div
                       className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
-                <span
-                  translate="no"
-                  className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
-                >
-                  Aucun match cette semaine
-                </span>
+                    <span
+                      translate="no"
+                      className="no-correct relative z-[2] w-full block border border-black text-black bg-white uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+                    >
+                      Aucun match cette semaine
+                    </span>
                     </div>
                   ) : !canDisplayBets ? (
                     <Link
                       to="/matchs"
                       className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                     >
-                      <span
-                        translate="no"
-                        className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
-                      >
-                        {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
-                      </span>
+                    <span
+                      translate="no"
+                      className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                    >
+                      {bets.length > 0 ? 'Modifier mes pronos' : 'Faire mes pronos'}
+                    </span>
                     </Link>
                   ) : (
                     <>
@@ -173,30 +118,32 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         to="/week-recap"
                         className="w-4/5 fade-in block relative mt-12 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                       >
-                        <span
-                          translate="no"
-                          className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
-                        >
-                          Voir tous les pronos
-                        </span>
+                      <span
+                        translate="no"
+                        className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-soft transition -translate-y-1.5 group-hover:-translate-y-0"
+                      >
+                        Voir tous les pronos
+                      </span>
                       </Link>
                     </>
                   )}
                 </div>
+              )
+            ) : (
+              <div className="pt-8">
+                <div
+                  className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
+            <span
+              translate="no"
+              className="no-correct relative z-[2] w-full block border border-black text-white bg-red-medium uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
+            >
+              Tu as été bloqué ! <br/> Il faut payer l'ami
+            </span>
+                </div>
+              </div>
             )
-        ) : (
-          <div className="pt-8">
-            <div
-              className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border">
-              <span
-                translate="no"
-                className="no-correct relative z-[2] w-full block border border-black text-white bg-red-medium uppercase font-regular text-sm font-roboto px-3 py-2 rounded-full text-center shadow-md bg-gray-light cursor-not-allowed"
-              >
-                Tu as été bloqué ! <br/> Il faut payer l'ami
-              </span>
-            </div>
-          </div>
-        )}
+          )
+        }
 
         {noMatches ? (
           <div className="relative fade-in my-[25%]">
