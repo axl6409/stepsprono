@@ -303,9 +303,13 @@ body {
 }
 
 /* Rewards */
+.trophySwiper .swiper-wrapper {
+    margin-bottom: 0;
+    position: relative;
+    z-index: 6;
+}
+
 .trophy-container {
-    width: 150px;
-    height: 150px;
     perspective: 1000px;
 }
 .trophy-inner {
