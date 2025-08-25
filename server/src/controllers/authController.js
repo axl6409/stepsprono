@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router()
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.SECRET_KEY
-const {User, Role} = require("../models");
+const {User, Role, Team} = require("../models");
+const { findUserByIdWithAssociations } = require('../services/userService');
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const path = require("path");
@@ -15,15 +16,10 @@ router.post('/verifyToken', async (req, res) => {
   if (!token) return res.status(401).json({ isAuthenticated: false, datas: req.body });
   try {
     const payload = jwt.verify(token, secretKey);
-    const user = await User.findOne({ where: { id: payload.userId }, include: Role });
+    const user = await findUserByIdWithAssociations(payload.userId);
     if (!user) return res.status(401).json({ isAuthenticated: false });
 
-    const userWithRole = {
-      ...user.get({ plain: true }),
-      role: user.Roles && user.Roles.length > 0 ? user.Roles[0].name : 'user',
-    };
-
-    res.json({ isAuthenticated: true, user: userWithRole });
+    res.json({ isAuthenticated: true, user: user });
   } catch (error) {
     res.status(401).json({ isAuthenticated: false, token, error: error.message });
   }

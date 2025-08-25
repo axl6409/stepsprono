@@ -36,6 +36,8 @@ const UserMenu = () => {
   const [firstMatchDate, setFirstMatchDate] = useState(null);
   const menuRef = useRef(null);
 
+  const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useContext(UserContext);
+
   useEffect(() => {
     const debugCookie = cookies.debug === 'true';
     setDebugEnabled(debugCookie);
@@ -264,8 +266,7 @@ const UserMenu = () => {
                     </span>
                     <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Mon profil</span>
                   </Link>
-
-                  {user && (user.role === 'admin' || user.role === 'manager' || user.role === 'treasurer') && (
+                  {user && (hasTwiceAccess) && (
                     <Link
                       to="/admin"
                       className="w-full relative group flex flex-row justify-between items-center rounded-2xl transition-colors border-2 border-white duration-200 ease-linear hover:bg-blue-light hover:shadow-lg hover:border-black focus:bg-blue-light focus:shadow-lg focus:border-black focus:outline-none"

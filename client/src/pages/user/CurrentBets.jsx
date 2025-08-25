@@ -85,7 +85,6 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
         </div>
-        {console.log(loggedUser.id !== user.id)}
 
         {loggedUser.id === user.id && (
             loggedUser.status !== 'blocked' ? (

@@ -14,7 +14,9 @@ const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
 const {getCurrentCompetitionId} = require("./competitionService");
-const {matchEndedNotification} = require("./notificationService");
+const {matchEndedNotification, weekEndedNotification} = require("./notificationService");
+const {autoContribution} = require("./contributionService");
+const {scheduleWeeklyRankingUpdate} = require("./betService");
 let cronTasks = [];
 
 const getMatchAndBets = async (matchId) => {
@@ -317,6 +319,36 @@ async function fetchAndProgramWeekMatches() {
     });
 
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
+
+    if (!matches.length) return;
+
+    // --- Déterminer le(s) dernier(s) match(s) par date (max utc_date) ---
+    const times = matches.map(m => moment(m.utc_date).valueOf());
+    const maxTime = Math.max(...times);
+
+    // Certains matchs peuvent avoir exactement la même heure => on marque tous les "derniers"
+    const lastMatchIds = new Set(
+      matches.filter(m => moment(m.utc_date).valueOf() === maxTime).map(m => m.id)
+    );
+
+    // --- Callback "once" à déclencher quand le dernier match est réellement terminé ---
+    let weekEndTriggered = false;
+    const triggerWeekEndOnce = async () => {
+      if (weekEndTriggered) return;
+      weekEndTriggered = true;
+
+      try {
+        logger.info('[WEEK END] Tous les matchs de la semaine sont terminés (dernier match clôturé).');
+        await autoContribution();
+        await scheduleWeeklyRankingUpdate();
+        await weekEndedNotification();
+        eventBus.emit('weekEnded');
+        eventBus.emit('betsChecked');
+      } catch (e) {
+        logger.error('[WEEK END ERROR] Erreur lors du traitement de fin de semaine :', e);
+      }
+    };
+
     matches.forEach(match => {
       // Plus besoin de moment.utc() ici — utc_date est déjà en timezone correcte
       const matchTime = moment(match.utc_date).tz("Europe/Paris");
@@ -327,7 +359,10 @@ async function fetchAndProgramWeekMatches() {
 
       logger.info(`[CRON SETUP]=> Smart job set for match ID: ${match.id}, First check at (Paris): ${jobParisTime}`);
 
-      scheduleSmartMatchCheck(match);
+      scheduleSmartMatchCheck(match, {
+        isLastOfWeekCandidate: lastMatchIds.has(match.id),
+        onWeekFinished: triggerWeekEndOnce
+      });
     });
   } catch (error) {
     console.error('❌ Erreur lors de la récupération des matchs du weekend:', error);
@@ -555,7 +590,12 @@ const getCurrentMatchday = async () => {
   }
 };
 
-const scheduleSmartMatchCheck = (match) => {
+const scheduleSmartMatchCheck = (match, opts = {}) => {
+  const {
+    isLastOfWeekCandidate = false,
+    onWeekFinished
+  } = opts;
+
   const matchStart = moment.utc(match.utc_date.toISOString());
   const firstCheckTime = matchStart.clone().add(108, 'minutes').toDate();
 
@@ -593,8 +633,17 @@ const scheduleSmartMatchCheck = (match) => {
           true
         );
         logger.info(`[MATCH CHECK DONE] Match ${match.id} updated and teams synced.`);
-        await matchEndedNotification(apiMatchData.teams.home.name, apiMatchData.teams.away.name, apiMatchData.goals.home, apiMatchData.goals.away);
+        await matchEndedNotification(
+          apiMatchData.teams.home.name,
+          apiMatchData.teams.away.name,
+          apiMatchData.goals.home,
+          apiMatchData.goals.away
+        );
         logger.info(`[MATCH CHECK DONE] Match ${match.id} ended notification sent.`);
+
+        if (isLastOfWeekCandidate && typeof onWeekFinished === 'function') {
+          await onWeekFinished();
+        }
         return;
       } else {
         logger.info(`[MATCH CHECK] Match ${match.id} not finished. Status: ${status}`);

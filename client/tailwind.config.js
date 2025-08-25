@@ -84,6 +84,9 @@ export default {
       backgroundSize: {
         'grid-70': '70px 70px',
       },
+      textShadow: {
+        'glow-green': '0px -1px 2px #00ff0352, 0px -1px 2px #00ff0352',
+      },
       backgroundImage: {
         'bronze-gradient': 'linear-gradient(40deg, rgba(103, 50, 8, 1) 0%, rgba(219, 108, 43, 1) 17%, rgba(243, 150, 93, 1) 36%, rgba(161, 79, 26, 1) 57%, rgba(103, 50, 9, 1) 79%, rgba(175, 86, 30, 1) 100%)',
         'sliver-gradient': 'linear-gradient(40deg, rgba(71,71,71,1) 0%, rgba(216,215,214,1) 17%, rgba(239,237,228,1) 36%, rgba(125,125,124,1) 57%, rgba(80,80,80,1) 79%, rgba(211,211,210,1) 100%)',

@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, {createContext, useState, useEffect, useMemo} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
+import Loader from "../components/partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
@@ -11,6 +12,22 @@ export const UserProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [cookies, removeCookie, clearCookie] = useCookies(['token']);
+
+  const isAdmin = ["admin"];
+  const allowedTreasurer = ["admin", "treasurer",];
+  const allowedManager = ["admin", "manager",];
+  const allowedTwice = ["admin", "manager", "treasurer"];
+
+  const { roles, hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useMemo(() => {
+    const roles = user?.Roles?.map(r => r.name) ?? [];
+    return {
+      roles,
+      hasTreasurerAccess: roles.some(r => allowedTreasurer.includes(r)),
+      hasManagerAccess:   roles.some(r => allowedManager.includes(r)),
+      hasTwiceAccess:     roles.some(r => allowedTwice.includes(r)),
+      isAdmin:            roles.some(r => isAdmin.includes(r)),
+    };
+  }, [user]);
 
   useEffect(() => {
     const loadToken = async () => {
@@ -46,12 +63,25 @@ export const UserProvider = ({ children }) => {
   };
 
   if (isLoading) {
-    // Afficher une indication de chargement si le chargement n'est pas encore terminé
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, setIsAuthenticated, updateUserStatus, logout }}>
+    <UserContext.Provider
+      value={{
+        user,
+        roles,
+        isLoading,
+        setUser,
+        isAuthenticated,
+        setIsAuthenticated,
+        updateUserStatus,
+        logout,
+        hasTreasurerAccess,
+        hasManagerAccess,
+        hasTwiceAccess,
+        isAdmin
+      }}>
       {children}
     </UserContext.Provider>
   );

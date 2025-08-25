@@ -45,6 +45,9 @@ const Contributions = () => {
 
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
+
+  const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useContext(UserContext);
+
   const formatEUR = (n) => `${Math.round(Number(n) || 0)}`;
 
   useEffect(() => {
@@ -262,7 +265,7 @@ const Contributions = () => {
   };
 
   const openActionModal = (contrib, userId) => {
-    if (!(user.role === 'admin' || user.role === 'treasurer')) return;
+    if (!hasTreasurerAccess) return;
     setSelectedContribution({ contrib, userId });
     setIsActionModalOpen(true);
   };
@@ -282,7 +285,7 @@ const Contributions = () => {
         onClick={() => setIsRibModalOpen(true)}>
         <span className="font-rubik w-full font-black text-stroke-black-2 text-white text-[150%] -mt-0.5 inline-block leading-[35px]">RIB</span>
       </button>
-      {(user.role === 'admin' || user.role === 'treasurer') && (
+      {hasTreasurerAccess && (
         <>
           <button
             className="absolute z-[25] bg-green-medium top-2 right-2 border-2 border-black w-[40px] text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
@@ -291,7 +294,7 @@ const Contributions = () => {
           </button>
         </>
       )}
-      {(user.role === 'admin' || user.role === 'manager' || user.role === 'treasurer') && (
+      {hasTwiceAccess && (
         <>
           <button
             className="absolute z-[25] bg-red-light top-2 right-20 border-2 border-black w-[40px] p-1 text-center h-[40px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none"
@@ -368,9 +371,8 @@ const Contributions = () => {
               <ul className="py-2 px-1">
                 {contribution.contributions.map((contrib, index) => {
 
-                  const isAdminOrTreasurer = (user.role === 'admin' || user.role === 'treasurer');
                   const rowInteractive =
-                    isAdminOrTreasurer ? 'cursor-pointer hover:bg-black/5 active:scale-[0.995] transition-all duration-300 hover:shadow-none focus:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 focus:translate-x-0.5 focus:translate-y-0.5' : '';
+                    hasTreasurerAccess ? 'cursor-pointer hover:bg-black/5 active:scale-[0.995] transition-all duration-300 hover:shadow-none focus:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 focus:translate-x-0.5 focus:translate-y-0.5' : '';
 
                   return (
                     <li
@@ -378,7 +380,7 @@ const Contributions = () => {
                       style={{backgroundColor: userColors[contribution.user.id] + "20"}}
                       key={index}
                       onClick={() => openActionModal(contrib, contribution.user.id)}
-                      aria-disabled={!isAdminOrTreasurer}
+                      aria-disabled={!hasTreasurerAccess}
                     >
                       <p
                         className="font-sans text-xs font-regular text-black">
