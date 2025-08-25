@@ -33,7 +33,7 @@ const ProfilePic = ({ user }) => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  console.log(user)
+
   return (
     <div
       className="relative w-[200px] h-[200px] mx-auto profile-pic_shadow"

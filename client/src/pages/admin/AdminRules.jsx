@@ -100,44 +100,104 @@ const AdminRules = () => {
   }
 
   return (
-    <div className="inline-block relative w-full h-auto py-20">
+    <div className="inline-block relative z-[20] w-full h-auto py-20">
       {isModalOpen && (
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}
       <BackButton />
-      <SimpleTitle title={"Journées à thème"} />
+      <SimpleTitle title={"Journées à thème"} stickyStatus={false} />
 
-      <div className="flex flex-col justify-start items-center px-4">
-        <div className="flex flex-row justify-between items-center w-full my-4">
-          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
-            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
-            <span>Pronos fermés demain</span>
+      <ul className="flex flex-col justify-start items-center px-4">
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Jour de Chasse</span>
           </p>
           <div>
-            <JoystickButton mode="trigger" onChange={() => triggerNotification('dayBefore')} />
+            <JoystickButton mode="trigger" />
           </div>
         </div>
 
-        <div className="flex flex-row justify-between items-center w-full my-4">
-          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
-            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
-            <span>Pronos fermés dans 3h</span>
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Silence des pronos</span>
           </p>
           <div>
-            <JoystickButton mode="trigger" onChange={() => triggerNotification('matchDay')} />
+            <JoystickButton mode="trigger" />
           </div>
         </div>
 
-        <div className="flex flex-row justify-between items-center w-full my-4">
-          <p className="btn btn-primary w-4/5 font-roboto font-medium text-xs flex flex-row justify-start items-center">
-            <img className="w-auto h-[15px] mr-4" src={paperplane} alt="Icone modifier"/>
-            <span>Notif test</span>
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>En bande organisée</span>
           </p>
           <div>
-            <JoystickButton mode="trigger" onChange={() => triggerTestNotification()} />
+            <JoystickButton mode="trigger" />
           </div>
         </div>
-      </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Noyeux Joel Don Markus</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>La Mystery Box</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>La Mystery Box</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Oh My Goal</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Change la donne !</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Taux d'interet</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-between items-center w-full my-4 bg-white border border-black shadow-flat-black rounded-xl py-6 pb-5 px-4">
+          <p className="btn btn-primary w-4/5 font-roboto text-black font-medium text-md flex flex-row justify-start items-center">
+            <span>Massaaaaacre</span>
+          </p>
+          <div>
+            <JoystickButton mode="trigger" />
+          </div>
+        </div>
+      </ul>
     </div>
   );
 };

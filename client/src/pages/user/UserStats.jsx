@@ -71,7 +71,7 @@ const UserStats = () => {
     <div className="inline-block relative z-11 w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white overflow-x-hidden">
       <div className="absolute inset-0 bg-black z-[1] mix-blend-difference"></div>
       <BackButton/>
-      <SimpleTitle title="Statistiques" stickyStatus={false} backgroundColor="bg-transparent" darkMode={true}/>
+      <SimpleTitle title="Statistiques" stickyStatus={false} backgroundColor="bg-transparent" darkMode={false}/>
 
       {/* Line Chart avec sélection dynamique */}
       <div className="chart-container py-4 my-4">

@@ -34,9 +34,9 @@ const runCronJob = () => {
     await betsCloseNotification();
   });
 
-  // Every Sunday at 23:30
-  cron.schedule('30 23 * * 0', async () => {
-    logger.info("[CRON]=> 30 23 * * 0 => eventBus.emit('weekEnded')");
+  // Every Sunday at 23:00
+  cron.schedule('00 23 * * 0', async () => {
+    logger.info("[CRON]=> 00 23 * * 0 => eventBus.emit('weekEnded')");
     await autoContribution()
     await scheduleWeeklyRankingUpdate()
     eventBus.emit('weekEnded');
@@ -44,7 +44,7 @@ const runCronJob = () => {
     await weekEndedNotification()
   })
 
-  // Every monday at 0:00
+  // Every monday at 0:01
   cron.schedule('0 0 * * 1', async () => {
     logger.info('[CRON]=> 0 0 * * 1 => fetchAndProgramWeekMatches()');
     await fetchAndProgramWeekMatches().then(r => {

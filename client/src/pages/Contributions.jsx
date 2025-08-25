@@ -46,14 +46,7 @@ const Contributions = () => {
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
-  const roles = user.Roles.map(r => r.name) || [];
-  const allowedTreasurer = ["admin", "treasurer",];
-  const allowedManager = ["admin", "manager",];
-  const allowedTwice = ["admin", "manager", "treasurer"];
-  const hasTreasurerAccess = roles.some(r => allowedTreasurer.includes(r));
-  const hasManagerAccess = roles.some(r => allowedManager.includes(r));
-  const hasTwiceAccess = roles.some(r => allowedTwice.includes(r));
-
+  const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useContext(UserContext);
 
   const formatEUR = (n) => `${Math.round(Number(n) || 0)}`;
 

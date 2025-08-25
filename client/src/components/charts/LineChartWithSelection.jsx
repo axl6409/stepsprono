@@ -250,7 +250,7 @@ const LineChartWithSelection = ({ data, userId, currentUserId, isRankingChart = 
       />
 
       <div
-        className="border border-black shadow-flat-black-adjust bg-black w-full mx-auto overflow-x-scroll custom-x-scrollbar"
+        className="border border-black relative shadow-flat-black-adjust bg-black w-full mx-auto overflow-x-scroll custom-x-scrollbar"
         style={{
           marginTop: '20px',
           whiteSpace: 'nowrap',
