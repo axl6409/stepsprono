@@ -26,6 +26,32 @@
     animation: slideOut 0.5s ease forwards;
 }
 
+/* Animation for the rain effect */
+@keyframes rain {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100%);
+    }
+}
+
+/* Glitch effect for the text */
+@keyframes glitch {
+    0%, 100% {
+        clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        transform: translate(0);
+    }
+    33% {
+        clip-path: polygon(0 0, 100% 0, 100% 15%, 0 15%);
+        transform: translate(-5px, -5px);
+    }
+    66% {
+        clip-path: polygon(0 85%, 100% 85%, 100% 100%, 0 100%);
+        transform: translate(5px, 5px);
+    }
+}
+
 .sticky-element {
     position: -webkit-sticky;
     position: sticky;
@@ -92,7 +118,7 @@ body {
     -webkit-text-stroke: 2px #FDD41D;
 }
 .text-shadow-black {
-    text-shadow: 1px 2px 0 rgba(0,0,0,1);
+    text-shadow: 2px 2px 0 rgba(0,0,0,1);
 }
 .text-shadow-yellow-medium {
     text-shadow: 2px 2px 0 #FDD41D;
@@ -102,9 +128,31 @@ body {
     text-shadow: 0 0 20px rgb(230 10 14), 0 0 20px rgb(230 10 10 / 0%);
 }
 
+.text-shadow-glow-green {
+    text-shadow: 4px 0px 5px #00ffcfad, 0px 4px 7px #00ffcfad;
+}
+.text-shadow-glow-purple {
+    text-shadow: -4px 0px 7px #e700ffab, -2px -3px 4px #e700ffab;
+}
+
 .writing-vertical {
     writing-mode: vertical-lr;
     text-orientation: mixed;
+}
+
+.text-glitch-animation::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 11;
+    animation: glitch 2s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(-2px, -2px);
+    color: #000;
+    text-shadow: 0 0 5px #000, 0 0 15px #000;
 }
 
 /* Week Recap - Table */

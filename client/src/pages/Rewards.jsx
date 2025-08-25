@@ -257,7 +257,7 @@ const Rewards = () => {
   return (
     <div className="text-center relative z-10 py-16 flex flex-col justify-center">
       <BackButton />
-      <AnimatedTitle title={"Trophées"} stickyStatus={false} />
+      <AnimatedTitle title={"Trophées"} stickyStatus={false} darkMode={true}/>
       <ProfilePic user={viewedUser ?? user} />
 
       {/* --- CHANGEMENT DE SAISON --- */}

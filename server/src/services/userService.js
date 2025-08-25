@@ -4,7 +4,7 @@ const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const logger = require("../utils/logger/logger");
 const { Op, fn, col, literal, Sequelize} = require('sequelize');
-const { User, Bet, Match, UserReward, Season, Player, UserRanking } = require("../models");
+const { User, Bet, Match, UserReward, Season, Player, UserRanking, Role, Team } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
 const { getPeriodMatchdays } = require("./appService");
@@ -1460,13 +1460,33 @@ const getUserStats = async (userId) => {
   }
 };
 
+const findUserByIdWithAssociations = async (userId) => {
+  try {
+    const user = await User.findByPk(userId, {
+      include: [
+        {
+          model: Role,
+          as: 'Roles'
+        },
+        {
+          model: Team,
+          as: 'team',
+        }]
+    });
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   getUserDatas,
+  getUserStats,
   setAllUsersPending,
-  getUserRank,
   updateLastConnect,
-  getUserPointsForWeek,
+  getUserRank,
   getUserRankByPeriod,
+  getUserPointsForWeek,
   checkUserCorrectPredictions,
   checkUserIncorrectPredictions,
   checkUserZeroPredictions,
@@ -1484,6 +1504,7 @@ module.exports = {
   getExactScorePredictionsCount,
   getUserTopRankingForTwoMonths,
   getUserSecondPlaceForTwoMonths,
+  getUserSecondPlaceStatus,
   getLongestCorrectPredictionStreak,
   getLongestIncorrectPredictionStreak,
   getCorrectPredictionsForFavoriteTeam,
@@ -1491,8 +1512,5 @@ module.exports = {
   getCorrectScorerPredictionsCount,
   getUniqueTrophiesCount,
   getTotalPointsForSeason,
-  getSeasonWinner,
-  hasUserWonPreviousSeason,
-  getUserPointsForSeason,
-  getUserStats
-}
+  findUserByIdWithAssociations
+};

@@ -265,26 +265,27 @@ const Dashboard = () => {
             const colorValue = getColorValueByClass(colorClass);
 
             return (
-              <p
-                translate="no"
-                className="relative z-10 fade-in"
-                style={{
-                  // text-shadow complet: offset-x, offset-y, blur, couleur
-                  textShadow: active
-                    ? `0 0 21px ${colorValue}, 0 0 32px ${colorValue}, 0 0 45px ${colorValue}`
-                    : 'none'
-                }}
-              >
-                <span className="absolute inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl3 stroke-black font-black leading-8">
-                  {active ? currentUserIndex + 1 : 'Non classé'}
-                </span>
-
-                <span
-                  className={`block relative z-[10] font-rubik text-xl3 stroke-black font-black leading-8 ${colorClass}`}
+              <div className='relative z-10'>
+                <p
+                  translate="no"
+                  className="relative z-10 fade-in"
+                  style={{
+                    // text-shadow complet: offset-x, offset-y, blur, couleur
+                    textShadow: active
+                      ? `0 0 21px ${colorValue}, 0 0 32px ${colorValue}, 0 0 45px ${colorValue}`
+                      : 'none'
+                  }}
                 >
+                <span className="absolute z-[2] inset-0 translate-x-0.5 translate-y-0.5 font-rubik text-xl3 stroke-black font-black leading-8">
                   {active ? currentUserIndex + 1 : 'Non classé'}
                 </span>
-              </p>
+                  <span
+                    className={`block relative z-[10] font-rubik text-xl3 stroke-black font-black leading-8 ${colorClass}`}
+                  >
+                  {active ? currentUserIndex + 1 : 'Non classé'}
+                </span>
+                </p>
+              </div>
             );
           })()}
         </div>

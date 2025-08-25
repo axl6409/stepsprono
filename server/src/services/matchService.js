@@ -318,6 +318,8 @@ async function fetchAndProgramWeekMatches() {
 
     logger.info(`[CRON]=> fetchAndProgramWeekMatches => Number of matches: ${matches.length}`);
     matches.forEach(match => {
+      // DEV
+      return;
       // Plus besoin de moment.utc() ici — utc_date est déjà en timezone correcte
       const matchTime = moment(match.utc_date).tz("Europe/Paris");
 

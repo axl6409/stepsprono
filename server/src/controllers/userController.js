@@ -16,7 +16,7 @@ const {getCurrentSeasonId} = require("../services/seasonService");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
-const {updateLastConnect, getUserStats} = require("../services/userService");
+const {updateLastConnect, getUserStats, findUserByIdWithAssociations} = require("../services/userService");
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 const {blockedUserNotification, unlockedUserNotification} = require("../services/notificationService");
@@ -44,17 +44,7 @@ router.get('/users/all', authenticateJWT, async (req, res) => {
 });
 router.get('/user/:id', authenticateJWT, async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id, {
-      include: [
-        {
-          model: Role,
-          as: 'Roles'
-        },
-        {
-          model: Team,
-          as: 'team',
-        }]
-    });
+    const user = await findUserByIdWithAssociations(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
