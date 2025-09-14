@@ -24,9 +24,33 @@ const JourDeChasse = () => {
   const [isMuted, setIsMuted] = useState(true);
 
   const handleAccept = async () => {
-    setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 500);
+    try {
+      const res = await axios.patch(
+        `${apiUrl}/api/user/${user.id}/unlocked`,
+        { userId: user.id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.status === 200) {
+        // 1) Mise à jour immédiate du contexte
+        updateUserStatus('approved');
+
+        // 2) Feedback utilisateur
+        setAlertMessage('MAAASSSAAACRE !!!');
+        setAlertType('success');
+
+        // 3) On redirige vers le dashboard
+        //    (on peut laisser un tout petit délai pour afficher le modal)
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 150);
+      }
+    } catch (err) {
+      console.error("Erreur lors de l'acceptation du réglement :", err);
+      setAlertMessage("Impossible d'accepter le règlement");
+      setAlertType('error');
+      setTimeout(() => setAlertMessage(''), 2000);
+    }
   };
 
   const handleReplay = () => {
