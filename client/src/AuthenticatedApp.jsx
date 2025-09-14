@@ -30,6 +30,11 @@ const AuthenticatedApp = () => {
     return <Navigate to="/reglement" replace />;
   }
 
+  if (isAuthenticated && user?.status === 'ruled'
+    && location.pathname !== '/jour-de-chasse') {
+    return <Navigate to="/jour-de-chasse" replace />;
+  }
+
   if (isAuthenticated && location.pathname === '/') {
     return <Navigate to="/dashboard" replace />;
   }
