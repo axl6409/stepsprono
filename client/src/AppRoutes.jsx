@@ -31,6 +31,7 @@ import Contributions from './pages/Contributions.jsx';
 import UserStats from './pages/user/UserStats.jsx';
 import ViewedProfileRouteSync from './contexts/ViewedProfileRouteSync.jsx';
 import AdminRules from './pages/admin/AdminRules.jsx';
+import JourDeChasse from "./pages/JourDeChasse.jsx";
 
 const RankingLayout = () => (
   <RankingProvider>
@@ -63,6 +64,7 @@ const AppRoutes = memo(({ user, token, setUser }) => {
           <Route path="/matchs" element={<ProtectedRoute component={Matchs} />} />
           <Route path="/rewards/:userId?" element={<ProtectedRoute component={Rewards} />} />
           <Route path="/reglement" element={<ProtectedRoute component={Reglement} />} />
+          <Route path="/jour-de-chasse" element={<ProtectedRoute component={JourDeChasse} />} />
           <Route path="/settings/username" element={<ProtectedRoute component={() => <EditField title="Changer le pseudo" fieldName="username" fieldLabel="Nouveau pseudo" user={user} token={token} setUser={setUser} />} />} />
           <Route path="/settings/email" element={<ProtectedRoute component={() => <EditField title="Changer le mail" fieldName="email" fieldLabel="Nouveau mail" user={user} token={token} setUser={setUser} type="email" />} />} />
           <Route path="/settings/password" element={<ProtectedRoute component={() => <EditField title="Changer le mot de passe" fieldName="password" fieldLabel="Nouveau mot de passe" user={user} token={token} setUser={setUser} type="password" />} />} />
