@@ -327,6 +327,17 @@ const Dashboard = () => {
               <div className="w-full -rotate-[5deg]">
                 <img src={chasedRuleIcon} alt=""/>
               </div>
+              <Link
+                to="/jour-de-chasse"
+                className="w-fit absolute left-1/2 -translate-x-1/2 top-0 fade-in block mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+              >
+                <span
+                  translate="no"
+                  className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-light transition -translate-y-1.5 group-hover:-translate-y-0"
+                >
+                  Voir la vidéo
+                </span>
+              </Link>
               <div className="absolute right-4 bottom-4 anim-rotate-attract w-20 h-24">
                 <SimpleTitle stickyStatus={false} fontSize={14} title={currentRule.selectedUserDatas.username} darkMode={true}/>
                 <div className="relative z-10 w-full h-20">
