@@ -151,6 +151,25 @@ router.get('/matchs/months/available', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des mois disponibles', error: error.message });
   }
 });
+router.get('/matchs/matchdays/all', authenticateJWT, async (req, res) => {
+  try {
+    let seasonId = req.query.season_id;
+    if (!seasonId) {
+      seasonId = await getCurrentSeasonId(61);
+    }
+    const matchdays = await Match.findAll({
+      attributes: ['matchday'],
+      group: ['matchday'],
+      order: [['matchday', 'ASC']],
+      where: {
+        season_id: seasonId
+      }
+    });
+    res.status(200).json(matchdays);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des matchdays', error: error.message });
+  }
+})
 
 /* ADMIN - GET */
 router.get('/admin/matchs/no-results', authenticateJWT, checkManager, async (req, res) => {

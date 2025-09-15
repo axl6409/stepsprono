@@ -22,7 +22,6 @@ const UserRanking = () => {
   };
 
   const getTieBreakerExplanation = () => {
-    console.log("rankingMode", rankingMode);
     if (rankingMode === 'history') {
       return "Classement départagé selon les points obtenus lors de la semaine précédente.";
     } else if (rankingMode === 'legit') {

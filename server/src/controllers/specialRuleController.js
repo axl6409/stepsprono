@@ -1,0 +1,63 @@
+const express = require('express')
+const router = express.Router()
+const { authenticateJWT, checkAdmin } = require("../middlewares/auth");
+const { SpecialRule } = require("../models");
+const { Op } = require("sequelize");
+const logger = require("../utils/logger/logger");
+const {toggleSpecialRule, getCurrentSpecialRule} = require("../services/specialRuleService");
+
+router.get('/special-rules', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const rules = await SpecialRule.findAll();
+    res.json(rules);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des règles', error: error.message });
+  }
+})
+
+router.get('/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const rule = await SpecialRule.findByPk(req.params.id);
+    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
+    res.json(rule);
+  } catch (error) {
+    logger.error(error);
+  }
+})
+
+router.get('/special-rule/current', authenticateJWT, async (req, res) => {
+  try {
+    const rule = await getCurrentSpecialRule();
+    if (!rule) {
+      res.status(204).json({ message: 'Aucune règle active cette semaine' });
+    }
+    res.json(rule);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération de la règle', error: error.message });
+    logger.error(error);
+  }
+})
+
+router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    
+  } catch (e) {
+    
+  }
+})
+
+router.patch('/admin/special-rule/toggle/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    logger.info('Special Rules')
+    const ruleId = req.params.id;
+    let status = req.body.status;
+    const rule = await toggleSpecialRule(ruleId, status)
+    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
+    res.json(rule);
+  } catch (e) {
+    logger.error(error);
+  }
+})
+
+module.exports = router

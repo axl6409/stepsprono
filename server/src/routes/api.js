@@ -16,6 +16,7 @@ const userController = require("../controllers/userController")
 const notificationController = require("../controllers/notificationController");
 const contributionController = require("../controllers/contributionController");
 const eventController = require("../controllers/eventController");
+const specialRuleController = require("../controllers/specialRuleController");
 
 router.use(appController)
 router.use(authController)
@@ -30,5 +31,6 @@ router.use(userController)
 router.use(notificationController)
 router.use(contributionController)
 router.use(eventController)
+router.use(specialRuleController)
 
 module.exports = router;

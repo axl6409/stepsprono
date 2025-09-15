@@ -32,6 +32,7 @@ import UserStats from './pages/user/UserStats.jsx';
 import ViewedProfileRouteSync from './contexts/ViewedProfileRouteSync.jsx';
 import AdminRules from './pages/admin/AdminRules.jsx';
 import JourDeChasse from "./pages/JourDeChasse.jsx";
+import SpecialRuleConfig from "./pages/admin/SpecialRuleConfig.jsx";
 
 const RankingLayout = () => (
   <RankingProvider>
@@ -78,6 +79,7 @@ const AppRoutes = memo(({ user, token, setUser }) => {
           <Route path="/admin/users/edit/:id" element={<ProtectedRoute component={EditUser} />} />
           <Route path="/admin/settings" element={<ProtectedRoute component={Settings} />} />
           <Route path="/admin/rules" element={<ProtectedRoute component={AdminRules} />} />
+          <Route path="/admin/special-rule/:id" element={<SpecialRuleConfig />} />
           <Route path="/admin/rewards" element={<ProtectedRoute component={AdminRewards} />} />
           <Route path="/admin/seasons" element={<ProtectedRoute component={AdminSeasons} />} />
           <Route path="/admin/teams" element={<ProtectedRoute component={AdminTeams} />} />
