@@ -9,6 +9,7 @@ import AppContent from "./AppContent.jsx";
 import NotificationProvider from "./providers/NotificationProvider.jsx";
 import VersionChecker from "./components/common/VersionChecker";
 import UpdateModal from "./components/common/UpdateModal";
+import {RuleProvider} from "./contexts/RuleContext.jsx";
 
 moment.updateLocale('fr', {});
 
@@ -17,11 +18,13 @@ const App = () => {
     <UserProvider>
       <AppProvider>
         <UpdateProvider>
-          <NotificationProvider>
-            <VersionChecker />
-            <AppContent />
-            <UpdateModal />
-          </NotificationProvider>
+          <RuleProvider>
+            <NotificationProvider>
+              <VersionChecker />
+              <AppContent />
+              <UpdateModal />
+            </NotificationProvider>
+          </RuleProvider>
         </UpdateProvider>
       </AppProvider>
     </UserProvider>

@@ -29,6 +29,8 @@ export const UserProvider = ({ children }) => {
     };
   }, [user]);
 
+
+
   useEffect(() => {
     const loadToken = async () => {
       const token = cookies.token || localStorage.getItem('token');
