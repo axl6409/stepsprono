@@ -1,4 +1,4 @@
-import React, {createContext, useState, useEffect, useContext} from 'react';
+import React, {createContext, useState, useEffect, useContext, useRef} from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext.jsx";
@@ -10,6 +10,7 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useContext(UserContext);
+  const fetchedRef = useRef(false);
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const [apiCalls, setApiCalls] = useState({ current: 0, limit_day: 0, error: false, error_message: '' });
@@ -22,7 +23,7 @@ export const AppProvider = ({ children }) => {
   const [currentSeason, setCurrentSeason] = useState([]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (!fetchedRef.current && isAuthenticated && user) {
       fetchCurrentSeason();
     }
     if (isAuthenticated && user && user.role === 'admin') {

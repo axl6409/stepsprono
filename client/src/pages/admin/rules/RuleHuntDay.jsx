@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import UserWheel from "../../../components/admin/UserWheel.jsx";
 import MatchdaySelect from "../../../components/admin/MatchdaySelect.jsx";
 import SimpleTitle from "../../../components/partials/SimpleTitle.jsx";
 
-const RuleHuntDay = ({ users, matchdays, formValues, setFormValues }) => {
-  const [selectedUser, setSelectedUser] = useState(formValues.selected_user || null);
+const RuleHuntDay = ({ rule, users, matchdays, formValues, setFormValues }) => {
+  const [selectedUser, setSelectedUser] = useState(formValues.selected_user || null );
+  const user = users.find((u) => u.id === formValues.selected_user);
+
 
   const handleUserSelect = (user) => {
     setSelectedUser(user);
@@ -15,13 +17,14 @@ const RuleHuntDay = ({ users, matchdays, formValues, setFormValues }) => {
     <div className="space-y-6">
       {/* Roue de sélection */}
       <div>
-        <UserWheel users={users} onSelect={handleUserSelect} />
+        <UserWheel users={users} onSelect={handleUserSelect} initialUser={rule.config.selected_user}/>
         {selectedUser && (
           <>
             <p className="mt-8 font-rubik text-xl uppercase text-red-medium text-center font-semibold">
               Joueur sélectionné :
             </p>
-            <SimpleTitle title={selectedUser.username} stickyStatus={false}/>
+
+            <SimpleTitle title={selectedUser.username || user.username} stickyStatus={false}/>
           </>
         )}
       </div>

@@ -4,7 +4,7 @@ const { authenticateJWT, checkAdmin } = require("../middlewares/auth");
 const { SpecialRule } = require("../models");
 const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
-const {toggleSpecialRule, getCurrentSpecialRule} = require("../services/specialRuleService");
+const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule } = require("../services/specialRuleService");
 
 router.get('/special-rules', authenticateJWT, checkAdmin, async (req, res) => {
   try {
@@ -41,9 +41,13 @@ router.get('/special-rule/current', authenticateJWT, async (req, res) => {
 
 router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
   try {
-    
-  } catch (e) {
-    
+    const ruleId = req.params.id;
+    const payload = req.body;
+    const rule = await configSpecialRule(ruleId, payload);
+    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
+    res.json(rule);
+  } catch (error) {
+    logger.error(error);
   }
 })
 
@@ -55,7 +59,7 @@ router.patch('/admin/special-rule/toggle/:id', authenticateJWT, checkAdmin, asyn
     const rule = await toggleSpecialRule(ruleId, status)
     if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
     res.json(rule);
-  } catch (e) {
+  } catch (error) {
     logger.error(error);
   }
 })

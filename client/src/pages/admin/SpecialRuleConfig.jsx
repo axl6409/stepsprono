@@ -23,7 +23,7 @@ function SpecialRuleConfig() {
 
   const { currentSeason } = useContext(AppContext);
 
-  const [day, setDay] = useState(null);
+  const [rules, setRules] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [videoFile, setVideoFile] = useState(null);
 
@@ -44,7 +44,7 @@ function SpecialRuleConfig() {
           `${apiUrl}/api/special-rule/datas/${id}`,
           authHeaders
         );
-        setDay(resRule.data);
+        setRules(resRule.data);
         setFormValues(resRule.data?.config || {});
 
         // 2) Users (saison courante uniquement)
@@ -74,40 +74,29 @@ function SpecialRuleConfig() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const saveVideoIfAny = async () => {
-    if (!videoFile) return;
-    const formData = new FormData();
-    formData.append("video", videoFile);
-    await axios.post(`${apiUrl}/api/special-rules/${id}/upload-video`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  };
-
   const handleSave = async () => {
     try {
-      await axios.put(
-        `${apiUrl}/api/special-days/${id}`,
+      console.log(formValues)
+      await axios.patch(
+        `${apiUrl}/api/admin/special-rule/datas/${id}`,
         { config: formValues },
         authHeaders
       );
-      await saveVideoIfAny();
-      navigate("/admin/rules");
+      // navigate("/admin/rules");
     } catch (err) {
       console.error(err);
     }
   };
 
   const renderByRule = () => {
-    if (!day) return null;
+    if (!rules) return null;
 
-    switch (day.rule_key) {
+    switch (rules.rule_key) {
       // Règle 1 — composant dédié
       case "hunt_day":
         return (
           <RuleHuntDay
+            rule={rules}
             users={users}
             matchdays={matchdays}
             formValues={formValues}
@@ -167,12 +156,12 @@ function SpecialRuleConfig() {
   };
 
   if (loading) return <Loader />;
-  if (!day) return <p className="p-6">Règle introuvable.</p>;
+  if (!rules) return <p className="p-6">Règle introuvable.</p>;
 
   return (
     <div className="inline-block relative z-20 w-full h-auto py-20 px-4">
       <BackButton />
-      <SimpleTitle title={day.name} stickyStatus={false} />
+      <SimpleTitle title={rules.name} stickyStatus={false} />
 
       <div className="bg-white border border-black shadow-flat-black rounded-xl p-6 mb-8">
         {formValues.description && (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Wheel } from "react-custom-roulette";
 
 const wheelStyleProps = {
@@ -16,9 +16,20 @@ const wheelStyleProps = {
   spinDuration: 0.6,
 };
 
-const UserWheel = ({ users, onSelect }) => {
+const UserWheel = ({ users, onSelect, initialUser }) => {
   const [spinning, setSpinning] = useState(false);
   const [prizeIndex, setPrizeIndex] = useState(0);
+
+  useEffect(() => {
+    if (initialUser && users.length) {
+      console.log(users);
+      const index = users.findIndex((u) => Number(u.id) === Number(initialUser));
+      console.log(index);
+      if (index !== -1) {
+        setPrizeIndex(index);
+      }
+    }
+  }, [initialUser, users]);
 
   const spin = () => {
     if (!users.length) return;

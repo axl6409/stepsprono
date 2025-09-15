@@ -6,12 +6,12 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 export const RuleContext = createContext();
 
-export const RuleContextProvider = ({children}) => {
+export const RuleProvider = ({children}) => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useContext(UserContext);
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
-  const [rules, setRules] = useState([]);
+  const [currentRule, setCurrentRule] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -26,7 +26,16 @@ export const RuleContextProvider = ({children}) => {
           'Authorization': `Bearer ${token}`,
         }
       })
-      setRules(response.data)
+      setCurrentRule(response.data)
+
+      if (response.data.id === 1) {
+        const selectedUser = await axios.get(`${apiUrl}/api/user/${response.data.config.selected_user}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+        setCurrentRule({...response.data, selectedUserDatas: selectedUser.data})
+      }
     } catch (error) {
       console.error(error)
     }
@@ -35,9 +44,9 @@ export const RuleContextProvider = ({children}) => {
   return (
     <RuleContext.Provider
       value={{
-
-      }}
-    >
+        fetchCurrentRule,
+        currentRule,
+      }}>
       {children}
     </RuleContext.Provider>
   )
