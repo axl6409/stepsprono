@@ -8,7 +8,7 @@ import BgEmail from "./BgEmail.jsx";
 import BgPassword from "./BgPassword.jsx";
 import BgTeam from "./BgTeam.jsx";
 import BackButton from "../nav/BackButton.jsx";
-import AlertModal from "../partials/modals/AlertModal.jsx";
+import AlertModal from "../modals/AlertModal.jsx";
 import SimpleTitle from "../partials/SimpleTitle.jsx";
 
 const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = "text" }) => {

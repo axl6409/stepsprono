@@ -27,7 +27,6 @@ export const RuleProvider = ({children}) => {
         }
       })
       setCurrentRule(response.data)
-
       if (response.data.id === 1) {
         const selectedUser = await axios.get(`${apiUrl}/api/user/${response.data.config.selected_user}`, {
           headers: {

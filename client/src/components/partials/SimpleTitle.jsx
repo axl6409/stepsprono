@@ -13,7 +13,7 @@ const SimpleTitle = ({ title, stickyStatus = true, backgroundColor, fontSize, ma
     <h1
       translate="no"
       style={style}
-      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full ${backgroundColor ? backgroundColor : 'bg-transparent'} fade-in ${marginBottom ? 'mb-12' : ''} text-center relative mx-auto leading-normal ${darkMode ? 'text-white' : 'text-black'}`}>
+      className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full ${backgroundColor ? backgroundColor : 'bg-transparent'} fade-in ${marginBottom ? 'mb-12' : ''} text-center relative mx-auto leading-none ${darkMode ? 'text-white' : 'text-black'}`}>
       <span translate="no" className="relative z-[3]">{title}</span>
       <span
         translate="no"

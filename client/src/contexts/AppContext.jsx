@@ -106,7 +106,6 @@ export const AppProvider = ({ children }) => {
       console.error('Erreur lors de la récupération des tâches cron', error);
     }
   }
-
   const fetchCurrentSeason = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/seasons/current/datas/61`, {

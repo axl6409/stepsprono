@@ -1,8 +1,9 @@
 const logger = require("../utils/logger/logger");
 const {Bet, Match, User, Setting, UserRanking, UserSeason} = require("../models");
-const {getMonthDateRange, getCurrentMonthMatchdays, getWeekDateRange} = require("./appService");
+const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
+const {getCurrentMonthMatchdays} = require("./matchdayService");
 
 /**
  * Retrieves the ranking of users for a given season and period.

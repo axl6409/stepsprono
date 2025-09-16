@@ -4,7 +4,7 @@ import moment from 'moment';
 import {useCookies} from "react-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
-import ConfirmationModal from "../../components/partials/modals/ConfirmationModal.jsx";
+import ConfirmationModal from "../../components/modals/ConfirmationModal.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import Loader from "../../components/partials/Loader.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";

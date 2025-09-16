@@ -1,14 +1,15 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team, Player, User, Setting, UserRanking, UserSeason} = require("../models");
-const {getCurrentWeekMatchdays, getCurrentMonthMatchdays, getWeekDateRange, getMonthDateRange} = require("./appService");
+const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonId} = require("./seasonService");
 const eventBus = require("../events/eventBus");
 const sequelize = require("../../database");
 const {getCurrentCompetitionId} = require("./competitionService");
 const moment = require("moment-timezone");
-const {getCurrentMatchday} = require("./matchService");
+const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
+const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.

@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import ReactDOM from "react-dom";
-import navClose from "../../../assets/icons/nav-cross.svg";
+import navClose from "../../assets/icons/nav-cross.svg";
 
 const Modal = ({ isOpen, onClose, children }) => {
   const popupRef = useRef();

@@ -4,7 +4,7 @@ import penIcon from "../../assets/icons/pencil.svg";
 import navClose from "../../assets/icons/nav-cross.svg";
 import paperplane from "../../assets/icons/paper-plane-solid.svg";
 import userAdd from "../../assets/icons/user-add.svg";
-import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import StatusModal from "../../components/modals/StatusModal.jsx";
 import UserSelectionModal from '../../components/admin/UserSelectionModal.jsx';
 import RewardForm from '../../components/admin/RewardForm';
 import { useCookies } from "react-cookie";

@@ -4,7 +4,7 @@ import axios from "axios";
 import Loader from "../../components/partials/Loader.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
-import JoystickButton from "../../components/partials/buttons/JoystickButton.jsx";
+import JoystickButton from "../../components/buttons/JoystickButton.jsx";
 import {Link} from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useCookies } from "react-cookie";
-import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
+import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const BlockUsers = ({ onSubmit, onClose, blocked }) => {

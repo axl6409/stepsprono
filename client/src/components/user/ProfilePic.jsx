@@ -72,9 +72,9 @@ const ProfilePic = ({ user }) => {
 
       {/* Si l’utilisateur est la cible */}
       {isChased && (
-        <div className="absolute anim-rotate-attract inset-0 rounded-full scale-[1.2] z-20">
+        <div className="absolute inset-0 rounded-full rotate-scale z-20">
           <img
-            className="h-full w-full object-contain -scale-x-100"
+            className="h-full w-full object-contain"
             src={chasedUserImage}
             alt=""
           />

@@ -11,9 +11,10 @@ const {getUserRank, getUserPointsForWeek, getUserRankByPeriod, checkUserCorrectP
   getPredictedVictoriesForFavoriteTeam, getCorrectScorerPredictionsCount, getUniqueTrophiesCount,
   getTotalPointsForSeason, hasUserWonPreviousSeason, getSeasonWinner, getUserPointsForSeason, getUserDatas
 } = require("./userService");
-const {getWeekDateRange, getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDate,
+const {getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDate,
   getStartAndEndOfCurrentMonth
 } = require("./appService");
+const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
 const {Op} = require("sequelize");
 const {earnTrophyNotification} = require("./notificationService");

@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
 const {updateRequireDetails, fetchAndProgramWeekMatches} = require("./server/src/services/matchService");
+const {programSpecialRule} = require("./server/src/services/appService");
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
@@ -57,6 +58,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     await fetchAndProgramWeekMatches().then(r => {
       logger.info('[MATCHS] => Week Matches Fetched : Success');
     })
+    await programSpecialRule();
     runCronJob()
     logger.info('[CRON] => Cron job started');
   } catch (error) {

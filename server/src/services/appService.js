@@ -5,11 +5,15 @@ const apiBaseUrl = process.env.FB_API_URL;
 const logger = require("../utils/logger/logger");
 const {Op} = require("sequelize");
 const {Season, Setting, Match} = require("../models");
-const schedule = require('node-schedule');
+const {schedule, scheduleJob} = require("node-schedule");
 const moment = require("moment");
 const eventBus = require("../events/eventBus");
 const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
+const {getCurrentSpecialRule, checkSpecialRule} = require("./specialRuleService");
+const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
+const {getPeriodMatchdays} = require("./logic/matchLogic");
+const {getCurrentWeekMatchdays} = require("./matchdayService");
 
 /**
  * Retrieves the number of API calls made by the server.
@@ -91,163 +95,6 @@ const getMidSeasonDate = async (seasonYear) => {
 
   const midSeasonTimestamp = startDate.getTime() + (endDate.getTime() - startDate.getTime()) / 2;
   return new Date(midSeasonTimestamp);
-};
-
-/**
- * Retrieves the start and end dates of the current ISO week.
- *
- * @return {Object} An object containing the start and end dates of the current ISO week.
- */
-const getWeekDateRange = () => {
-  const now = moment().tz("Europe/Paris");
-  // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 })
-  const start = now.clone().startOf('isoWeek');
-  const end = now.clone().endOf('isoWeek');
-  const startDate = start.clone().utc().format();
-  const endDate = end.clone().utc().format();
-  return { start: startDate, end: endDate };
-}
-
-/**
- * Returns the start and end dates of the current month.
- *
- * @return {Object} An object with `startOfMonth` and `endOfMonth` properties,
- * representing the start and end dates of the current month respectively.
- */
-const getMonthDateRange = () => {
-  const moment = require('moment');
-  // const now = moment().set({ 'year': 2025, 'month': 0, 'date': 25 });
-  const now = moment()
-  const start = now.clone().startOf('month');
-  const end = now.clone().endOf('month');
-  return { start: start, end: end };
-}
-
-/**
- * Retrieves the matchdays within a given period of time.
- *
- * @param {Date} startDate - The start date of the period.
- * @param {Date} endDate - The end date of the period.
- * @return {Promise<number[]>} An array of matchdays within the given period.
- * @throws {Error} If the provided dates are invalid.
- */
-const getPeriodMatchdays = async (startDate, endDate) => {
-  try {
-    if (!(startDate instanceof Date) || isNaN(startDate.getTime()) || !(endDate instanceof Date) || isNaN(endDate.getTime())) {
-      throw new Error("Dates invalides fournies à getPeriodMatchdays");
-    }
-
-    const matchdays = new Set();
-    const matchs = await Match.findAll({
-      where: {
-        utc_date: {
-          [Op.gte]: startDate,
-          [Op.lte]: endDate
-        },
-        status: 'FT'
-      }
-    })
-    for (const match of matchs) {
-      matchdays.add(match.matchday)
-    }
-    return Array.from(matchdays).map(Number);
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
-  }
-}
-
-const getMatchdayPeriod = async (matchday) => {
-  try {
-    if (isNaN(matchday)) {
-      logger.error("Matchday invalide fourni à getMatchdayPeriod");
-      throw new Error("Matchday invalide fourni à getMatchdayPeriod");
-    }
-
-    const matchs = await Match.findAll({
-      where: {
-        matchday: matchday,
-      },
-      order: [['utc_date', 'ASC']]
-    });
-
-    if (matchs.length === 0) {
-      logger.info('Aucun match prévu pour le matchday', matchday);
-      throw new Error(`Aucun match trouvé pour le matchday ${matchday}`);
-    }
-
-    const startDate = matchs[0].utc_date;
-    const endDate = matchs[matchs.length - 1].utc_date;
-
-    return {
-      startDate,
-      endDate
-    };
-  } catch (error) {
-    logger.error('Erreur lors de la récupération des dates du matchday :', error);
-    throw error;
-  }
-};
-
-/**
- * Retrieves the matchdays within the current week.
- *
- * @return {Promise<number[]>} An array of matchdays within the current week.
- */
-const getCurrentWeekMatchdays = async () => {
-  try {
-    const matchdays = []
-    const weekDates = getWeekDateRange();
-    const matchs = await Match.findAll({
-      where: {
-        utc_date: {
-          [Op.gte]: weekDates.start,
-          [Op.lte]: weekDates.end
-        }
-      }
-    })
-    for (const match of matchs) {
-      matchdays.push(match.matchday)
-    }
-    return matchdays
-  } catch (error) {
-    console.log( 'Erreur lors de la récupération des matchs du mois courant:', error)
-  }
-}
-
-/**
- * Retrieves the matchdays within the current month.
- *
- * @return {Promise<number[]>} An array of matchdays within the current month.
- */
-const getCurrentMonthMatchdays = async () => {
-  try {
-    const competitionId = await getCurrentCompetitionId();
-    const seasonId = await getCurrentSeasonId(competitionId);
-
-    const { start, end } = getMonthDateRange();
-
-    const matches = await Match.findAll({
-      where: {
-        competition_id: competitionId,
-        season_id: seasonId,
-        utc_date: {
-          [Op.between]: [start, end]
-        }
-      },
-      order: [['utc_date', 'ASC']]
-    });
-
-    if (matches.length > 0) {
-      const uniqueMatchdays = Array.from(new Set(matches.map(match => match.matchday)));
-      return uniqueMatchdays;
-    } else {
-      return [];
-    }
-
-  } catch (error) {
-    logger.error('Erreur lors de la récupération des matchdays :', error);
-    throw error;
-  }
 };
 
 /**
@@ -439,14 +286,31 @@ const scheduleBetsCloseEvent = async () => {
   }
 };
 
+const programSpecialRule = async () => {
+  try {
+    const currentRule = await getCurrentSpecialRule();
+    if (!currentRule) return;
+    const currentMatchday = await getCurrentWeekMatchdays();
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7));
+    startOfWeek.setHours(0, 0, 0, 0);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    if (currentMatchday.includes(currentRule.config?.matchday)) {
+      scheduleJob(endOfWeek, async () => {
+        await checkSpecialRule(currentRule);
+      });
+      logger.info('[programSpecialRule] => tâche planifiée pour la règle Jour de Chasse');
+    }
+  } catch (error) {
+    logger.error("Erreur lors de la planification de l'événement de vérification de la règle spéciale:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAPICallsCount,
-  getWeekDateRange,
-  getMonthDateRange,
-  getPeriodMatchdays,
-  getMatchdayPeriod,
-  getCurrentWeekMatchdays,
-  getCurrentMonthMatchdays,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
   getRankingMode,
@@ -457,4 +321,5 @@ module.exports = {
   getMidSeasonDate,
   getFirstMatchOfCurrentWeek,
   scheduleBetsCloseEvent,
+  programSpecialRule
 }

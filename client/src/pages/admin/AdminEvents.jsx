@@ -3,11 +3,11 @@ import {useCookies} from "react-cookie";
 import axios from "axios";
 import paperplane from "../../assets/icons/paper-plane-solid.svg";
 import Loader from "../../components/partials/Loader.jsx";
-import AlertModal from "../../components/partials/modals/AlertModal.jsx";
+import AlertModal from "../../components/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
-import CustomToggle from "../../components/partials/buttons/JoystickButton.jsx";
-import JoystickButton from "../../components/partials/buttons/JoystickButton.jsx";
+import CustomToggle from "../../components/buttons/JoystickButton.jsx";
+import JoystickButton from "../../components/buttons/JoystickButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminEvents = () => {

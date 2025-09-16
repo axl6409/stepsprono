@@ -6,7 +6,7 @@ import {faFlagCheckered} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import moment from "moment";
 import {AppContext} from "../../contexts/AppContext.jsx";
-import AlertModal from "../../components/partials/modals/AlertModal.jsx";
+import AlertModal from "../../components/modals/AlertModal.jsx";
 import WeekMatchesToggle from "../../components/admin/WeekMatchesToggle.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";

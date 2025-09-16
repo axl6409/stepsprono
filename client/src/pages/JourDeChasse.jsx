@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import AlertModal from '../components/partials/modals/AlertModal.jsx';
+import AlertModal from '../components/modals/AlertModal.jsx';
 import { UserContext } from '../contexts/UserContext.jsx';
 import SimpleTitle from '../components/partials/SimpleTitle.jsx';
 import BackButton from "../components/nav/BackButton.jsx";

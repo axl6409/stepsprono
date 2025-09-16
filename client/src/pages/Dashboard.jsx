@@ -16,7 +16,7 @@ import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextStats from "../assets/components/texts/statistiques.svg";
 import chasedUserImage from "../assets/components/rules/jour-de-chasse-icon.png";
 import chasedRuleIcon from "../assets/components/rules/jour_de_chasse.png";
-import AlertModal from "../components/partials/modals/AlertModal.jsx";
+import AlertModal from "../components/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
 import statsIcon from "../assets/icons/chart-simple-solid.svg";
@@ -25,6 +25,7 @@ import {useViewedProfile} from "../contexts/ViewedProfileContext.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
 import {RuleContext} from "../contexts/RuleContext.jsx";
 import SimpleTitle from "../components/partials/SimpleTitle.jsx";
+import ActiveSpecialRule from "../components/rules/ActiveSpecialRule.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -43,16 +44,7 @@ const Dashboard = () => {
   const [updateMessage, setUpdateMessage] = useState('');
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
   const [isSeasonStarted, setIsSeasonStarted] = useState(false);
-  const [isChased, setIsChased] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (currentRule?.id === 1 && user.id === currentRule.config?.selected_user) {
-      setIsChased(true);
-    } else {
-      setIsChased(false);
-    }
-  }, [currentRule, user.id]);
 
   useEffect(() => {
 
@@ -99,7 +91,6 @@ const Dashboard = () => {
     isSeasonStarted();
     setIsLoading(false);
   }, [user, token, isAuthenticated]);
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -319,48 +310,7 @@ const Dashboard = () => {
         </Link>
       </div>
 
-      <div>
-        {/* Si ce n’est PAS la cible mais qu’une cible est définie */}
-        {!isChased && currentRule?.id === 1 && currentRule.config?.selected_user && viewedUser.id !== currentRule.config?.selected_user && (
-          <>
-            <div className="block relative z-20 flex flex-col justify-center items-center mb-4">
-              <div className="w-full -rotate-[5deg]">
-                <img src={chasedRuleIcon} alt=""/>
-              </div>
-              <Link
-                to="/jour-de-chasse"
-                className="w-fit absolute left-1/2 -translate-x-1/2 top-0 fade-in block mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
-              >
-                <span
-                  translate="no"
-                  className="relative z-[2] w-full block border border-black text-black uppercase font-regular text-sm font-roboto px-3 py-1 rounded-full text-center shadow-md bg-yellow-light transition -translate-y-1.5 group-hover:-translate-y-0"
-                >
-                  Voir la vidéo
-                </span>
-              </Link>
-              <div className="absolute right-4 bottom-4 anim-rotate-attract w-20 h-24">
-                <SimpleTitle stickyStatus={false} fontSize={14} title={currentRule.selectedUserDatas.username} darkMode={true}/>
-                <div className="relative z-10 w-full h-20">
-                  <div className="absolute inset-0 rounded-full border-2 border-black shadow-md overflow-hidden z-10 bg-white">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={`${apiUrl}/uploads/users/${currentRule.selectedUserDatas.id}/${currentRule.selectedUserDatas.img || 'default.png'}`}
-                      alt="Cible sélectionnée"
-                    />
-                  </div>
-                  <div className="absolute inset-0 scale-[1.2] rounded-full overflow-hidden z-10">
-                    <img
-                      className="h-full w-full object-contain -scale-x-100"
-                      src={chasedUserImage}
-                      alt=""
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+      <ActiveSpecialRule currentRule={currentRule} user={user} viewedUser={viewedUser} isOwnProfile={isOwnProfile}/>
 
       <AnimatedTitle title={viewedUser.username} stickyStatus={false}/>
 

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import navClose from '../../../assets/icons/nav-cross.svg';
+import navClose from '../../assets/icons/nav-cross.svg';
 
 const RewardPopup = ({ reward, apiUrl, onClose }) => {
   const popupRef = useRef();

@@ -52,6 +52,23 @@
     }
 }
 
+@keyframes rotateScale {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(90deg) scale(0.8);
+    }
+    100% {
+        transform: rotate(180deg) scale(1.2);
+    }
+}
+
+.rotate-scale {
+    display: inline-block;
+    animation: rotateScale 1s ease-in-out forwards;
+}
+
 .sticky-element {
     position: -webkit-sticky;
     position: sticky;

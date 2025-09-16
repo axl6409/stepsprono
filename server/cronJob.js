@@ -2,12 +2,11 @@ const cron = require('node-cron')
 const eventBus = require('./src/events/eventBus')
 const moment = require("moment");
 const { updatePlayers } = require('./src/services/playerService')
-const { checkAndScheduleSeasonEndTasks, scheduleBetsCloseEvent } = require("./src/services/appService");
+const { checkAndScheduleSeasonEndTasks, scheduleBetsCloseEvent, programSpecialRule } = require("./src/services/appService");
 const { scheduleWeeklyRankingUpdate } = require("./src/services/betService");
 const { fetchAndProgramWeekMatches} = require('./src/services/matchService');
 const logger = require("./src/utils/logger/logger");
 const {getAllTeams} = require("./src/services/teamService");
-const {sendNotificationsToAll} = require("./src/services/fcmService");
 const {betsCloseNotification, weekEndedNotification} = require("./src/services/notificationService");
 const {autoContribution} = require("./src/services/contributionService");
 const {setAllUsersPending} = require("./src/services/userService");
@@ -32,6 +31,7 @@ const runCronJob = () => {
   cron.schedule('0 1 * * *', async () => {
     logger.log('[CRON] EVERY DAY 1:AM task running');
     await betsCloseNotification();
+    await programSpecialRule();
   });
 
   // Every Sunday at 23:00

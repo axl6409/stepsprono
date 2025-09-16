@@ -6,8 +6,9 @@ const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/seasonService");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
-  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates, getCurrentMatchday
+  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
 } = require("../services/matchService");
+const {getCurrentMatchday} = require("../services/matchdayService")
 const logger = require("../utils/logger/logger");
 const {match} = require("sinon");
 
