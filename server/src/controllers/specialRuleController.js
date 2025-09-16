@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const { authenticateJWT, checkAdmin } = require("../middlewares/auth");
+const { authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
 const { SpecialRule } = require("../models");
 const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
 const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule } = require("../services/specialRuleService");
 
-router.get('/special-rules', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/special-rules', authenticateJWT, async (req, res) => {
   try {
     const rules = await SpecialRule.findAll();
     res.json(rules);
@@ -16,7 +16,7 @@ router.get('/special-rules', authenticateJWT, checkAdmin, async (req, res) => {
   }
 })
 
-router.get('/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/special-rule/datas/:id', authenticateJWT, async (req, res) => {
   try {
     const rule = await SpecialRule.findByPk(req.params.id);
     if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
@@ -39,7 +39,7 @@ router.get('/special-rule/current', authenticateJWT, async (req, res) => {
   }
 })
 
-router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/special-rule/datas/:id', authenticateJWT, async (req, res) => {
   try {
     const ruleId = req.params.id;
     const payload = req.body;
@@ -53,7 +53,7 @@ router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkAdmin, async
   }
 })
 
-router.patch('/admin/special-rule/toggle/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/special-rule/toggle/:id', authenticateJWT, async (req, res) => {
   try {
     logger.info('Special Rules')
     const ruleId = req.params.id;
