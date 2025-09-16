@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import {useViewedProfile} from "../contexts/ViewedProfileContext.jsx";
 
 import BackButton from "../components/nav/BackButton.jsx";
-import RewardPopup from "../components/partials/modals/RewardPopup.jsx";
+import RewardPopup from "../components/modals/RewardPopup.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 
 // Swiper

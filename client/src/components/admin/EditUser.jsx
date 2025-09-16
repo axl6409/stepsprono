@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import {Link, useParams} from "react-router-dom";
 import BackButton from "../nav/BackButton.jsx";
-import StatusModal from "../partials/modals/StatusModal.jsx";
+import StatusModal from "../modals/StatusModal.jsx";
 import {UserContext} from "../../contexts/UserContext.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

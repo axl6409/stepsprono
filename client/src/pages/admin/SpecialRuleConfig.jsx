@@ -12,6 +12,7 @@ import MatchdaySelect from "../../components/admin/MatchdaySelect.jsx";
 import RuleAllianceDay from "./rules/RuleAllianceDay.jsx";
 import RuleSwapPredictions from "./rules/RuleSwapPredictions.jsx";
 import RuleMysteryBox from "./rules/RuleMysteryBox.jsx";
+import RuleSimple from "./rules/RuleSimple.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:3001";
 
@@ -108,8 +109,15 @@ function SpecialRuleConfig() {
       case "hidden_predictions":
       case "half_penalty_day":
       case "goal_day":
-      case "high_penalty_day":
       case "massacre_day":
+      case "high_penalty_day":
+        return (
+          <RuleSimple
+            matchdays={matchdays}
+            formValues={formValues}
+            setFormValues={setFormValues}
+          />
+        );
       case "alliance_day":
         return (
           <RuleAllianceDay
@@ -156,43 +164,29 @@ function SpecialRuleConfig() {
   };
 
   if (loading) return <Loader />;
-  if (!rules) return <p className="p-6">Règle introuvable.</p>;
+  if (!rules) return <p className="p-6">Règles introuvables.</p>;
 
   return (
     <div className="inline-block relative z-20 w-full h-auto py-20 px-4">
       <BackButton />
-      <SimpleTitle title={rules.name} stickyStatus={false} />
+      <SimpleTitle title={rules.name} stickyStatus={false} marginBottom={'2rem'} />
 
       <div className="bg-white border border-black shadow-flat-black rounded-xl p-6 mb-8">
         {formValues.description && (
-          <p className="font-rubik text-lg mb-6 text-black">{formValues.description}</p>
+          <p className="font-rubik text-lg text-black">{formValues.description}</p>
         )}
       </div>
 
-      <h2 className="font-roboto text-xl4 uppercase text-white font-black text-center my-4 text-stroke-black-2">
+      <h2 className="font-roboto text-xl4 uppercase text-black font-black text-center my-4 text-stroke-black-2">
         Configuration
       </h2>
 
       {renderByRule()}
 
-      {/* Upload vidéo (commun) */}
-      <div className="mb-6 mt-8">
-        <label className="block font-semibold">Vidéo de présentation</label>
-        <input
-          type="file"
-          accept="video/*"
-          onChange={(e) => setVideoFile(e.target.files[0])}
-          className="mt-1"
-        />
-        {formValues.video && (
-          <video src={formValues.video} controls className="mt-2 w-full" />
-        )}
-      </div>
-
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-center mt-8">
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-8 py-2 bg-green-deep text-black font-rubik text-sm uppercase font-medium rounded-full border border-black shadow-flat-black"
         >
           Sauvegarder
         </button>

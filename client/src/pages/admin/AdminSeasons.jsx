@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCookies } from "react-cookie";
 import axios from "axios";
-import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import StatusModal from "../../components/modals/StatusModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

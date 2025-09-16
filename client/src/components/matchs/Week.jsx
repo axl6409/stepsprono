@@ -12,7 +12,7 @@ import moment from "moment";
 import Loader from "../partials/Loader.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
-import AlertModal from "../partials/modals/AlertModal.jsx";
+import AlertModal from "../modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {

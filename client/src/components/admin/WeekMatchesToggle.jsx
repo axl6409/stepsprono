@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import paperplane from "../../assets/icons/paper-plane-solid.svg";
-import JoystickButton from "../partials/buttons/JoystickButton.jsx";
+import JoystickButton from "../buttons/JoystickButton.jsx";
 import {useCookies} from "react-cookie";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';

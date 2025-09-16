@@ -9,7 +9,9 @@ const {schedule, scheduleJob} = require("node-schedule");
 const moment = require("moment");
 const logger = require("../utils/logger/logger");
 const eventBus = require("../events/eventBus");
-const {getCurrentMatchday} = require("./matchService");
+const { getCurrentMatchday } = require("./matchdayService");
+const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
+const {status} = require("express/lib/response");
 
 const toggleSpecialRule = async (id, active) => {
   try {
@@ -25,21 +27,23 @@ const toggleSpecialRule = async (id, active) => {
 
 const getCurrentSpecialRule = async () => {
   try {
-    const currentMatchday = await getCurrentMatchday();
+    const currentMatchday = parseInt(await getCurrentMatchday(), 10);
     if (!currentMatchday) throw new Error('Current matchday not found');
 
-    return await SpecialRule.findOne({
+    const rule = await SpecialRule.findOne({
       where: {
         status: true,
         [Op.and]: [
           Sequelize.where(
-            Sequelize.cast(Sequelize.json('config.matchday'), 'int'),
-            currentMatchday
+            Sequelize.literal("(config->>'matchday')::int"),
+            { [Op.eq]: currentMatchday }
           )
         ]
-      },
-      order: [['activation_date', 'ASC']]
+      }
     });
+
+    if (!rule) return status(204).json({ message: 'Aucune règle active cette semaine' });
+    return rule;
   } catch (error) {
     logger.error('[getCurrentSpecialRule] Error getting current special rule:', error);
   }
@@ -79,8 +83,38 @@ const configSpecialRule = async (ruleId, payload) => {
   }
 };
 
+const checkSpecialRule = async (rule) => {
+  const currentMatchday = await getCurrentMatchday();
+  if (rule.config.matchday !== currentMatchday) return;
+
+  if (rule.rule_key === 'hunt_day') {
+    try {
+      const ranking = await getCurrentMatchdayRanking();
+      // Ici vous pouvez utiliser le ranking pour implémenter la logique de la règle spéciale
+      // Par exemple :
+      // - Trouver les utilisateurs avec le score le plus bas
+      // - Appliquer des pénalités ou des bonus
+      // - Déclencher des événements en fonction des positions
+
+      logger.info(`[checkSpecialRule] Règle spéciale "${rule.rule_key}" traitée pour la journée ${currentMatchday}`);
+      logger.debug(`[checkSpecialRule] Classement actuel:`, JSON.stringify(ranking, null, 2));
+
+      // Exemple de logique à implémenter :
+      // if (ranking.length > 0) {
+      //   const minPoints = Math.min(...ranking.map(user => user.points));
+      //   const lastPlaceUsers = ranking.filter(user => user.points === minPoints);
+      //   // Faire quelque chose avec les utilisateurs en dernière position
+      // }
+
+    } catch (error) {
+      logger.error(`[checkSpecialRule] Erreur lors du traitement de la règle spéciale:`, error);
+    }
+  }
+}
+
 module.exports = {
   toggleSpecialRule,
   getCurrentSpecialRule,
-  configSpecialRule
+  configSpecialRule,
+  checkSpecialRule
 }

@@ -9,6 +9,7 @@ const {
   checkGoalDetectiveTrophy, checkCollectorTrophy, checkKingStepsTrophy, checkJesterTrophy, checkLegendaryStepTrophy,
   checkMilestoneTrophies
 } = require("../services/rewardService");
+const {checkSpecialRule} = require("../services/specialRuleService");
 
 eventBus.on('betsClosed', async () => {
   logger.info('# Event => betsClosed || Rewards check begins #');
@@ -25,6 +26,9 @@ eventBus.on('betsClosed', async () => {
 })
 
 eventBus.on('weekEnded', async () => {
+  logger.info('# Event => weekEnded || Special Rules check begins #');
+  logger.info('Début de la vérification des règle spéciales');
+  await checkSpecialRule()
   logger.info('# Event => weekEnded || Rewards check begins #');
   logger.info('Début de la vérification du trophée Massacre');
   await checkMassacreTrophy()

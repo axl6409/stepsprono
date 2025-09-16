@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import UserWheel from "../../../components/admin/UserWheel.jsx";
 import MatchdaySelect from "../../../components/admin/MatchdaySelect.jsx";
+import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
   const [pool, setPool] = useState(users); // joueurs restants
@@ -34,14 +36,18 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
 
   return (
     <div className="space-y-6">
-      {/* Roue pour sélectionner les joueurs */}
       {pool.length > 0 ? (
-        <div>
-          <h3 className="font-bold mb-2">
+        <div className="flex flex-col justify-center items-center">
+          <h3 className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">
             {currentPick.length === 0
               ? "Sélection du premier joueur"
               : "Sélection du deuxième joueur"}
           </h3>
+          {currentPick.length !== 0 && (
+            <div>
+              <p className="font-rubik text-black text-center text-base font-bold">Premier séléctionné : <span className="text-green-deep stroke-black text-xl font-black block">{currentPick[0]?.username}</span></p>
+            </div>
+          )}
           <UserWheel users={pool} onSelect={handleSelect} />
         </div>
       ) : (
@@ -51,15 +57,27 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
       )}
 
       {/* Récap des groupes */}
-      <div>
-        <h4 className="font-semibold mb-2">Groupes formés :</h4>
+      <div className="border border-black p-4 rounded-xl shadow-flat-black bg-white">
+        <h4 className="font-bold text-black font-rubik text-base uppercase mb-2">Groupes formés :</h4>
         {groups.length === 0 ? (
-          <p className="text-gray-500">Aucun groupe pour l’instant</p>
+          <p className="text-gray-800">Aucun groupe pour l’instant</p>
         ) : (
-          <ul className="list-disc ml-6 space-y-1">
+          <ul className="list-disc space-y-1">
             {groups.map((g, idx) => (
-              <li key={idx}>
-                {g[0]?.username} & {g[1]?.username}
+              <li key={idx} className="flex flex-row justify-between gap-2 items-center border border-black p-2 rounded-md shadow-flat-black-adjust">
+                <span className="flex flex-row justify-start items-center gap-2">
+                  <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
+                    <img className="w-full h-full object-cover object-center" src={g[0]?.img ? `${apiUrl}/uploads/users/${g[0]?.id}/${g[0]?.img}` : defaultUserImage} alt=""/>
+                  </span>
+                  <span className="font-rubik text-black text-sm font-medium uppercase">{g[0]?.username}</span>
+                </span>
+                <span className="font-rubik text-black text-base font-black">&</span>
+                <span className="flex flex-row justify-start items-center gap-4">
+                  <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
+                    <img className="w-full h-full object-cover object-center" src={g[1]?.img ? `${apiUrl}/uploads/users/${g[1]?.id}/${g[1]?.img}` : defaultUserImage} alt=""/>
+                  </span>
+                  <span className="font-rubik text-black text-sm font-medium uppercase">{g[1]?.username}</span>
+                </span>
               </li>
             ))}
           </ul>
@@ -68,12 +86,11 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
 
       <button
         onClick={resetGroups}
-        className="px-3 py-1 bg-red-500 text-white rounded"
+        className="px-4 py-2 bg-red-medium font-rubik text-base shadow-flat-black mx-auto block text-white rounded-full"
       >
         Réinitialiser les groupes
       </button>
 
-      {/* Choix de la journée sportive */}
       <MatchdaySelect
         matchdays={matchdays}
         value={formValues.matchday}

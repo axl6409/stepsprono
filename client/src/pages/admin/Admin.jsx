@@ -7,7 +7,7 @@ import {faAdjust, faCaretLeft} from "@fortawesome/free-solid-svg-icons";
 import {useCookies} from "react-cookie";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import axios from "axios";
-import StatusModal from "../../components/partials/modals/StatusModal.jsx";
+import StatusModal from "../../components/modals/StatusModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import DashboardButton from "../../components/nav/DashboardButton.jsx";

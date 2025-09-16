@@ -1,6 +1,6 @@
 import React from 'react';
-import correctIcon from '../../../assets/icons/correct-icon.svg';
-import redcardIcon from '../../../assets/icons/redcard-icon.svg';
+import correctIcon from '../../assets/icons/correct-icon.svg';
+import redcardIcon from '../../assets/icons/redcard-icon.svg';
 
 const AlertModal = ({ message, type }) => {
   if (!message) return null;

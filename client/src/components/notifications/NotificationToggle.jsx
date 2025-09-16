@@ -5,7 +5,7 @@ import {
   deleteToken,
   vapidKey
 } from '../../firebase/firebaseConfig';
-import CustomToggle from "../partials/buttons/JoystickButton.jsx";
+import CustomToggle from "../buttons/JoystickButton.jsx";
 
 const NotificationToggle = () => {
   const [enabled, setEnabled] = useState(false);

@@ -5,6 +5,7 @@ const { authenticateJWT } = require("../middlewares/auth");
 const { sendNotification } = require("../services/fcmService");
 const logger = require("../utils/logger/logger");
 const {betsCloseNotification, testNotification, matchEndedNotification} = require("../services/notificationService");
+const {fetchWeekMatches} = require("../services/matchService");
 const router = express.Router();
 const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 const appPublicUrl = process.env.REACT_APP_PUBLIC_URL || 'http://localhost:3000';
@@ -93,6 +94,7 @@ router.post('/admin/notifications/send', async (req, res) => {
 router.post('/admin/notifications/bets-close', async (req, res) => {
   const { notificationType } = req.body;
   try {
+    const matches = await fetchWeekMatches(true);
     await betsCloseNotification(notificationType);
     res.status(200).json({ message: 'Notifications programmées avec succès' });
   } catch (error) {

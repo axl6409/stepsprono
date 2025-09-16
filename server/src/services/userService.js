@@ -7,7 +7,7 @@ const { Op, fn, col, literal, Sequelize} = require('sequelize');
 const { User, Bet, Match, UserReward, Season, Player, UserRanking, Role, Team } = require("../models");
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
-const { getPeriodMatchdays } = require("./appService");
+const {getPeriodMatchdays} = require("./logic/matchLogic");
 const {getCurrentSeasonId} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
 

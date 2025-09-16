@@ -9,7 +9,8 @@ const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const moment = require("moment");
-const {getWeekDateRange, getPeriodMatchdays} = require("./appService");
+const {getPeriodMatchdays} = require("./logic/matchLogic");
+const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
@@ -369,7 +370,6 @@ async function fetchAndProgramWeekMatches() {
   }
 }
 
-
 async function fetchWeekMatches(weekStart = false) {
   try {
     // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
@@ -552,44 +552,6 @@ const getPastAndCurrentMatchdays = async (seasonId) => {
   }
 };
 
-const getCurrentMatchday = async () => {
-  try {
-    const competitionId = await getCurrentCompetitionId();
-    const seasonId = await getCurrentSeasonId(competitionId);
-
-    // Récupérer tous les matchs de la saison actuelle
-    const matches = await Match.findAll({
-      where: {
-        competition_id: competitionId,
-        season_id: seasonId
-      },
-      order: [['utc_date', 'ASC']]
-    });
-
-    const today = new Date();
-
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7));
-    startOfWeek.setHours(0, 0, 0, 0);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    const matchesThisWeek = matches.filter(match => {
-      const matchDate = new Date(match.utc_date);
-      return matchDate >= startOfWeek && matchDate <= endOfWeek;
-    });
-
-    if (matchesThisWeek.length > 0) {
-      return matchesThisWeek[0].matchday;
-    } else {
-      console.log('Aucun match prévu cette semaine.');
-      return null;
-    }
-  } catch (error) {
-    console.error('Erreur lors de la recuperation du matchday : ', error);
-    throw error;
-  }
-};
-
 const scheduleSmartMatchCheck = (match, opts = {}) => {
   const {
     isLastOfWeekCandidate = false,
@@ -677,5 +639,4 @@ module.exports = {
   fetchMatchsNoChecked,
   getAvailableMonthsWithMatches,
   getPastAndCurrentMatchdays,
-  getCurrentMatchday
 };

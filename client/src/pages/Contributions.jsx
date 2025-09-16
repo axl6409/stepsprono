@@ -3,8 +3,8 @@ import axios from "axios";
 import { useCookies } from "react-cookie";
 import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
-import ContributionForm from "../components/partials/forms/ContributionForm.jsx";
-import Modal from "../components/partials/modals/Modal.jsx";
+import ContributionForm from "../components/forms/ContributionForm.jsx";
+import Modal from "../components/modals/Modal.jsx";
 import defaultUserImage from "../assets/components/user/default-user-profile.png";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -17,9 +17,9 @@ import monthPointsShape from "../assets/components/dashboard/month/month-points-
 import totalContribText from "../assets/components/contributions/total-cagnotte.webp";
 import userLockIcon from "../assets/icons/lock.svg";
 import userUnlockIcon from "../assets/icons/unlock.svg";
-import BlockUsers from "../components/partials/forms/BlockUsers.jsx";
-import InformationModal from "../components/partials/modals/InformationModal.jsx";
-import AlertModal from "../components/partials/modals/AlertModal.jsx";
+import BlockUsers from "../components/forms/BlockUsers.jsx";
+import InformationModal from "../components/modals/InformationModal.jsx";
+import AlertModal from "../components/modals/AlertModal.jsx";
 import InlineCopy from "../components/buttons/InlineCopy.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 

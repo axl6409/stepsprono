@@ -3,8 +3,8 @@ const {UserContribution, User} = require("../models");
 const logger = require("../utils/logger/logger");
 const {getCurrentCompetitionId} = require("./competitionService");
 const {getCurrentSeasonId} = require("./seasonService");
-const {getCurrentMatchday} = require("./matchService");
-const {getMatchdayPeriod} = require("./appService");
+const {getCurrentMatchday} = require("./matchdayService");
+const {getMatchdayPeriod} = require("./logic/matchLogic");
 const {getMatchdayRanking} = require("./betService");
 const {newContributionNeededNotification} = require("./notificationService");
 

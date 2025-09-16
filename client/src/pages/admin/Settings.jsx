@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useCookies} from "react-cookie";
-import InformationModal from "../../components/partials/modals/InformationModal.jsx";
+import InformationModal from "../../components/modals/InformationModal.jsx";
 import DynamicFormComponent from "../../components/admin/DynamicFormComponent.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";

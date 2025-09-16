@@ -29,8 +29,8 @@ router.get('/special-rule/datas/:id', authenticateJWT, checkAdmin, async (req, r
 router.get('/special-rule/current', authenticateJWT, async (req, res) => {
   try {
     const rule = await getCurrentSpecialRule();
-    if (!rule) {
-      res.status(204).json({ message: 'Aucune règle active cette semaine' });
+    if (!rule.status) {
+      return res.status(204).json({ message: 'Aucune règle active cette semaine' });
     }
     res.json(rule);
   } catch (error) {
@@ -44,7 +44,9 @@ router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkAdmin, async
     const ruleId = req.params.id;
     const payload = req.body;
     const rule = await configSpecialRule(ruleId, payload);
-    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
+    if (!rule) {
+      return res.status(204).json({ message: 'Aucune règle trouvée' });
+    }
     res.json(rule);
   } catch (error) {
     logger.error(error);
