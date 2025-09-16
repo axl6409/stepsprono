@@ -14,8 +14,6 @@ import Loader from "../components/partials/Loader.jsx";
 import trophyIcon from "../assets/components/icons/icon-trophees.png";
 import curveTextTrophies from "../assets/components/texts/les-trophees.svg";
 import curveTextStats from "../assets/components/texts/statistiques.svg";
-import chasedUserImage from "../assets/components/rules/jour-de-chasse-icon.png";
-import chasedRuleIcon from "../assets/components/rules/jour_de_chasse.png";
 import AlertModal from "../components/modals/AlertModal.jsx";
 import AnimatedTitle from "../components/partials/AnimatedTitle.jsx";
 import {RankingContext} from "../contexts/RankingContext.jsx";
@@ -24,14 +22,13 @@ import {AppContext} from "../contexts/AppContext.jsx";
 import {useViewedProfile} from "../contexts/ViewedProfileContext.jsx";
 import BackButton from "../components/nav/BackButton.jsx";
 import {RuleContext} from "../contexts/RuleContext.jsx";
-import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 import ActiveSpecialRule from "../components/rules/ActiveSpecialRule.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Dashboard = () => {
   const { currentSeason } = useContext(AppContext);
-  const { currentRule } = useContext(RuleContext);
+  const { currentRule, playAudio, audioPlayed } = useContext(RuleContext);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated, updateUserStatus } = useContext(UserContext);
   const { ranking, rankingType, fetchRanking, isLoading: rankingIsLoading } = useContext(RankingContext);
@@ -100,6 +97,15 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    document.addEventListener("touchstart", handleFirstInteraction, { once: true });
+    document.addEventListener("click", handleFirstInteraction, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", handleFirstInteraction);
+      document.removeEventListener("click", handleFirstInteraction);
+    };
+  }, []);
+
+  useEffect(() => {
     fetchRanking(rankingType);
   }, [fetchRanking, rankingType]);
 
@@ -110,6 +116,11 @@ const Dashboard = () => {
     }
   }, [ranking, viewedUser?.id, rankingIsLoading]);
 
+  const handleFirstInteraction = () => {
+    playAudio();
+    document.removeEventListener("touchstart", handleFirstInteraction, { once: true });
+    document.removeEventListener("click", handleFirstInteraction, { once: true });
+  };
 
   const goToNextUser = () => {
     if (currentUserIndex !== null && currentUserIndex < ranking.length - 1) {
@@ -191,6 +202,7 @@ const Dashboard = () => {
   };
 
   const handlers = useSwipeable({
+    delta: 70,
     onSwipedLeft: goToNextUser,
     onSwipedRight: goToPreviousUser,
     preventDefaultTouchmoveEvent: true,
@@ -214,7 +226,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div {...handlers} className="text-center relative z-[12] flex flex-col justify-center overflow-x-hidden" key={viewedUser?.id}>
+    <div {...handlers} onClick={handleFirstInteraction} className="text-center relative z-[12] flex flex-col justify-center overflow-x-hidden" key={viewedUser?.id}>
       {isModalOpen && (
         <AlertModal message={updateMessage} type={updateStatus ? 'success' : 'error'}/>
       )}

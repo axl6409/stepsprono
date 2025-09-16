@@ -11,6 +11,7 @@ const logger = require("../utils/logger/logger");
 const eventBus = require("../events/eventBus");
 const { getCurrentMatchday } = require("./matchdayService");
 const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
+const {status} = require("express/lib/response");
 
 const toggleSpecialRule = async (id, active) => {
   try {
@@ -29,7 +30,7 @@ const getCurrentSpecialRule = async () => {
     const currentMatchday = parseInt(await getCurrentMatchday(), 10);
     if (!currentMatchday) throw new Error('Current matchday not found');
 
-    return await SpecialRule.findOne({
+    const rule = await SpecialRule.findOne({
       where: {
         status: true,
         [Op.and]: [
@@ -40,6 +41,9 @@ const getCurrentSpecialRule = async () => {
         ]
       }
     });
+
+    if (!rule) return status(204).json({ message: 'Aucune règle active cette semaine' });
+    return rule;
   } catch (error) {
     logger.error('[getCurrentSpecialRule] Error getting current special rule:', error);
   }

@@ -31,7 +31,7 @@ import Contributions from './pages/Contributions.jsx';
 import UserStats from './pages/user/UserStats.jsx';
 import ViewedProfileRouteSync from './contexts/ViewedProfileRouteSync.jsx';
 import AdminRules from './pages/admin/AdminRules.jsx';
-import JourDeChasse from "./pages/JourDeChasse.jsx";
+import JourDeChasse from "./pages/rules/JourDeChasse.jsx";
 import SpecialRuleConfig from "./pages/admin/SpecialRuleConfig.jsx";
 
 const RankingLayout = () => (

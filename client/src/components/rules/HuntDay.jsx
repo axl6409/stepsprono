@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, {useState, useEffect} from 'react';
 import { useCookies } from 'react-cookie';
 import chasedRuleIcon from "../../assets/components/rules/jour_de_chasse.png";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import SimpleTitle from "../partials/SimpleTitle.jsx";
 import chasedUserImage from "../../assets/components/rules/jour-de-chasse-icon.png";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
-const HuntDay = ({rule, user, viewedUser, isOwnProfile}) => {
+const HuntDay = ({ rule, user, viewedUser, isOwnProfile }) => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
-  const [isLoading, setIsLoading] = useState(true);
   const [displayChased, setDisplayChased] = useState(true);
 
   useEffect(() => {
-    if ((user.id === rule.selectedUserDatas?.id) && isOwnProfile || (viewedUser.id === rule.selectedUserDatas?.id)) {
-      setDisplayChased(false)
+    if (
+      (user.id === rule.selectedUserDatas?.id && isOwnProfile) ||
+      (viewedUser.id === rule.selectedUserDatas?.id)
+    ) {
+      setDisplayChased(false);
     }
-  }, [token]);
+  }, [token, user, viewedUser, rule, isOwnProfile]);
 
   return (
     <div className="block relative z-20 flex flex-col justify-center items-center mb-4">
@@ -47,7 +48,7 @@ const HuntDay = ({rule, user, viewedUser, isOwnProfile}) => {
                 alt="Cible sélectionnée"
               />
             </div>
-            <div className="absolute inset-0 transition-all duration-300 ease-in-out rotate-scale rounded-full overflow-hidden z-10">
+            <div className="absolute inset-0 transition-all duration-300 ease-in-out rotate-scale-225 rotate-[10deg] rounded-full overflow-hidden z-10">
               <img
                 className="h-full w-full object-contain"
                 src={chasedUserImage}

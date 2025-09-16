@@ -3,15 +3,17 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import AlertModal from '../components/modals/AlertModal.jsx';
-import { UserContext } from '../contexts/UserContext.jsx';
-import SimpleTitle from '../components/partials/SimpleTitle.jsx';
-import BackButton from "../components/nav/BackButton.jsx";
+import AlertModal from '../../components/modals/AlertModal.jsx';
+import { UserContext } from '../../contexts/UserContext.jsx';
+import SimpleTitle from '../../components/partials/SimpleTitle.jsx';
+import BackButton from "../../components/nav/BackButton.jsx";
+import {RuleContext} from "../../contexts/RuleContext.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const JourDeChasse = () => {
   const { user, updateUserStatus } = useContext(UserContext);
+  const { rule } = useContext(RuleContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
   const [reglement, setReglement] = useState('');
