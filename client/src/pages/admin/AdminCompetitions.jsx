@@ -118,17 +118,17 @@ const AdminCompetitions = () => {
       isLoading ? (
           <p>Chargement...</p>
       ) : (
-          <div className="inline-block w-full h-auto py-20">
+          <div className="inline-block relative z-20 w-full h-auto py-20">
             <BackButton />
             <SimpleTitle title={"Données des competitions"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
             <div className="mt-4 px-8 flex flex-row flex-wrap justify-evenly items-center">
               {competitions.length > 0 ? (
                   competitions.map(competition => (
                       <div key={competition.id}
-                           className="relative flex flex-col items-center justify-between w-full my-8 p-4 border border-black shadow-flat-black">
-                          <img className="w-[50px] absolute z-[1] top-1 left-1" src={competition.emblem} alt=""/>
+                           className="relative bg-white flex flex-col items-center justify-between w-full my-8 p-4 border border-black rounded-xl shadow-flat-black">
+                          <img className="w-[50px] absolute z-[1] top-2 left-2 rounded-md" src={competition.emblem} alt=""/>
                           <div className="relative z-[2] my-4">
-                              <h2 className="font-title uppercase text-xl3 font-bold">{competition.name}</h2>
+                              <h2 className="font-rubik uppercase text-xl3 font-bold">{competition.name}</h2>
                           </div>
                         <div className="relative z-[2]  flex flex-col justify-start">
                           <div className="flex flex-row justify-between items-center my-2">

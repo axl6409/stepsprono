@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
 const {Match, Team} = require("../models");
 const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
@@ -173,7 +173,7 @@ router.get('/matchs/matchdays/all', authenticateJWT, async (req, res) => {
 })
 
 /* ADMIN - GET */
-router.get('/admin/matchs/no-results', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/matchs/no-results', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const matchs = await Match.findAndCountAll({
       where: {
@@ -192,7 +192,7 @@ router.get('/admin/matchs/no-results', authenticateJWT, checkManager, async (req
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.get('/admin/matchs/no-checked', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/matchs/no-checked', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const matchs = await fetchMatchsNoChecked()
     res.status(200).json({
@@ -203,7 +203,7 @@ router.get('/admin/matchs/no-checked', authenticateJWT, checkManager, async (req
     res.status(500).json({ message: 'Erreur lors de la récupération des matchs', error: error.message });
   }
 });
-router.get('/admin/matchs/datas/to-update', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/matchs/datas/to-update', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const matchs = await Match.findAndCountAll({
       where: {
@@ -224,7 +224,7 @@ router.get('/admin/matchs/datas/to-update', authenticateJWT, checkManager, async
 });
 
 /* ADMIN - PATCH */
-router.patch('/admin/matchs/update/results/:id', authenticateJWT, checkManager, async (req, res) => {
+router.patch('/admin/matchs/update/results/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const matchId = req.params.id;
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
@@ -236,7 +236,7 @@ router.patch('/admin/matchs/update/results/:id', authenticateJWT, checkManager, 
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/admin/matchs/update-all', authenticateJWT, checkManager, async (req, res) => {
+router.patch('/admin/matchs/update-all', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -251,7 +251,7 @@ router.patch('/admin/matchs/update-all', authenticateJWT, checkManager, async (r
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/matchs/update-all/utc', authenticateJWT, checkManager, async (req, res) => {
+router.patch('/admin/matchs/update-all/utc', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -266,7 +266,7 @@ router.patch('/admin/matchs/update-all/utc', authenticateJWT, checkManager, asyn
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/matchs/:id/require-details', authenticateJWT, checkManager, async (req, res) => {
+router.patch('/admin/matchs/:id/require-details', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé' });
 
@@ -284,7 +284,7 @@ router.patch('/admin/matchs/:id/require-details', authenticateJWT, checkManager,
 });
 
 /* ADMIN - POST */
-router.post('/admin/matchs/update-require-details', authenticateJWT, checkManager, async (req, res) => {
+router.post('/admin/matchs/update-require-details', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     await updateRequireDetails();
     res.status(200).json({ message: 'Mise à jour réussie' });

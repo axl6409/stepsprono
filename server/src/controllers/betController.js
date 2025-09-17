@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManagerTreasurer} = require("../middlewares/auth");
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
 const {getNullBets, checkupBets, createBet, updateBet, updateAllBetsForCurrentSeason} = require("../services/betService");
@@ -126,7 +126,7 @@ router.post('/bet/add', authenticateJWT, async (req, res) => {
 })
 
 /* ADMIN - GET */
-router.get('/admin/bets/unchecked', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/admin/bets/unchecked', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -140,7 +140,7 @@ router.get('/admin/bets/unchecked', authenticateJWT, checkAdmin, async (req, res
 })
 
 /* ADMIN - PATCH */
-router.patch('/admin/bets/checkup/all', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/bets/checkup/all', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const betIds = req.body;
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
@@ -153,7 +153,7 @@ router.patch('/admin/bets/checkup/all', authenticateJWT, checkAdmin, async (req,
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/admin/bets/update/all', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/bets/update/all', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -165,7 +165,7 @@ router.patch('/admin/bets/update/all', authenticateJWT, checkAdmin, async (req, 
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
-router.patch('/admin/bets/checkup/:betId', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/bets/checkup/:betId', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const betId = req.params.betId;
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {

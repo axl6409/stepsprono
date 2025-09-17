@@ -65,11 +65,11 @@ const AdminRules = () => {
           .map((day) => (
           <li key={day.id} className="flex flex-col w-full my-4 bg-white border border-black shadow-flat-black rounded-xl p-6">
             <div className="flex flex-row flex-wrap justify-between items-center">
-              <h3 className="font-bold w-full leading-5 uppercase text-xl text-center mb-4">{day.name}</h3>
-              {day.config?.description && <p className="text-sm mb-8 text-black">{day.config.description}</p>}
+              <h3 translate="no" className="font-bold w-full leading-5 uppercase text-xl text-center mb-4">{day.name}</h3>
+              {day.config?.description && <p translate="no" className="text-sm mb-8 text-black">{day.config.description}</p>}
               <div className="flex flex-row w-full justify-between gap-2">
                 <JoystickButton checked={day.status} mode={day.status === true ? "checked" : "trigger"} onChange={() => toggleStatus(day)} />
-                <Link className="px-4 py-2 bg-blue-light border border-black rounded-full shadow-flat-black" to={`/admin/special-rule/${day.id}`}>
+                <Link translate="no" className="px-4 py-2 bg-blue-light border border-black rounded-full shadow-flat-black" to={`/admin/special-rule/${day.id}`}>
                   Configurer
                 </Link>
               </div>

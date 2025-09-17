@@ -72,7 +72,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto py-12">
+    <div className="inline-block relative z-20 w-full h-auto py-12 overflow-hidden">
       <BackButton />
       <SimpleTitle title={"Gestion des réglages"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
       {settings.map((setting) => (

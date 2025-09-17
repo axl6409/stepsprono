@@ -13,6 +13,7 @@ import RuleAllianceDay from "./rules/RuleAllianceDay.jsx";
 import RuleSwapPredictions from "./rules/RuleSwapPredictions.jsx";
 import RuleMysteryBox from "./rules/RuleMysteryBox.jsx";
 import RuleSimple from "./rules/RuleSimple.jsx";
+import AlertModal from "../../components/modals/AlertModal.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:3001";
 
@@ -31,6 +32,9 @@ function SpecialRuleConfig() {
   const [users, setUsers] = useState([]);
   const [matchdays, setMatchdays] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState(null);
 
   const authHeaders = useMemo(
     () => ({ headers: { Authorization: `Bearer ${token}` } }),
@@ -77,15 +81,24 @@ function SpecialRuleConfig() {
 
   const handleSave = async () => {
     try {
-      console.log(formValues)
-      await axios.patch(
+      const res = await axios.patch(
         `${apiUrl}/api/admin/special-rule/datas/${id}`,
         { config: formValues },
         authHeaders
       );
-      // navigate("/admin/rules");
+      if (res.status === 200) {
+        setAlertMessage("Configuration mise à jour avec succès.");
+        setAlertType('success');
+
+        setTimeout(() => {
+          navigate('/admin/rules', { replace: true });
+        }, 1500);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Erreur lors de la sauvegarde :", err);
+      setAlertMessage("Impossible d'enregistrer la configuration");
+      setAlertType('error');
+      setTimeout(() => setAlertMessage(''), 2000);
     }
   };
 
@@ -148,7 +161,7 @@ function SpecialRuleConfig() {
       default:
         return (
           <>
-            <p className="mb-4 text-sm text-gray-600">
+            <p translate="no" className="mb-4 text-sm text-gray-600">
               (UI spécifique à cette règle à venir)
             </p>
             <MatchdaySelect
@@ -164,20 +177,21 @@ function SpecialRuleConfig() {
   };
 
   if (loading) return <Loader />;
-  if (!rules) return <p className="p-6">Règles introuvables.</p>;
+  if (!rules) return <p className="p-6" translate="no">Règles introuvables.</p>;
 
   return (
     <div className="inline-block relative z-20 w-full h-auto py-20 px-4">
+      <AlertModal message={alertMessage} type={alertType} />
       <BackButton />
       <SimpleTitle title={rules.name} stickyStatus={false} marginBottom={'2rem'} />
 
       <div className="bg-white border border-black shadow-flat-black rounded-xl p-6 mb-8">
         {formValues.description && (
-          <p className="font-rubik text-lg text-black">{formValues.description}</p>
+          <p translate="no" className="font-rubik text-lg text-black">{formValues.description}</p>
         )}
       </div>
 
-      <h2 className="font-roboto text-xl4 uppercase text-black font-black text-center my-4 text-stroke-black-2">
+      <h2 translate="no" className="font-roboto text-xl4 uppercase text-black font-black text-center my-4 text-stroke-black-2">
         Configuration
       </h2>
 
@@ -185,6 +199,7 @@ function SpecialRuleConfig() {
 
       <div className="flex justify-center mt-8">
         <button
+          translate="no"
           onClick={handleSave}
           className="px-8 py-2 bg-green-deep text-black font-rubik text-sm uppercase font-medium rounded-full border border-black shadow-flat-black"
         >

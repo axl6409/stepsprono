@@ -12,6 +12,7 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 import AlertModal from "../../components/modals/AlertModal.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
+import Loader from "../../components/partials/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminBets = () => {
@@ -21,6 +22,7 @@ const AdminBets = () => {
   const [bets, setBets] = useState([]);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
@@ -32,12 +34,14 @@ const AdminBets = () => {
 
   const fetchBetsUnchecked = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`${apiUrl}/api/admin/bets/unchecked`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
       });
       setBets(response.data.bets);
+      setIsLoading(false);
     } catch (error) {
       console.error('Erreur lors de la récupération des matchs :', error);
     }
@@ -45,12 +49,14 @@ const AdminBets = () => {
 
   const handleUpdateSingleBet = async (betId) => {
     try {
+      setIsLoading(true);
       const response = await axios.patch(`${apiUrl}/api/admin/bets/checkup/${betId}`, null, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
         fetchBetsUnchecked()
         handleSuccess('Pronostic vérifié !', 1500)
+        setIsLoading(false);
       } else {
         handleError('Erreur lors de la vérification du pronostic !', 1500)
       }
@@ -61,12 +67,14 @@ const AdminBets = () => {
 
   const handleUpdateAll = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.patch(`${apiUrl}/api/admin/bets/update/all`, null,{
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 200) {
         fetchBetsUnchecked()
         handleSuccess('Pronostics vérifiés !', 1500)
+        setIsLoading(false);
       } else {
         handleError('Erreur lors de la vérification des pronostics !', 1500)
       }
@@ -77,6 +85,7 @@ const AdminBets = () => {
 
   const handleCheckAll = async () => {
     try {
+      setIsLoading(true);
       const betIds = bets.map(bet => bet.id);
       const response = await axios.patch(`${apiUrl}/api/admin/bets/checkup/all`, betIds, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -84,6 +93,7 @@ const AdminBets = () => {
       if (response.status === 200) {
         fetchBetsUnchecked()
         handleSuccess('Pronostics vérifiés !', 1500)
+        setIsLoading(false);
       } else {
         handleError('Erreur lors de la vérification des pronostics !', 1500)
       }
@@ -109,12 +119,15 @@ const AdminBets = () => {
   };
 
   return (
-    <div className="inline-block w-full h-auto py-20">
+    isLoading ? (
+      <Loader />
+    ) : (
+    <div className="inline-block relative z-20 w-full h-auto py-20">
       <AlertModal message={alertMessage} type={alertType} />
       <BackButton />
       <SimpleTitle title={"Données des pronostics"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
-      <div className="pb-3.5 pt-6 px-2 bg-black relative">
-        <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Pronostics non-vérifiés</p>
+      <div className="pb-3.5 pt-6 px-2 mt-12 bg-black relative">
+        <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-t-4 border-black shadow-flat-black-middle">Pronostics non-vérifiés</p>
         <div className="w-fit absolute -top-5 right-2.5 rounded-full flex flex-row">
           <button
             onClick={() => handleCheckAll()}
@@ -179,6 +192,7 @@ const AdminBets = () => {
         </ul>
       </div>
     </div>
+    )
   );
 }
 

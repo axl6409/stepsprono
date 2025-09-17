@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
 const fs = require('fs');
 const { mkdirSync, readdirSync } = require('fs');
 const { promisify } = require('util');
@@ -19,7 +19,7 @@ const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, ge
 const {updateLastConnect, getUserStats, findUserByIdWithAssociations} = require("../services/userService");
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
-const {blockedUserNotification, unlockedUserNotification} = require("../services/notificationService");
+const {blockedUserNotification, unlockedUserNotification, unruledUserNotification} = require("../services/notificationService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -268,6 +268,17 @@ router.patch('/user/:id/blocked', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: 'Erreur lors du blocage de l\'utilisateur' });
   }
 })
+router.patch('/user/:id/unruled', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    await user.update({ status: 'approved' });
+    await unruledUserNotification(user);
+    res.status(200).json({ message: 'Utilisateur approuvé avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de l\'approuvage de l\'utilisateur' });
+  }
+});
 
 /* PUBLIC - POST */
 router.post('/user/check-password', authenticateJWT, async (req, res) => {
@@ -304,16 +315,16 @@ router.post('/user/verify-password', authenticateJWT, async (req, res) => {
 });
 
 /* ADMIN - GET */
-router.get('/admin/users/requests', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/users/requests', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
-    const users = await User.findAll({ where: { status: 'pending' } });
+    const users = await User.findAll({ where: { status: { [Op.ne]: 'pending' } } });
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 })
-router.get('/admin/users', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/users', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     let queryOptions = {
       include: [{
@@ -334,7 +345,7 @@ router.get('/admin/users', authenticateJWT, checkManager, async (req, res) => {
 });
 
 /* ADMIN - DELETE */
-router.delete('/admin/user/delete/:id', authenticateJWT, checkManager, async (req, res) => {
+router.delete('/admin/user/delete/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', message: req.user });
 

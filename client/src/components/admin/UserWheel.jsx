@@ -51,6 +51,7 @@ const UserWheel = ({ users, onSelect, initialUser }) => {
         {...wheelStyleProps}
       />
       <button
+        translate="no"
         onClick={spin}
         disabled={spinning}
         className={`mt-4 px-4 py-2 ${spinning ? "bg-purple-light" : "bg-green-deep"}  text-black font-roboto font-medium uppercase shadow-flat-black rounded-full border border-black`}

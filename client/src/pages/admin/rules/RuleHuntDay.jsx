@@ -22,7 +22,7 @@ const RuleHuntDay = ({ rule, users, matchdays, formValues, setFormValues }) => {
       <div className="border border-black rounded-xl bg-white py-4 my-12 block shadow-flat-black">
         {selectedUser && (
           <>
-            <p className="font-rubik text-xl uppercase text-red-medium text-center font-semibold">
+            <p translate="no" className="font-rubik text-xl uppercase text-red-medium text-center font-semibold">
               Joueur sélectionné :
             </p>
 
@@ -34,7 +34,7 @@ const RuleHuntDay = ({ rule, users, matchdays, formValues, setFormValues }) => {
       <div className="border border-black rounded-xl bg-white py-4 my-12 block shadow-flat-black">
         <div className="flex flex-row justify-evenly gap-8">
           <div className="w-1/3">
-            <label htmlFor="points_bonus" className="block text-xs text-center font-semibold uppercase font-rubik">Points bonus</label>
+            <label translate="no" htmlFor="points_bonus" className="block text-xs text-center font-semibold uppercase font-rubik">Points bonus</label>
             <input
               id="points_bonus"
               name="points_bonus"
@@ -48,7 +48,7 @@ const RuleHuntDay = ({ rule, users, matchdays, formValues, setFormValues }) => {
           </div>
 
           <div className="w-1/3">
-            <label htmlFor="points_malus" className="block text-xs text-center font-semibold uppercase font-rubik">Points malus</label>
+            <label translate="no" htmlFor="points_malus" className="block text-xs text-center font-semibold uppercase font-rubik">Points malus</label>
             <input
               id="points_malus"
               name="points_malus"

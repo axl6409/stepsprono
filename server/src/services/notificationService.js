@@ -144,6 +144,20 @@ async function unlockedUserNotification(user) {
   }
 }
 
+async function unruledUserNotification(user) {
+  try {
+    const notificationMessage = {
+      title: `🚀🍀 C'est parti pour la journée spéciale`,
+      body : `Tu peux maintenant jouer ! Bonne chance !`,
+      icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
+    };
+    await sendNotificationToOne(user.id, notificationMessage);
+    logger.info('Notification de journée spéciale envoyée.');
+  } catch (error) {
+    logger.error('Erreur lors de l\'envoi de la notification de journée spéciale :', error);
+  }
+}
+
 module.exports = {
   betsCloseNotification,
   testNotification,
@@ -152,5 +166,6 @@ module.exports = {
   earnTrophyNotification,
   newContributionNeededNotification,
   blockedUserNotification,
-  unlockedUserNotification
+  unlockedUserNotification,
+  unruledUserNotification
 };

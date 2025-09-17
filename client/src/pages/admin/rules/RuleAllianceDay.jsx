@@ -38,29 +38,29 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
     <div className="space-y-6">
       {pool.length > 0 ? (
         <div className="flex flex-col justify-center items-center">
-          <h3 className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">
+          <h3 translate="no" className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">
             {currentPick.length === 0
               ? "Sélection du premier joueur"
               : "Sélection du deuxième joueur"}
           </h3>
           {currentPick.length !== 0 && (
             <div>
-              <p className="font-rubik text-black text-center text-base font-bold">Premier séléctionné : <span className="text-green-deep stroke-black text-xl font-black block">{currentPick[0]?.username}</span></p>
+              <p translate="no" className="font-rubik text-black text-center text-base font-bold">Premier séléctionné : <span className="text-green-deep stroke-black text-xl font-black block">{currentPick[0]?.username}</span></p>
             </div>
           )}
           <UserWheel users={pool} onSelect={handleSelect} />
         </div>
       ) : (
-        <p className="text-green-700 font-semibold">
+        <p translate="no" className="text-green-700 font-semibold">
           Tous les groupes ont été constitués 🎉
         </p>
       )}
 
       {/* Récap des groupes */}
       <div className="border border-black p-4 rounded-xl shadow-flat-black bg-white">
-        <h4 className="font-bold text-black font-rubik text-base uppercase mb-2">Groupes formés :</h4>
+        <h4 translate="no" className="font-bold text-black font-rubik text-base uppercase mb-2">Groupes formés :</h4>
         {groups.length === 0 ? (
-          <p className="text-gray-800">Aucun groupe pour l’instant</p>
+          <p translate="no" className="text-gray-800">Aucun groupe pour l’instant</p>
         ) : (
           <ul className="list-disc space-y-1">
             {groups.map((g, idx) => (
@@ -69,14 +69,14 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
                   <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
                     <img className="w-full h-full object-cover object-center" src={g[0]?.img ? `${apiUrl}/uploads/users/${g[0]?.id}/${g[0]?.img}` : defaultUserImage} alt=""/>
                   </span>
-                  <span className="font-rubik text-black text-sm font-medium uppercase">{g[0]?.username}</span>
+                  <span translate="no" className="font-rubik text-black text-sm font-medium uppercase">{g[0]?.username}</span>
                 </span>
                 <span className="font-rubik text-black text-base font-black">&</span>
                 <span className="flex flex-row justify-start items-center gap-4">
                   <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
                     <img className="w-full h-full object-cover object-center" src={g[1]?.img ? `${apiUrl}/uploads/users/${g[1]?.id}/${g[1]?.img}` : defaultUserImage} alt=""/>
                   </span>
-                  <span className="font-rubik text-black text-sm font-medium uppercase">{g[1]?.username}</span>
+                  <span translate="no" className="font-rubik text-black text-sm font-medium uppercase">{g[1]?.username}</span>
                 </span>
               </li>
             ))}
@@ -85,6 +85,7 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
       </div>
 
       <button
+        translate="no"
         onClick={resetGroups}
         className="px-4 py-2 bg-red-medium font-rubik text-base shadow-flat-black mx-auto block text-white rounded-full"
       >

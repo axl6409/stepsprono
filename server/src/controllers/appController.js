@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
 const {getAPICallsCount, getSettlement, getRankingMode} = require("../services/appService");
 const {Setting, Role} = require("../models");
 const {getCronTasks} = require("../../cronJob");
@@ -89,7 +89,7 @@ router.get('/app/settings/rankingMode', authenticateJWT, async (req, res) => {
 })
 
 /* ADMIN - GET */
-router.get('/admin/settings', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/settings', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
@@ -100,7 +100,7 @@ router.get('/admin/settings', authenticateJWT, checkManager, async (req, res) =>
     res.status(500).json({ error: error.message });
   }
 });
-router.put('/admin/setting/update/:id', authenticateJWT, checkManager, async (req, res) => {
+router.put('/admin/setting/update/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const setting = await Setting.findByPk(req.params.id);
     if (!setting) return res.status(404).json({ error: 'Réglage non trouvé' });
@@ -119,7 +119,7 @@ router.put('/admin/setting/update/:id', authenticateJWT, checkManager, async (re
     res.status(400).json({ error: 'Impossible de mettre à jour le réglage' + error });
   }
 });
-router.get('/admin/roles', authenticateJWT, checkManager, async (req, res) => {
+router.get('/admin/roles', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'manager') return res.status(403).json({ error: 'Accès non autorisé', user: req.user });
     const roles = await Role.findAll();

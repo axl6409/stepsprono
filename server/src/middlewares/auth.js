@@ -70,6 +70,13 @@ const checkManager = (req, res, next) => {
   return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur ou manager pour accéder à cette ressource.' });
 };
 
+const checkManagerTreasurer = (req, res, next) => {
+  if (req.user && (req.user.role === 'manager' || req.user.role === 'admin' || req.user.role === 'treasurer')) {
+    return next();
+  }
+  return res.status(403).json({ message: 'Accès interdit : Vous devez être administrateur ou manager pour accéder à cette ressource.' });
+};
+
 const updateLastConnected = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -86,5 +93,6 @@ module.exports = {
   checkAdmin,
   checkTreasurer,
   checkManager,
+  checkManagerTreasurer,
   updateLastConnected
 };

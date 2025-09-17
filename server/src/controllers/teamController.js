@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
+const {authenticateJWT, checkAdmin, checkManagerTreasurer} = require("../middlewares/auth");
 const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
@@ -68,7 +68,7 @@ router.get('/teams/:teamId/players', authenticateJWT, async (req, res) => {
 });
 
 /* ADMIN - PATCH */
-router.patch('/admin/teams/update-ranking/all', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/teams/update-ranking/all', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     await updateTeamStats()
     res.status(200).json({ message: 'Équipes mises à jour avec succès' });
@@ -76,7 +76,7 @@ router.patch('/admin/teams/update-ranking/all', authenticateJWT, checkAdmin, asy
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-datas/all', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/teams/update-datas/all', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     await updateAllTeamsStats()
     res.status(200).json({ message: 'Données des équipes mises à jour avec succès' });
@@ -84,7 +84,7 @@ router.patch('/admin/teams/update-datas/all', authenticateJWT, checkAdmin, async
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-datas/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/teams/update-datas/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const teamId = req.params.id
     const season = await getCurrentSeasonYear(61)
@@ -99,7 +99,7 @@ router.patch('/admin/teams/update-datas/:id', authenticateJWT, checkAdmin, async
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-ranking/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/teams/update-ranking/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const teamId = req.params.id
     const season = await getCurrentSeasonYear(61)
@@ -114,7 +114,7 @@ router.patch('/admin/teams/update-ranking/:id', authenticateJWT, checkAdmin, asy
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 });
-router.patch('/admin/teams/update-players/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.patch('/admin/teams/update-players/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     logger.info(req.user)
     const teamId = req.params.id

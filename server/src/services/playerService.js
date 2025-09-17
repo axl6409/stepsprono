@@ -167,8 +167,65 @@ const getPlayerById = async (id) => {
   }
 }
 
+/**
+ * Met à jour les infos de base d’un joueur
+ */
+const updatePlayerInfo = async (id, { name, firstname, lastname, photo }) => {
+  try {
+    const player = await Player.findByPk(id);
+    if (!player) {
+      throw new Error("Joueur introuvable");
+    }
+
+    await player.update({ name, firstname, lastname, photo });
+    logger.info(`[updatePlayerInfo] Joueur ${id} mis à jour`);
+    return player;
+  } catch (error) {
+    logger.error(`[updatePlayerInfo] Erreur :`, error);
+    throw error;
+  }
+};
+
+/**
+ * Met à jour ou retire l’association joueur-équipe-compétition
+ */
+const updatePlayerTeam = async (playerId, teamId, competitionId) => {
+  try {
+    let association = await PlayerTeamCompetition.findOne({ where: { player_id: playerId } });
+
+    if (association) {
+      if (!teamId) {
+        await association.destroy(); // retirer joueur de l’équipe
+        logger.info(`[updatePlayerTeam] Joueur ${playerId} retiré de son équipe`);
+        return { message: "Joueur retiré de son équipe" };
+      } else {
+        await association.update({ team_id: teamId, competition_id: competitionId });
+        logger.info(`[updatePlayerTeam] Joueur ${playerId} mis à jour avec équipe ${teamId}`);
+        return { message: "Association mise à jour avec succès" };
+      }
+    } else {
+      if (teamId) {
+        await PlayerTeamCompetition.create({
+          player_id: playerId,
+          team_id: teamId,
+          competition_id: competitionId,
+        });
+        logger.info(`[updatePlayerTeam] Nouvelle association créée pour joueur ${playerId} avec équipe ${teamId}`);
+        return { message: "Nouvelle association créée avec succès" };
+      } else {
+        return { message: "Aucune action effectuée (pas d’équipe fournie)" };
+      }
+    }
+  } catch (error) {
+    logger.error(`[updatePlayerTeam] Erreur :`, error);
+    throw error;
+  }
+};
+
 module.exports = {
   updatePlayers,
   getPlayerById,
-  getPlayersByTeamId
+  getPlayersByTeamId,
+  updatePlayerInfo,
+  updatePlayerTeam
 };
