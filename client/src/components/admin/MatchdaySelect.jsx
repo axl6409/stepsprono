@@ -11,8 +11,9 @@ const MatchdaySelect = ({ matchdays, value, onChange }) => {
 
   return (
     <div className="mb-4">
-      <label className="block font-rubik text-center font-bold uppercase mb-1">Activer sur la journée :</label>
+      <label translate="no" className="block font-rubik text-center font-bold uppercase mb-1">Activer sur la journée :</label>
       <select
+        translate="no"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border border-black text-center font-rubik uppercase shadow-flat-black-adjust px-3 py-2"

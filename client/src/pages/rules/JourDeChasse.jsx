@@ -28,24 +28,20 @@ const JourDeChasse = () => {
   const handleAccept = async () => {
     try {
       const res = await axios.patch(
-        `${apiUrl}/api/user/${user.id}/unlocked`,
+        `${apiUrl}/api/user/${user.id}/unruled`,
         { userId: user.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (res.status === 200) {
-        // 1) Mise à jour immédiate du contexte
         updateUserStatus('approved');
 
-        // 2) Feedback utilisateur
         setAlertMessage('MAAASSSAAACRE !!!');
         setAlertType('success');
 
-        // 3) On redirige vers le dashboard
-        //    (on peut laisser un tout petit délai pour afficher le modal)
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
-        }, 150);
+        }, 1500);
       }
     } catch (err) {
       console.error("Erreur lors de l'acceptation du réglement :", err);
@@ -79,7 +75,7 @@ const JourDeChasse = () => {
   }, [showVideo]);
 
   return (
-    <div className="reglement-container relative z-10 px-8 py-12">
+    <div className="reglement-container relative z-20 px-8 py-12">
       <AlertModal message={alertMessage} type={alertType} />
 
       {showVideo && (
@@ -110,17 +106,7 @@ const JourDeChasse = () => {
         </div>
       )}
 
-      <div className="w-full flex justify-center mb-4">
-        <button
-          translate="no"
-          onClick={handleReplay}
-          className="bg-blue-medium text-white px-4 py-2 rounded-full"
-        >
-          Voir la vidéo
-        </button>
-      </div>
-
-      {user.status !== "pending" && (
+      {user.status === "approved" && (
         <BackButton/>
       )}
 
@@ -133,12 +119,23 @@ const JourDeChasse = () => {
 
       <div
         translate="no"
-        className="my-12"
+        className="my-12 border border-black rounded-xl bg-white shadow-flat-black p-4"
       >
-        <p>Un joueur est tiré au sort et devient le <strong>Steps à abattre</strong> de la journée.<br/>
+        <h2 className="font-rubik text-xl text-center font-bold text-black uppercase !m-0">Règle</h2>
+        <p translate="no">Un joueur est tiré au sort et devient le <strong>Steps à abattre</strong> de la journée.<br/>
         Si tu fais moins bien que lui → <strong>tu perds -1 point.</strong><br/>
         Si tu fais mieux → <strong>tu gagnes un petit +1 point bonus.</strong>
         </p>
+      </div>
+
+      <div className="w-full flex justify-center mb-4">
+        <button
+          translate="no"
+          onClick={handleReplay}
+          className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+        >
+          <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">Voir la vidéo</span>
+        </button>
       </div>
 
       {user.status === "ruled" && (

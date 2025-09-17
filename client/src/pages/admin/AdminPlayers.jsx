@@ -10,6 +10,8 @@ import { useCookies } from "react-cookie";
 import penIcon from "../../assets/icons/pencil.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
+import Loader from "../../components/partials/Loader.jsx";
+import PlayerActionModal from "../../components/admin/PlayerActionModal.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -57,7 +59,7 @@ const AdminPlayers = () => {
                             'Authorization': `Bearer ${token}`,
                         }
                     });
-                    setPlayers(response.data || []);
+                    setPlayers((response.data || []).sort((a, b) => a.Player.id - b.Player.id));
                     setIsLoading(false);
                 } catch (error) {
                     console.error('Erreur lors de la récupération des joueurs :', error);
@@ -104,11 +106,6 @@ const AdminPlayers = () => {
         }
     };
 
-    const openPlayerForm = (playerId) => {
-        const player = players.find(p => p.Player.id === playerId);
-        setSelectedPlayer(player);
-    };
-
     const updatePlayers = async () => {
         if (!selectedTeam) return;
         try {
@@ -124,7 +121,7 @@ const AdminPlayers = () => {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-            setPlayers(response.data || []);
+            setPlayers((response.data || []).sort((a, b) => a.Player.id - b.Player.id));
             setIsLoading(false);
             if (swiperRef.current && swiperRef.current.swiper) {
                 swiperRef.current.swiper.slideTo(selectedIndex);
@@ -147,9 +144,9 @@ const AdminPlayers = () => {
 
     return (
         isLoading ? (
-            <p>Chargement...</p>
+            <Loader />
         ) : (
-            <div className="inline-block w-full h-auto py-20">
+            <div className="inline-block relative z-20 w-full h-auto py-20">
                 <BackButton />
                 <SimpleTitle title={"Données des joueurs"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
                 <Swiper
@@ -164,7 +161,7 @@ const AdminPlayers = () => {
                     onSlideChange={handleSlideChange}
                     onInit={updateSlideClasses}
                     modules={[Navigation]}
-                    className="historySwiper flex flex-col justify-start px-8 relative mb-12 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:bg-transparent before:border before:border-black before:rounded-xl"
+                    className="historySwiper flex flex-col justify-start px-8 relative mb-12 mt-8 before:content-[''] before:block before:absolute before:w-auto before:mx-8 before:inset-0 before:z-[1] before:bg-white before:bg-transparent before:border before:border-black before:rounded-xl"
                     ref={swiperRef}
                 >
                     {teams.map((team, index) => (
@@ -189,32 +186,39 @@ const AdminPlayers = () => {
                         <img className="rotate-180" src={SwiperArrow} alt=""/>
                     </div>
                 </Swiper>
+              <div className="bg-white border border-black rounded-lg shadow-flat-black w-11/12 py-4 mx-auto">
                 <button
-                    onClick={updatePlayers}
-                    className="px-4 py-2 bg-green-500 text-white rounded mb-4"
+                  translate="no"
+                  onClick={updatePlayers}
+                  className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                 >
-                    Mettre à jour les joueurs
+                  <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-xs font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1 group-hover:-translate-y-0">Mettre à jour tous les joueurs</span>
                 </button>
                 <div className="mt-4 flex flex-row flex-wrap justify-evenly items-center">
-                    {players.length > 0 ? (
-                        players.map(player => (
-                          <div key={player.Player.id}
-                               className="relative flex flex-row items-center justify-between w-11/12 h-auto my-1 p-4 border border-black rounded-lg shadow-flat-black">
-                              <span className="w-1/5 font-roboto font-bold text-xs bg-black text-white px-2 py-1 text-center">{player.Player.id}</span>
-                              <p className="w-3/5 font-sans font-medium text-base">{decodeHtml(player.Player.name)}</p>
-                              <button onClick={() => openPlayerForm(player.Player.id)}
-                                      className="bg-yellow-500 h-[35px] w-[35px] text-white px-2 py-1 border border-black rounded-full shadow-flat-black-adjust transition-shadow duration-300 ease-in-out hover:shadow-none">
-                                  <img className="w-auto h-[20px]" src={penIcon} alt="Icone modifier"/>
-                              </button>
-                          </div>
-                        ))
-                    ) : (
-                      <p>Sélectionnez une équipe pour voir ses joueurs.</p>
-                    )}
+                  {players.length > 0 ? (
+                    players.map(player => (
+                      <div key={player.Player.id}
+                           onClick={() => setSelectedPlayer(player)}
+                           className="cursor-pointer relative flex flex-row items-center justify-between w-11/12 h-auto my-1 p-4 border border-black rounded-lg shadow-flat-black-adjust">
+                        <span translate="no" className="w-fit font-roboto font-bold text-xs bg-black text-white px-2 py-1 text-center">#{player.Player.id}</span>
+                        <p translate="no" className="w-3/5 font-sans font-medium text-base">{decodeHtml(player.Player.name)}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p translate="no">Sélectionnez une équipe pour voir ses joueurs.</p>
+                  )}
                 </div>
                 {selectedPlayer && (
-                    <PlayerForm player={selectedPlayer} onClose={() => setSelectedPlayer(null)} token={token}/>
+                  <PlayerActionModal
+                    isOpen={!!selectedPlayer}
+                    onClose={() => setSelectedPlayer(null)}
+                    player={selectedPlayer}
+                    teams={teams}
+                    token={token}
+                    onUpdated={updatePlayers}
+                  />
                 )}
+              </div>
             </div>
         )
     );

@@ -37,7 +37,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
 
   return (
     <div key={user.id} className="relative">
-      <img className="mx-auto h-full w-4/5 object-contain object-center fixed opacity-10 z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-4"
+      <img className="mx-auto h-full w-4/5 object-contain object-center fixed opacity-10 z-[-1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-4"
            src={user.team_id ? `${apiUrl}/uploads/teams/${user.team_id}/${user.team?.logo_url}` : defaultTeamImage}
            alt=""/>
       <div className="relative z-[2]">

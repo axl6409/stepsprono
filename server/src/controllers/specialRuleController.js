@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { authenticateJWT, checkAdmin, checkManager} = require("../middlewares/auth");
+const { authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
 const { SpecialRule } = require("../models");
 const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
@@ -39,7 +39,7 @@ router.get('/special-rule/current', authenticateJWT, async (req, res) => {
   }
 })
 
-router.patch('/admin/special-rule/datas/:id', authenticateJWT, async (req, res) => {
+router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     const ruleId = req.params.id;
     const payload = req.body;
@@ -53,7 +53,7 @@ router.patch('/admin/special-rule/datas/:id', authenticateJWT, async (req, res) 
   }
 })
 
-router.patch('/admin/special-rule/toggle/:id', authenticateJWT, async (req, res) => {
+router.patch('/admin/special-rule/toggle/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
     logger.info('Special Rules')
     const ruleId = req.params.id;

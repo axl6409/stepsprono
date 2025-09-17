@@ -96,7 +96,7 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
       {/* Roue joueur */}
       {pool.length > 0 && !selectedUser && (
         <div className="flex flex-col justify-center items-center">
-          <h3 className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">Sélection d’un joueur</h3>
+          <h3 translate="no" className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">Sélection d’un joueur</h3>
           <Wheel
             mustStartSpinning={spinningUser}
             prizeNumber={userIndex ?? 0}
@@ -105,6 +105,7 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
             {...wheelStyleProps}
           />
           <button
+            translate="no"
             onClick={startUserSpin}
             disabled={spinningUser}
             className={`mt-4 px-4 py-2 ${spinningUser ? "bg-purple-light" : "bg-green-deep"}  text-black font-roboto font-medium uppercase shadow-flat-black rounded-full border border-black`}
@@ -117,7 +118,7 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
       {/* Roue item */}
       {selectedUser && (
         <div className="flex flex-col justify-center items-center">
-          <h3 className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">
+          <h3 translate="no" className="font-bold mb-2 font-rubik text-black text-base text-center uppercase">
             Sélection d’un lot pour <span className="text-green-deep stroke-black text-xl font-black block">{selectedUser.username}</span>
           </h3>
           <Wheel
@@ -128,6 +129,7 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
             {...wheelStyleProps}
           />
           <button
+            translate="no"
             onClick={startItemSpin}
             disabled={spinningItem}
             className={`mt-4 px-4 py-2 ${spinningUser ? "bg-purple-light" : "bg-green-deep"}  text-black font-roboto font-medium uppercase shadow-flat-black rounded-full border border-black`}
@@ -139,9 +141,9 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
 
       {/* Récap */}
       <div className="border border-black p-4 rounded-xl shadow-flat-black bg-white">
-        <h4 className="font-bold text-black font-rubik text-base uppercase mb-2">Lots attribués :</h4>
+        <h4 translate="no" className="font-bold text-black font-rubik text-base uppercase mb-2">Lots attribués :</h4>
         {assigned.length === 0 ? (
-          <p className="text-gray-800">Aucun lot attribué</p>
+          <p translate="no" className="text-gray-800">Aucun lot attribué</p>
         ) : (
           <ul className="list-disc space-y-1">
             {assigned.map((a, idx) => (
@@ -150,13 +152,13 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
                   <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
                     <img className="w-full h-full object-cover object-center" src={a.user.img ? `${apiUrl}/uploads/users/${a.user.id}/${a.user.img}` : defaultUserImage} alt=""/>
                   </span>
-                  <span className="font-rubik text-black text-sm font-medium uppercase">{a.user.username}</span>
+                  <span translate="no" className="font-rubik text-black text-sm font-medium uppercase">{a.user.username}</span>
                 </span>
                 <span className="font-rubik text-black text-base font-black"> → </span>
                 <span className="flex flex-row justify-start items-center gap-4">
-                  <span className="font-rubik text-black text-sm font-medium uppercase">{formatKey(a.item.key)}</span>
+                  <span translate="no" className="font-rubik text-black text-sm font-medium uppercase">{formatKey(a.item.key)}</span>
                 </span>
-                <p className="font-rubik text-black text-sm font-regular leading-4 text-pretty">
+                <p translate="no" className="font-rubik text-black text-sm font-regular leading-4 text-pretty">
                   {a.item.label}
                 </p>
               </li>

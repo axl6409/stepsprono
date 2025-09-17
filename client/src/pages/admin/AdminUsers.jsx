@@ -84,7 +84,7 @@ const AdminUsers = () => {
   };
 
   const approvedUsers = users
-    .filter(u => u.status === 'approved')
+    .filter(u => u.status === 'approved' || u.status === 'ruled')
     .sort((a, b) => new Date(b.last_connect) - new Date(a.last_connect));
 
   const blockedUsers  = users
@@ -98,43 +98,48 @@ const AdminUsers = () => {
   const renderUserItem = (user) => {
     const request = getRequestForUser(user.id);
     return (
-      <li className="relative z-[11] my-2 flex flex-row justify-between" key={user.id}>
-        <div>
+      <li className="relative z-[21] my-2 flex flex-row justify-between" key={user.id}>
+        <div className="w-2/3">
           <p
-            className="font-rubik w-[25px] h-[25px] rounded-full text-center text-xs text-black font-medium leading-6 border border-black bg-white shadow-flat-black-adjust absolute z-[5] -left-4 -top-2">
-            {user.id}
+            className="font-roboto w-[25px] h-[25px] rounded-full text-center text-xxs text-black font-medium leading-6 border border-black bg-white shadow-flat-black-adjust absolute z-[5] -left-4 -top-2">
+            #{user.id}
           </p>
           <p
-            className="username w-fit relative font-title font-bold text-xl leading-6 my-auto border-2 border-black bg-white py-1 px-4 h-fit shadow-flat-black">
+            className="username w-fit relative font-roboto font-medium text-base leading-5 my-auto border border-black bg-white py-1 px-4 h-fit shadow-flat-black-adjust">
             {user.username}
-            {request && (
+            {user.status === 'blocked' && (
               <span
-                className="absolute z-[3] -right-1.5 -top-2.5 translate-x-1 translate-y-1 w-4 h-4 border-2 border-black rounded-full bg-flat-red transition duration-300 group-hover:translate-y-2.5"></span>
+                className="absolute z-[3] -right-1.5 -top-2.5 font-rubik text-xxs text-center leading-4 translate-x-1 translate-y-1 w-4 h-4 border border-black rounded-full bg-red-medium shadow-flat-black-adjust-50">&#10006;</span>
+            )}
+            {user.status === 'ruled' && (
+              <span
+                className="absolute z-[3] -right-1.5 -top-2.5 translate-x-1 translate-y-1 w-4 h-4 border border-black rounded-full bg-blue-medium shadow-flat-black-adjust-50"></span>
             )}
           </p>
           <p
-            className="font-rubik mt-2 px-4 text-center text-balance text-xxs px-2 text-black font-medium leading-4 border border-black bg-white shadow-flat-black-adjust">
-            Dernière connexion : <br /> {formatDate(user.last_connect)}
+            className="font-rubik w-44 relative mt-4 text-center text-balance text-xxs px-2 pb-0 pt-1 text-black font-medium leading-4 border border-black bg-white">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-40 h-3 bg-white px-2 border-t border-r border-l border-black rounded-t-xl">Dernière connexion</span>
+            <span>{formatDate(user.last_connect)}</span>
           </p>
         </div>
 
-        <div className="flex flex-row">
+        <div className="w-1/3 flex flex-row justify-end">
           <Link
             to={`/admin/users/edit/${user.id}`}
-            className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            className="relative m-2 block h-8 w-8 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border group"
           >
             <span
-              className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              className="relative z-[2] w-full flex flex-row justify-center border border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-0.5 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faPen}/>
             </span>
           </Link>
 
           <button
             onClick={() => handleDeleteUser(user.id)}
-            className="relative m-2 block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            className="relative m-2 block h-8 w-8 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border group"
           >
             <span
-              className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              className="relative z-[2] w-full flex flex-row justify-center border border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-0.5 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faCircleXmark}/>
             </span>
           </button>
@@ -146,11 +151,11 @@ const AdminUsers = () => {
   const renderSection = (title, list) => {
     if (!list || list.length === 0) return null;
     return (
-      <div className="relative z-[11] py-3.5 mb-10 pr-0 bg-flat-yellow mx-auto  w-11/12 border-2 border-black shadow-flat-black">
-        <h3 className="font-title uppercase w-fit block font-bold text-xl mb-3 mx-auto border-2 border-black bg-white px-4 py-1 shadow-flat-black">
+      <div className="relative z-[11] py-3.5 mb-10 pr-0 bg-yellow-medium mx-auto  w-11/12 border border-black rounded-xl shadow-flat-black">
+        <h3 className="font-roboto uppercase w-fit block font-medium text-base mb-3 mx-auto border border-black bg-white px-4 py-1 shadow-flat-black-adjust">
           {title}
         </h3>
-        <ul className="flex px-6 flex-col justify-start">
+        <ul className="flex pl-6 pr-3 flex-col justify-start">
           {list.map(renderUserItem)}
         </ul>
       </div>
@@ -161,20 +166,22 @@ const AdminUsers = () => {
     isLoading ? (
       <Loader />
     ) : (
-      <div className="inline-block w-full h-auto py-12">
+      <div className="inline-block relative z-20 w-full h-auto py-12">
         <BackButton />
         <SimpleTitle title={"Gestion des utilisateurs"} stickyStatus={false} uppercase={true} fontSize={'2.5rem'} />
 
-        {renderSection('Utilisateurs approuvés', approvedUsers)}
-        {renderSection('Utilisateurs bloqués', blockedUsers)}
-        {renderSection('Utilisateurs retirés', retiredUsers)}
+        <div className="mt-4">
+          {renderSection('Utilisateurs approuvés', approvedUsers)}
+          {renderSection('Utilisateurs bloqués', blockedUsers)}
+          {renderSection('Utilisateurs retirés', retiredUsers)}
 
-        {/* Si aucune liste n’a d’élément, on affiche un message */}
-        {approvedUsers.length === 0 && blockedUsers.length === 0 && retiredUsers.length === 0 && (
-          <div className="py-6 px-6 bg-white mx-2.5 border-2 border-black shadow-flat-black text-center font-rubik">
-            Aucun utilisateur à afficher pour les statuts « approved », « bloqued » ou « retired ».
-          </div>
-        )}
+          {/* Si aucune liste n’a d’élément, on affiche un message */}
+          {approvedUsers.length === 0 && blockedUsers.length === 0 && retiredUsers.length === 0 && (
+            <div className="py-6 px-6 bg-white mx-2.5 border-2 border-black shadow-flat-black text-center font-rubik">
+              Aucun utilisateur à afficher pour les statuts « approved », « bloqued » ou « retired ».
+            </div>
+          )}
+        </div>
 
         {showConfirmationModal && (
           <div className={`modal ${modalAnimation} fixed z-[30] top-32 left-0 right-0`}>

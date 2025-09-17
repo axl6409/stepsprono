@@ -18,18 +18,16 @@ export const UserProvider = ({ children }) => {
   const allowedManager = ["admin", "manager",];
   const allowedTwice = ["admin", "manager", "treasurer"];
 
-  const { roles, hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useMemo(() => {
+  const { roles,hasAdminAccess, hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useMemo(() => {
     const roles = user?.Roles?.map(r => r.name) ?? [];
     return {
       roles,
       hasTreasurerAccess: roles.some(r => allowedTreasurer.includes(r)),
       hasManagerAccess:   roles.some(r => allowedManager.includes(r)),
       hasTwiceAccess:     roles.some(r => allowedTwice.includes(r)),
-      isAdmin:            roles.some(r => isAdmin.includes(r)),
+      hasAdminAccess:     roles.some(r => isAdmin.includes(r)),
     };
   }, [user]);
-
-
 
   useEffect(() => {
     const loadToken = async () => {
@@ -82,6 +80,7 @@ export const UserProvider = ({ children }) => {
         hasTreasurerAccess,
         hasManagerAccess,
         hasTwiceAccess,
+        hasAdminAccess,
         isAdmin
       }}>
       {children}

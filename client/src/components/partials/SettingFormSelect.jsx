@@ -43,16 +43,16 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
   };
 
   return (
-    <div className="py-3.5 px-6 bg-flat-yellow mx-2.5 my-4 border-2 border-black shadow-flat-black">
+    <div className="py-3.5 px-6 bg-yellow-medium mx-2.5 my-4 border border-black rounded-xl shadow-flat-black">
       <div className="flex flex-col justify-start">
         <div key={setting.id} className="flex flex-col items-center relative">
-          <p className="font-title uppercase text-xl font-black mb-4">{setting.display_name}</p>
+          <p className="font-roboto uppercase text-xl font-black mb-4">{setting.display_name}</p>
           <form action="" className="w-full">
             <select
               name={setting.key}
               id={setting.key}
               translate="no"
-              className="w-full py-2 px-4 font-sans text-sm uppercase border-2 border-black shadow-flat-black"
+              className="w-full py-2 px-4 font-rubik text-black text-sm uppercase border border-black shadow-flat-black"
               onChange={(e) => handleChange(setting.key, e.target.value)}
               value={selectedOption}
             >
@@ -62,11 +62,11 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
             </select>
             <button
               translate="no"
-              className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-md before:bg-green-lime before:border-black before:border-2 group"
+              className="relative mt-8 mx-auto block h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border group"
               type="submit"
               onClick={handleSubmit}
             >
-              <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-4 py-1.5 rounded-md text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-1 group-hover:-translate-y-0 group-hover:-translate-x-0">
+              <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border border-black text-black px-4 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
                 Enregistrer
               </span>
             </button>
@@ -74,9 +74,9 @@ const SettingFormSelect = ({ setting, openModal, token }) => {
           <button
             translate="no"
             onClick={() => openModal(setting.description)}
-            className="absolute mx-auto block top-0 right-0 h-fit before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border-2 group"
+            className="absolute mx-auto block top-0 -right-4 h-8 w-8 before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-green-lime before:border-black before:border group"
           >
-            <span translate="no" className="relative z-[2] w-full flex flex-row justify-center border-2 border-black text-black px-2 py-1.5 rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
+            <span translate="no" className="relative z-[2] h-8 w-8 flex flex-row justify-center items-center border border-black text-black rounded-full text-center font-sans uppercase font-bold shadow-md bg-white transition -translate-y-1 -translate-x-0.5 group-hover:-translate-y-0 group-hover:-translate-x-0">
               <FontAwesomeIcon icon={faCircleQuestion} className="cursor-pointer" />
             </span>
           </button>

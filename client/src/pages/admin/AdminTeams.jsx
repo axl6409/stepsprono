@@ -188,13 +188,13 @@ const AdminTeams = () => {
   };
 
   return (
-    <div className="inline-block relative w-full h-auto py-20">
+    <div className="inline-block relative z-20 w-full h-auto py-20">
       {isModalOpen && (
         <StatusModal message={updateMessage} status={updateStatus} closeModal={closeModal}/>
       )}
       <BackButton />
       <SimpleTitle title={"Données des équipes"} stickyStatus={false} uppercase={true} fontSize={'2rem'} />
-      <div className="pb-3.5 pt-6 px-2 bg-black relative">
+      <div className="pb-3.5 pt-6 px-2 mt-12 bg-black relative">
         <p className="bg-white text-black font-sans font-medium text-xs w-fit absolute leading-5 -top-3.5 left-2.5 py-0.5 px-1.5 rounded-full border-2 border-black shadow-flat-black-middle">Équipes à mettre à jour</p>
         <div className="w-fit absolute -top-5 right-2.5 rounded-full flex flex-row">
           <button

@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const {authenticateJWT, checkAdmin} = require("../middlewares/auth")
+const {authenticateJWT, checkAdmin, checkManager, checkTreasurer, checkManagerTreasurer} = require("../middlewares/auth")
 const {Team, Player, PlayerTeamCompetition} = require("../models")
 const axios = require("axios")
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService")
 const logger = require("../utils/logger/logger")
-const {updatePlayers} = require("../services/playerService");
+const {updatePlayers, updatePlayerInfo, updatePlayerTeam} = require("../services/playerService");
 const apiKey = process.env.FB_API_KEY
 const apiHost = process.env.FB_API_HOST
 const apiBaseUrl = process.env.FB_API_URL
@@ -62,7 +62,7 @@ router.get('/players', authenticateJWT, async (req, res) => {
 })
 
 /* ADMIN - POST */
-router.post('/admin/players/update', authenticateJWT, checkAdmin, async (req, res) => {
+router.post('/admin/players/update', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   const { teamId } = req.body;
   if (!teamId) {
     return res.status(400).json({ message: 'Aucun identifiant d\'équipe fourni' });
@@ -73,6 +73,25 @@ router.post('/admin/players/update', authenticateJWT, checkAdmin, async (req, re
   } catch (error) {
     console.error('Erreur lors de la mise à jour des joueurs :', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour des joueurs', error: error.message });
+  }
+});
+
+router.patch('/admin/player/:id', authenticateJWT, checkManagerTreasurer,  async (req, res) => {
+  try {
+    const player = await updatePlayerInfo(req.params.id, req.body);
+    res.json(player);
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur lors de la mise à jour du joueur', error: err.message });
+  }
+});
+
+router.patch('/admin/player/:id/team', authenticateJWT, checkManagerTreasurer, async (req, res) => {
+  try {
+    const { teamId, competitionId } = req.body;
+    const result = await updatePlayerTeam(req.params.id, teamId, competitionId);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur lors du changement d’équipe', error: err.message });
   }
 });
 

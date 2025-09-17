@@ -224,7 +224,7 @@ const UserMenu = () => {
                     <span className="inline-block w-1/5">
                       <img className="h-[20px] mx-auto" src={navPronos} alt="Icône mes pronos"/>
                     </span>
-                    <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Mes pronos</span>
+                    <span className="inline-block no-correct w-4/5 font-roboto text-black px-3 py-2 text-left">Historique</span>
                   </Link>
                   <Link
                     to="/teams"
