@@ -51,6 +51,16 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
+      number: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        field: 'number'
+      },
+      position: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        field: 'position'
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
