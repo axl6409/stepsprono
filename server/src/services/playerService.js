@@ -68,19 +68,21 @@ const updatePlayers = async function (teamIds = [], competitionId = null) {
         const existingAssociation = currentPlayers.find(cp => cp.player_id === apiPlayer.id);
         if (existingAssociation) {
           // Si l'association existe mais avec une autre équipe, mettre à jour
-          if (existingAssociation.team_id !== teamId) {
-            await existingAssociation.update({
-              team_id: teamId,
-              updated_at: new Date(),
-            }, { transaction });
-            logger.info(`Mise à jour de l'équipe pour le joueur ID: ${apiPlayer.id} vers équipe ID: ${teamId}`);
-          }
+          await existingAssociation.update({
+            team_id: teamId,
+            number: apiPlayer.number,
+            position: apiPlayer.position,
+            updated_at: new Date(),
+          }, { transaction });
+          logger.info(`Mise à jour de l'équipe pour le joueur ID: ${apiPlayer.id} vers équipe ID: ${teamId}`);
         } else {
           // Si l'association n'existe pas, la créer
           await PlayerTeamCompetition.create({
             player_id: apiPlayer.id,
             team_id: teamId,
             competition_id: competitionId,
+            number: apiPlayer.number,
+            position: apiPlayer.position,
             created_at: new Date(),
             updated_at: new Date(),
           }, { transaction });
@@ -170,7 +172,7 @@ const getPlayerById = async (id) => {
 /**
  * Met à jour les infos de base d’un joueur
  */
-const updatePlayerInfo = async (id, { name, firstname, lastname, photo }) => {
+const updatePlayerInfo = async (id, { name, firstname, lastname, photo, teamId, number, position }) => {
   try {
     const player = await Player.findByPk(id);
     if (!player) {
@@ -178,7 +180,20 @@ const updatePlayerInfo = async (id, { name, firstname, lastname, photo }) => {
     }
 
     await player.update({ name, firstname, lastname, photo });
-    logger.info(`[updatePlayerInfo] Joueur ${id} mis à jour`);
+
+    logger.info('[updatePlayerInfo] DEBUG =>');
+    console.log("id:", id, "team_id:", teamId, "position:", position, "number:", number);
+
+    const [affectedRows] = await PlayerTeamCompetition.update(
+      { number, position },
+      { where: { player_id: id, team_id: teamId } }
+    );
+
+    if (affectedRows === 0) {
+      logger.warn(`[updatePlayerInfo] ⚠️ Aucune ligne mise à jour pour joueur ${id} dans l'équipe ${teamId}`);
+    } else {
+      logger.info(`[updatePlayerInfo] Joueur ${id} mis à jour (team ${teamId})`);
+    }
     return player;
   } catch (error) {
     logger.error(`[updatePlayerInfo] Erreur :`, error);

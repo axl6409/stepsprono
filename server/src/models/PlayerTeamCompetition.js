@@ -31,6 +31,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       field: 'competition_id'
     },
+    number: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'number'
+    },
+    position: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'position'
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
