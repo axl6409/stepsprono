@@ -52,13 +52,15 @@ const updatePlayers = async function (teamIds = [], competitionId = null) {
       const currentPlayerIds = currentPlayers.map(cp => cp.player_id);
 
       // Mise à jour ou création des joueurs dans la base
-      const playersToCreateOrUpdate = apiPlayers.map(apiPlayer => ({
-        id: apiPlayer.id,
-        name: apiPlayer.name,
-        photo: apiPlayer.photo,
-      }));
+      const uniquePlayers = Array.from(
+        new Map(apiPlayers.map(p => [p.id, {
+          id: p.id,
+          name: p.name,
+          photo: p.photo,
+        }])).values()
+      );
 
-      await Player.bulkCreate(playersToCreateOrUpdate, {
+      await Player.bulkCreate(uniquePlayers, {
         updateOnDuplicate: ['name', 'photo'], // Met à jour si déjà existant
         transaction
       });
