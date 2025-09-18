@@ -68,7 +68,7 @@ const UserStats = () => {
     : 0;
 
   return (
-    <div className="inline-block relative z-11 w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white overflow-x-hidden">
+    <div className="inline-block relative z-20 w-full h-auto py-20 bg-grid-background bg-grid-70 bg-white overflow-x-hidden">
       <div className="absolute inset-0 bg-black z-[1] mix-blend-difference"></div>
       <BackButton/>
       <SimpleTitle title="Statistiques" stickyStatus={false} backgroundColor="bg-transparent" darkMode={false}/>

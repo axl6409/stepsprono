@@ -20,10 +20,12 @@ export const AppProvider = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userRequests, setUserRequests] = useState([]);
   const [matchsCronTasks, setMatchsCronTasks] = useState([]);
+  const [availableCompetitions, setAvailableCompetitions] = useState([]);
   const [currentSeason, setCurrentSeason] = useState([]);
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
+      fetchAvailableCompetitions();
       fetchCurrentSeason();
     }
     if (isAuthenticated && user && user.role === 'admin') {
@@ -106,6 +108,18 @@ export const AppProvider = ({ children }) => {
       console.error('Erreur lors de la récupération des tâches cron', error);
     }
   }
+  const fetchAvailableCompetitions = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/competitions`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      console.log(response.data)
+      setAvailableCompetitions(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des compétitions disponibles', error);
+    }
+  }
+
   const fetchCurrentSeason = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/seasons/current/datas/61`, {
@@ -127,6 +141,7 @@ export const AppProvider = ({ children }) => {
         isDebuggerOpen,
         toggleDebuggerModal,
         userRequests,
+        availableCompetitions,
         currentSeason,
         refreshUserRequests,
         isCountDownPopupOpen,

@@ -5,7 +5,7 @@ const {Team, Player, PlayerTeamCompetition} = require("../models")
 const axios = require("axios")
 const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService")
 const logger = require("../utils/logger/logger")
-const {updatePlayers, updatePlayerInfo, updatePlayerTeam} = require("../services/playerService");
+const {updatePlayers, deletePlayerTeam, createPlayerWithAssociation, savePlayer, getUnassignedPlayers} = require("../services/playerService");
 const apiKey = process.env.FB_API_KEY
 const apiHost = process.env.FB_API_HOST
 const apiBaseUrl = process.env.FB_API_URL
@@ -61,7 +61,37 @@ router.get('/players', authenticateJWT, async (req, res) => {
   }
 })
 
-/* ADMIN - POST */
+/* ADMIN */
+router.get('/admin/players/unassigned', authenticateJWT, checkManagerTreasurer, async (req, res) => {
+  try {
+    const players = await getUnassignedPlayers();
+    res.json(players);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la récupération des joueurs non attribués", error: err.message });
+  }
+});
+router.post('/admin/player/add', authenticateJWT, checkManagerTreasurer, async (req, res) => {
+  try {
+    const { id, name, firstname, lastname, photo, teamId, competitionId, number, position } = req.body;
+    const newPlayer = await createPlayerWithAssociation({ id, name, firstname, lastname, photo, teamId, competitionId, number, position });
+    if (newPlayer.exists) {
+      return res.status(200).json({ exists: true, player: newPlayer.player });
+    }
+    res.json(newPlayer);
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur lors de la création du joueur', error: err.message });
+  }
+});
+
+router.post('/admin/player/save', authenticateJWT, checkManagerTreasurer, async (req, res) => {
+  try {
+    const result = await savePlayer(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la sauvegarde du joueur", error: err.message });
+  }
+});
+
 router.post('/admin/players/update', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   const { teamId } = req.body;
   if (!teamId) {
@@ -76,22 +106,13 @@ router.post('/admin/players/update', authenticateJWT, checkManagerTreasurer, asy
   }
 });
 
-router.patch('/admin/player/:id', authenticateJWT, checkManagerTreasurer,  async (req, res) => {
+router.delete('/admin/player/:id/team/:teamId', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
-    const player = await updatePlayerInfo(req.params.id, req.body);
-    res.json(player);
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur lors de la mise à jour du joueur', error: err.message });
-  }
-});
-
-router.patch('/admin/player/:id/team', authenticateJWT, checkManagerTreasurer, async (req, res) => {
-  try {
-    const { teamId, competitionId } = req.body;
-    const result = await updatePlayerTeam(req.params.id, teamId, competitionId);
+    const { id, teamId } = req.params;
+    const result = await deletePlayerTeam(id, teamId);
     res.json(result);
   } catch (err) {
-    res.status(500).json({ message: 'Erreur lors du changement d’équipe', error: err.message });
+    res.status(500).json({ message: 'Erreur lors de la suppression de l’association', error: err.message });
   }
 });
 
