@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
    */
   Player.associate = (models) => {
     Player.belongsToMany(models.Team, { through: models.PlayerTeamCompetition, foreignKey: 'player_id' });
+    Player.hasMany(models.PlayerTeamCompetition, { foreignKey: 'player_id' });
     Player.hasMany(models.Bet, { foreignKey: 'player_goal' })
   };
 

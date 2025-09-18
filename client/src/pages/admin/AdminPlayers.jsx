@@ -198,11 +198,26 @@ const AdminPlayers = () => {
                 <button
                   translate="no"
                   onClick={updatePlayers}
+                  className="w-4/5 fade-in block relative mb-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+                >
+                  <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-xs font-roboto px-2 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1 group-hover:-translate-y-0">Mettre à jour tous les joueurs</span>
+                </button>
+                <button
+                  translate="no"
+                  onClick={() =>
+                    setSelectedPlayer({
+                      Player: {},
+                      Team: { id: selectedTeam.team_id },
+                      competition_id: null,
+                    })
+                  }
                   className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
                 >
-                  <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-xs font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1 group-hover:-translate-y-0">Mettre à jour tous les joueurs</span>
+                  <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-xs font-roboto px-3 py-2 rounded-full text-center shadow-md bg-green-light transition -translate-y-1 group-hover:-translate-y-0">
+                    Ajouter un joueur
+                  </span>
                 </button>
-                <div className="mt-4 px-2 flex flex-row flex-wrap justify-evenly items-center">
+                <div className="px-2 flex flex-row flex-wrap justify-evenly items-center">
                   {isPlayersLoading ? (
                     <Loader />
                   ) : players.length > 0 ? (

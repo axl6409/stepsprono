@@ -171,70 +171,113 @@ const getPlayerById = async (id) => {
   }
 }
 
-/**
- * Met à jour les infos de base d’un joueur
- */
-const updatePlayerInfo = async (id, { name, firstname, lastname, photo, teamId, number, position }) => {
+const savePlayer = async ({ id, name, firstname, lastname, photo, teamId, competitionId, number, position }) => {
+  const transaction = await sequelize.transaction();
   try {
-    const player = await Player.findByPk(id);
+    let player = await Player.findByPk(id, { transaction });
     if (!player) {
-      throw new Error("Joueur introuvable");
-    }
-
-    await player.update({ name, firstname, lastname, photo });
-
-    logger.info('[updatePlayerInfo] DEBUG =>');
-    console.log("id:", id, "team_id:", teamId, "position:", position, "number:", number);
-
-    const [affectedRows] = await PlayerTeamCompetition.update(
-      { number, position },
-      { where: { player_id: id, team_id: teamId } }
-    );
-
-    if (affectedRows === 0) {
-      logger.warn(`[updatePlayerInfo] ⚠️ Aucune ligne mise à jour pour joueur ${id} dans l'équipe ${teamId}`);
+      // création si le joueur n'existe pas
+      player = await Player.create({ id, name, firstname, lastname, photo }, { transaction });
     } else {
-      logger.info(`[updatePlayerInfo] Joueur ${id} mis à jour (team ${teamId})`);
+      // mise à jour infos joueur
+      await player.update({ name, firstname, lastname, photo }, { transaction });
     }
-    return player;
+
+    if (teamId) {
+      // vérifie si l’association existe déjà
+      let association = await PlayerTeamCompetition.findOne({
+        where: { player_id: id, team_id: teamId },
+        transaction
+      });
+
+      if (association) {
+        await association.update({ competition_id: competitionId, number, position }, { transaction });
+      } else {
+        await PlayerTeamCompetition.create({
+          player_id: id,
+          team_id: teamId,
+          competition_id: competitionId,
+          number,
+          position,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }, { transaction });
+      }
+    }
+
+    await transaction.commit();
+    return { success: true, player };
+  } catch (err) {
+    await transaction.rollback();
+    throw err;
+  }
+};
+
+const createPlayerWithAssociation = async ({ id, name, firstname, lastname, photo, teamId, competitionId, number, position }) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const existingPlayer = await Player.findByPk(id);
+    if (existingPlayer) {
+      await transaction.rollback();
+      return { exists: true, player: existingPlayer };
+    }
+
+    const player = await Player.create({ id, name, firstname, lastname, photo }, { transaction });
+
+    if (teamId) {
+      await PlayerTeamCompetition.create({
+        player_id: id,
+        team_id: teamId,
+        competition_id: competitionId,
+        number,
+        position,
+        created_at: new Date(),
+        updated_at: new Date(),
+      }, { transaction });
+    }
+
+    await transaction.commit();
+    return { exists: false, player };
   } catch (error) {
-    logger.error(`[updatePlayerInfo] Erreur :`, error);
+    await transaction.rollback();
+    logger.error(`[createPlayerWithAssociation] Erreur :`, error);
     throw error;
   }
 };
 
-/**
- * Met à jour ou retire l’association joueur-équipe-compétition
- */
-const updatePlayerTeam = async (playerId, teamId, competitionId) => {
+const deletePlayerTeam = async (playerId, teamId) => {
   try {
-    let association = await PlayerTeamCompetition.findOne({ where: { player_id: playerId } });
+    const deleted = await PlayerTeamCompetition.destroy({
+      where: {
+        player_id: playerId,
+        team_id: teamId
+      }
+    });
 
-    if (association) {
-      if (!teamId) {
-        await association.destroy(); // retirer joueur de l’équipe
-        logger.info(`[updatePlayerTeam] Joueur ${playerId} retiré de son équipe`);
-        return { message: "Joueur retiré de son équipe" };
-      } else {
-        await association.update({ team_id: teamId, competition_id: competitionId });
-        logger.info(`[updatePlayerTeam] Joueur ${playerId} mis à jour avec équipe ${teamId}`);
-        return { message: "Association mise à jour avec succès" };
-      }
+    if (deleted > 0) {
+      logger.info(`[deletePlayerTeam] Association supprimée pour joueur ${playerId} et équipe ${teamId}`);
+      return { message: "Association supprimée avec succès" };
     } else {
-      if (teamId) {
-        await PlayerTeamCompetition.create({
-          player_id: playerId,
-          team_id: teamId,
-          competition_id: competitionId,
-        });
-        logger.info(`[updatePlayerTeam] Nouvelle association créée pour joueur ${playerId} avec équipe ${teamId}`);
-        return { message: "Nouvelle association créée avec succès" };
-      } else {
-        return { message: "Aucune action effectuée (pas d’équipe fournie)" };
-      }
+      return { message: "Aucune association trouvée pour ce joueur et cette équipe" };
     }
   } catch (error) {
-    logger.error(`[updatePlayerTeam] Erreur :`, error);
+    logger.error(`[deletePlayerTeam] Erreur :`, error);
+    throw error;
+  }
+};
+
+const getUnassignedPlayers = async () => {
+  try {
+    const players = await Player.findAll({
+      include: [{
+        model: PlayerTeamCompetition,
+        required: false
+      }],
+      where: sequelize.literal('"PlayerTeamCompetitions"."player_id" IS NULL')
+    });
+    return players;
+  } catch (error) {
+    logger.error("[getUnassignedPlayers] Erreur :", error);
     throw error;
   }
 };
@@ -243,6 +286,8 @@ module.exports = {
   updatePlayers,
   getPlayerById,
   getPlayersByTeamId,
-  updatePlayerInfo,
-  updatePlayerTeam
+  savePlayer,
+  createPlayerWithAssociation,
+  deletePlayerTeam,
+  getUnassignedPlayers
 };
