@@ -33,12 +33,16 @@ router.get('/special-rule/datas/:id', authenticateJWT, async (req, res) => {
   }
 })
 
-router.get('/special-rule/check/:id', authenticateJWT, checkAdmin, async (req, res) => {
+router.get('/special-rule/matchday/:matchday', authenticateJWT, async (req, res) => {
+  
+})
+
+router.get('/admin/special-rule/check/:id', authenticateJWT, checkAdmin, async (req, res) => {
   try {
     const ruleId = req.params.id;
     const rule = await SpecialRule.findByPk(ruleId);
     if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
-    const check = await checkSpecialRule(ruleId);
+    const check = await checkSpecialRule(rule.rule_key);
     res.json(check);
   } catch (error) {
     logger.error(error);

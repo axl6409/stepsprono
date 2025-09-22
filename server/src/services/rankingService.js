@@ -5,7 +5,7 @@ const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
 const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayService");
 
-const getRawRanking = async (seasonId, period) => {
+const getRawRanking = async (seasonId, period, matchday = null) => {
   try {
     const setting = await Setting.findOne({
       where: { key: "rankingMode" },
@@ -51,8 +51,12 @@ const getRawRanking = async (seasonId, period) => {
         matchdays = matchdays.filter((md) => !excludedMatchdays.has(md));
       }
     } else if (period === "week") {
-      const { start, end } = getWeekDateRange();
-      dateRange = { created_at: { [Op.between]: [start, end] } };
+      if (matchday) {
+        matchdays = [matchday];
+      } else {
+        const { start, end } = getWeekDateRange();
+        dateRange = { created_at: { [Op.between]: [start, end] } };
+      }
     }
 
     // Récupérer uniquement les utilisateurs actifs pour la saison
@@ -95,7 +99,9 @@ const getRawRanking = async (seasonId, period) => {
       points: { [Op.not]: null },
       ...(period === "month"
         ? { matchday: { [Op.in]: matchdays } }
-        : dateRange),
+        : matchday
+          ? { matchday }
+          : dateRange),
     };
 
     const bets = await Bet.findAll({
@@ -140,9 +146,11 @@ const getRawRanking = async (seasonId, period) => {
 /**
  * Classement enrichi (applique les règles spéciales si ranking_effect = true)
  */
-const getRanking = async (seasonId, period) => {
+const getRanking = async (seasonId, period, matchday = null) => {
   try {
-    let sortedRanking = await getRawRanking(seasonId, period);
+    let sortedRanking = await getRawRanking(seasonId, period, matchday);
+
+    let appliedRules = [];
 
     // Vérifier les règles spéciales
     const ruleResults = await SpecialRuleResult.findAll({
@@ -162,6 +170,9 @@ const getRanking = async (seasonId, period) => {
         const cfg = rr.config || {};
         let applyRule = false;
 
+        logger.info('[DEBUG =>]')
+        console.log(cfg.matchday)
+
         if (period === "week") {
           const currentMatchday = await getCurrentMatchday();
           if (cfg.matchday && Number(cfg.matchday) === Number(currentMatchday)) {
@@ -177,6 +188,15 @@ const getRanking = async (seasonId, period) => {
 
         if (applyRule) {
           const specialResults = rr.results || [];
+
+          appliedRules.push({
+            rule_id: rr.rule_id,
+            season_id: rr.season_id,
+            matchday: cfg.matchday,
+            type: "hunt_day",
+            results: specialResults
+          });
+
           for (const sr of specialResults) {
             const target = sortedRanking.find((u) => u.user_id === sr.user_id);
             if (target) {
@@ -188,12 +208,17 @@ const getRanking = async (seasonId, period) => {
     }
 
     // Resort après application des règles
-    return sortedRanking.sort((a, b) => {
+    const finalRanking = sortedRanking.sort((a, b) => {
       if (b.points === a.points) {
         return b.tie_breaker_points - a.tie_breaker_points;
       }
       return b.points - a.points;
     });
+
+    return {
+      ranking: finalRanking,
+      rules: appliedRules
+    };
   } catch (error) {
     console.error(`❌ Erreur dans getRanking pour ${period}:`, error);
     throw new Error("Erreur lors de la récupération du classement.");

@@ -195,7 +195,6 @@ const Passed = ({ token, user, onDayChange, selectedDay, onSeasonChange, selecte
   };
 
   const handleSlideChange = (swiper) => {
-    console.log(swiper)
     const day = matchdays[swiper.activeIndex];
     if (selectedMatchday !== day) {
       handleMatchdayChange(day, swiper.activeIndex);

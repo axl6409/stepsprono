@@ -44,6 +44,22 @@ export const RuleProvider = ({children}) => {
     }
   }
 
+  const fetchMatchdayRule = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/special-rule/matchday/${matchday}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+      if (response.status === 204) {
+        return null
+      }
+      return response.data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const playAudio = () => {
     if (currentRule.rule_key === 'hunt_day' && !audioPlayed) {
       if (!audioRef.current) {
@@ -65,6 +81,7 @@ export const RuleProvider = ({children}) => {
     <RuleContext.Provider
       value={{
         fetchCurrentRule,
+        fetchMatchdayRule,
         currentRule,
         playAudio,
         audioPlayed

@@ -44,7 +44,10 @@ const getCurrentSpecialRule = async () => {
       }
     });
 
-    if (!rule) return status(204).json({ message: 'Aucune règle active cette semaine' });
+    if (!rule) {
+      return null;
+    }
+
     return rule;
   } catch (error) {
     logger.error('[getCurrentSpecialRule] Error getting current special rule:', error);
@@ -58,10 +61,21 @@ const getSpecialRuleByKey = async (rule_key) => {
         rule_key: rule_key
       }
     })
-    if (!rule) return status(204).json({ message: 'Aucune règle active cette semaine' });
+    if (!rule) return null;
     return rule;
   } catch (e) {
     logger.error('[getSpecialRuleByKey] Error getting special rule:', e);
+    throw e;
+  }
+}
+
+const getSpecialRuleResults = async (ruleId) => {
+  try {
+    const rule = await SpecialRuleResult.findByPk(ruleId);
+    if (!rule) return null;
+    return rule;
+  } catch (e) {
+    logger.error('[getSpecialRuleResults] Error getting special rule results:', e);
     throw e;
   }
 }
@@ -102,8 +116,8 @@ const configSpecialRule = async (ruleId, payload) => {
 const checkSpecialRule = async (rule_key) => {
   const rule = await getSpecialRuleByKey(rule_key);
   if (!rule) return;
-  const currentMatchday = await getCurrentMatchday();
-  if (rule.config.matchday !== currentMatchday) return;
+  const ruleMatchday = rule.config?.matchday;
+  if (rule.config.matchday !== ruleMatchday) return;
 
   if (rule.rule_key === 'hunt_day') {
     try {
@@ -116,7 +130,7 @@ const checkSpecialRule = async (rule_key) => {
 
 const checkHuntDay = async (rule) => {
   const seasonId = await getCurrentSeasonId(61);
-  const ranking = await getRawRanking(seasonId, 'week');
+  const ranking = await getRawRanking(seasonId, 'week', rule.config?.matchday);
 
   if (!Array.isArray(ranking) || ranking.length === 0) {
     return "Aucun classement disponible pour l'instant.";
