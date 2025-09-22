@@ -1,14 +1,21 @@
 const express = require('express')
 const router = express.Router()
 const { authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
-const { SpecialRule } = require("../models");
+const { SpecialRule, SpecialRuleResult } = require("../models");
 const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
-const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule } = require("../services/specialRuleService");
+const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule, checkSpecialRule} = require("../services/specialRuleService");
 
 router.get('/special-rules', authenticateJWT, async (req, res) => {
   try {
-    const rules = await SpecialRule.findAll();
+    const rules = await SpecialRule.findAll({
+      include: [
+        {
+          model: SpecialRuleResult,
+          as: 'results'
+        }
+      ]
+    });
     res.json(rules);
   } catch (error) {
     logger.error(error);
@@ -23,6 +30,19 @@ router.get('/special-rule/datas/:id', authenticateJWT, async (req, res) => {
     res.json(rule);
   } catch (error) {
     logger.error(error);
+  }
+})
+
+router.get('/special-rule/check/:id', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const ruleId = req.params.id;
+    const rule = await SpecialRule.findByPk(ruleId);
+    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
+    const check = await checkSpecialRule(ruleId);
+    res.json(check);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: 'Erreur lors de la vérification de la règle', error: error.message });
   }
 })
 

@@ -622,8 +622,8 @@ const scheduleSmartMatchCheck = (match, opts = {}) => {
       logger.error(`[MATCH CHECK ERROR] Failed to check match ${match.id}:`, error);
     }
   };
-
-  scheduleJob(firstCheckTime, checkJob);
+  const jobName = `match-check-${match.id}`;
+  scheduleJob(jobName, firstCheckTime, checkJob);
 };
 
 module.exports = {

@@ -10,6 +10,7 @@ const moment = require("moment-timezone");
 const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
+const {applySpecialRulePoints} = require("./logic/ruleLogic");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -150,6 +151,9 @@ const getWeekPoints = async (userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
+
+    points = await applySpecialRulePoints(seasonId, "week", userId, points);
+
     return points;
   } catch (error) {
     logger.error('Erreur lors de la recuperation des points:', error);
@@ -217,6 +221,8 @@ const getMonthPoints = async (userId) => {
       points += bet.points;
     }
 
+    points = await applySpecialRulePoints(seasonId, "month", userId, points, matchdays);
+
     return points;
   } catch (error) {
     console.log('❌ Erreur lors de la récupération des points:', error);
@@ -247,6 +253,9 @@ const getSeasonPoints = async (userId) => {
     for (const bet of bets) {
       points += bet.points;
     }
+
+    points = await applySpecialRulePoints(seasonId, "season", userId, points);
+
     return points;
   } catch (error) {
     console.log('Erreur lors de la recuperation des points:', error);

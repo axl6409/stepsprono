@@ -14,6 +14,7 @@ const {getCurrentSpecialRule, checkSpecialRule} = require("./specialRuleService"
 const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const {getPeriodMatchdays} = require("./logic/matchLogic");
 const {getCurrentWeekMatchdays} = require("./matchdayService");
+const {getRanking} = require("./rankingService");
 
 /**
  * Retrieves the number of API calls made by the server.
@@ -291,17 +292,14 @@ const programSpecialRule = async () => {
     const currentRule = await getCurrentSpecialRule();
     if (!currentRule) return;
     const currentMatchday = await getCurrentWeekMatchdays();
-    const today = new Date();
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7));
-    startOfWeek.setHours(0, 0, 0, 0);
-    endOfWeek.setHours(23, 59, 59, 999);
+    // const today = new Date();
+    // const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+    // const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7));
+    // startOfWeek.setHours(0, 0, 0, 0);
+    // endOfWeek.setHours(23, 59, 59, 999);
 
     if (currentMatchday.includes(currentRule.config?.matchday)) {
-      scheduleJob(endOfWeek, async () => {
-        await checkSpecialRule(currentRule);
-      });
-      logger.info('[programSpecialRule] => tâche planifiée pour la règle Jour de Chasse');
+      await checkSpecialRule(currentRule.rule_key);
     }
   } catch (error) {
     logger.error("Erreur lors de la planification de l'événement de vérification de la règle spéciale:", error);
