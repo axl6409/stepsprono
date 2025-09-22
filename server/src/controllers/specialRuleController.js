@@ -49,7 +49,7 @@ router.get('/special-rule/check/:id', authenticateJWT, checkAdmin, async (req, r
 router.get('/special-rule/current', authenticateJWT, async (req, res) => {
   try {
     const rule = await getCurrentSpecialRule();
-    if (!rule.status) {
+    if (!rule || !rule.status) {
       return res.status(204).json({ message: 'Aucune règle active cette semaine' });
     }
     res.json(rule);
