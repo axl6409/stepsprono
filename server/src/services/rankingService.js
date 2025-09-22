@@ -1,9 +1,138 @@
 const logger = require("../utils/logger/logger");
-const {Bet, Match, User, Setting, UserRanking, UserSeason} = require("../models");
+const {Bet, Match, User, Setting, UserRanking, UserSeason, SpecialRuleResult, Sequelize} = require("../models");
 const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
-const {getCurrentMonthMatchdays} = require("./matchdayService");
+const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayService");
+
+const getRawRanking = async (seasonId, period, matchday = null) => {
+  try {
+    const setting = await Setting.findOne({
+      where: { key: "rankingMode" },
+      attributes: ["active_option"],
+    });
+    const rankingMode = setting?.active_option;
+
+    let matchdays = [];
+    let dateRange = {};
+    let excludedMatchdays = new Set();
+
+    if (period === "month") {
+      const { start } = getMonthDateRange();
+      matchdays = await getCurrentMonthMatchdays();
+
+      if (matchdays.length > 0) {
+        for (const matchday of matchdays) {
+          const matchdayMatches = await Match.findAll({
+            where: { matchday, season_id: seasonId },
+            order: [["utc_date", "ASC"]],
+          });
+
+          if (matchdayMatches.length > 0) {
+            const firstMatchDate = new Date(matchdayMatches[0].utc_date);
+
+            const currentYear = new Date(start).getFullYear();
+            const currentMonth = new Date(start).getMonth(); // 0-indexé
+            const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+            if (
+              firstMatchDate.getFullYear() === previousYear &&
+              firstMatchDate.getMonth() === previousMonth
+            ) {
+              logger.info(
+                `🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`
+              );
+              excludedMatchdays.add(matchday);
+            }
+          }
+        }
+
+        matchdays = matchdays.filter((md) => !excludedMatchdays.has(md));
+      }
+    } else if (period === "week") {
+      if (matchday) {
+        matchdays = [matchday];
+      } else {
+        const { start, end } = getWeekDateRange();
+        dateRange = { created_at: { [Op.between]: [start, end] } };
+      }
+    }
+
+    // Récupérer uniquement les utilisateurs actifs pour la saison
+    const activeUsers = await UserSeason.findAll({
+      where: { season_id: seasonId, is_active: true },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "img"],
+          required: true,
+        },
+      ],
+    });
+
+    const activeUserIds = activeUsers.map((userSeason) => userSeason.user_id);
+    if (activeUserIds.length === 0) return [];
+
+    // Récupérer les utilisateurs
+    const users = await User.findAll({
+      where: { id: activeUserIds },
+      attributes: ["id", "username", "img"],
+    });
+
+    const ranking = users.reduce((acc, user) => {
+      acc[user.id] = {
+        user_id: user.id,
+        username: user.username,
+        points: 0,
+        tie_breaker_points: 0,
+        mode: rankingMode,
+        img: user.img,
+      };
+      return acc;
+    }, {});
+
+    const whereCondition = {
+      season_id: seasonId,
+      user_id: activeUserIds,
+      points: { [Op.not]: null },
+      ...(period === "month"
+        ? { matchday: { [Op.in]: matchdays } }
+        : matchday
+          ? { matchday }
+          : dateRange),
+    };
+
+    const bets = await Bet.findAll({
+      where: whereCondition,
+      include: [{ model: User, as: "UserId", attributes: ["id", "username", "img"] }],
+    });
+
+    for (const bet of bets) {
+      const userId = bet.user_id;
+      if (ranking[userId]) {
+        ranking[userId].points += bet.points;
+
+        if (rankingMode === "legit") {
+          ranking[userId].tie_breaker_points += bet.result_points;
+        } else if (rankingMode === "history") {
+          ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
+        }
+      }
+    }
+
+    return Object.values(ranking).sort((a, b) => {
+      if (b.points === a.points) {
+        return b.tie_breaker_points - a.tie_breaker_points;
+      }
+      return b.points - a.points;
+    });
+  } catch (error) {
+    console.error(`❌ Erreur dans getRawRanking pour ${period}:`, error);
+    throw new Error("Erreur lors de la récupération du classement brut.");
+  }
+};
 
 /**
  * Retrieves the ranking of users for a given season and period.
@@ -14,143 +143,82 @@ const {getCurrentMonthMatchdays} = require("./matchdayService");
  * Each object contains user_id, username, points, tie_breaker_points, mode, and img.
  * @throws {Error} If there is an error while retrieving the ranking.
  */
-const getRanking = async (seasonId, period) => {
+/**
+ * Classement enrichi (applique les règles spéciales si ranking_effect = true)
+ */
+const getRanking = async (seasonId, period, matchday = null) => {
   try {
-    const setting = await Setting.findOne({
-      where: { key: 'rankingMode' },
-      attributes: ['active_option']
+    let sortedRanking = await getRawRanking(seasonId, period, matchday);
+
+    let appliedRules = [];
+
+    // Vérifier les règles spéciales
+    const ruleResults = await SpecialRuleResult.findAll({
+      where: {
+        season_id: seasonId,
+        config: Sequelize.where(
+          Sequelize.cast(Sequelize.json("config.ranking_effect"), "BOOLEAN"),
+          true
+        ),
+      },
     });
-    const rankingMode = setting?.active_option;
 
-    let matchdays = [];
-    let dateRange = {};
-    let excludedMatchdays = new Set();
+    if (ruleResults && ruleResults.length > 0) {
+      const matchdays = period === "month" ? await getCurrentMonthMatchdays() : [];
 
-    if (period === 'month') {
-      const { start, end } = getMonthDateRange();
-      matchdays = await getCurrentMonthMatchdays();
+      for (const rr of ruleResults) {
+        const cfg = rr.config || {};
+        let applyRule = false;
 
-      if (matchdays.length > 0) {
-        for (const matchday of matchdays) {
-          const matchdayMatches = await Match.findAll({
-            where: {
-              matchday,
-              season_id: seasonId
-            },
-            order: [['utc_date', 'ASC']]
+        if (period === "week") {
+          const currentMatchday = await getCurrentMatchday();
+          if (cfg.matchday && Number(cfg.matchday) === Number(currentMatchday)) {
+            applyRule = true;
+          }
+        } else if (period === "month") {
+          if (cfg.matchday && matchdays.includes(Number(cfg.matchday))) {
+            applyRule = true;
+          }
+        } else if (period === "season") {
+          applyRule = true;
+        }
+
+        if (applyRule) {
+          const specialResults = rr.results || [];
+
+          appliedRules.push({
+            rule_id: rr.rule_id,
+            season_id: rr.season_id,
+            matchday: cfg.matchday,
+            type: "hunt_day",
+            results: specialResults
           });
 
-          if (matchdayMatches.length > 0) {
-            const firstMatchDate = new Date(matchdayMatches[0].utc_date);
-
-            const currentYear = new Date(start).getFullYear();
-            const currentMonth = new Date(start).getMonth(); // 0-indexé (janvier = 0)
-            const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-            const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-            if (firstMatchDate.getFullYear() === previousYear && firstMatchDate.getMonth() === previousMonth) {
-              logger.info(`🚨 Exclusion de la journée ${matchday} car elle commence sur le mois précédent.`);
-              excludedMatchdays.add(matchday);
+          for (const sr of specialResults) {
+            const target = sortedRanking.find((u) => u.user_id === sr.user_id);
+            if (target) {
+              target.points += sr.hunt_result || 0;
             }
           }
         }
-
-        matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
-      }
-    } else if (period === 'week') {
-      const { start, end } = getWeekDateRange();
-      console.log("Start", start)
-      console.log("End", end)
-      dateRange = { created_at: { [Op.between]: [start, end] } };
-    }
-
-    // Récupérer uniquement les utilisateurs actifs pour la saison actuelle
-    const activeUsers = await UserSeason.findAll({
-      where: {
-        season_id: seasonId,
-        is_active: true
-      },
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'username', 'img'],
-        required: true
-      }]
-    });
-
-    // Créer un tableau d'IDs d'utilisateurs actifs pour le filtrage
-    const activeUserIds = activeUsers.map(userSeason => userSeason.user_id);
-
-    // Si aucun utilisateur actif, retourner un tableau vide
-    if (activeUserIds.length === 0) {
-      return [];
-    }
-
-    // Récupérer les utilisateurs actifs avec leurs détails
-    const users = await User.findAll({
-      where: { id: activeUserIds },
-      attributes: ['id', 'username', 'img']
-    });
-
-    const ranking = users.reduce((acc, user) => {
-      acc[user.id] = {
-        user_id: user.id,
-        username: user.username,
-        points: 0,
-        tie_breaker_points: 0,
-        mode: rankingMode,
-        img: user.img
-      };
-      return acc;
-    }, {});
-
-    const whereCondition = {
-      season_id: seasonId,
-      user_id: activeUserIds, // Ne prendre en compte que les paris des utilisateurs actifs
-      points: { [Op.not]: null },
-      ...(period === 'month'
-          ? {
-            matchday: { [Op.in]: matchdays }
-          }
-          : dateRange
-      )
-    };
-
-    const bets = await Bet.findAll({
-      where: whereCondition,
-      include: [
-        {
-          model: User,
-          as: 'UserId',
-          attributes: ['id', 'username', 'img']
-        }
-      ]
-    });
-
-    for (const bet of bets) {
-      const userId = bet.user_id;
-      if (ranking[userId]) {
-        ranking[userId].points += bet.points;
-
-        if (rankingMode === 'legit') {
-          ranking[userId].tie_breaker_points += bet.result_points;
-        } else if (rankingMode === 'history') {
-          ranking[userId].tie_breaker_points = await getLastMatchdayPoints(userId);
-        }
       }
     }
 
-    const sortedRanking = Object.values(ranking).sort((a, b) => {
+    // Resort après application des règles
+    const finalRanking = sortedRanking.sort((a, b) => {
       if (b.points === a.points) {
         return b.tie_breaker_points - a.tie_breaker_points;
       }
       return b.points - a.points;
     });
 
-    return sortedRanking;
+    return {
+      ranking: finalRanking,
+      rules: appliedRules
+    };
   } catch (error) {
-    console.error(`❌ Erreur lors de la récupération du classement pour ${period}:`, error);
-    throw new Error('Erreur lors de la récupération du classement.');
+    console.error(`❌ Erreur dans getRanking pour ${period}:`, error);
+    throw new Error("Erreur lors de la récupération du classement.");
   }
 };
 
@@ -264,6 +332,7 @@ const getSeasonRankingEvolution = async (seasonId, userId) => {
 };
 
 module.exports = {
+  getRawRanking,
   getRanking,
   getSeasonRanking,
   getSeasonRankingEvolution,

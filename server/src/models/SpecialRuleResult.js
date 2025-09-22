@@ -16,6 +16,13 @@
 
 module.exports = (sequelize, DataTypes) => {
   const SpecialRuleResult = sequelize.define('SpecialRuleResult', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+      allowNull: false,
+      field: 'id'
+    },
     rule_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

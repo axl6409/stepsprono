@@ -56,7 +56,7 @@ const RankingProvider = ({ children }) => {
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const sortedRanking = (response.data.ranking || []).sort((a, b) => {
+      const sortedRanking = (response.data.ranking.ranking || []).sort((a, b) => {
         if (b.points === a.points) {
           return b.tie_breaker_points - a.tie_breaker_points;
         }

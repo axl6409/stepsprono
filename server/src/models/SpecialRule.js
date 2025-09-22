@@ -57,5 +57,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
+  SpecialRule.associate = function(models) {
+    SpecialRule.hasMany(models.SpecialRuleResult, {
+      as: 'results',
+      foreignKey: 'rule_id'
+    });
+  };
+
   return SpecialRule;
 };

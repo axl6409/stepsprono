@@ -2,8 +2,8 @@ const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const {SpecialRule} = require("../models");
-const {Op, Sequelize} = require("sequelize");
+const {SpecialRule, SpecialRuleResult, Sequelize} = require("../models");
+const {Op} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
 const moment = require("moment");
@@ -12,6 +12,8 @@ const eventBus = require("../events/eventBus");
 const { getCurrentMatchday } = require("./matchdayService");
 const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
 const {status} = require("express/lib/response");
+const {getCurrentSeasonId} = require("./seasonService");
+const {getRanking, getRawRanking} = require("./rankingService");
 
 const toggleSpecialRule = async (id, active) => {
   try {
@@ -42,12 +44,74 @@ const getCurrentSpecialRule = async () => {
       }
     });
 
-    if (!rule) return status(204).json({ message: 'Aucune règle active cette semaine' });
+    if (!rule) {
+      return null;
+    }
+
     return rule;
   } catch (error) {
     logger.error('[getCurrentSpecialRule] Error getting current special rule:', error);
   }
 };
+
+const getSpecialRuleByKey = async (rule_key) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: {
+        rule_key: rule_key
+      }
+    })
+    if (!rule) return null;
+    return rule;
+  } catch (e) {
+    logger.error('[getSpecialRuleByKey] Error getting special rule:', e);
+    throw e;
+  }
+}
+
+const getSpecialRuleByMatchday = async (matchday) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: Sequelize.where(
+        Sequelize.cast(Sequelize.json("config.matchday"), "INTEGER"),
+        matchday
+      ),
+    });
+
+    return rule || null;
+  } catch (e) {
+    logger.error("[getSpecialRuleByMatchday] Error getting special rule:", e);
+    throw e;
+  }
+};
+
+const getSpecialResultByMatchday = async (matchday) => {
+  try {
+    const rule = await SpecialRuleResult.findOne({
+      where: Sequelize.where(
+        Sequelize.cast(Sequelize.json("config.matchday"), "INTEGER"),
+        matchday
+      ),
+    });
+
+    return rule || null;
+  } catch (e) {
+    logger.error("[getSpecialResultByMatchday] Error getting special rule result:", e);
+    throw e;
+  }
+}
+
+
+const getSpecialRuleResults = async (ruleId) => {
+  try {
+    const rule = await SpecialRuleResult.findByPk(ruleId);
+    if (!rule) return null;
+    return rule;
+  } catch (e) {
+    logger.error('[getSpecialRuleResults] Error getting special rule results:', e);
+    throw e;
+  }
+}
 
 const configSpecialRule = async (ruleId, payload) => {
   try {
@@ -64,7 +128,6 @@ const configSpecialRule = async (ruleId, payload) => {
     logger.info('[configSpecialRule] payload =>', payload);
 
     if (payload.config?.selected_user) {
-      console.log(payload.config.selected_user.id);
       newConfig.selected_user = payload.config.selected_user.id;
     } else if (payload.config?.user_pairs) {
       newConfig.user_pairs = {};
@@ -83,38 +146,97 @@ const configSpecialRule = async (ruleId, payload) => {
   }
 };
 
-const checkSpecialRule = async (rule) => {
-  const currentMatchday = await getCurrentMatchday();
-  if (rule.config.matchday !== currentMatchday) return;
+const checkSpecialRule = async (rule_key) => {
+  const rule = await getSpecialRuleByKey(rule_key);
+  if (!rule) return;
+  const ruleMatchday = rule.config?.matchday;
+  if (rule.config.matchday !== ruleMatchday) return;
 
   if (rule.rule_key === 'hunt_day') {
     try {
-      const ranking = await getCurrentMatchdayRanking();
-      // Ici vous pouvez utiliser le ranking pour implémenter la logique de la règle spéciale
-      // Par exemple :
-      // - Trouver les utilisateurs avec le score le plus bas
-      // - Appliquer des pénalités ou des bonus
-      // - Déclencher des événements en fonction des positions
-
-      logger.info(`[checkSpecialRule] Règle spéciale "${rule.rule_key}" traitée pour la journée ${currentMatchday}`);
-      logger.debug(`[checkSpecialRule] Classement actuel:`, JSON.stringify(ranking, null, 2));
-
-      // Exemple de logique à implémenter :
-      // if (ranking.length > 0) {
-      //   const minPoints = Math.min(...ranking.map(user => user.points));
-      //   const lastPlaceUsers = ranking.filter(user => user.points === minPoints);
-      //   // Faire quelque chose avec les utilisateurs en dernière position
-      // }
-
+      return checkHuntDay(rule).then(message => message);
     } catch (error) {
       logger.error(`[checkSpecialRule] Erreur lors du traitement de la règle spéciale:`, error);
     }
   }
 }
 
+const checkHuntDay = async (rule) => {
+  const seasonId = await getCurrentSeasonId(61);
+  const ranking = await getRawRanking(seasonId, 'week', rule.config?.matchday);
+
+  if (!Array.isArray(ranking) || ranking.length === 0) {
+    return "Aucun classement disponible pour l'instant.";
+  }
+
+  const cfg = rule?.config || {};
+  const targetUserId = Number(cfg.selected_user);
+
+  if (!Number.isFinite(targetUserId)) {
+    logger.warn(`[HUNT DAY] selected_user invalide: ${cfg.selected_user}`);
+    return `Utilisateur cible invalide (${cfg.selected_user}).`;
+  }
+
+  const targetUser = ranking.find(r => Number(r.user_id) === targetUserId);
+  if (!targetUser) {
+    return `Utilisateur cible (${targetUserId}) non trouvé dans le classement.`;
+  }
+
+  const targetPoints = Number(targetUser.points) || 0;
+  const bonus = Number.isFinite(cfg.points_bonus) ? cfg.points_bonus : 1;
+  const malus = Number.isFinite(cfg.points_malus) ? cfg.points_malus : -1;
+
+  const results = ranking.map(user => {
+    const uid = Number(user.user_id);
+    const upoints = Number(user.points) || 0;
+
+    if (uid === targetUserId) {
+      return { ...user, hunt_result: 0 };
+    }
+
+    let hunt_result = 0;
+    if (upoints > targetPoints) hunt_result = bonus;
+    else if (upoints < targetPoints) hunt_result = malus;
+
+    return { ...user, hunt_result };
+  });
+
+  const configResult = {
+    matchday: cfg.matchday,
+    ranking_effect: true
+  };
+
+  const existing = await SpecialRuleResult.findOne({
+    where: {
+      rule_id: rule.id,
+      season_id: seasonId
+    }
+  });
+
+  if (existing) {
+    await existing.update({
+      config: configResult,
+      results
+    });
+    logger.info(`[HUNT DAY] Résultats mis à jour pour la règle ${rule.id} (saison ${seasonId})`);
+  } else {
+    await SpecialRuleResult.create({
+      rule_id: rule.id,
+      season_id: seasonId,
+      config: configResult,
+      results,
+    });
+    logger.info(`[HUNT DAY] Résultats enregistrés pour la règle ${rule.id} (saison ${seasonId})`);
+  }
+
+  return results;
+};
+
 module.exports = {
   toggleSpecialRule,
   getCurrentSpecialRule,
   configSpecialRule,
-  checkSpecialRule
+  checkSpecialRule,
+  getSpecialRuleByMatchday,
+  getSpecialResultByMatchday
 }

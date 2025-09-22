@@ -24,7 +24,7 @@ import InlineCopy from "../components/buttons/InlineCopy.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Contributions = () => {
-  const { user, isAuthenticated } = useContext(UserContext);
+  const { user, isAuthenticated, hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useContext(UserContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
 
@@ -45,8 +45,6 @@ const Contributions = () => {
 
   const [userColors, setUserColors] = useState({});
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
-
-  const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess } = useContext(UserContext);
 
   const formatEUR = (n) => `${Math.round(Number(n) || 0)}`;
 
@@ -483,7 +481,7 @@ const Contributions = () => {
               )}
 
               {/* Supprimer toujours disponible pour admin/treasurer */}
-              {(user.role === 'admin' || user.role === 'treasurer') && (
+              {hasTreasurerAccess && (
                 <button
                   className="w-full uppercase bg-red-light text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
                   onClick={async () => {

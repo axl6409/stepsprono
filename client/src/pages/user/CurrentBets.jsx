@@ -12,6 +12,7 @@ import vsIcon from "../../assets/components/matchs/vs-icon.png";
 import nullSymbol from "../../assets/icons/null-symbol.svg";
 import clockIcon from "../../assets/icons/clock-icon.svg";
 import defaultTeamImage from "../../assets/components/icons/hidden-trophy.webp";
+import pstIcon from "../../assets/components/icons/delayed.webp";
 import ProfilePic from "../../components/user/ProfilePic.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -250,13 +251,25 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                             </div>
                           </div>
                           <div className="w-[20%] flex flex-col justify-center items-center py-2">
-                            {bet.points === null ? (
-                              <img className="block mx-auto rotate-clock-animation"
-                                   style={{animationDelay: `${index * 0.2}s`}} src={clockIcon} alt="icone d'horloge"/>
-                            ) : bet.points === 0 ? (
-                              <p translate="no" className="font-rubik no-correct font-medium text-xl">{bet.points}</p>
+                            {bet.MatchId.status === "PST" ? (
+                              <img
+                                className="block mx-auto w-14"
+                                style={{ animationDelay: `${index * 0.2}s` }}
+                                src={pstIcon}
+                                alt="icone d'horloge"
+                              />
+                            ) : bet.points === null ? (
+                              <p translate="no" className="font-rubik no-correct font-medium text-xl">
+                                <img
+                                  className="block mx-auto rotate-clock-animation"
+                                  style={{ animationDelay: `${index * 0.2}s` }}
+                                  src={clockIcon}
+                                  alt="Match reporté"/>
+                              </p>
                             ) : (
-                              <p translate="no" className="font-rubik no-correct font-medium text-xl">{bet.points}</p>
+                              <p translate="no" className="font-rubik no-correct font-medium text-xl">
+                                {bet.points}
+                              </p>
                             )}
                           </div>
                         </div>
