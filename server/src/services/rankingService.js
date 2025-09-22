@@ -170,9 +170,6 @@ const getRanking = async (seasonId, period, matchday = null) => {
         const cfg = rr.config || {};
         let applyRule = false;
 
-        logger.info('[DEBUG =>]')
-        console.log(cfg.matchday)
-
         if (period === "week") {
           const currentMatchday = await getCurrentMatchday();
           if (cfg.matchday && Number(cfg.matchday) === Number(currentMatchday)) {

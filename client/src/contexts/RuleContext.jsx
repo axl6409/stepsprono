@@ -44,7 +44,7 @@ export const RuleProvider = ({children}) => {
     }
   }
 
-  const fetchMatchdayRule = async () => {
+  const fetchMatchdayRule = async (matchday) => {
     try {
       const response = await axios.get(`${apiUrl}/api/special-rule/matchday/${matchday}`, {
         headers: {

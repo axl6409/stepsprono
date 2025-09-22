@@ -4,7 +4,9 @@ const { authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = requ
 const { SpecialRule, SpecialRuleResult } = require("../models");
 const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
-const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule, checkSpecialRule} = require("../services/specialRuleService");
+const { toggleSpecialRule, getCurrentSpecialRule, configSpecialRule, checkSpecialRule, getSpecialRuleByMatchday,
+  getSpecialResultByMatchday
+} = require("../services/specialRuleService");
 
 router.get('/special-rules', authenticateJWT, async (req, res) => {
   try {
@@ -34,7 +36,15 @@ router.get('/special-rule/datas/:id', authenticateJWT, async (req, res) => {
 })
 
 router.get('/special-rule/matchday/:matchday', authenticateJWT, async (req, res) => {
-  
+  try {
+    const matchday = req.params.matchday;
+    const rule = await getSpecialResultByMatchday(matchday);
+    if (!rule) return res.status(204).json({ message: 'Règle non trouvée' });
+    res.json(rule);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération de la règle', error: error.message });
+  }
 })
 
 router.get('/admin/special-rule/check/:id', authenticateJWT, checkAdmin, async (req, res) => {

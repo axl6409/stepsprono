@@ -69,6 +69,39 @@ const getSpecialRuleByKey = async (rule_key) => {
   }
 }
 
+const getSpecialRuleByMatchday = async (matchday) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: Sequelize.where(
+        Sequelize.cast(Sequelize.json("config.matchday"), "INTEGER"),
+        matchday
+      ),
+    });
+
+    return rule || null;
+  } catch (e) {
+    logger.error("[getSpecialRuleByMatchday] Error getting special rule:", e);
+    throw e;
+  }
+};
+
+const getSpecialResultByMatchday = async (matchday) => {
+  try {
+    const rule = await SpecialRuleResult.findOne({
+      where: Sequelize.where(
+        Sequelize.cast(Sequelize.json("config.matchday"), "INTEGER"),
+        matchday
+      ),
+    });
+
+    return rule || null;
+  } catch (e) {
+    logger.error("[getSpecialResultByMatchday] Error getting special rule result:", e);
+    throw e;
+  }
+}
+
+
 const getSpecialRuleResults = async (ruleId) => {
   try {
     const rule = await SpecialRuleResult.findByPk(ruleId);
@@ -204,4 +237,6 @@ module.exports = {
   getCurrentSpecialRule,
   configSpecialRule,
   checkSpecialRule,
+  getSpecialRuleByMatchday,
+  getSpecialResultByMatchday
 }
