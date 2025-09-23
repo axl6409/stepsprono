@@ -10,6 +10,7 @@ export default function useUserData(user, token, apiUrl) {
   const [betColors, setBetColors] = useState({});
   const [noMatches, setNoMatches] = useState(false);
   const [matchs, setMatchs] = useState([]);
+  const [lastMatch, setLastMatch] = useState(null);
   const [canDisplayBets, setCanDisplayBets] = useState(false);
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
@@ -47,12 +48,28 @@ export default function useUserData(user, token, apiUrl) {
       const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const sortedMatchs = response.data.data || [];
+
+      const allMatchs = response.data.data || [];
+      const sortedMatchs = allMatchs
+        .filter(m => m.status !== "FT") // 👈 filtre
+        .sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
+
+      const currentMatchday = response.data.currentMatchday;
+
       if (sortedMatchs.length === 0) {
         setNoMatches(true);
         return;
       }
+
       setMatchs(sortedMatchs);
+      setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
+
+      const currentMatchdayMatches = sortedMatchs.filter(m => m.matchday === currentMatchday);
+
+      if (currentMatchdayMatches.length === 0) {
+        setCanDisplayBets(true);
+        return;
+      }
 
       const firstMatchDate = moment(sortedMatchs[0].utc_date);
       const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
@@ -100,6 +117,7 @@ export default function useUserData(user, token, apiUrl) {
     betColors,
     noMatches,
     matchs,
-    canDisplayBets
+    canDisplayBets,
+    lastMatch
   };
 }

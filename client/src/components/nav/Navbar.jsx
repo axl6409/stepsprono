@@ -20,6 +20,7 @@ import {UserContext} from "../../contexts/UserContext.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import {useCookies} from "react-cookie";
 import axios from "axios";
+import useUserData from "../../hooks/useUserData.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserMenu = () => {
@@ -32,6 +33,11 @@ const UserMenu = () => {
   const { menuOpen, setMenuOpen } = useContext(AppContext);
   const [debugEnabled, setDebugEnabled] = useState(false);
   const [countdown, setCountdown] = useState({});
+  const {
+    matchs,
+    currentMatchday,
+    lastMatch,
+  } = useUserData(user, token, apiUrl);
   const [cronTasks, setCronTasks] = useState([]);
   const [firstMatchDate, setFirstMatchDate] = useState(null);
   const menuRef = useRef(null);
@@ -57,22 +63,13 @@ const UserMenu = () => {
   }, [menuRef]);
 
   useEffect(() => {
+
     const fetchFirstMatchDate = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        });
-        const matchs = response.data.data;
-        if (matchs.length > 0) {
-          const firstMatch = new Date(matchs[0].utc_date);
-          setFirstMatchDate(firstMatch);
-        } else {
-          setFirstMatchDate(null);
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération des matchs :", error);
+      if (matchs.length > 0) {
+        const firstMatch = new Date(matchs[0].utc_date);
+        setFirstMatchDate(firstMatch);
+      } else {
+        setFirstMatchDate(null);
       }
     };
 
