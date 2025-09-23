@@ -115,20 +115,15 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
       where: {
-        utc_date: {
-          [Op.gte]: startOfCurrentWeek,
-          [Op.lte]: endOfCurrentWeek
-        },
+        utc_date: { [Op.gte]: startOfCurrentWeek, [Op.lte]: endOfCurrentWeek },
       },
       include: [
         { model: Team, as: 'HomeTeam' },
         { model: Team, as: 'AwayTeam' }
       ],
-      order: [
-        ['utc_date', 'ASC']
-      ]
+      order: [['utc_date', 'ASC']]
     });
-
+    const currentMatchday = await getCurrentMatchday();
     if (matchs.count === 0) {
       return res.status(200).json({ data: [], message: 'Aucun match trouvé pour cette semaine' });
     }
@@ -136,8 +131,9 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
     res.json({
       data: matchs.rows,
       totalCount: matchs.count,
-      startOfNextWeek: startOfCurrentWeek,
-      endOfNextWeek: endOfCurrentWeek
+      startOfWeek: startOfCurrentWeek,
+      endOfWeek: endOfCurrentWeek,
+      currentMatchday
     });
   } catch (error) {
     console.error("Erreur :", error);

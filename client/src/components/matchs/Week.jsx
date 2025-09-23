@@ -13,10 +13,15 @@ import Loader from "../partials/Loader.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
 import AlertModal from "../modals/AlertModal.jsx";
+import useUserData from "../../hooks/useUserData.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
-  const [matchs, setMatchs] = useState([]);
+  const {
+    matchs,
+    currentMatchday,
+    lastMatch,
+  } = useUserData(user, token, apiUrl);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
   const swiperRef = useRef(null);
@@ -25,7 +30,6 @@ const Week = ({token, user}) => {
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [bets, setBets] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [lastMatch, setLastMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,6 +57,7 @@ const Week = ({token, user}) => {
           return acc
         }, {})
         setBets(betsByMatchId)
+        setIsLoading(false)
       } catch (error) {
         console.error('Erreur lors de la récupération des matchs :', error);
         setError(error);
@@ -60,29 +65,7 @@ const Week = ({token, user}) => {
       }
     }
 
-    const fetchMatchs = async () => {
-      setIsLoading(true)
-      try {
-        const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        const sortedMatchs = response.data.data.sort((a, b) => {
-          return new Date(a.utc_date) - new Date(b.utc_date);
-        })
-        console.log(response.data.data)
-        setMatchs(sortedMatchs)
-        setLastMatch(sortedMatchs[sortedMatchs.length - 1])
-        setIsLoading(false)
-        fetchBets(sortedMatchs)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs :', error);
-        setError(error);
-        setIsLoading(false);
-      }
-    }
-    fetchMatchs()
+    fetchBets(matchs)
   }, [token])
 
   useEffect(() => {
@@ -108,10 +91,11 @@ const Week = ({token, user}) => {
 
   const canSubmitBet = (match) => {
     if (!match) return false;
+    if (currentMatchday && match.matchday < currentMatchday) {
+      return false;
+    }
     const matchDate = moment(match.utc_date);
-    const isMatchInFuture = matchDate.isAfter(now);
-    const hasBet = isBetPlaced(match.id);
-    return isMatchInFuture && simulatedNow.isBefore(nextFridayAtNoon);
+    return matchDate.isAfter(moment()) && moment().isBefore(nextFridayAtNoon);
   };
 
   const isMatchEditable = (match) => {
@@ -230,6 +214,10 @@ const Week = ({token, user}) => {
           className="mySwiper relative flex flex-col justify-start"
         >
           {matchs.length > 0 && matchs.map((match, index) => {
+            if (!match.HomeTeam || !match.AwayTeam) {
+              return null;
+            }
+
             const matchDate = moment(match.utc_date)
             const enableSubmit = canSubmitBet(match);
 
