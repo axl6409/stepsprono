@@ -44,6 +44,7 @@ const Week = ({token, user}) => {
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
       const matchIds = sortedMatchs.map(match => match.id);
+      console.log(matchIds)
       try {
         const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
           matchIds: matchIds
@@ -66,7 +67,7 @@ const Week = ({token, user}) => {
     }
 
     fetchBets(matchs)
-  }, [token])
+  }, [token, matchs])
 
   useEffect(() => {
     const swiperInstance = swiperRef.current?.swiper
