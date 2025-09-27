@@ -54,9 +54,9 @@ eventBus.on('betsChecked', async (matchId) => {
   logger.info('Début de la vérification du trophée ZeroGuardian');
   await checkZeroGuardianTrophy()
   logger.info('Vérification du trophée ZeroGuardian terminée');
-  logger.info('Début de la vérification du trophée Jackpot');
-  await checkJackpotTrophy()
-  logger.info('Vérification du trophée Jackpot terminée');
+  // logger.info('Début de la vérification du trophée Jackpot');
+  // await checkJackpotTrophy()
+  // logger.info('Vérification du trophée Jackpot terminée');
   logger.info('Début de la vérification du trophée Looser');
   await checkLooserTrophy()
   logger.info('Vérification du trophée Looser terminée');
