@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useCallback} from "react";
+import React, {useEffect, useState, useRef, useCallback, useContext} from "react";
 import {Swiper, SwiperSlide, useSwiper} from "swiper/react";
 import "swiper/css";
 import 'swiper/css/effect-cube';
@@ -14,6 +14,7 @@ import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
 import AlertModal from "../modals/AlertModal.jsx";
 import useUserData from "../../hooks/useUserData.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
@@ -21,7 +22,7 @@ const Week = ({token, user}) => {
     matchs,
     currentMatchday,
     lastMatch,
-  } = useUserData(user, token, apiUrl);
+  } = useContext(AppContext);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
   const swiperRef = useRef(null);

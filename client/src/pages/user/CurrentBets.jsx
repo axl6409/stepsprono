@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import weekPointsShape from "../../assets/components/dashboard/week/week-points-shape.png";
 import weekPointsText from "../../assets/components/dashboard/week/week-points-txt.png";
@@ -14,6 +14,7 @@ import clockIcon from "../../assets/icons/clock-icon.svg";
 import defaultTeamImage from "../../assets/components/icons/hidden-trophy.webp";
 import pstIcon from "../../assets/components/icons/delayed.webp";
 import ProfilePic from "../../components/user/ProfilePic.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -23,11 +24,9 @@ const CurrentBets = ({ loggedUser, user, token }) => {
     seasonPoints,
     bets,
     betColors,
-    noMatches,
-    matchs,
-    canDisplayBets
   } = useUserData(user, token, apiUrl);
 
+  const { noMatches, matchs, canDisplayBets, fetchMatchs } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleNavigate = (bet) => {
@@ -35,6 +34,10 @@ const CurrentBets = ({ loggedUser, user, token }) => {
       state: { canDisplayBets: canDisplayBets }
     });
   };
+
+  useEffect(() => {
+    fetchMatchs();
+  }, []);
 
   return (
     <div key={user.id} className="relative">

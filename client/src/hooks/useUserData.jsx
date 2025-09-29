@@ -8,11 +8,6 @@ export default function useUserData(user, token, apiUrl) {
   const [seasonPoints, setSeasonPoints] = useState(0);
   const [bets, setBets] = useState([]);
   const [betColors, setBetColors] = useState({});
-  const [noMatches, setNoMatches] = useState(false);
-  const [matchs, setMatchs] = useState([]);
-  const [lastMatch, setLastMatch] = useState(null);
-  const [canDisplayBets, setCanDisplayBets] = useState(false);
-  const [currentMatchday, setCurrentMatchday] = useState(null);
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
 
   useEffect(() => {
@@ -45,65 +40,6 @@ export default function useUserData(user, token, apiUrl) {
       }
     };
 
-    const fetchMatchs = async () => {
-      const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      const allMatchs = response.data.data || [];
-
-      const sortedMatchs = allMatchs
-        .filter(m => m.status !== "FT") // 👈 filtre
-        .sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
-
-      setCurrentMatchday(response.data.currentMatchday);
-
-      if (sortedMatchs.length === 0) {
-        setNoMatches(true);
-        return;
-      }
-
-      setMatchs(sortedMatchs);
-      setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
-
-      const currentMatchdayMatches = allMatchs.filter(m => m.matchday === currentMatchday);
-
-      if (currentMatchdayMatches.length === 0) {
-        setCanDisplayBets(true);
-        return;
-      }
-
-      const firstMatchDate = moment(allMatchs[0].utc_date);
-      const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
-
-      let closingTime;
-      if (firstMatchDate.day() === 6) {
-        // Si samedi => closingTime = vendredi 12h
-        closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
-      } else {
-        // Sinon => closingTime = jour du premier match à 12h
-        closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
-      }
-
-      const now = moment();
-
-      if (now.isBefore(closingTime)) {
-        setCanDisplayBets(false);
-        const interval = setInterval(() => {
-          const currentTime = moment();
-          if (currentTime.isAfter(closingTime)) {
-            clearInterval(interval);
-            setCanDisplayBets(false);
-          }
-        }, 1000);
-        return () => clearInterval(interval);
-      } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
-        setCanDisplayBets(false);
-      }
-
-    };
-
-    fetchMatchs();
     fetchLastBets();
     fetchPoints('week', setWeekPoints);
     fetchPoints('month', setMonthPoints);
@@ -117,10 +53,5 @@ export default function useUserData(user, token, apiUrl) {
     seasonPoints,
     bets,
     betColors,
-    noMatches,
-    matchs,
-    canDisplayBets,
-    currentMatchday,
-    lastMatch
   };
 }

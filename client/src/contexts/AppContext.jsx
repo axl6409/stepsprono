@@ -2,6 +2,7 @@ import React, {createContext, useState, useEffect, useContext, useRef} from 'rea
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext.jsx";
+import moment from 'moment';
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
@@ -22,11 +23,17 @@ export const AppProvider = ({ children }) => {
   const [matchsCronTasks, setMatchsCronTasks] = useState([]);
   const [availableCompetitions, setAvailableCompetitions] = useState([]);
   const [currentSeason, setCurrentSeason] = useState([]);
+  const [canDisplayBets, setCanDisplayBets] = useState(false);
+  const [currentMatchday, setCurrentMatchday] = useState(null);
+  const [matchs, setMatchs] = useState([]);
+  const [lastMatch, setLastMatch] = useState(null);
+  const [noMatches, setNoMatches] = useState(false);
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
       fetchAvailableCompetitions();
       fetchCurrentSeason();
+      fetchMatchs();
     }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
@@ -119,7 +126,6 @@ export const AppProvider = ({ children }) => {
       console.error('Erreur lors de la récupération des compétitions disponibles', error);
     }
   }
-
   const fetchCurrentSeason = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/seasons/current/datas/61`, {
@@ -130,6 +136,63 @@ export const AppProvider = ({ children }) => {
       console.log('Erreur lors de la récupération de la saison actuelle', error);
     }
   }
+  const fetchMatchs = async () => {
+    const response = await axios.get(`${apiUrl}/api/matchs/current-week`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const allMatchs = response.data.data || [];
+
+    const sortedMatchs = allMatchs
+      .filter(m => m.status !== "FT") // 👈 filtre
+      .sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
+
+    setCurrentMatchday(response.data.currentMatchday);
+
+    if (sortedMatchs.length === 0) {
+      setNoMatches(true);
+      return;
+    }
+
+    setMatchs(sortedMatchs);
+    setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
+
+    const currentMatchdayMatches = allMatchs.filter(m => m.matchday === currentMatchday);
+
+    if (currentMatchdayMatches.length === 0) {
+      setCanDisplayBets(true);
+      return;
+    }
+
+    const firstMatchDate = moment(allMatchs[0].utc_date);
+    const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
+
+    let closingTime;
+    if (firstMatchDate.day() === 6) {
+      // Si samedi => closingTime = vendredi 12h
+      closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
+    } else {
+      // Sinon => closingTime = jour du premier match à 12h
+      closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
+    }
+
+    const now = moment();
+
+    if (now.isBefore(closingTime)) {
+      setCanDisplayBets(false);
+      const interval = setInterval(() => {
+        const currentTime = moment();
+        if (currentTime.isAfter(closingTime)) {
+          clearInterval(interval);
+          setCanDisplayBets(true);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
+      setCanDisplayBets(true);
+    }
+
+  };
 
   return (
     <AppContext.Provider
@@ -151,7 +214,13 @@ export const AppProvider = ({ children }) => {
         matchsCronTasks,
         fetchMatchsCronJobs,
         isLoading,
-        setIsLoading
+        setIsLoading,
+        noMatches,
+        matchs,
+        canDisplayBets,
+        currentMatchday,
+        lastMatch,
+        fetchMatchs
       }}>
       {children}
     </AppContext.Provider>
