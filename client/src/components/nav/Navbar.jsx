@@ -37,7 +37,7 @@ const UserMenu = () => {
     matchs,
     currentMatchday,
     lastMatch,
-  } = useUserData(user, token, apiUrl);
+  } = useContext(AppContext);
   const [cronTasks, setCronTasks] = useState([]);
   const [firstMatchDate, setFirstMatchDate] = useState(null);
   const menuRef = useRef(null);
