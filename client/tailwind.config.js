@@ -77,6 +77,7 @@ export default {
         'flat-black-middle': '0px 4px 0 4px rgba(0,0,0,1);',
         'flat-purple': '3px 4px 0 rgba(255,0,245,1);',
         'flat-purple-adjust': '2px 2px 0 rgba(255,0,245,1);',
+        'flat-green-adjust': '2px 2px 0 rgba(2,211,2,1);',
         'green-medium': '1px 3px 0 rgba(189,255,0,1);',
         'flat-lime-adjust': '2px 2px 0 rgba(0,255,0,1);',
         'inner-black-light': 'inset 0px 5px 5px 5px rgba(0,0,0,0.5);',

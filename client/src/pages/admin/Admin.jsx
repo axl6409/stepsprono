@@ -15,12 +15,11 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Admin = () => {
   const { user } = useContext(UserContext)
-  const { userRequests } = useContext(AppContext)
   const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess, hasAdminAccess, isAdmin } = useContext(UserContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate();
-  const { isDebuggerActive, toggleDebugger } = useContext(AppContext);
+  const { userRequests, isDebuggerActive, toggleDebugger, setIsDebuggerActive } = useContext(AppContext);
   const [nullBets, setNullBets] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
@@ -39,6 +38,12 @@ const Admin = () => {
       )}
       <DashboardButton />
       <SimpleTitle title={"Admin Space"} stickyStatus={false} fontSize={'2.5rem'} uppercase={true} />
+
+      <button
+        onClick={toggleDebugger}
+        className="absolute z-[2] block h-fit w-fit top-2 right-4 bg-black text-center px-4 focus:outline-none font-roboto text-green-deep uppercase border border-green-deep shadow-flat-green-adjust transition-all duration-300 ease-in-out hover:shadow-none focus:shadow-none">
+        Debug Mode
+      </button>
 
       <div className="py-4 block mt-8 border border-black bg-white rounded-xl overflow-hidden w-11/12 mx-auto shadow-flat-black">
         <h2 className="font-roboto font-bold text-xl text-center uppercase">Gestion de l'application</h2>

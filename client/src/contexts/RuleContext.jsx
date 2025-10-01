@@ -30,8 +30,9 @@ export const RuleProvider = ({children}) => {
           'Authorization': `Bearer ${token}`,
         }
       })
+      console.log(response.data)
       setCurrentRule(response.data)
-      if (response.data.id === 1) {
+      if (response.data.rule_key === "hunt_day") {
         const selectedUser = await axios.get(`${apiUrl}/api/user/${response.data.config.selected_user}`, {
           headers: {
             'Authorization': `Bearer ${token}`,

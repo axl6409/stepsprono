@@ -2,7 +2,7 @@ import React, {createContext, useState, useEffect, useContext, useRef} from 'rea
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext.jsx";
-import moment from 'moment';
+import moment from 'moment-timezone';
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
@@ -28,12 +28,18 @@ export const AppProvider = ({ children }) => {
   const [matchs, setMatchs] = useState([]);
   const [lastMatch, setLastMatch] = useState(null);
   const [noMatches, setNoMatches] = useState(false);
+  const [clock, setClock] = useState({
+    now: moment(),
+    simulated: false,
+    tz: "Europe/Paris"
+  });
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
       fetchAvailableCompetitions();
       fetchCurrentSeason();
       fetchMatchs();
+      fetchClock();
     }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
@@ -192,6 +198,29 @@ export const AppProvider = ({ children }) => {
     }
 
   };
+  const fetchClock = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/app/clock/now`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.clockInfo) {
+        const { nowLocal, simulated, tz } = response.data.clockInfo;
+        setClock({
+          now: moment.tz(nowLocal, tz),
+          simulated,
+          tz
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'horloge :", error);
+      setClock({
+        now: moment(),
+        simulated: false,
+        tz: "Europe/Paris"
+      });
+    }
+  };
 
   return (
     <AppContext.Provider
@@ -201,6 +230,7 @@ export const AppProvider = ({ children }) => {
         isDebuggerActive,
         toggleDebugger,
         isDebuggerOpen,
+        setIsDebuggerActive,
         toggleDebuggerModal,
         userRequests,
         availableCompetitions,
@@ -219,7 +249,9 @@ export const AppProvider = ({ children }) => {
         canDisplayBets,
         currentMatchday,
         lastMatch,
-        fetchMatchs
+        fetchMatchs,
+        clock,
+        fetchClock,
       }}>
       {children}
     </AppContext.Provider>

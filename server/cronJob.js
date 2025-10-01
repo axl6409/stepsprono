@@ -11,6 +11,7 @@ const {betsCloseNotification, weekEndedNotification} = require("./src/services/n
 const {autoContribution} = require("./src/services/contributionService");
 const {setAllUsersPending} = require("./src/services/userService");
 const {updateSeasonMatchday} = require("./src/services/seasonService");
+const {getCurrentMoment} = require("./src/services/logic/dateLogic");
 
 async function updatePlayersForAllTeamsSequentially(teams) {
   for (let i = 0; i < teams.length; i++) {
@@ -60,7 +61,7 @@ const runCronJob = () => {
 
   // Every day at 23:30
   cron.schedule('30 23 * * *', async () => {
-    const tomorrow = moment().add(1, 'days')
+    const tomorrow = getCurrentMoment().add(1, 'days')
     if (tomorrow.date() === 1) {
       logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
       eventBus.emit('monthEnded');

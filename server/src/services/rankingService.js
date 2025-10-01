@@ -1,6 +1,6 @@
 const logger = require("../utils/logger/logger");
 const {Bet, Match, User, Setting, Season, UserRanking, UserSeason, SpecialRuleResult, Sequelize} = require("../models");
-const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
+const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
 const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayService");
@@ -288,8 +288,8 @@ const getSeasonRankingEvolution = async (seasonId, userId, period = "season", mo
     const endDate = new Date();
     rangeMatchdays = await getPeriodMatchdays(startDate, endDate);
   } else if (period === "month" && month) {
-    const startDate = moment(month, "YYYY-MM").startOf("month").toDate();
-    const endDate = moment(month, "YYYY-MM").endOf("month").toDate();
+    const startDate = getCurrentMoment(month, "YYYY-MM").startOf("month").toDate();
+    const endDate = getCurrentMoment(month, "YYYY-MM").endOf("month").toDate();
     rangeMatchdays = await getPeriodMatchdays(startDate, endDate);
   }
 

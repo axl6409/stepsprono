@@ -8,6 +8,7 @@ const {fetchAndProgramWeekMatches, getMatchsCronTasks} = require("../services/ma
 const logger = require("../utils/logger/logger");
 const path = require("path");
 const fs = require("fs");
+const {getClockInfo} = require("../services/logic/dateLogic");
 
 /* PUBLIC - GET */
 router.get('/app/version', async (req, res) => {
@@ -45,6 +46,14 @@ router.get('/app/version', async (req, res) => {
       message: 'Erreur lors de la récupération de la version',
       error: error.message
     });
+  }
+})
+router.get('/app/clock/now', authenticateJWT, async (req, res) => {
+  try {
+    const clockInfo = getClockInfo();
+    res.status(200).json({ clockInfo });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
   }
 })
 router.get('/app/calls', authenticateJWT, async (req, res) => {
