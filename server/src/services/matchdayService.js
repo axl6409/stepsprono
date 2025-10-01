@@ -3,7 +3,8 @@ const { Op } = require("sequelize");
 const { Match, Season } = require("../models");
 const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const { getCurrentCompetitionId } = require("./competitionService");
-const { getCurrentSeasonId, getCurrentSeason} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic")
+const { getCurrentSeason} = require("./seasonService");
 const logger = require("../utils/logger/logger");
 
 const getCurrentWeekMatchdays = async (seasonIdParam) => {

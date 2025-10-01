@@ -5,7 +5,7 @@ const logger = require("../utils/logger/logger");
 const { Team, TeamCompetition } = require("../models");
 const {getPlayersByTeamId, updatePlayers} = require("../services/playerService");
 const {updateTeamStats, createOrUpdateTeams, updateAllTeamsStats} = require("../services/teamService");
-const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/logic/seasonLogic");
 
 /* PUBLIC - GET */
 router.get('/teams', async (req, res) => {

@@ -7,7 +7,7 @@ const {getNullBets, checkupBets, createBet, updateBet, updateAllBetsForCurrentSe
 const {getRanking} = require("../services/rankingService");
 const {getSeasonRankingEvolution} = require("../services/rankingService");
 const logger = require("../utils/logger/logger");
-const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/logic/seasonLogic");
 
 /* PUBLIC - GET */
 router.get('/bets', authenticateJWT, async (req, res) => {

@@ -120,7 +120,6 @@ export const AppProvider = ({ children }) => {
       const response = await axios.get(`${apiUrl}/api/competitions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      console.log(response.data)
       setAvailableCompetitions(response.data);
     } catch (error) {
       console.error('Erreur lors de la récupération des compétitions disponibles', error);

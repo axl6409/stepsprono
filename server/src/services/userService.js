@@ -8,8 +8,9 @@ const { User, Bet, Match, UserReward, Season, Player, UserRanking, Role, Team } 
 const schedule = require('node-schedule');
 const bcrypt = require('bcrypt');
 const {getPeriodMatchdays} = require("./logic/matchLogic");
-const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic");
 const {getCurrentCompetitionId} = require("./competitionService");
+const {getCurrentMatchday} = require("./matchdayService");
 
 const getUserDatas = async (userId) => {
   try {
@@ -1359,6 +1360,7 @@ const getUserStats = async (userId) => {
   try {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
+    const currentMatchday = await getCurrentMatchday();
 
     // Requête pour les statistiques globales
     const globalStats = await Bet.findOne({
@@ -1410,7 +1412,11 @@ const getUserStats = async (userId) => {
         'matchday',
         [Sequelize.fn('SUM', Sequelize.col('points')), 'totalPoints']
       ],
-      where: { user_id: userId, season_id: seasonId },
+      where: {
+        user_id: userId,
+        season_id: seasonId,
+        matchday: { [Op.ne]: currentMatchday }
+      },
       group: ['matchday'],
       order: [['matchday', 'ASC']],
     });
@@ -1427,7 +1433,7 @@ const getUserStats = async (userId) => {
         as: 'UserId',
         attributes: ['id', 'username'],
       },
-      where: { season_id: seasonId },
+      where: { season_id: seasonId, matchday: { [Op.ne]: currentMatchday } },
       group: ['matchday', 'user_id', 'UserId.id', 'UserId.username'],
       order: [['matchday', 'ASC'], ['user_id', 'ASC']],
     });

@@ -4,7 +4,7 @@ const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = requi
 const {Match, Team} = require("../models");
 const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
-const {getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
   getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
 } = require("../services/matchService");

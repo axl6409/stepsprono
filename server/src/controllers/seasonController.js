@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router()
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
 const { Season } = require("../models");
-const {getCurrentSeasonId, checkAndAddNewSeason, getCurrentSeasonDatas} = require("../services/seasonService");
+const {getCurrentSeasonId} = require("../services/logic/seasonLogic")
+const {checkAndAddNewSeason, getCurrentSeasonDatas} = require("../services/seasonService");
 const logger = require("../utils/logger/logger");
 
 /* PUBLIC - GET */

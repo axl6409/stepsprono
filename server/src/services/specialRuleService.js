@@ -12,7 +12,7 @@ const eventBus = require("../events/eventBus");
 const { getCurrentMatchday } = require("./matchdayService");
 const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
 const {status} = require("express/lib/response");
-const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic");
 const {getRanking, getRawRanking} = require("./rankingService");
 
 const toggleSpecialRule = async (id, active) => {

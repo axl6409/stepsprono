@@ -12,7 +12,7 @@ const sharp = require("sharp");
 const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
-const {getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
@@ -141,7 +141,9 @@ router.get('/user/:id/rankings/season', authenticateJWT, async (req, res) => {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
 
-    const data = await getSeasonRankingEvolution(seasonId, userId);
+    const { period = "season", month } = req.query;
+
+    const data = await getSeasonRankingEvolution(seasonId, userId, period, month);
     return res.json(data);
 
   } catch (error) {

@@ -474,7 +474,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
     if (!seasonId) {
       seasonId = await getCurrentSeasonId(competitionId);
     }
-    logger.info('Classement de la journée', seasonIdParam);
+
     const activeUsers = await UserSeason.findAll({
       where: {
         season_id: seasonId,
@@ -487,7 +487,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
         required: true
       }]
     });
-    console.log(activeUsers);
+
     const activeUserIds = activeUsers.map(userSeason => userSeason.user_id);
 
     if (activeUserIds.length === 0) {
@@ -685,6 +685,5 @@ module.exports = {
   getAllLastBets,
   getMatchdayRanking,
   updateAllBetsForCurrentSeason,
-  updateWeeklyRankings,
   scheduleWeeklyRankingUpdate
 };
