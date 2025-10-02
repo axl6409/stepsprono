@@ -33,6 +33,7 @@ export const AppProvider = ({ children }) => {
     simulated: false,
     tz: "Europe/Paris"
   });
+  const [logs, setLogs] = useState({ warning: "", combined: "", error: "" });
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
@@ -40,6 +41,9 @@ export const AppProvider = ({ children }) => {
       fetchCurrentSeason();
       fetchMatchs();
       fetchClock();
+      if (isDebuggerActive) {
+        fectchLogs();
+      }
     }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
@@ -181,7 +185,7 @@ export const AppProvider = ({ children }) => {
       closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
     }
 
-    const now = moment();
+    const now = clock.now;
 
     if (now.isBefore(closingTime)) {
       setCanDisplayBets(false);
@@ -221,6 +225,16 @@ export const AppProvider = ({ children }) => {
       });
     }
   };
+  const fectchLogs = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/app/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setLogs(response.data.logs);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des logs :", error);
+    }
+  }
 
   return (
     <AppContext.Provider
@@ -252,6 +266,7 @@ export const AppProvider = ({ children }) => {
         fetchMatchs,
         clock,
         fetchClock,
+        logs
       }}>
       {children}
     </AppContext.Provider>

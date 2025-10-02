@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import UserWheel from "../../../components/admin/UserWheel.jsx";
 import MatchdaySelect from "../../../components/admin/MatchdaySelect.jsx";
 import defaultUserImage from "../../../assets/components/user/default-user-profile.png";
@@ -9,7 +9,23 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
   const [groups, setGroups] = useState(formValues.selected_users || []); // [[u1,u2], [u3,u4]...]
   const [currentPick, setCurrentPick] = useState([]); // joueur(s) en cours de sélection
 
+  useEffect(() => {
+    const isComplete = pool.length === 0 && currentPick.length === 0;
+    setFormValues(prev => ({ ...prev, isComplete }));
+  }, [pool, currentPick, setFormValues]);
+
   const handleSelect = (user) => {
+    if (pool.length === 2 && currentPick.length === 0) {
+      const newGroup = [pool[0], pool[1]];
+      const updatedGroups = [...groups, newGroup];
+      setGroups(updatedGroups);
+      setFormValues((prev) => ({ ...prev, selected_users: updatedGroups }));
+
+      setPool([]);
+      setCurrentPick([]);
+      return;
+    }
+
     // Si aucun pick encore → premier joueur
     if (currentPick.length === 0) {
       setCurrentPick([user]);
@@ -51,7 +67,7 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
           <UserWheel users={pool} onSelect={handleSelect} />
         </div>
       ) : (
-        <p translate="no" className="text-green-700 font-semibold">
+        <p translate="no" className="text-black font-rubik text-sm font-semibold text-center">
           Tous les groupes ont été constitués 🎉
         </p>
       )}
@@ -65,14 +81,14 @@ const RuleAllianceDay = ({ users, matchdays, formValues, setFormValues }) => {
           <ul className="list-disc space-y-1">
             {groups.map((g, idx) => (
               <li key={idx} className="flex flex-row justify-between gap-2 items-center border border-black p-2 rounded-md shadow-flat-black-adjust">
-                <span className="flex flex-row justify-start items-center gap-2">
+                <span className="w-3/6 flex flex-row justify-start items-center gap-2">
                   <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
                     <img className="w-full h-full object-cover object-center" src={g[0]?.img ? `${apiUrl}/uploads/users/${g[0]?.id}/${g[0]?.img}` : defaultUserImage} alt=""/>
                   </span>
                   <span translate="no" className="font-rubik text-black text-sm font-medium uppercase">{g[0]?.username}</span>
                 </span>
-                <span className="font-rubik text-black text-base font-black">&</span>
-                <span className="flex flex-row justify-start items-center gap-4">
+                <span className="w-1/6 font-rubik text-black text-base font-black text-center">&</span>
+                <span className="w-3/6 flex flex-row-reverse justify-start items-center gap-2">
                   <span className="w-10 h-10 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
                     <img className="w-full h-full object-cover object-center" src={g[1]?.img ? `${apiUrl}/uploads/users/${g[1]?.id}/${g[1]?.img}` : defaultUserImage} alt=""/>
                   </span>

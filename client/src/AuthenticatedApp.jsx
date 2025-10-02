@@ -12,11 +12,11 @@ import { ViewedProfileProvider } from "./contexts/ViewedProfileContext.jsx";
 import AppRoutes from "./AppRoutes.jsx";
 import BulletRain from "./components/animated/BulletRain.jsx";
 import {RuleContext} from "./contexts/RuleContext.jsx";
-import DebugConsole from "./components/admin/DebugDate.jsx";
+import DebugConsole from "./components/admin/DebugConsole.jsx";
 import HiddenPredictions from "./components/animated/HiddenPredictions.jsx";
 
 const AuthenticatedApp = () => {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, hasAdminAccess } = useContext(UserContext);
   const token = localStorage.getItem("token") || user?.token;
   const { isAuthenticated } = useContext(UserContext);
   const { menuOpen } = useContext(AppContext);
@@ -39,6 +39,10 @@ const AuthenticatedApp = () => {
     && location.pathname !== '/jour-de-chasse') {
     return <Navigate to="/jour-de-chasse" replace />;
   }
+  if (isAuthenticated && user?.status === 'hidden_predictions'
+    && location.pathname !== '/jour-de-chasse') {
+    return <Navigate to="/hidden-predictions" replace />;
+  }
 
   if (isAuthenticated && location.pathname === '/') {
     return <Navigate to="/dashboard" replace />;
@@ -48,7 +52,9 @@ const AuthenticatedApp = () => {
     return (
     <>
       <Navbar />
-      <DebugConsole />
+      {hasAdminAccess && (
+        <DebugConsole />
+      )}
       <ViewedProfileProvider>
 
         <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
@@ -64,7 +70,14 @@ const AuthenticatedApp = () => {
               <BulletRain />
             ) : currentRule?.rule_key === "hidden_predictions" &&
             currentRule.status ? (
-              <HiddenPredictions emojiCount={10} fadeSpeed={0.01} />
+              <HiddenPredictions
+                emojiCount={15}
+                fadeInTime={1500}
+                holdTime={2000}
+                fadeOutTime={1500}
+                delayTime={1000}
+                maxOpacity={0.3}
+              />
             ) : (
               <Particles
                 particleColors={["#000000", "#000000"]}

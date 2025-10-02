@@ -16,17 +16,17 @@ moment.updateLocale('fr', {});
 const App = () => {
   return (
     <UserProvider>
-      <AppProvider>
+      <RuleProvider>
         <UpdateProvider>
-          <RuleProvider>
+          <AppProvider>
             <NotificationProvider>
               <VersionChecker />
               <AppContent />
               <UpdateModal />
             </NotificationProvider>
-          </RuleProvider>
+          </AppProvider>
         </UpdateProvider>
-      </AppProvider>
+      </RuleProvider>
     </UserProvider>
   );
 };

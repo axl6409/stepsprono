@@ -134,6 +134,14 @@ const configSpecialRule = async (ruleId, payload) => {
       for (const pair of payload.config.user_pairs) {
         newConfig.user_pairs[pair.id] = pair.id;
       }
+    } else if (payload.config?.selected_users) {
+      newConfig.selected_users = payload.config.selected_users.map(group =>
+        group.map(u => ({
+          id: u.id,
+          username: u.username,
+          img: u.img || null
+        }))
+      );
     }
 
     rule.config = newConfig;

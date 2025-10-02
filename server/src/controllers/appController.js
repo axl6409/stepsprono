@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
-const {getAPICallsCount, getSettlement, getRankingMode} = require("../services/appService");
+const {getAPICallsCount, getSettlement, getRankingMode, getLogs} = require("../services/appService");
 const {Setting, Role} = require("../models");
 const {getCronTasks} = require("../../cronJob");
 const {fetchAndProgramWeekMatches, getMatchsCronTasks} = require("../services/matchService");
@@ -60,6 +60,14 @@ router.get('/app/calls', authenticateJWT, async (req, res) => {
   try {
     const calls = await getAPICallsCount();
     res.status(200).json({ calls });
+  } catch (error) {
+    res.status(500).json({ message: 'Route protégée', error: error.message });
+  }
+})
+router.get('/app/logs', authenticateJWT, async (req, res) => {
+  try {
+    const logs = await getLogs();
+    res.status(200).json({ logs });
   } catch (error) {
     res.status(500).json({ message: 'Route protégée', error: error.message });
   }

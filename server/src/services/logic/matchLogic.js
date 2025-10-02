@@ -29,7 +29,7 @@ const getPeriodMatchdays = async (startDate, endDate) => {
     logger.info('[DEBUG] => ')
     console.log('startDate:', startDate)
     console.log('endDate:', endDate)
-    console.log(matchs)
+    console.log(matchs.length)
     logger.info('[DEBUG END]')
     for (const match of matchs) {
       matchdays.add(match.matchday)

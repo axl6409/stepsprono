@@ -3,7 +3,16 @@ const moment = require("moment-timezone");
 
 const DEFAULT_TZ = "Europe/Paris";
 
-function getCurrentMoment() {
+function getCurrentMoment(dateString = null, format = null) {
+  if (dateString) {
+    // si format précisé → on parse avec format
+    if (format) {
+      return moment.tz(dateString, format, DEFAULT_TZ);
+    }
+    // sinon on laisse moment détecter
+    return moment.tz(dateString, DEFAULT_TZ);
+  }
+
   const iso = process.env.TIME_TRAVEL_ISO;
   const hasIso = !!iso && moment(iso, moment.ISO_8601, true).isValid();
 
