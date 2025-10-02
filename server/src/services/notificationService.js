@@ -1,6 +1,7 @@
 const { sendNotificationsToAll, sendNotificationToOne} = require('./fcmService');
 const moment = require('moment');
 const logger = require("../utils/logger/logger");
+const {getCurrentMoment} = require("./logic/dateLogic");
 
 async function betsCloseNotification(type, matches) {
   try {
@@ -106,7 +107,7 @@ async function newContributionNeededNotification(user, amount) {
   try {
     const notificationMessage = {
       title: `💵 Steps d'épargne`,
-      body : `tu passes à la banque l'ami ! Tu dois une contribution de ${amount}€ dans la steps d'épargne. A régler avant le ${moment().add(21, 'days').format('DD/MM/YYYY')} !`,
+      body : `tu passes à la banque l'ami ! Tu dois une contribution de ${amount}€ dans la steps d'épargne. A régler avant le ${getCurrentMoment().add(21, 'days').format('DD/MM/YYYY')} !`,
       icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
     };
     await sendNotificationToOne(user.id, notificationMessage);

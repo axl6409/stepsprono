@@ -1,8 +1,8 @@
 const {Op} = require("sequelize");
 const {Bet, Match, Team, Player, User, Setting, UserRanking, UserSeason} = require("../models");
-const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
+const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
 const logger = require("../utils/logger/logger");
-const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic");
 const eventBus = require("../events/eventBus");
 const sequelize = require("../../database");
 const {getCurrentCompetitionId} = require("./competitionService");
@@ -381,8 +381,7 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
 }
 
 const getLastBetsByUserId = async (userId) => {
-  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-  const now = moment();
+  const now = getCurrentMoment();
   const startOfWeek = now.clone().startOf('isoWeek');
   const endOfWeek = now.clone().endOf('isoWeek');
 
@@ -424,8 +423,7 @@ const getLastBetsByUserId = async (userId) => {
 }
 
 const getAllLastBets = async () => {
-  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-  const now = moment();
+  const now = getCurrentMoment();
   const startOfWeek = now.clone().startOf('isoWeek');
   const endOfWeek = now.clone().endOf('isoWeek');
 
@@ -474,7 +472,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
     if (!seasonId) {
       seasonId = await getCurrentSeasonId(competitionId);
     }
-    logger.info('Classement de la journée', seasonIdParam);
+
     const activeUsers = await UserSeason.findAll({
       where: {
         season_id: seasonId,
@@ -487,7 +485,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
         required: true
       }]
     });
-    console.log(activeUsers);
+
     const activeUserIds = activeUsers.map(userSeason => userSeason.user_id);
 
     if (activeUserIds.length === 0) {
@@ -685,6 +683,5 @@ module.exports = {
   getAllLastBets,
   getMatchdayRanking,
   updateAllBetsForCurrentSeason,
-  updateWeeklyRankings,
   scheduleWeeklyRankingUpdate
 };

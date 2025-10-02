@@ -2,15 +2,15 @@ const express = require('express')
 const router = express.Router()
 const {authenticateJWT, checkAdmin, checkManager, checkManagerTreasurer} = require("../middlewares/auth");
 const {Match, Team} = require("../models");
-const moment = require("moment-timezone");
 const {Op, Sequelize} = require("sequelize");
-const {getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
   getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
 } = require("../services/matchService");
 const {getCurrentMatchday} = require("../services/matchdayService")
 const logger = require("../utils/logger/logger");
 const {match} = require("sinon");
+const {getCurrentMoment} = require("../services/logic/dateLogic");
 
 /* PUBLIC - GET */
 router.get('/match/:matchId', authenticateJWT, async (req, res) => {
@@ -70,8 +70,9 @@ router.get('/matchs/days/passed', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
   try {
-    const startOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
-    const endOfNextWeek = moment().tz("Europe/Paris").add(1, 'weeks').endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const now = getCurrentMoment();
+    const startOfNextWeek = now.clone().add(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfNextWeek = now.clone().add(1, 'weeks').endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
 
     const matchs = await Match.findAndCountAll({
       where: {
@@ -109,10 +110,9 @@ router.get('/matchs/next-week', authenticateJWT, async (req, res) => {
 })
 router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
   try {
-    const now = moment();
-    // const now = moment().add(1, 'weeks');
-    const startOfCurrentWeek = now.tz("Europe/Paris").startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
-    const endOfCurrentWeek = now.tz("Europe/Paris").endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const now = getCurrentMoment();
+    const startOfCurrentWeek = now.clone().startOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
+    const endOfCurrentWeek = now.clone().endOf('isoWeek').format('YYYY-MM-DD HH:mm:ss');
     const matchs = await Match.findAndCountAll({
       where: {
         utc_date: { [Op.gte]: startOfCurrentWeek, [Op.lte]: endOfCurrentWeek },

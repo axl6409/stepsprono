@@ -10,6 +10,8 @@ const {getAllTeams} = require("./src/services/teamService");
 const {betsCloseNotification, weekEndedNotification} = require("./src/services/notificationService");
 const {autoContribution} = require("./src/services/contributionService");
 const {setAllUsersPending} = require("./src/services/userService");
+const {updateSeasonMatchday} = require("./src/services/seasonService");
+const {getCurrentMoment} = require("./src/services/logic/dateLogic");
 
 async function updatePlayersForAllTeamsSequentially(teams) {
   for (let i = 0; i < teams.length; i++) {
@@ -38,7 +40,6 @@ const runCronJob = () => {
   cron.schedule('00 23 * * 0', async () => {
     logger.info("[CRON]=> 00 23 * * 0 => eventBus.emit('weekEnded')");
     await autoContribution()
-    await scheduleWeeklyRankingUpdate()
     eventBus.emit('weekEnded');
     eventBus.emit('betsChecked');
     await weekEndedNotification()
@@ -50,6 +51,9 @@ const runCronJob = () => {
     await fetchAndProgramWeekMatches().then(r => {
       logger.info('Week Matches Fetched : Success');
     })
+    await updateSeasonMatchday().then(r => {
+      logger.info('Season Matchday Updated : Success');
+    })
     await scheduleBetsCloseEvent().then(r => {
       logger.info('Program bets closed : Success');
     })
@@ -57,7 +61,7 @@ const runCronJob = () => {
 
   // Every day at 23:30
   cron.schedule('30 23 * * *', async () => {
-    const tomorrow = moment().add(1, 'days')
+    const tomorrow = getCurrentMoment().add(1, 'days')
     if (tomorrow.date() === 1) {
       logger.info("[CRON]=> 30 23 * * * => eventBus.emit('monthEnded')");
       eventBus.emit('monthEnded');

@@ -2,7 +2,7 @@ import React, {createContext, useState, useEffect, useContext, useRef} from 'rea
 import axios from 'axios';
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext.jsx";
-import moment from 'moment';
+import moment from 'moment-timezone';
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Créer un Contexte
@@ -28,12 +28,22 @@ export const AppProvider = ({ children }) => {
   const [matchs, setMatchs] = useState([]);
   const [lastMatch, setLastMatch] = useState(null);
   const [noMatches, setNoMatches] = useState(false);
+  const [clock, setClock] = useState({
+    now: moment(),
+    simulated: false,
+    tz: "Europe/Paris"
+  });
+  const [logs, setLogs] = useState({ warning: "", combined: "", error: "" });
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
       fetchAvailableCompetitions();
       fetchCurrentSeason();
       fetchMatchs();
+      fetchClock();
+      if (isDebuggerActive) {
+        fectchLogs();
+      }
     }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
@@ -120,7 +130,6 @@ export const AppProvider = ({ children }) => {
       const response = await axios.get(`${apiUrl}/api/competitions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      console.log(response.data)
       setAvailableCompetitions(response.data);
     } catch (error) {
       console.error('Erreur lors de la récupération des compétitions disponibles', error);
@@ -176,7 +185,7 @@ export const AppProvider = ({ children }) => {
       closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
     }
 
-    const now = moment();
+    const now = clock.now;
 
     if (now.isBefore(closingTime)) {
       setCanDisplayBets(false);
@@ -193,6 +202,39 @@ export const AppProvider = ({ children }) => {
     }
 
   };
+  const fetchClock = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/app/clock/now`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.clockInfo) {
+        const { nowLocal, simulated, tz } = response.data.clockInfo;
+        setClock({
+          now: moment.tz(nowLocal, tz),
+          simulated,
+          tz
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'horloge :", error);
+      setClock({
+        now: moment(),
+        simulated: false,
+        tz: "Europe/Paris"
+      });
+    }
+  };
+  const fectchLogs = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/app/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setLogs(response.data.logs);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des logs :", error);
+    }
+  }
 
   return (
     <AppContext.Provider
@@ -202,6 +244,7 @@ export const AppProvider = ({ children }) => {
         isDebuggerActive,
         toggleDebugger,
         isDebuggerOpen,
+        setIsDebuggerActive,
         toggleDebuggerModal,
         userRequests,
         availableCompetitions,
@@ -220,7 +263,10 @@ export const AppProvider = ({ children }) => {
         canDisplayBets,
         currentMatchday,
         lastMatch,
-        fetchMatchs
+        fetchMatchs,
+        clock,
+        fetchClock,
+        logs
       }}>
       {children}
     </AppContext.Provider>

@@ -11,7 +11,7 @@ const { getAllRewards, assignReward, toggleActivation, deleteReward, updateRewar
   checkPhoenixTrophy, checkRisingStarTrophy
 } = require('../services/rewardService');
 const { upload } = require('../utils/utils');
-const {getCurrentSeasonId} = require("../services/seasonService");
+const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 
 /* PUBLIC - GET */
 router.get('/rewards', authenticateJWT, async (req, res) => {

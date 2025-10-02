@@ -15,7 +15,8 @@ const {getFirstDaysOfCurrentAndPreviousMonth, getSeasonStartDate, getMidSeasonDa
   getStartAndEndOfCurrentMonth
 } = require("./appService");
 const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
-const {getCurrentSeasonYear, getCurrentSeasonId, getSeasonDates, getCurrentSeason} = require("./seasonService");
+const { getCurrentSeasonId, getCurrentSeasonYear } = require("./logic/seasonLogic")
+const {getSeasonDates, getCurrentSeason} = require("./seasonService");
 const {Op} = require("sequelize");
 const {earnTrophyNotification} = require("./notificationService");
 const {getCurrentCompetitionId} = require("./competitionService");

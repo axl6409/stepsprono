@@ -11,13 +11,18 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const MatchsHistory = () => {
   const [cookies] = useCookies(['token']);
   const { user } = useContext(UserContext)
-  const [currentPage, setCurrentPage] = useState(1)
   const [currentSeason, setCurrentSeason] = useState(null)
   const token = localStorage.getItem('token') || cookies.token
+  const storedSeasonId = localStorage.getItem('selectedSeasonId');
+  const storedMatchday = storedSeasonId
+    ? localStorage.getItem(`selectedMatchdayIndex_${storedSeasonId}`)
+    : null;
+  const [currentPage, setCurrentPage] = useState(storedMatchday ? parseInt(storedMatchday, 10) : 1);
 
   const handleDayChange = (newMatchday) => {
     setCurrentPage(newMatchday);
   }
+
   const handleSeasonChange = (newSeason) => {
     setCurrentSeason(newSeason);
   }
@@ -28,7 +33,7 @@ const MatchsHistory = () => {
       <AnimatedTitle title={"Historique"} backgroundColor={'bg-white'} stickyStatus={true}/>
       <div className="relative">
         <Passed token={token} user={user} onDayChange={handleDayChange} selectedDay={currentPage} onSeasonChange={handleSeasonChange} selectedSeason={currentSeason} apiUrl={apiUrl}/>
-        <DayRanking matchday={currentPage} season={currentSeason} token={token} apiUrl={apiUrl} />
+        <DayRanking matchday={currentPage} season={currentSeason} token={token} apiUrl={apiUrl} onDayChange={handleDayChange}/>
       </div>
     </div>
   );

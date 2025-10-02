@@ -18,8 +18,9 @@ const accessLogStream = rfs.createStream('access.log', {
 const PORT = process.env.PORT || 3001
 
 require('./server/src/events/rewardsEvents');
-const {updateRequireDetails, fetchAndProgramWeekMatches} = require("./server/src/services/matchService");
+const {updateRequireDetails, fetchAndProgramWeekMatches, updateSingleMatch} = require("./server/src/services/matchService");
 const {programSpecialRule} = require("./server/src/services/appService");
+const {updateSeasonMatchday} = require("./server/src/services/seasonService");
 
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
@@ -61,6 +62,9 @@ app.listen(PORT, '0.0.0.0', async () => {
     await programSpecialRule();
     runCronJob()
     logger.info('[CRON] => Cron job started');
+    await updateSeasonMatchday().then(r => {
+      logger.info('Season Matchday Updated : Success');
+    })
   } catch (error) {
     logger.info('[START] => Unable to connect to the database: ', error);
   }

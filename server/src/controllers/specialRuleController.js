@@ -89,12 +89,13 @@ router.patch('/admin/special-rule/datas/:id', authenticateJWT, checkManagerTreas
 
 router.patch('/admin/special-rule/toggle/:id', authenticateJWT, checkManagerTreasurer, async (req, res) => {
   try {
-    logger.info('Special Rules')
     const ruleId = req.params.id;
     let status = req.body.status;
-    const rule = await toggleSpecialRule(ruleId, status)
-    if (!rule) return res.status(404).json({ message: 'Règle non trouvée' });
-    res.json(rule);
+    await toggleSpecialRule(ruleId, status).then(() => {
+      return res.status(200).json({ message: 'Règle mise à jour avec succès' });
+    }).catch((error) => {
+      return res.status(500).json({ message: 'Erreur lors de la mise à jour de la règle', error: error.message });
+    });
   } catch (error) {
     logger.error(error);
   }

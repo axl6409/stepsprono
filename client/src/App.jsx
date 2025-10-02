@@ -2,7 +2,7 @@
 import React from "react";
 import { UserProvider } from "./contexts/UserContext.jsx";
 import 'moment/dist/locale/fr';
-import moment from "moment";
+import moment from "moment-timezone";
 import { AppProvider } from "./contexts/AppContext.jsx";
 import { UpdateProvider } from "./contexts/UpdateContext";
 import AppContent from "./AppContent.jsx";
@@ -16,17 +16,17 @@ moment.updateLocale('fr', {});
 const App = () => {
   return (
     <UserProvider>
-      <AppProvider>
+      <RuleProvider>
         <UpdateProvider>
-          <RuleProvider>
+          <AppProvider>
             <NotificationProvider>
               <VersionChecker />
               <AppContent />
               <UpdateModal />
             </NotificationProvider>
-          </RuleProvider>
+          </AppProvider>
         </UpdateProvider>
-      </AppProvider>
+      </RuleProvider>
     </UserProvider>
   );
 };

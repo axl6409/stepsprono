@@ -4,7 +4,7 @@ const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const {Team, TeamCompetition} = require("../models");
 const {downloadImage} = require("./imageService");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/seasonService");
+const {getCurrentSeasonId, getCurrentSeasonYear} = require("../services/logic/seasonLogic");
 const logger = require("../utils/logger/logger");
 const {calculatePoints} = require("../utils/betUtils");
 

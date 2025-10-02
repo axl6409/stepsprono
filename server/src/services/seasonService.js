@@ -1,6 +1,9 @@
 const axios = require("axios");
 const { Season } = require("../models");
 const logger = require("../utils/logger/logger");
+const {getCurrentCompetitionId} = require("./competitionService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic")
+const {getCurrentMatchday} = require("./matchdayService");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -34,27 +37,6 @@ const updateSeasons = async () => {
   }
 }
 
-/**
- * Asynchronously retrieves the ID of the current season for a given competition.
- *
- * @param {number} competitionId - The ID of the competition.
- * @return {Promise<string|undefined>} The ID of the current season, or "Please provide a competition id" if no competition ID is provided. If an error occurs during the retrieval process, it logs an error message.
- */
-const getCurrentSeasonId = async (competitionId) => {
-  try {
-    if (!competitionId) return "Please provide a competition id";
-    const currentSeason = await Season.findOne({
-      where: {
-        competition_id: competitionId,
-        current: true,
-      }
-    });
-    return currentSeason.id;
-  } catch (error) {
-    console.log('Erreur lors de la récupération des données:', error);
-  }
-}
-
 const getCurrentSeasonDatas = async (competitionId) => {
   try {
     if (!competitionId) return "Please provide a competition id";
@@ -70,27 +52,6 @@ const getCurrentSeasonDatas = async (competitionId) => {
   }
 }
 
-/**
- * Retrieves the year of the current season for a given competition ID.
- *
- * @param {number} competitionId - The ID of the competition.
- * @return {Promise<string>} The year of the current season, or an error message if the competition ID is not provided.
- */
-const getCurrentSeasonYear = async (competitionId) => {
-  try {
-    if (!competitionId) return "Please provide a competition id";
-    const currentSeason = await Season.findOne({
-      where: {
-        competition_id: competitionId,
-        current: true,
-      }
-    });
-    console.log(competitionId)
-    return currentSeason.year;
-  } catch (error) {
-    console.log('Erreur lors de la récupération des données:', error);
-  }
-}
 
 /**
  * Retrieves the start and end dates of a season based on the provided season year.
@@ -165,12 +126,34 @@ const checkAndAddNewSeason = async (competitionId) => {
   }
 }
 
+const updateSeasonMatchday = async () => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+    const currentMatchday = await getCurrentMatchday();
+    if (currentMatchday === null) {
+      logger.info('[updateSeasonMatchday] No matchs this week | current matchday === null');
+      return;
+    }
+    await Season.update({
+      current_matchday: currentMatchday,
+    }, {
+      where: {
+        id: seasonId,
+        current: true,
+      },
+    });
+  } catch (error) {
+    logger.error('[updateSeasonMatchday] : ', error);
+    throw new Error('Erreur lors de la vérification de la nouvelle saison');
+  }
+}
+
 module.exports = {
   getCurrentSeason,
   updateSeasons,
-  getCurrentSeasonId,
   getCurrentSeasonDatas,
-  getCurrentSeasonYear,
   checkAndAddNewSeason,
   getSeasonDates,
+  updateSeasonMatchday,
 };

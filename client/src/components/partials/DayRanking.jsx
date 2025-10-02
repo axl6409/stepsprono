@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { RuleContext } from "../../contexts/RuleContext.jsx";
 import chasedRuleIcon from "../../assets/components/rules/jour_de_chasse.png";
 
-const DayRanking = ({ matchday, season, token, apiUrl }) => {
+const DayRanking = ({ matchday, season, token, apiUrl, onDayChange }) => {
   const { isSticky } = useSticky(100);
   const { fetchMatchdayRule } = useContext(RuleContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,48 +15,47 @@ const DayRanking = ({ matchday, season, token, apiUrl }) => {
   const [usersColors, setUsersColors] = useState({});
   const [rule, setRule] = useState(null);
 
-  useEffect(() => {
-    const fetchRanking = async () => {
-      if (!season) return;
-      const seasonId =
-        typeof season === "object" && season !== null ? season.id : season;
-      if (!seasonId) return;
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `${apiUrl}/api/users/bets/ranking/${matchday}?seasonId=${seasonId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const rankingDatas = response.data.ranking;
-        setRanking(rankingDatas);
-
-        const newUsersColors = {};
-        rankingDatas.forEach((user, index) => {
-          newUsersColors[user.user_id] = colors[index % colors.length];
-        });
-        setUsersColors(newUsersColors);
-
-        const fetchedRule = await fetchMatchdayRule(matchday);
-        if (fetchedRule) {
-          setRule(fetchedRule);
-        } else {
-          setRule(null);
+  const fetchRanking = async () => {
+    if (!season) return;
+    const seasonId =
+      typeof season === "object" && season !== null ? season.id : season;
+    if (!seasonId) return;
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `${apiUrl}/api/users/bets/ranking/${matchday}?seasonId=${seasonId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Erreur lors de la récupération du classement:", error);
-        setIsLoading(false);
-      }
-    };
+      );
+      const rankingDatas = response.data.ranking;
+      setRanking(rankingDatas);
+      const newUsersColors = {};
+      rankingDatas.forEach((user, index) => {
+        newUsersColors[user.user_id] = colors[index % colors.length];
+      });
+      setUsersColors(newUsersColors);
 
+      const fetchedRule = await fetchMatchdayRule(matchday);
+      if (fetchedRule) {
+        setRule(fetchedRule);
+      } else {
+        setRule(null);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Erreur lors de la récupération du classement:", error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (matchday && season && token) {
       fetchRanking();
     }
-  }, [matchday, season, token, apiUrl]);
+  }, [matchday, season, token, apiUrl, onDayChange]);
 
   if (isLoading) {
     return (

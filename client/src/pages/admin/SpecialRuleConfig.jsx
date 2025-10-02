@@ -81,6 +81,7 @@ function SpecialRuleConfig() {
 
   const handleSave = async () => {
     try {
+      console.log(formValues)
       const res = await axios.patch(
         `${apiUrl}/api/admin/special-rule/datas/${id}`,
         { config: formValues },
@@ -180,7 +181,7 @@ function SpecialRuleConfig() {
   if (!rules) return <p className="p-6" translate="no">Règles introuvables.</p>;
 
   return (
-    <div className="inline-block relative z-20 w-full h-auto py-20 px-4">
+    <div className="inline-block relative z-20 w-full h-auto py-20 px-4 overflow-x-hidden">
       <AlertModal message={alertMessage} type={alertType} />
       <BackButton />
       <SimpleTitle title={rules.name} stickyStatus={false} marginBottom={'2rem'} />
@@ -201,7 +202,11 @@ function SpecialRuleConfig() {
         <button
           translate="no"
           onClick={handleSave}
-          className="px-8 py-2 bg-green-deep text-black font-rubik text-sm uppercase font-medium rounded-full border border-black shadow-flat-black"
+          disabled={!formValues.isComplete}
+          className={`px-8 py-2 font-rubik text-sm uppercase font-medium rounded-full border border-black shadow-flat-black 
+            ${formValues.isComplete
+            ? "bg-green-deep text-black cursor-pointer"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
         >
           Sauvegarder
         </button>

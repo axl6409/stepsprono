@@ -3,14 +3,15 @@ const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
 const {Match, Team, Bet, User, Player} = require("../models");
-const {getCurrentSeasonId, getCurrentSeasonYear} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic")
+const {getCurrentSeasonYear} = require("./seasonService");
 const {Op, Sequelize} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const moment = require("moment");
 const {getPeriodMatchdays} = require("./logic/matchLogic");
-const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
+const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
 const logger = require("../utils/logger/logger");
 const {createOrUpdateTeams} = require("./teamService");
 const eventBus = require("../events/eventBus");
@@ -298,8 +299,7 @@ async function updateExistingMatchDates() {
  */
 async function fetchAndProgramWeekMatches() {
   try {
-    const now = moment().tz("Europe/Paris");
-    // const now = moment().add(1, 'weeks');
+    const now = getCurrentMoment();
     logger.info('[CRON]=> fetchAndProgramWeekMatches => Now: ' + now.format('YYYY-MM-DD HH:mm:ss'));
 
     const startOfWeek = now.clone().startOf('isoWeek').format(); // ISO string en heure locale
@@ -324,12 +324,12 @@ async function fetchAndProgramWeekMatches() {
     if (!matches.length) return;
 
     // --- Déterminer le(s) dernier(s) match(s) par date (max utc_date) ---
-    const times = matches.map(m => moment(m.utc_date).valueOf());
+    const times = matches.map(m => getCurrentMoment(m.utc_date).valueOf());
     const maxTime = Math.max(...times);
 
     // Certains matchs peuvent avoir exactement la même heure => on marque tous les "derniers"
     const lastMatchIds = new Set(
-      matches.filter(m => moment(m.utc_date).valueOf() === maxTime).map(m => m.id)
+      matches.filter(m => getCurrentMoment(m.utc_date).valueOf() === maxTime).map(m => m.id)
     );
 
     // --- Callback "once" à déclencher quand le dernier match est réellement terminé ---
@@ -351,8 +351,7 @@ async function fetchAndProgramWeekMatches() {
     };
 
     matches.forEach(match => {
-      // Plus besoin de moment.utc() ici — utc_date est déjà en timezone correcte
-      const matchTime = moment(match.utc_date).tz("Europe/Paris");
+      const matchTime = getCurrentMoment(match.utc_date);
 
       const jobParisTime = matchTime.clone()
         .add(100, 'minutes')
@@ -372,8 +371,7 @@ async function fetchAndProgramWeekMatches() {
 
 async function fetchWeekMatches(weekStart = false) {
   try {
-    // const simNow = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-    const now = moment().tz("Europe/Paris");
+    const now = getCurrentMoment();
 
     var startOf = now.clone();
     if (weekStart === true) {

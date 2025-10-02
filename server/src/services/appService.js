@@ -1,4 +1,6 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
@@ -8,13 +10,16 @@ const {Season, Setting, Match} = require("../models");
 const {schedule, scheduleJob} = require("node-schedule");
 const moment = require("moment");
 const eventBus = require("../events/eventBus");
-const {getSeasonDates, getCurrentSeasonId} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic")
+const {getSeasonDates} = require("./seasonService");
 const {getCurrentCompetitionId} = require("./competitionService");
 const {getCurrentSpecialRule, checkSpecialRule} = require("./specialRuleService");
 const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
 const {getPeriodMatchdays} = require("./logic/matchLogic");
 const {getCurrentWeekMatchdays} = require("./matchdayService");
 const {getRanking} = require("./rankingService");
+
+const logsDir = path.join(__dirname, "../../../logs");
 
 /**
  * Retrieves the number of API calls made by the server.
@@ -38,6 +43,27 @@ const getAPICallsCount = async () => {
     console.log('Erreur lors de la récupération des appels API : ', error);
   }
 }
+
+const readLogFile = (fileName) => {
+  try {
+    return fs.readFileSync(path.join(logsDir, fileName), "utf-8");
+  } catch (err) {
+    return `Erreur lecture fichier ${fileName}: ${err.message}`;
+  }
+};
+
+const getLogs = () => {
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const warningFile = `warning-${today}.log`;
+  const errorFile = `error-${today}.log`;
+  const combinedFile = `combined-${today}.log`;
+
+  return {
+    warning: readLogFile(warningFile),
+    combined: readLogFile(combinedFile),
+    error: readLogFile(errorFile),
+  };
+};
 
 /**
  * Returns the start and end dates of the current month.
@@ -309,6 +335,7 @@ const programSpecialRule = async () => {
 
 module.exports = {
   getAPICallsCount,
+  getLogs,
   checkAndScheduleSeasonEndTasks,
   getSettlement,
   getRankingMode,

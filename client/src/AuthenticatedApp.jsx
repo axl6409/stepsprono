@@ -12,9 +12,11 @@ import { ViewedProfileProvider } from "./contexts/ViewedProfileContext.jsx";
 import AppRoutes from "./AppRoutes.jsx";
 import BulletRain from "./components/animated/BulletRain.jsx";
 import {RuleContext} from "./contexts/RuleContext.jsx";
+import DebugConsole from "./components/admin/DebugConsole.jsx";
+import HiddenPredictions from "./components/animated/HiddenPredictions.jsx";
 
 const AuthenticatedApp = () => {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, hasAdminAccess } = useContext(UserContext);
   const token = localStorage.getItem("token") || user?.token;
   const { isAuthenticated } = useContext(UserContext);
   const { menuOpen } = useContext(AppContext);
@@ -37,6 +39,10 @@ const AuthenticatedApp = () => {
     && location.pathname !== '/jour-de-chasse') {
     return <Navigate to="/jour-de-chasse" replace />;
   }
+  if (isAuthenticated && user?.status === 'hidden_predictions'
+    && location.pathname !== '/jour-de-chasse') {
+    return <Navigate to="/hidden-predictions" replace />;
+  }
 
   if (isAuthenticated && location.pathname === '/') {
     return <Navigate to="/dashboard" replace />;
@@ -46,23 +52,34 @@ const AuthenticatedApp = () => {
     return (
     <>
       <Navbar />
+      {hasAdminAccess && (
+        <DebugConsole />
+      )}
       <ViewedProfileProvider>
 
         <div className={`mx-auto transition-all duration-200 ease-in-out ${menuOpen ? "blur-sm" : ""}`}>
-          <div style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0', opacity: currentRule?.rule_key === "hunt_day" && currentRule.status ? 1 : 0.3, pointerEvents: 'none' }}>
-            {/*<Particles*/}
-            {/*  particleColors={['#000000', '#000000']}*/}
-            {/*  particleCount={500}*/}
-            {/*  particleSpread={15}*/}
-            {/*  speed={0.2}*/}
-            {/*  particleBaseSize={100}*/}
-            {/*  moveParticlesOnHover={false}*/}
-            {/*  alphaParticles={false}*/}
-            {/*  disableRotation={true}*/}
-            {/*/>*/}
-            {currentRule?.rule_key === "hunt_day" && currentRule.status
-              ? <BulletRain />
-              : <Particles
+          <div
+            style={{ width: '100%', height: '100%', position: 'fixed', zIndex: '1', inset: '0',
+              opacity:
+                (currentRule?.rule_key === "hunt_day" && currentRule.status) ||
+                (currentRule?.rule_key === "hidden_predictions" && currentRule.status)
+                  ? 1
+                  : 0.3,
+              pointerEvents: 'none' }}>
+            {currentRule?.rule_key === "hunt_day" && currentRule.status ? (
+              <BulletRain />
+            ) : currentRule?.rule_key === "hidden_predictions" &&
+            currentRule.status ? (
+              <HiddenPredictions
+                emojiCount={15}
+                fadeInTime={1500}
+                holdTime={2000}
+                fadeOutTime={1500}
+                delayTime={1000}
+                maxOpacity={0.3}
+              />
+            ) : (
+              <Particles
                 particleColors={["#000000", "#000000"]}
                 particleCount={500}
                 particleSpread={15}
@@ -72,7 +89,7 @@ const AuthenticatedApp = () => {
                 alphaParticles={false}
                 disableRotation={true}
               />
-            }
+            )}
           </div>
           <AppRoutes user={user} token={token} setUser={setUser} />
         </div>

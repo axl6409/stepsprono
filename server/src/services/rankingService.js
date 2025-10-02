@@ -1,9 +1,11 @@
 const logger = require("../utils/logger/logger");
-const {Bet, Match, User, Setting, UserRanking, UserSeason, SpecialRuleResult, Sequelize} = require("../models");
-const { getWeekDateRange, getMonthDateRange } = require("./logic/dateLogic");
+const {Bet, Match, User, Setting, Season, UserRanking, UserSeason, SpecialRuleResult, Sequelize} = require("../models");
+const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
 const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayService");
+const {getPeriodMatchdays} = require("./logic/matchLogic");
+const moment = require("moment");
 
 const getRawRanking = async (seasonId, period, matchday = null) => {
   try {
@@ -266,7 +268,7 @@ const getSeasonRanking = async (seasonId) => {
   }
 };
 
-const getSeasonRankingEvolution = async (seasonId, userId) => {
+const getSeasonRankingEvolution = async (seasonId, userId, period = "season", month = null) => {
   // Récupérer les utilisateurs actifs pour la saison
   const activeUsers = await UserSeason.findAll({
     where: {
@@ -275,6 +277,23 @@ const getSeasonRankingEvolution = async (seasonId, userId) => {
     },
     attributes: ['user_id']
   });
+
+  let rangeMatchdays = [];
+  if (period === "season") {
+    const season = await Season.findByPk(seasonId, { attributes: ["start_date"] });
+    if (!season || !season.start_date) {
+      throw new Error("Start_date manquante pour la saison");
+    }
+    const startDate = new Date(season.start_date);
+    const endDate = new Date();
+    rangeMatchdays = await getPeriodMatchdays(startDate, endDate);
+  } else if (period === "month" && month) {
+    logger.info('[DEBUG] => getSeasonRankingEvolution')
+    console.log("month", month);
+    const startDate = getCurrentMoment(month, "YYYY-MM").startOf("month").toDate();
+    const endDate = getCurrentMoment(month, "YYYY-MM").endOf("month").toDate();
+    rangeMatchdays = await getPeriodMatchdays(startDate, endDate);
+  }
 
   const activeUserIds = activeUsers.map(user => user.user_id);
   
@@ -287,7 +306,8 @@ const getSeasonRankingEvolution = async (seasonId, userId) => {
   const rankings = await UserRanking.findAll({
     where: { 
       season_id: seasonId,
-      user_id: activeUserIds
+      user_id: activeUserIds,
+      matchday: { [Op.in]: rangeMatchdays }
     },
     order: [['matchday', 'ASC'], ['position', 'ASC']],
   });

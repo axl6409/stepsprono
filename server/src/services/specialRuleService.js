@@ -12,7 +12,7 @@ const eventBus = require("../events/eventBus");
 const { getCurrentMatchday } = require("./matchdayService");
 const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
 const {status} = require("express/lib/response");
-const {getCurrentSeasonId} = require("./seasonService");
+const {getCurrentSeasonId} = require("./logic/seasonLogic");
 const {getRanking, getRawRanking} = require("./rankingService");
 
 const toggleSpecialRule = async (id, active) => {
@@ -134,6 +134,14 @@ const configSpecialRule = async (ruleId, payload) => {
       for (const pair of payload.config.user_pairs) {
         newConfig.user_pairs[pair.id] = pair.id;
       }
+    } else if (payload.config?.selected_users) {
+      newConfig.selected_users = payload.config.selected_users.map(group =>
+        group.map(u => ({
+          id: u.id,
+          username: u.username,
+          img: u.img || null
+        }))
+      );
     }
 
     rule.config = newConfig;

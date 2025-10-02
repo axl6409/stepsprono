@@ -11,16 +11,16 @@ import StatusModal from "../../components/modals/StatusModal.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import DashboardButton from "../../components/nav/DashboardButton.jsx";
+import JoystickButton from "../../components/buttons/JoystickButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Admin = () => {
   const { user } = useContext(UserContext)
-  const { userRequests } = useContext(AppContext)
   const { hasTreasurerAccess, hasManagerAccess, hasTwiceAccess, hasAdminAccess, isAdmin } = useContext(UserContext);
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token
   const navigate = useNavigate();
-  const { isDebuggerActive, toggleDebugger } = useContext(AppContext);
+  const { userRequests, isDebuggerActive, toggleDebugger, setIsDebuggerActive } = useContext(AppContext);
   const [nullBets, setNullBets] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
@@ -31,7 +31,7 @@ const Admin = () => {
     setUpdateMessage('');
     setIsModalOpen(false);
   };
-
+  console.log(isDebuggerActive)
   return (
     <div className="inline-block relative z-20 w-full h-auto py-20 overflow-x-hidden">
       {isModalOpen && (
@@ -39,6 +39,12 @@ const Admin = () => {
       )}
       <DashboardButton />
       <SimpleTitle title={"Admin Space"} stickyStatus={false} fontSize={'2.5rem'} uppercase={true} />
+
+      <div className="absolute z-[2] h-fit w-fit top-8 right-1/2 translate-x-1/2 flex flex-row justify-center items-center">
+        <p className="text-center font-roboto uppercase -mt-2 font-black">Debug Mode</p>
+        <JoystickButton checked={isDebuggerActive} mode={isDebuggerActive === true ? "checked" : "trigger"} onChange={() => toggleDebugger()} />
+      </div>
+
 
       <div className="py-4 block mt-8 border border-black bg-white rounded-xl overflow-hidden w-11/12 mx-auto shadow-flat-black">
         <h2 className="font-roboto font-bold text-xl text-center uppercase">Gestion de l'application</h2>
