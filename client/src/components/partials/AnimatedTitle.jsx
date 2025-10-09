@@ -25,7 +25,7 @@ const AnimatedTitle = ({ title, stickyStatus = true, backgroundColor = 'bg-trans
       style={style}
       data-text={title}
       className={`font-black animatedTitle ${isSticky && stickyStatus === true ? 'sticky-element' : ''} w-full ${backgroundColor} fade-in py-2 overflow-hidden mb-8 mt-0 uppercase transition-all duration-200 text-center ease-in relative mx-auto ${animateTitle ? 'title-animated' : 'text-base'} leading-[70px] ${darkMode ? 'text-white' : 'text-black'}`}>
-      <span translate="no" className="relative z-[3] block left-0 top-0 right-0">{title}</span>
+      <span translate="no" className="relative w-full z-[3] block left-0 top-0 right-0">{title}</span>
       <span
         translate="no"
         className={`absolute left-0 top-0 right-0 ${darkMode ? 'text-shadow-glow-purple text-purple-soft' : 'text-purple-soft'} z-[2] transition-all opacity-0 duration-400 ease-in-out translate-x-0.5 translate-y-2.5`}>

@@ -10,6 +10,7 @@ import Loader from "../../components/partials/Loader.jsx";
 import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
+import JoystickButton from "../../components/buttons/JoystickButton.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
@@ -22,6 +23,7 @@ const AdminUsers = () => {
   const token = localStorage.getItem('token') || cookies.token
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTriggered, setIsTriggered] = useState(false);
 
   const fetchUsers = async () => {
     setIsLoading(true)
@@ -47,6 +49,20 @@ const AdminUsers = () => {
       setRequests(userRequests);
     }
   }, [userRequests])
+
+  const toggleStatusRuled = async (userId) => {
+    try {
+      setShowConfirmationModal(true);
+      const response = await axios.put(`${apiUrl}/api/admin/user/toggle-status/ruled/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setShowConfirmationModal(false)
+      setModalAnimation('modal-exit')
+      await fetchUsers();
+    } catch (error) {
+      console.error('Erreur lors du changement du statut :', error)
+    }
+  }
 
   const handleDeleteUser = (userId) => {
     setShowConfirmationModal(true)
@@ -155,6 +171,10 @@ const AdminUsers = () => {
         <h3 className="font-roboto uppercase w-fit block font-medium text-base mb-3 mx-auto border border-black bg-white px-4 py-1 shadow-flat-black-adjust">
           {title}
         </h3>
+        <div className="relative z-[2] h-fit w-fit mx-auto mt-8 mb-4 flex flex-row justify-center items-center">
+          <p className="text-center font-roboto uppercase w-32 -mt-2 font-black leading-4">Trigger Rule Message</p>
+          <JoystickButton checked={isTriggered} mode={isTriggered === true ? "checked" : "trigger"} onChange={() => toggleStatusRuled(list)} />
+        </div>
         <ul className="flex pl-6 pr-3 flex-col justify-start">
           {list.map(renderUserItem)}
         </ul>
@@ -166,7 +186,7 @@ const AdminUsers = () => {
     isLoading ? (
       <Loader />
     ) : (
-      <div className="inline-block relative z-20 w-full h-auto py-12">
+      <div className="inline-block relative z-20 w-full h-auto pt-24 py-12">
         <BackButton />
         <SimpleTitle title={"Gestion des utilisateurs"} stickyStatus={false} uppercase={true} fontSize={'2.5rem'} />
 
