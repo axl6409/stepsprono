@@ -16,7 +16,7 @@ const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
-const {updateLastConnect, getUserStats, findUserByIdWithAssociations} = require("../services/userService");
+const {updateLastConnect, getUserStats, findUserByIdWithAssociations, setUsersStatusRuled} = require("../services/userService");
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 const {blockedUserNotification, unlockedUserNotification, unruledUserNotification} = require("../services/notificationService");
@@ -212,6 +212,20 @@ router.put('/user/update/:id', authenticateJWT, upload.single('avatar'), async (
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error: "Impossible de mettre à jour l'utilisateur" + error });
+  }
+});
+router.put('/admin/users/status/ruled', authenticateJWT, checkAdmin, async (req, res) => {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ error: 'Aucun ID utilisateur fourni.' });
+    }
+
+    await setUsersStatusRuled(userIds);
+    res.status(200).json({ message: 'Statut des utilisateurs mis à jour à "ruled".' });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des statuts :', error);
+    res.status(500).json({ error: 'Erreur interne lors de la mise à jour des statuts.' });
   }
 });
 

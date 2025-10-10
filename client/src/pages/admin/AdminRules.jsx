@@ -18,9 +18,6 @@ const AdminRules = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState(null);
-
   useEffect(() => {
     fetchSpecialDays();
   }, [token]);

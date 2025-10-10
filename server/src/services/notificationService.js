@@ -149,7 +149,7 @@ async function unruledUserNotification(user) {
   try {
     const notificationMessage = {
       title: `🚀🍀 C'est parti pour la journée spéciale`,
-      body : `Tu peux maintenant jouer ! Bonne chance !`,
+      body : `Bonne chance !`,
       icon: 'https://stepsprono.fr/img/logo-steps-150x143.png'
     };
     await sendNotificationToOne(user.id, notificationMessage);

@@ -131,9 +131,9 @@ const RulePresent = () => {
         <button
           translate="no"
           onClick={handleReplay}
-          className="w-4/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
+          className="w-3/5 fade-in block relative my-4 mx-auto before:content-[''] before:inline-block before:absolute before:z-[1] before:inset-0 before:rounded-full before:bg-black before:border-black before:border group"
         >
-          <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-l font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">Voir la vidéo</span>
+          <span className="no-correct relative z-[2] w-full block border border-black text-black uppercase font-regular text-xs font-roboto px-3 py-2 rounded-full text-center shadow-md bg-blue-light transition -translate-y-1.5 group-hover:-translate-y-0">Voir la vidéo</span>
         </button>
       </div>
 
@@ -144,7 +144,7 @@ const RulePresent = () => {
             onClick={handleAccept}
             className="w-4/5 block my-4 mx-auto relative before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-black before:border before:border-black group"
           >
-            <span className="relative z-10 block w-full border border-black text-black uppercase font-roboto px-3 py-2 rounded-full bg-blue-light transition-transform group-hover:-translate-y-0.5">
+            <span className="relative z-10 block w-full border border-black text-black uppercase font-roboto px-3 py-2 rounded-full bg-green-light transition-transform -translate-y-1.5 group-hover:-translate-y-0.5">
               Go !!!
             </span>
           </button>

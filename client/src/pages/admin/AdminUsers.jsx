@@ -11,6 +11,7 @@ import SimpleTitle from "../../components/partials/SimpleTitle.jsx";
 import BackButton from "../../components/nav/BackButton.jsx";
 import {faCircleXmark, faPen} from "@fortawesome/free-solid-svg-icons";
 import JoystickButton from "../../components/buttons/JoystickButton.jsx";
+import AlertModal from "../../components/modals/AlertModal.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const AdminUsers = () => {
@@ -24,6 +25,8 @@ const AdminUsers = () => {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isTriggered, setIsTriggered] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState(null);
 
   const fetchUsers = async () => {
     setIsLoading(true)
@@ -50,17 +53,25 @@ const AdminUsers = () => {
     }
   }, [userRequests])
 
-  const toggleStatusRuled = async (userId) => {
+  const toggleStatusRuled = async (userList) => {
+    const userIds = userList.map(u => u.id);
+
     try {
-      setShowConfirmationModal(true);
-      const response = await axios.put(`${apiUrl}/api/admin/user/toggle-status/ruled/${userId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await axios.put(`${apiUrl}/api/admin/users/status/ruled`,
+        { userIds },
+        { headers: { 'Authorization': `Bearer ${token}` }
       });
-      setShowConfirmationModal(false)
-      setModalAnimation('modal-exit')
-      await fetchUsers();
+      if (response.status === 200) {
+        setAlertMessage("Status des utilisateurs passé à 'ruled'.");
+        setAlertType('success');
+        await fetchUsers();
+      }
+
     } catch (error) {
-      console.error('Erreur lors du changement du statut :', error)
+      console.error("Erreur lors du changement du statut :", error);
+      setAlertMessage("Impossible de mettre à jour le status des utilisateurs");
+      setAlertType('error');
+      setTimeout(() => setAlertMessage(''), 2000);
     }
   }
 
@@ -187,6 +198,7 @@ const AdminUsers = () => {
       <Loader />
     ) : (
       <div className="inline-block relative z-20 w-full h-auto pt-24 py-12">
+        <AlertModal message={alertMessage} type={alertType} />
         <BackButton />
         <SimpleTitle title={"Gestion des utilisateurs"} stickyStatus={false} uppercase={true} fontSize={'2.5rem'} />
 
