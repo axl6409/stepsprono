@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import { motion, useIsPresent } from "framer-motion";
 import {Link} from "react-router-dom";
-import background from "../assets/components/background-hexagon.svg";
+import background from "../assets/components/background-hexagon-large.png";
 import logo from "/img/Logo.svg";
 
 const Home = () => {

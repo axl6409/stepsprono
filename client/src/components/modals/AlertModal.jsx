@@ -24,7 +24,7 @@ const AlertModal = ({ message, type, onConfirm, onCancel }) => {
   }
 
   return (
-    <div className="modal-error fixed z-[90] inset-0">
+    <div className="modal-error fixed fade-in z-[90] inset-0">
       <div onClick={onCancel} className={`absolute w-full h-auto block z-[1] inset-0 bg-black opacity-40`}></div>
       <div className="absolute z-[2] w-10/12 left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]">
         <div className="relative p-4 w-full h-auto border border-black rounded-xl bg-white">

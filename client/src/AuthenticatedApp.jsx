@@ -36,11 +36,7 @@ const AuthenticatedApp = () => {
   }
 
   if (isAuthenticated && user?.status === 'ruled'
-    && location.pathname !== '/jour-de-chasse') {
-    return <Navigate to="/jour-de-chasse" replace />;
-  }
-  if (isAuthenticated && user?.status === 'hidden_predictions'
-    && location.pathname !== '/jour-de-chasse') {
+    && location.pathname !== '/hidden-predictions') {
     return <Navigate to="/hidden-predictions" replace />;
   }
 

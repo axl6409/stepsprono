@@ -45,6 +45,18 @@ const updateLastConnect = async (userId) => {
   return adjustedTime;
 };
 
+const setUsersStatusRuled = async (userIds) => {
+  try {
+    await User.update(
+      { status: 'ruled' },
+      { where: { id: { [Op.in]: userIds } } }
+    );
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut des utilisateurs :', error);
+    throw error;
+  }
+};
+
 /**
  * Retrieves the rank of a user within a specified period based on the total points earned from bets.
  *
@@ -1490,6 +1502,7 @@ module.exports = {
   getUserStats,
   setAllUsersPending,
   updateLastConnect,
+  setUsersStatusRuled,
   getUserRank,
   getUserRankByPeriod,
   getUserPointsForWeek,
