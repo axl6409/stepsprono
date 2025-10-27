@@ -22,6 +22,9 @@ const Week = ({token, user}) => {
     matchs,
     currentMatchday,
     lastMatch,
+    activePeriod,
+    hasMultiplePeriods,
+    clock,
   } = useContext(AppContext);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
@@ -35,17 +38,28 @@ const Week = ({token, user}) => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const swiperInstance = swiperRef.current?.swiper
-  // const now = moment().set({ 'year': 2024, 'month': 7, 'date': 13 });
-  const now = moment();
-  const simulatedNow = now.day(1).hour(10).minute(0).second(0);
-  const nextFridayAtNoon = moment().day(5).hour(12).minute(0).second(0);
-  const nextSaturdayAtMidnight = moment().day(6).hour(23).minute(59).second(59);
-  const isBeforeNextFriday = now.isBefore(nextFridayAtNoon);
+
+  // IMPORTANT: Utiliser clock.now du backend pour supporter la simulation de dates
+  const now = clock?.now || moment();
+
+  // Calculer la deadline en fonction de la période active
+  // Si plusieurs périodes: utiliser la deadline de la période active
+  // Si une seule période: utiliser le vendredi à 12h (comportement normal)
+  let bettingDeadline;
+  if (hasMultiplePeriods && activePeriod && activePeriod.deadline) {
+    bettingDeadline = moment(activePeriod.deadline);
+  } else {
+    // Comportement normal: vendredi à 12h00
+    bettingDeadline = now.clone().day(5).hour(12).minute(0).second(0);
+  }
+
+  const isBeforeDeadline = now.isBefore(bettingDeadline);
 
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
       const matchIds = sortedMatchs.map(match => match.id);
-      console.log(matchIds)
+      console.log('[WEEK] Fetching bets for match IDs:', matchIds);
+      console.log('[WEEK] Matchdays:', sortedMatchs.map(m => m.matchday));
       try {
         const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
           matchIds: matchIds
@@ -54,10 +68,12 @@ const Week = ({token, user}) => {
             'Authorization': `Bearer ${token}`,
           }
         });
+        console.log('[WEEK] Bets received:', response.data.data.length);
         const betsByMatchId = response.data.data.reduce((acc, bet) => {
           acc[bet.match_id] = bet
           return acc
         }, {})
+        console.log('[WEEK] Bets by match ID:', betsByMatchId);
         setBets(betsByMatchId)
         setIsLoading(false)
       } catch (error) {
@@ -89,7 +105,7 @@ const Week = ({token, user}) => {
   useEffect(() => {
     const { disabled, text, icon } = buttonState();
     setButtonDisabled(disabled);
-  }, [activeIndex, bets, matchs]);
+  }, [activeIndex, bets, matchs, clock, activePeriod, hasMultiplePeriods]);
 
   const canSubmitBet = (match) => {
     if (!match) return false;
@@ -97,7 +113,7 @@ const Week = ({token, user}) => {
       return false;
     }
     const matchDate = moment(match.utc_date);
-    return matchDate.isAfter(moment()) && moment().isBefore(nextFridayAtNoon);
+    return matchDate.isAfter(now) && now.isBefore(bettingDeadline);
   };
 
   const isMatchEditable = (match) => {
@@ -147,7 +163,7 @@ const Week = ({token, user}) => {
     const currentMatch = matchs[activeIndex];
     if (!currentMatch) return { disabled: true, text: 'Invalid Match' };
 
-    const isOpen = now.isBefore(nextFridayAtNoon);
+    const isOpen = now.isBefore(bettingDeadline);
     const hasBet = isBetPlaced(currentMatch.id);
     const isFutureMatch = moment(currentMatch.utc_date).isAfter(now);
     // return { disabled: true, text: 'Trop tard !', className: 'bg-white' };

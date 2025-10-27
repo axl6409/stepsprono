@@ -28,6 +28,9 @@ export const AppProvider = ({ children }) => {
   const [matchs, setMatchs] = useState([]);
   const [lastMatch, setLastMatch] = useState(null);
   const [noMatches, setNoMatches] = useState(false);
+  const [bettingPeriods, setBettingPeriods] = useState([]);
+  const [activePeriod, setActivePeriod] = useState(null);
+  const [hasMultiplePeriods, setHasMultiplePeriods] = useState(false);
   const [clock, setClock] = useState({
     now: moment(),
     simulated: false,
@@ -37,13 +40,18 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (!fetchedRef.current && isAuthenticated && user) {
-      fetchAvailableCompetitions();
-      fetchCurrentSeason();
-      fetchMatchs();
-      fetchClock();
-      if (isDebuggerActive) {
-        fectchLogs();
-      }
+      // IMPORTANT: fetchClock() doit être appelé EN PREMIER pour avoir l'heure simulée
+      const initializeApp = async () => {
+        await fetchClock(); // Charger l'heure simulée d'abord
+        await fetchAvailableCompetitions();
+        await fetchCurrentSeason();
+        await fetchMatchs();
+        if (isDebuggerActive) {
+          await fectchLogs();
+        }
+        fetchedRef.current = true; // Marquer comme chargé
+      };
+      initializeApp();
     }
     if (isAuthenticated && user && user.role === 'admin') {
       fetchAPICalls();
@@ -152,6 +160,15 @@ export const AppProvider = ({ children }) => {
 
     const allMatchs = response.data.data || [];
 
+    // Récupérer les données de périodes
+    const bettingPeriodsData = response.data.bettingPeriods || [];
+    const activePeriodData = response.data.activePeriod || null;
+    const hasMultiplePeriodsData = response.data.hasMultiplePeriods || false;
+
+    setBettingPeriods(bettingPeriodsData);
+    setActivePeriod(activePeriodData);
+    setHasMultiplePeriods(hasMultiplePeriodsData);
+
     const sortedMatchs = allMatchs
       .filter(m => m.status !== "FT") // 👈 filtre
       .sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
@@ -166,40 +183,73 @@ export const AppProvider = ({ children }) => {
     setMatchs(sortedMatchs);
     setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
 
-    const currentMatchdayMatches = allMatchs.filter(m => m.matchday === currentMatchday);
+    // Déterminer le matchday à vérifier
+    // Si plusieurs périodes: utiliser le matchday de la période active
+    // Si une seule période: utiliser le currentMatchday global
+    let matchdayToCheck;
+    if (hasMultiplePeriodsData && activePeriodData) {
+      matchdayToCheck = activePeriodData.matchday;
+    } else {
+      matchdayToCheck = response.data.currentMatchday;
+    }
+
+    const currentMatchdayMatches = allMatchs.filter(m => m.matchday === matchdayToCheck);
 
     if (currentMatchdayMatches.length === 0) {
       setCanDisplayBets(true);
       return;
     }
 
-    const firstMatchDate = moment(allMatchs[0].utc_date);
-    const sundayEndOfWeek = firstMatchDate.clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
+    // Déterminer si on peut afficher les pronostics
+    // Pour les semaines avec plusieurs périodes, vérifier si la période active est ouverte
+    let shouldDisplayBets = false;
 
-    let closingTime;
-    if (firstMatchDate.day() === 6) {
-      // Si samedi => closingTime = vendredi 12h
-      closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
-    } else {
-      // Sinon => closingTime = jour du premier match à 12h
-      closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
-    }
+    if (hasMultiplePeriodsData && activePeriodData) {
+      // Semaine avec plusieurs périodes
+      if (activePeriodData.isActive) {
+        // La période est ouverte : on peut faire des pronos
+        shouldDisplayBets = false;
+      } else if (activePeriodData.reopenTime) {
+        // La période n'est pas encore ouverte (entre deux périodes)
+        const reopenTime = moment(activePeriodData.reopenTime);
+        const now = clock.now;
 
-    const now = clock.now;
-
-    if (now.isBefore(closingTime)) {
-      setCanDisplayBets(false);
-      const interval = setInterval(() => {
-        const currentTime = moment();
-        if (currentTime.isAfter(closingTime)) {
-          clearInterval(interval);
-          setCanDisplayBets(true);
+        if (now.isBefore(reopenTime)) {
+          // On est entre deux périodes → afficher "Voir tous les pronos"
+          shouldDisplayBets = true;
+        } else {
+          // Après l'heure de réouverture mais avant la deadline → afficher les pronos
+          shouldDisplayBets = false;
         }
-      }, 1000);
-      return () => clearInterval(interval);
-    } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
-      setCanDisplayBets(true);
+      } else {
+        // Période fermée sans réouverture (dernière période) → afficher "Voir tous les pronos"
+        const deadline = moment(activePeriodData.deadline);
+        const now = clock.now;
+        if (now.isAfter(deadline)) {
+          shouldDisplayBets = true;
+        }
+      }
+    } else {
+      // Semaine normale: comportement classique
+      const firstMatchDate = moment(allMatchs[0].utc_date);
+      let closingTime;
+      if (firstMatchDate.day() === 6) {
+        closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
+      } else {
+        closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
+      }
+
+      const sundayEndOfWeek = moment().clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
+      const now = clock.now;
+
+      if (now.isBefore(closingTime)) {
+        shouldDisplayBets = false;
+      } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
+        shouldDisplayBets = true;
+      }
     }
+
+    setCanDisplayBets(shouldDisplayBets);
 
   };
   const fetchClock = async () => {
@@ -266,7 +316,10 @@ export const AppProvider = ({ children }) => {
         fetchMatchs,
         clock,
         fetchClock,
-        logs
+        logs,
+        bettingPeriods,
+        activePeriod,
+        hasMultiplePeriods
       }}>
       {children}
     </AppContext.Provider>
