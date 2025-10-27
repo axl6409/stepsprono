@@ -550,6 +550,126 @@ const getPastAndCurrentMatchdays = async (seasonId) => {
   }
 };
 
+/**
+ * Analyse les matchs de la semaine et détecte les périodes de pronostics.
+ * Une période = un groupe de matchs d'une même journée sportive.
+ *
+ * @param {Array} matches - Tous les matchs de la semaine
+ * @return {Object} { periods: [...], activePeriod: {...}, hasMultiplePeriods: boolean }
+ */
+const analyzeBettingPeriods = (matches) => {
+  if (!matches || matches.length === 0) {
+    return { periods: [], activePeriod: null, hasMultiplePeriods: false };
+  }
+
+  const now = getCurrentMoment();
+
+  // Grouper les matchs par journée (matchday)
+  const matchesByMatchday = {};
+  matches.forEach(match => {
+    const matchday = match.matchday;
+    if (!matchesByMatchday[matchday]) {
+      matchesByMatchday[matchday] = [];
+    }
+    matchesByMatchday[matchday].push(match);
+  });
+
+  // Créer les périodes
+  const periods = Object.keys(matchesByMatchday)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((matchday, index, allMatchdays) => {
+      const matchdayMatches = matchesByMatchday[matchday];
+
+      // Trier les matchs par date pour trouver le premier
+      const sortedMatches = matchdayMatches.sort((a, b) =>
+        new Date(a.utc_date) - new Date(b.utc_date)
+      );
+
+      const firstMatch = sortedMatches[0];
+      const firstMatchDate = getCurrentMoment(firstMatch.utc_date);
+
+      // La deadline est à 12h00 le jour du premier match
+      const deadline = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+
+      // Pour les périodes suivantes (après la première), définir une heure de réouverture
+      // Réouverture = lendemain de la deadline de cette période à 00h00
+      let reopenTime = null;
+      if (index > 0) {
+        // Trouver la deadline de la période précédente
+        const prevMatchday = allMatchdays[index - 1];
+        const prevMatches = matchesByMatchday[prevMatchday].sort((a, b) =>
+          new Date(a.utc_date) - new Date(b.utc_date)
+        );
+        const prevFirstMatch = getCurrentMoment(prevMatches[0].utc_date);
+        const prevDeadline = prevFirstMatch.clone().set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+
+        // Réouverture = lendemain de la deadline précédente à 00h00
+        reopenTime = prevDeadline.clone().add(1, 'day').startOf('day');
+      }
+
+      // Déterminer si cette période est ouverte
+      let isOpen;
+      if (index === 0) {
+        // Première période: ouverte si on est avant la deadline
+        isOpen = now.isBefore(deadline);
+      } else {
+        // Périodes suivantes: ouverte si on est après reopenTime ET avant deadline
+        isOpen = reopenTime && now.isAfter(reopenTime) && now.isBefore(deadline);
+      }
+
+      const isClosed = now.isAfter(deadline);
+
+      logger.info(`[PERIOD ${matchday}] First match: ${firstMatchDate.format('YYYY-MM-DD HH:mm')}, Deadline: ${deadline.format('YYYY-MM-DD HH:mm')}, ${reopenTime ? `Reopen: ${reopenTime.format('YYYY-MM-DD HH:mm')},` : ''} Now: ${now.format('YYYY-MM-DD HH:mm')}, isClosed: ${isClosed}, isOpen: ${isOpen}`);
+
+      return {
+        matchday: parseInt(matchday),
+        matches: sortedMatches,
+        firstMatchDate: firstMatchDate.toISOString(),
+        deadline: deadline.toISOString(),
+        reopenTime: reopenTime ? reopenTime.toISOString() : null,
+        isClosed,
+        isActive: isOpen // Renommer isActive en isOpen pour plus de clarté
+      };
+    });
+
+  const hasMultiplePeriods = periods.length > 1;
+
+  // Déterminer la période active
+  let activePeriod = null;
+
+  if (hasMultiplePeriods) {
+    // Chercher la première période dont les pronostics sont OUVERTS (isActive = true)
+    activePeriod = periods.find(p => p.isActive);
+
+    // Si aucune période n'est ouverte (entre deux périodes), ne pas retourner de période active
+    // Cela déclenchera l'affichage de "Voir tous les pronos"
+    if (!activePeriod) {
+      logger.info(`[BETTING PERIODS] No active period - in between betting windows`);
+      // Si toutes les périodes sont fermées, prendre la dernière pour afficher ses matchs
+      if (periods.every(p => p.isClosed)) {
+        activePeriod = periods[periods.length - 1];
+        logger.info(`[BETTING PERIODS] All periods closed, showing last period: Matchday ${activePeriod.matchday}`);
+      }
+    }
+  } else {
+    // Semaine normale: une seule période
+    activePeriod = periods[0];
+  }
+
+  logger.info(`[BETTING PERIODS] Analyzed ${matches.length} matches → ${periods.length} period(s)`);
+  if (activePeriod && activePeriod.isActive) {
+    logger.info(`[BETTING PERIODS] Active period: Matchday ${activePeriod.matchday}, Deadline: ${activePeriod.deadline}`);
+  } else if (activePeriod) {
+    logger.info(`[BETTING PERIODS] Showing period: Matchday ${activePeriod.matchday} (betting closed)`);
+  }
+
+  return {
+    periods,
+    activePeriod,
+    hasMultiplePeriods
+  };
+};
+
 const scheduleSmartMatchCheck = (match, opts = {}) => {
   const {
     isLastOfWeekCandidate = false,
@@ -637,4 +757,5 @@ module.exports = {
   fetchMatchsNoChecked,
   getAvailableMonthsWithMatches,
   getPastAndCurrentMatchdays,
+  analyzeBettingPeriods,
 };

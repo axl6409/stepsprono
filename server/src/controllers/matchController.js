@@ -5,7 +5,7 @@ const {Match, Team} = require("../models");
 const {Op, Sequelize} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {updateMatchAndPredictions, updateMatches, updateRequireDetails, fetchMatchsNoChecked, getMatchAndBets,
-  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates
+  getAvailableMonthsWithMatches, getPastAndCurrentMatchdays, updateExistingMatchDates, analyzeBettingPeriods
 } = require("../services/matchService");
 const {getCurrentMatchday} = require("../services/matchdayService")
 const logger = require("../utils/logger/logger");
@@ -128,12 +128,47 @@ router.get('/matchs/current-week', authenticateJWT, async (req, res) => {
       return res.status(200).json({ data: [], message: 'Aucun match trouvé pour cette semaine' });
     }
 
+    // Analyser les périodes de pronostics
+    const bettingAnalysis = analyzeBettingPeriods(matchs.rows);
+
+    logger.info(`[CURRENT WEEK API] Current time (backend): ${now.format('YYYY-MM-DD HH:mm:ss')}`);
+    logger.info(`[CURRENT WEEK API] Total matches in week: ${matchs.rows.length}`);
+
+    // Si plusieurs périodes: retourner uniquement les matchs de la période appropriée
+    // Si une seule période: retourner tous les matchs (comportement normal)
+    let matchesToReturn = matchs.rows;
+    if (bettingAnalysis.hasMultiplePeriods) {
+      if (bettingAnalysis.activePeriod) {
+        // Il y a une période active (ouverte ou fermée)
+        matchesToReturn = bettingAnalysis.activePeriod.matches;
+
+        if (bettingAnalysis.activePeriod.isActive) {
+          logger.info(`[CURRENT WEEK API] Active period (OPEN): Matchday ${bettingAnalysis.activePeriod.matchday}, ${matchesToReturn.length} matches`);
+        } else {
+          logger.info(`[CURRENT WEEK API] Active period (CLOSED): Matchday ${bettingAnalysis.activePeriod.matchday}, ${matchesToReturn.length} matches`);
+        }
+        logger.info(`[CURRENT WEEK API] Period deadline: ${bettingAnalysis.activePeriod.deadline}`);
+      } else {
+        // Aucune période active (on est entre deux périodes)
+        // Retourner les matchs de la première période pour afficher les pronos
+        const firstPeriod = bettingAnalysis.periods[0];
+        matchesToReturn = firstPeriod.matches;
+        logger.info(`[CURRENT WEEK API] Between periods. Showing first period: Matchday ${firstPeriod.matchday}, ${matchesToReturn.length} matches`);
+      }
+    } else {
+      logger.info(`[CURRENT WEEK API] Single period. Returning all ${matchesToReturn.length} matches`);
+    }
+
     res.json({
-      data: matchs.rows,
-      totalCount: matchs.count,
+      data: matchesToReturn,
+      totalCount: matchesToReturn.length,
       startOfWeek: startOfCurrentWeek,
       endOfWeek: endOfCurrentWeek,
-      currentMatchday
+      currentMatchday,
+      // Nouvelles données pour gérer les périodes multiples
+      bettingPeriods: bettingAnalysis.periods,
+      activePeriod: bettingAnalysis.activePeriod,
+      hasMultiplePeriods: bettingAnalysis.hasMultiplePeriods
     });
   } catch (error) {
     console.error("Erreur :", error);

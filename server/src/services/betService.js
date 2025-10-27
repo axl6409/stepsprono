@@ -381,6 +381,7 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
 }
 
 const getLastBetsByUserId = async (userId) => {
+  const { analyzeBettingPeriods } = require('./matchService');
   const now = getCurrentMoment();
   const startOfWeek = now.clone().startOf('isoWeek');
   const endOfWeek = now.clone().endOf('isoWeek');
@@ -388,15 +389,41 @@ const getLastBetsByUserId = async (userId) => {
   const startDate = startOfWeek.toDate();
   const endDate = endOfWeek.toDate();
 
+  // Récupérer tous les matchs de la semaine pour analyser les périodes
+  const allMatches = await Match.findAll({
+    where: {
+      utc_date: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate
+      }
+    },
+    order: [['utc_date', 'ASC']]
+  });
+
+  // Analyser les périodes de pronostics
+  const bettingAnalysis = analyzeBettingPeriods(allMatches);
+
+  // Déterminer les IDs des matchs à afficher
+  let matchIdsToShow = allMatches.map(m => m.id);
+
+  if (bettingAnalysis.hasMultiplePeriods) {
+    if (bettingAnalysis.activePeriod) {
+      // Période active : retourner ses matchs
+      matchIdsToShow = bettingAnalysis.activePeriod.matches.map(m => m.id);
+    } else {
+      // Entre deux périodes : retourner les matchs de la première période
+      matchIdsToShow = bettingAnalysis.periods[0].matches.map(m => m.id);
+    }
+  }
+
   const bets = await Bet.findAll({
     include: [
       {
         model: Match,
         as: 'MatchId',
         where: {
-          utc_date: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
+          id: {
+            [Op.in]: matchIdsToShow
           }
         },
         include: [
@@ -423,6 +450,7 @@ const getLastBetsByUserId = async (userId) => {
 }
 
 const getAllLastBets = async () => {
+  const { analyzeBettingPeriods } = require('./matchService');
   const now = getCurrentMoment();
   const startOfWeek = now.clone().startOf('isoWeek');
   const endOfWeek = now.clone().endOf('isoWeek');
@@ -430,15 +458,41 @@ const getAllLastBets = async () => {
   const startDate = startOfWeek.toDate();
   const endDate = endOfWeek.toDate();
 
+  // Récupérer tous les matchs de la semaine pour analyser les périodes
+  const allMatches = await Match.findAll({
+    where: {
+      utc_date: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate
+      }
+    },
+    order: [['utc_date', 'ASC']]
+  });
+
+  // Analyser les périodes de pronostics
+  const bettingAnalysis = analyzeBettingPeriods(allMatches);
+
+  // Déterminer les IDs des matchs à afficher
+  let matchIdsToShow = allMatches.map(m => m.id);
+
+  if (bettingAnalysis.hasMultiplePeriods) {
+    if (bettingAnalysis.activePeriod) {
+      // Période active : retourner ses matchs
+      matchIdsToShow = bettingAnalysis.activePeriod.matches.map(m => m.id);
+    } else {
+      // Entre deux périodes : retourner les matchs de la première période
+      matchIdsToShow = bettingAnalysis.periods[0].matches.map(m => m.id);
+    }
+  }
+
   const bets = await Bet.findAll({
     include: [
       {
         model: Match,
         as: 'MatchId',
         where: {
-          utc_date: {
-            [Op.gte]: startDate,
-            [Op.lte]: endDate
+          id: {
+            [Op.in]: matchIdsToShow
           }
         },
         include: [
