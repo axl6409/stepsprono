@@ -8,7 +8,7 @@ import axios from "axios";
 import Pronostic from "./Pronostic.jsx";
 import {EffectCards, Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css/effect-cards';
-import moment from "moment";
+import moment from "moment-timezone";
 import Loader from "../partials/Loader.jsx";
 import arrowIcon from "../../assets/icons/arrow-left.svg";
 import checkedIcon from "../../assets/icons/checked-green.svg";
@@ -41,19 +41,6 @@ const Week = ({token, user}) => {
 
   // IMPORTANT: Utiliser clock.now du backend pour supporter la simulation de dates
   const now = clock?.now || moment();
-
-  // Calculer la deadline en fonction de la période active
-  // Si plusieurs périodes: utiliser la deadline de la période active
-  // Si une seule période: utiliser le vendredi à 12h (comportement normal)
-  let bettingDeadline;
-  if (hasMultiplePeriods && activePeriod && activePeriod.deadline) {
-    bettingDeadline = moment(activePeriod.deadline);
-  } else {
-    // Comportement normal: vendredi à 12h00
-    bettingDeadline = now.clone().day(5).hour(12).minute(0).second(0);
-  }
-
-  const isBeforeDeadline = now.isBefore(bettingDeadline);
 
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
@@ -107,13 +94,46 @@ const Week = ({token, user}) => {
     setButtonDisabled(disabled);
   }, [activeIndex, bets, matchs, clock, activePeriod, hasMultiplePeriods]);
 
+  // Calculer la deadline pour un matchday spécifique
+  // Deadline = 12h00 le jour du premier match de ce matchday (en heure locale)
+  const getMatchdayDeadline = (matchday) => {
+    // Trouver tous les matchs de ce matchday
+    const matchdayMatches = matchs.filter(m => m.matchday === matchday);
+    if (matchdayMatches.length === 0) return null;
+
+    // Trouver le premier match de ce matchday (le plus tôt)
+    const firstMatch = matchdayMatches.reduce((earliest, current) => {
+      return moment(current.utc_date).isBefore(moment(earliest.utc_date)) ? current : earliest;
+    });
+
+    // Convertir la date UTC du match en timezone locale
+    const firstMatchDate = moment(firstMatch.utc_date);
+    const localFirstMatchDate = firstMatchDate.clone().tz(clock?.tz || 'Europe/Paris');
+
+    // La deadline est 12h00 le jour du premier match (en heure locale)
+    const deadline = localFirstMatchDate.clone().startOf('day').hour(12).minute(0).second(0).millisecond(0);
+
+    return deadline;
+  };
+
   const canSubmitBet = (match) => {
     if (!match) return false;
-    if (currentMatchday && match.matchday < currentMatchday) {
-      return false;
+
+    // Calculer la deadline spécifique à ce matchday
+    let matchdayDeadline;
+
+    // Si mode multi-périodes, utiliser la deadline de la période active
+    if (hasMultiplePeriods && activePeriod && activePeriod.deadline) {
+      matchdayDeadline = moment(activePeriod.deadline);
+    } else {
+      // Sinon, utiliser 12h00 le jour du premier match de ce matchday
+      matchdayDeadline = getMatchdayDeadline(match.matchday);
+      if (!matchdayDeadline) return false;
     }
+
+    // Vérifier que le match est dans le futur ET qu'on est avant la deadline
     const matchDate = moment(match.utc_date);
-    return matchDate.isAfter(now) && now.isBefore(bettingDeadline);
+    return matchDate.isAfter(now) && now.isBefore(matchdayDeadline);
   };
 
   const isMatchEditable = (match) => {
@@ -163,11 +183,12 @@ const Week = ({token, user}) => {
     const currentMatch = matchs[activeIndex];
     if (!currentMatch) return { disabled: true, text: 'Invalid Match' };
 
-    const isOpen = now.isBefore(bettingDeadline);
+    // Utiliser canSubmitBet qui calcule la deadline spécifique au matchday
+    const canSubmit = canSubmitBet(currentMatch);
     const hasBet = isBetPlaced(currentMatch.id);
     const isFutureMatch = moment(currentMatch.utc_date).isAfter(now);
-    // return { disabled: true, text: 'Trop tard !', className: 'bg-white' };
-    if (isOpen && isFutureMatch) {
+
+    if (canSubmit && isFutureMatch) {
       if (!hasBet) {
         return { disabled: false, text: 'Valider', className: 'bg-green-medium' };
       } else {

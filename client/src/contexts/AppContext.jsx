@@ -210,43 +210,59 @@ export const AppProvider = ({ children }) => {
         // La période est ouverte : on peut faire des pronos
         shouldDisplayBets = false;
       } else if (activePeriodData.reopenTime) {
-        // La période n'est pas encore ouverte (entre deux périodes)
+        // Période avec réouverture (pas la dernière période)
         const reopenTime = moment(activePeriodData.reopenTime);
+        const deadline = moment(activePeriodData.deadline);
         const now = clock.now;
 
         if (now.isBefore(reopenTime)) {
           // On est entre deux périodes → afficher "Voir tous les pronos"
           shouldDisplayBets = true;
+        } else if (now.isAfter(deadline)) {
+          // Après la deadline de cette période → afficher "Voir tous les pronos"
+          shouldDisplayBets = true;
         } else {
-          // Après l'heure de réouverture mais avant la deadline → afficher les pronos
+          // Après l'heure de réouverture mais avant la deadline → on peut parier
           shouldDisplayBets = false;
         }
       } else {
         // Période fermée sans réouverture (dernière période) → afficher "Voir tous les pronos"
         const deadline = moment(activePeriodData.deadline);
         const now = clock.now;
+
         if (now.isAfter(deadline)) {
           shouldDisplayBets = true;
         }
       }
     } else {
-      // Semaine normale: comportement classique
-      const firstMatchDate = moment(allMatchs[0].utc_date);
-      let closingTime;
-      if (firstMatchDate.day() === 6) {
-        closingTime = firstMatchDate.clone().subtract(1, 'day').set({ hour: 12, minute: 0, second: 0 });
-      } else {
-        closingTime = firstMatchDate.clone().set({ hour: 12, minute: 0, second: 0 });
-      }
+      // Semaine normale: vérifier les deadlines par matchday
+      // Extraire tous les matchdays uniques de la semaine
+      const uniqueMatchdays = [...new Set(allMatchs.map(m => m.matchday))];
 
-      const sundayEndOfWeek = moment().clone().endOf('week').set({ hour: 23, minute: 59, second: 59 });
-      const now = clock.now;
+      // Pour chaque matchday, calculer sa deadline (12h00 le jour du premier match)
+      const allDeadlinesPassed = uniqueMatchdays.every(matchday => {
+        // Trouver tous les matchs de ce matchday
+        const matchdayMatches = allMatchs.filter(m => m.matchday === matchday);
+        if (matchdayMatches.length === 0) return true;
 
-      if (now.isBefore(closingTime)) {
-        shouldDisplayBets = false;
-      } else if (now.isBetween(closingTime, sundayEndOfWeek)) {
-        shouldDisplayBets = true;
-      }
+        // Trouver le premier match de ce matchday
+        const firstMatch = matchdayMatches.reduce((earliest, current) => {
+          return moment(current.utc_date).isBefore(moment(earliest.utc_date)) ? current : earliest;
+        });
+
+        // Calculer la deadline : 12h00 le jour du premier match (en heure locale)
+        const firstMatchDate = moment(firstMatch.utc_date);
+        const localFirstMatchDate = firstMatchDate.clone().tz(clock.tz || 'Europe/Paris');
+        const deadline = localFirstMatchDate.clone().startOf('day').hour(12).minute(0).second(0).millisecond(0);
+
+        const now = clock.now;
+
+        // Retourner true si la deadline est passée
+        return now.isAfter(deadline);
+      });
+
+      // Si toutes les deadlines sont passées, afficher "Voir tous les pronos"
+      shouldDisplayBets = allDeadlinesPassed;
     }
 
     setCanDisplayBets(shouldDisplayBets);
