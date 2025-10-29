@@ -1,5 +1,5 @@
 const logger = require("../utils/logger/logger");
-const {Bet, Match, User, Setting, Season, UserRanking, UserSeason, SpecialRuleResult, Sequelize} = require("../models");
+const {Bet, Match, User, Setting, Season, UserRanking, UserSeason, SpecialRuleResult, SpecialRule, Sequelize} = require("../models");
 const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
 const {getLastMatchdayPoints} = require("./betService");
 const {Op} = require("sequelize");
@@ -351,9 +351,147 @@ const getSeasonRankingEvolution = async (seasonId, userId, period = "season", mo
   return { userId, userPositions, othersPositions };
 };
 
+/**
+ * Retrieves the duo ranking for alliance_day special rule.
+ * Combines points of paired users and returns a sorted duo ranking.
+ *
+ * @param {number} seasonId - The ID of the season.
+ * @return {Promise<Object>} A promise that resolves to an object containing duo ranking and metadata.
+ * Object format: { ranking: Array<Object>, isDuoRanking: boolean, rules: Array }
+ * @throws {Error} If there is an error while retrieving the duo ranking.
+ */
+const getDuoRanking = async (seasonId) => {
+  try {
+    // Get current matchday
+    const currentMatchday = await getCurrentMatchday();
+
+    // Get alliance_day rule
+    const allianceRule = await SpecialRule.findOne({
+      where: { rule_key: 'alliance_day' }
+    });
+
+    // If rule doesn't exist or is not active, return empty result
+    if (!allianceRule || !allianceRule.status) {
+      return {
+        ranking: [],
+        isDuoRanking: false,
+        rules: [],
+        message: "La règle alliance_day n'est pas active"
+      };
+    }
+
+    const ruleConfig = allianceRule.config || {};
+
+    // Check if rule applies to current matchday
+    if (!ruleConfig.matchday || Number(ruleConfig.matchday) !== Number(currentMatchday)) {
+      return {
+        ranking: [],
+        isDuoRanking: false,
+        rules: [],
+        message: "La règle alliance_day ne s'applique pas à cette semaine"
+      };
+    }
+
+    // Check if duos are configured
+    if (!ruleConfig.selected_users || !Array.isArray(ruleConfig.selected_users) || ruleConfig.selected_users.length === 0) {
+      return {
+        ranking: [],
+        isDuoRanking: false,
+        rules: [],
+        message: "Aucun duo n'a été configuré"
+      };
+    }
+
+    // Get raw ranking for the week with current matchday
+    const rawRanking = await getRawRanking(seasonId, 'week', currentMatchday);
+
+    if (!rawRanking || rawRanking.length === 0) {
+      return {
+        ranking: [],
+        isDuoRanking: true,
+        rules: [],
+        message: "Aucun classement disponible pour cette semaine"
+      };
+    }
+
+    // Create a map of user_id -> user data for quick lookup
+    const userMap = {};
+    rawRanking.forEach(user => {
+      userMap[user.user_id] = user;
+    });
+
+    // Build duo ranking
+    const duoRanking = [];
+
+    ruleConfig.selected_users.forEach((duo, index) => {
+      if (!Array.isArray(duo) || duo.length !== 2) {
+        logger.warn(`[getDuoRanking] Invalid duo format at index ${index}`);
+        return;
+      }
+
+      const user1 = userMap[duo[0].id];
+      const user2 = userMap[duo[1].id];
+
+      // Calculate combined points (default to 0 if user not found in ranking)
+      const user1Points = user1 ? user1.points : 0;
+      const user2Points = user2 ? user2.points : 0;
+      const combinedPoints = user1Points + user2Points;
+
+      // Calculate combined tie_breaker
+      const user1TieBreaker = user1 ? user1.tie_breaker_points : 0;
+      const user2TieBreaker = user2 ? user2.tie_breaker_points : 0;
+      const combinedTieBreaker = user1TieBreaker + user2TieBreaker;
+
+      duoRanking.push({
+        duo_id: `${duo[0].id}-${duo[1].id}`,
+        users: [
+          {
+            user_id: duo[0].id,
+            username: duo[0].username,
+            img: duo[0].img || null,
+            points: user1Points
+          },
+          {
+            user_id: duo[1].id,
+            username: duo[1].username,
+            img: duo[1].img || null,
+            points: user2Points
+          }
+        ],
+        points: combinedPoints,
+        tie_breaker_points: combinedTieBreaker,
+        mode: rawRanking[0]?.mode || 'legit'
+      });
+    });
+
+    // Sort by points (descending), then by tie_breaker (descending)
+    duoRanking.sort((a, b) => {
+      if (b.points === a.points) {
+        return b.tie_breaker_points - a.tie_breaker_points;
+      }
+      return b.points - a.points;
+    });
+
+    return {
+      ranking: duoRanking,
+      isDuoRanking: true,
+      rules: [{
+        rule_id: allianceRule.id,
+        season_id: seasonId,
+        matchday: ruleConfig.matchday,
+        type: 'alliance_day'
+      }]
+    };
+  } catch (error) {
+    console.error(`❌ Erreur dans getDuoRanking:`, error);
+    throw new Error("Erreur lors de la récupération du classement duo.");
+  }
+};
+
 module.exports = {
   getRawRanking,
   getRanking,
   getSeasonRanking,
   getSeasonRankingEvolution,
+  getDuoRanking,
 };

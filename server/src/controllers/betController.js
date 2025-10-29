@@ -4,10 +4,11 @@ const {authenticateJWT, checkAdmin, checkManagerTreasurer} = require("../middlew
 const {Bet, Match, Team} = require("../models");
 const {Op} = require("sequelize");
 const {getNullBets, checkupBets, createBet, updateBet, updateAllBetsForCurrentSeason} = require("../services/betService");
-const {getRanking} = require("../services/rankingService");
+const {getRanking, getDuoRanking} = require("../services/rankingService");
 const {getSeasonRankingEvolution} = require("../services/rankingService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/logic/seasonLogic");
+const {getCurrentMatchday} = require("../services/matchdayService");
 
 /* PUBLIC - GET */
 router.get('/bets', authenticateJWT, async (req, res) => {
@@ -76,13 +77,33 @@ router.get('/bets/month-ranking', authenticateJWT, async (req, res) => {
 router.get('/bets/week-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
-    const ranking = await getRanking(seasonId, 'week');
+    const currentMatchday = await getCurrentMatchday();
+    const ranking = await getRanking(seasonId, 'week', currentMatchday);
     if (!ranking || ranking.length === 0) {
       return res.status(204).json({ message: 'Aucun classement trouvé pour cette semaine.' });
     }
     res.status(200).json({ ranking });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération du classement.', error: error.message });
+  }
+});
+router.get('/bets/duo-ranking', authenticateJWT, async (req, res) => {
+  try {
+    const seasonId = await getCurrentSeasonId(61);
+    const ranking = await getDuoRanking(seasonId);
+    if (!ranking || !ranking.ranking || ranking.ranking.length === 0) {
+      return res.status(200).json({
+        ranking: {
+          ranking: [],
+          isDuoRanking: false,
+          rules: [],
+          message: ranking?.message || 'Aucun classement duo disponible.'
+        }
+      });
+    }
+    res.status(200).json({ ranking });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération du classement duo.', error: error.message });
   }
 });
 
