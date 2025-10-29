@@ -30,6 +30,25 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   const { noMatches, matchs, canDisplayBets, fetchMatchs } = useContext(AppContext);
   const navigate = useNavigate();
 
+  // Check if viewed user is my duo partner
+  const isMyDuoPartner = () => {
+    if (currentRule?.rule_key !== 'alliance_day' || !currentRule?.status) {
+      return false;
+    }
+
+    const myGroup = currentRule.config?.selected_users?.find(group =>
+      group.some(u => u.id === loggedUser.id)
+    );
+
+    if (!myGroup) return false;
+
+    const partner = myGroup.find(u => u.id !== loggedUser.id);
+    return partner && partner.id === user.id;
+  };
+
+  // Allow viewing bets if: normal deadline passed OR user is my duo partner during alliance_day
+  const canViewBets = canDisplayBets || isMyDuoPartner();
+
   const handleNavigate = (bet) => {
     navigate(`/matchs/history/${bet.MatchId.id}`, {
       state: { canDisplayBets: canDisplayBets }
@@ -170,7 +189,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
         ) : (
           loggedUser.id !== user.id ? (
             // On consulte le profil de quelqu'un d'autre
-            !canDisplayBets ? (
+            !canViewBets ? (
               currentRule?.rule_key === "hidden_predictions" && currentRule.status ? (
                 <div className="relative fade-in my-[25%]">
                   <p translate="no" className="no-correct text-center text-lg font-medium mt-4 px-12">

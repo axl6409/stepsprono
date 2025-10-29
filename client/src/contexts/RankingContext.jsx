@@ -18,7 +18,8 @@ const RankingProvider = ({ children }) => {
   const [rankingCache, setRankingCache] = useState({
     season: { data: [], lastFetched: null },
     month: { data: [], lastFetched: null },
-    week: { data: [], lastFetched: null }
+    week: { data: [], lastFetched: null },
+    duo: { data: [], lastFetched: null, isDuoRanking: false }
   });
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const RankingProvider = ({ children }) => {
     }
   }, [user, rankingType]);
 
-  const CACHE_DURATION = 10 * 60 * 1000;
+  const CACHE_DURATION = 5 * 1000; // 5 secondes pour faciliter les tests (normalement 10 * 60 * 1000)
 
   const fetchRankingMode = async () => {
     try {
@@ -56,19 +57,35 @@ const RankingProvider = ({ children }) => {
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const sortedRanking = (response.data.ranking.ranking || []).sort((a, b) => {
-        if (b.points === a.points) {
-          return b.tie_breaker_points - a.tie_breaker_points;
-        }
-        return b.points - a.points;
-      });
-      setRankingCache((prevCache) => ({
-        ...prevCache,
-        [type]: {
-          data: sortedRanking,
-          lastFetched: now
-        }
-      }));
+
+      // Handle duo ranking differently
+      if (type === 'duo') {
+        const duoData = response.data.ranking || {};
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: duoData.ranking || [],
+            lastFetched: now,
+            isDuoRanking: duoData.isDuoRanking || false,
+            rules: duoData.rules || [],
+            message: duoData.message
+          }
+        }));
+      } else {
+        const sortedRanking = (response.data.ranking.ranking || []).sort((a, b) => {
+          if (b.points === a.points) {
+            return b.tie_breaker_points - a.tie_breaker_points;
+          }
+          return b.points - a.points;
+        });
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: sortedRanking,
+            lastFetched: now
+          }
+        }));
+      }
     } catch (error) {
       console.error(`Erreur lors de la récupération du classement ${type}`, error);
     } finally {
@@ -84,13 +101,27 @@ const RankingProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      setRankingCache((prevCache) => ({
-        ...prevCache,
-        [type]: {
-          data: response.data.ranking,
-          lastFetched: new Date().getTime()
-        }
-      }));
+      if (type === 'duo') {
+        const duoData = response.data.ranking || {};
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: duoData.ranking || [],
+            lastFetched: new Date().getTime(),
+            isDuoRanking: duoData.isDuoRanking || false,
+            rules: duoData.rules || [],
+            message: duoData.message
+          }
+        }));
+      } else {
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: response.data.ranking,
+            lastFetched: new Date().getTime()
+          }
+        }));
+      }
     } catch (error) {
       console.error(`Erreur lors du rafraîchissement du classement ${type}`, error);
     } finally {
@@ -110,7 +141,11 @@ const RankingProvider = ({ children }) => {
       changeRankingType,
       refreshRanking,
       isLoading,
-      rankingMode
+      rankingMode,
+      isDuoRanking: rankingCache[rankingType].isDuoRanking || false,
+      duoRules: rankingCache[rankingType].rules || [],
+      duoMessage: rankingCache[rankingType].message,
+      weekRanking: rankingCache.week.data
     }}>
       {children}
     </RankingContext.Provider>

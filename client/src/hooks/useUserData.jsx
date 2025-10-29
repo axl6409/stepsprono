@@ -35,6 +35,7 @@ export default function useUserData(user, token, apiUrl) {
       const response = await axios.get(`${apiUrl}/api/user/${user.id}/bets/${type}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log(response.data)
       if (response.data && response.data.points) {
         setter(response.data.points);
       }

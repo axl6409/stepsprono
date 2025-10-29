@@ -134,15 +134,13 @@ const getWeekPoints = async (userId) => {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentWeekMatchdays();
-    const date = getWeekDateRange();
 
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
         user_id: userId,
-        created_at: {
-          [Op.gte]: date.start,
-          [Op.lte]: date.end
+        matchday: {
+          [Op.in]: matchdays
         }
       }
     });

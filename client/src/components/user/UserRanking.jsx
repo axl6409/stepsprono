@@ -12,10 +12,14 @@ import blackStar from "../../assets/components/ranking/black-star.svg";
 import purpleFlower from "../../assets/components/ranking/purple-flower.svg";
 import flowerYellowOpacity from "../../assets/components/ranking/flower-yellow-opacity.png";
 import {RankingContext} from "../../contexts/RankingContext.jsx";
+import {RuleContext} from "../../contexts/RuleContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
-  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode } = useContext(RankingContext);
+  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking } = useContext(RankingContext);
+  const { currentRule } = useContext(RuleContext);
+
+  const showDuoTab = currentRule?.rule_key === 'alliance_day' && currentRule?.status;
 
   const handleFilterChange = (newFilter) => {
     changeRankingType(newFilter);
@@ -41,8 +45,9 @@ const UserRanking = () => {
   return (
     <div className="relative p-8 px-2 pt-0">
 
-      {/* Podium: Top 3 users */}
-      <div className="relative z-[10] flex flex-row justify-center items-end mb-8">
+      {/* Podium: Top 3 users - Hidden in duo mode */}
+      {!(isDuoRanking && rankingType === 'duo') && (
+        <div className="relative z-[10] flex flex-row justify-center items-end mb-8">
         <img className="absolute fade-in z-[1] -top-20 left-4 w-20" src={crownOpacity} alt=""/>
         <img className="absolute fade-in z-[1] -top-20 right-0 w-20" src={purpleStar} alt=""/>
         <img className="absolute fade-in z-[1] -top-20 right-12 w-4" src={blackStar} alt=""/>
@@ -140,6 +145,7 @@ const UserRanking = () => {
           </Link>
         </div>
       </div>
+      )}
 
       <div
         className="relative z-[30] bg-white w-full mb-0 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
@@ -148,15 +154,27 @@ const UserRanking = () => {
           <button
             translate="no"
             onClick={() => handleFilterChange('week')}
-            className={`w-1/3 fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'week' ? 'bg-green-medium' : ''}`}
+            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'week' ? 'bg-green-medium' : ''}`}
           >
             semaine
           </button>
+          {showDuoTab && (
+            <>
+              <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
+              <button
+                translate="no"
+                onClick={() => handleFilterChange('duo')}
+                className={`w-1/4 fade-in delay-200 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'duo' ? 'bg-purple-light' : 'bg-white'}`}
+              >
+                duo 🤝
+              </button>
+            </>
+          )}
           <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
           <button
             translate="no"
             onClick={() => handleFilterChange('month')}
-            className={`w-1/3 fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'month' ? 'bg-green-medium' : ''}`}
+            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'month' ? 'bg-green-medium' : ''}`}
           >
             mois
           </button>
@@ -164,7 +182,7 @@ const UserRanking = () => {
           <button
             translate="no"
             onClick={() => handleFilterChange('season')}
-            className={`w-1/3 fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'season' ? 'bg-green-medium' : ''}`}
+            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'season' ? 'bg-green-medium' : ''}`}
           >
             saison
           </button>
@@ -175,9 +193,65 @@ const UserRanking = () => {
         <p className="text-xs italic">{getTieBreakerExplanation()}</p>
       </div>
 
-      <div className="relative z-[20] flex flex-col justify-start">
-        <ul className="px-4">
-          {ranking.slice(3).map((user, index) => (
+      {/* Duo ranking display */}
+      {isDuoRanking && rankingType === 'duo' ? (
+        <div className="relative z-[20] flex flex-col justify-start">
+          <ul className="px-4">
+            {ranking.map((duo, index) => (
+              <li
+                style={{animationDelay: `${index * 0.05}s`}}
+                className="relative fade-in rounded-xl"
+                key={duo.duo_id}>
+                <div className="relative z-[20] flex flex-row flex-wrap overflow-hidden rounded-xl justify-between items-center py-2">
+                  {/* Duo names */}
+                  <div className="flex flex-col flex-1 px-4 w-full text-center">
+                    <p translate="no" className="font-title text-black text-xl3 font-bold uppercase leading-8 mb-2" style={{ textWrap: 'nowrap' }}>
+                      {duo.users[0].username} & {duo.users[1].username}
+                    </p>
+                  </div>
+
+                  {/* Two user avatars side by side */}
+                  <div className="relative w-full">
+                    <div className="relative flex flex-row items-center justify-center">
+                      <div
+                        className="absolute z-[25] bg-white top-8 left-1/2 -translate-x-1/2 -ml-[5.5rem] border-2 border-black w-[30px] text-center h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust">
+                        <p
+                          translate="no"
+                          className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{index + 1}</p>
+                      </div>
+                      {duo.users.map((user, userIndex) => (
+                        <Link key={user.user_id} to={`/dashboard/${user.user_id}`}>
+                          <div className={`h-[100px] w-[100px] bg-grey-light rounded-full border-2 overflow-hidden border-black shadow-flat-black-adjust -mx-4 ${userIndex === 0 ? '-mr-4' : '-ml-4'}`}>
+                            <img className="object-center w-full h-full object-cover"
+                                 src={user.img ? `${apiUrl}/uploads/users/${user.user_id}/${user.img}` : defaultUserImage}
+                                 alt={user.username}/>
+                          </div>
+                          <p translate="no" className="text-center font-title text-black text-xl2 font-bold uppercase leading-normal -mt-2">
+                            {duo.users[userIndex].points}
+                          </p>
+                        </Link>
+                      ))}
+                      <div className="absolute z-[25] top-4 right-4 text-center">
+                        <p translate="no" className="font-rubik w-full font-black stroke-black text-shadow-black text-white text-[100%] inline-block leading-normal uppercase">Total</p>
+                        <div
+                          className=" bg-white border-2 border-black w-[30px] h-[30px] rounded-full flex flex-row justify-center items-center shadow-flat-black-adjust mx-auto">
+                          <p
+                            translate="no"
+                            className="font-rubik w-full font-black text-stroke-black-2 text-white text-[100%] inline-block leading-[35px]">{duo.points}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        /* Individual ranking display */
+        <div className="relative z-[20] flex flex-col justify-start">
+          <ul className="px-4">
+            {ranking.slice(3).map((user, index) => (
             <li
               style={{animationDelay: `${index * 0.05}s`}}
               className="relative fade-in rounded-xl mt-2 mb-4 border-2 border-black bg-white h-fit shadow-flat-black"
@@ -209,7 +283,8 @@ const UserRanking = () => {
             </li>
           ))}
         </ul>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
