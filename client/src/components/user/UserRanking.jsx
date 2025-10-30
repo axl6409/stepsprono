@@ -13,11 +13,13 @@ import purpleFlower from "../../assets/components/ranking/purple-flower.svg";
 import flowerYellowOpacity from "../../assets/components/ranking/flower-yellow-opacity.png";
 import {RankingContext} from "../../contexts/RankingContext.jsx";
 import {RuleContext} from "../../contexts/RuleContext.jsx";
+import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
   const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking } = useContext(RankingContext);
   const { currentRule } = useContext(RuleContext);
+  const { currentMatchday } = useContext(AppContext);
 
   const showDuoTab = currentRule?.rule_key === 'alliance_day' && currentRule?.status;
 
@@ -151,30 +153,34 @@ const UserRanking = () => {
         className="relative z-[30] bg-white w-full mb-0 before:content-[''] before:absolute before:inset-0 before:bg-black before:z-[1] before:rounded-md before:translate-y-0.5 before:translate-x-0.5">
         <div
           className="relative z-[2] bg-white rounded-md p-1 flex flex-row justify-center w-full h-full border border-black">
-          <button
-            translate="no"
-            onClick={() => handleFilterChange('week')}
-            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'week' ? 'bg-green-medium' : ''}`}
-          >
-            semaine
-          </button>
+          {currentMatchday && (
+            <>
+              <button
+                translate="no"
+                onClick={() => handleFilterChange('week')}
+                className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-150 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xxs uppercase py-1 underline font-medium ${rankingType === 'week' ? 'bg-green-medium' : ''}`}
+              >
+                Journée {currentMatchday}
+              </button>
+              <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
+            </>
+          )}
           {showDuoTab && (
             <>
-              <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
               <button
                 translate="no"
                 onClick={() => handleFilterChange('duo')}
-                className={`w-1/4 fade-in delay-200 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'duo' ? 'bg-purple-light' : 'bg-white'}`}
+                className={`${currentMatchday ? 'w-1/4' : 'w-1/3'} fade-in delay-200 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xxs uppercase py-1 underline font-medium ${rankingType === 'duo' ? 'bg-purple-light' : 'bg-white'}`}
               >
                 duo 🤝
               </button>
+              <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
             </>
           )}
-          <div className="w-px h-auto mx-1 border-l border-black border-dotted"></div>
           <button
             translate="no"
             onClick={() => handleFilterChange('month')}
-            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'month' ? 'bg-green-medium' : ''}`}
+            className={`${(showDuoTab || currentMatchday) ? 'w-1/4' : currentMatchday ? 'w-1/3' : 'w-1/2'} fade-in delay-300 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xxs uppercase py-1 underline font-medium ${rankingType === 'month' ? 'bg-green-medium' : ''}`}
           >
             mois
           </button>
@@ -182,7 +188,7 @@ const UserRanking = () => {
           <button
             translate="no"
             onClick={() => handleFilterChange('season')}
-            className={`${showDuoTab ? 'w-1/4' : 'w-1/3'} fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xs uppercase py-1 underline font-medium ${rankingType === 'season' ? 'bg-green-medium' : ''}`}
+            className={`${(showDuoTab || currentMatchday) ? 'w-1/4' : currentMatchday ? 'w-1/3' : 'w-1/2'} fade-in delay-700 transition-colors duration-300 ease-in-out rounded-md font-roboto text-xxs uppercase py-1 underline font-medium ${rankingType === 'season' ? 'bg-green-medium' : ''}`}
           >
             saison
           </button>

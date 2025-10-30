@@ -1,6 +1,5 @@
 const express = require('express')
 const {authenticateJWT, checkAdmin} = require("../middlewares/auth");
-const {autoContribution} = require("../services/contributionService");
 const router = express.Router()
 
 /* ADMIN - POST */

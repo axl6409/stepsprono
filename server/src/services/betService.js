@@ -124,6 +124,41 @@ const getLastMatchdayPoints = async (userId) => {
 }
 
 /**
+ * Retrieves the total points earned by a user for the current matchday.
+ *
+ * @param {number} userId - The ID of the user.
+ * @param {number} matchday - The matchday number.
+ * @return {Promise<number>} The total points earned by the user for the matchday. Returns 0 if there was an error.
+ */
+const getCurrentMatchdayPoints = async (userId, matchday) => {
+  try {
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const bets = await Bet.findAll({
+      where: {
+        season_id: seasonId,
+        user_id: userId,
+        matchday: matchday,
+        points: {
+          [Op.not]: null
+        }
+      }
+    });
+
+    let points = 0;
+    for (const bet of bets) {
+      points += bet.points;
+    }
+
+    return points;
+  } catch (error) {
+    console.log('Erreur lors de la récupération des points pour la journée actuelle:', error);
+    return 0;
+  }
+}
+
+/**
  * Retrieves the total points earned by a user for a specific week of a season.
  *
  * @param {number} userId - The ID of the user.
@@ -558,6 +593,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
         {
           model: User,
           as: 'UserId',
+          attributes: ['id', 'username', 'img']
         }
       ],
     });
@@ -565,6 +601,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
     const ranking = bets.reduce((acc, bet) => {
       const userId = bet.user_id;
       const username = bet.UserId.username;
+      const img = bet.UserId.img;
 
       const points = bet.points || 0;
 
@@ -574,6 +611,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
         acc[userId] = {
           user_id: userId,
           username: username,
+          img: img,
           points: bet.points
         };
       }
@@ -586,6 +624,7 @@ const getMatchdayRanking = async (matchday, seasonIdParam = null) => {
         ranking[user.id] = {
           user_id: user.id,
           username: user.username,
+          img: user.img,
           points: 0
         };
       }
@@ -725,6 +764,7 @@ module.exports = {
   checkupBets,
   getNullBets,
   getLastMatchdayPoints,
+  getCurrentMatchdayPoints,
   getWeekPoints,
   getClosestPastMatchday,
   getMonthPoints,

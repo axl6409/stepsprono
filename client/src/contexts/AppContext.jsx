@@ -169,19 +169,40 @@ export const AppProvider = ({ children }) => {
     setActivePeriod(activePeriodData);
     setHasMultiplePeriods(hasMultiplePeriodsData);
 
+    // Déterminer le matchday à afficher basé sur TOUS les matchs (terminés inclus)
+    let displayMatchday;
+    if (hasMultiplePeriodsData && activePeriodData) {
+      // Si plusieurs périodes, utiliser la période active
+      displayMatchday = activePeriodData.matchday;
+    } else if (allMatchs.length > 0) {
+      // Sinon, utiliser le matchday du premier match de la semaine
+      displayMatchday = allMatchs[0].matchday;
+    } else {
+      displayMatchday = null;
+    }
+
+    setCurrentMatchday(displayMatchday);
+
     const sortedMatchs = allMatchs
       .filter(m => m.status !== "FT") // 👈 filtre
       .sort((a, b) => new Date(a.utc_date) - new Date(b.utc_date));
 
-    setCurrentMatchday(response.data.currentMatchday);
-
-    if (sortedMatchs.length === 0) {
+    // Pas de matchs du tout dans la semaine
+    if (allMatchs.length === 0) {
       setNoMatches(true);
       return;
     }
 
-    setMatchs(sortedMatchs);
-    setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
+    // Tous les matchs de la semaine sont terminés
+    if (sortedMatchs.length === 0) {
+      setNoMatches(false); // Il y a des matchs, juste tous terminés
+      setMatchs([]);
+      setLastMatch(null);
+    } else {
+      setNoMatches(false);
+      setMatchs(sortedMatchs);
+      setLastMatch(sortedMatchs[sortedMatchs.length - 1]);
+    }
 
     // Déterminer le matchday à vérifier
     // Si plusieurs périodes: utiliser le matchday de la période active
