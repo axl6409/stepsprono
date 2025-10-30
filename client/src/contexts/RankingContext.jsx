@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from './UserContext.jsx';
+import { AppContext } from './AppContext.jsx';
 import { useCookies } from "react-cookie";
 
 export const RankingContext = createContext();
@@ -9,6 +10,7 @@ const RankingProvider = ({ children }) => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
   const { user } = useContext(UserContext);
+  const { currentMatchday } = useContext(AppContext);
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
   const [rankingType, setRankingType] = useState('season');
@@ -24,10 +26,17 @@ const RankingProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
+      // Invalider le cache 'week' si currentMatchday a changé
+      if (currentMatchday) {
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          week: { data: [], lastFetched: null }
+        }));
+      }
       fetchRanking(rankingType);
       fetchRankingMode();
     }
-  }, [user, rankingType]);
+  }, [user, rankingType, currentMatchday]);
 
   const CACHE_DURATION = 5 * 1000; // 5 secondes pour faciliter les tests (normalement 10 * 60 * 1000)
 
@@ -45,6 +54,16 @@ const RankingProvider = ({ children }) => {
   const fetchRanking = async (type) => {
     setIsLoading(true);
 
+    // Si type === 'week' sans currentMatchday, ne rien charger
+    if (type === 'week' && !currentMatchday) {
+      setRankingCache((prevCache) => ({
+        ...prevCache,
+        week: { data: [], lastFetched: new Date().getTime() }
+      }));
+      setIsLoading(false);
+      return;
+    }
+
     const cachedRanking = rankingCache[type];
     const now = new Date().getTime();
     if (cachedRanking.data.length > 0 && cachedRanking.lastFetched && (now - cachedRanking.lastFetched) < CACHE_DURATION) {
@@ -53,7 +72,14 @@ const RankingProvider = ({ children }) => {
     }
 
     try {
-      const endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+      let endpoint;
+      // Pour le type 'week', utiliser l'endpoint matchday
+      if (type === 'week') {
+        endpoint = `${apiUrl}/api/users/bets/ranking/${currentMatchday}`;
+      } else {
+        endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+      }
+
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -69,6 +95,16 @@ const RankingProvider = ({ children }) => {
             isDuoRanking: duoData.isDuoRanking || false,
             rules: duoData.rules || [],
             message: duoData.message
+          }
+        }));
+      } else if (type === 'week') {
+        // Ranking spécifique à une journée (endpoint matchday)
+        const rankingData = response.data.ranking || [];
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: rankingData,
+            lastFetched: now
           }
         }));
       } else {
@@ -95,8 +131,26 @@ const RankingProvider = ({ children }) => {
 
   const refreshRanking = async (type) => {
     setIsLoading(true);
+
+    // Si type === 'week' sans currentMatchday, ne rien charger
+    if (type === 'week' && !currentMatchday) {
+      setRankingCache((prevCache) => ({
+        ...prevCache,
+        week: { data: [], lastFetched: new Date().getTime() }
+      }));
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+      let endpoint;
+      // Pour le type 'week', utiliser l'endpoint matchday
+      if (type === 'week') {
+        endpoint = `${apiUrl}/api/users/bets/ranking/${currentMatchday}`;
+      } else {
+        endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+      }
+
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -111,6 +165,16 @@ const RankingProvider = ({ children }) => {
             isDuoRanking: duoData.isDuoRanking || false,
             rules: duoData.rules || [],
             message: duoData.message
+          }
+        }));
+      } else if (type === 'week') {
+        // Ranking spécifique à une journée (endpoint matchday)
+        const rankingData = response.data.ranking || [];
+        setRankingCache((prevCache) => ({
+          ...prevCache,
+          [type]: {
+            data: rankingData,
+            lastFetched: new Date().getTime()
           }
         }));
       } else {

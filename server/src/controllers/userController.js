@@ -13,7 +13,7 @@ const { upload, deleteFilesInDirectory} = require('../utils/utils');
 const moment = require("moment-timezone");
 const {Op} = require("sequelize");
 const {getCurrentSeasonId} = require("../services/logic/seasonLogic");
-const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getLastBetsByUserId, getAllLastBets,
+const {getMonthPoints, getSeasonPoints, getWeekPoints, getLastMatchdayPoints, getCurrentMatchdayPoints, getLastBetsByUserId, getAllLastBets,
   getMatchdayRanking
 } = require("../services/betService");
 const {updateLastConnect, getUserStats, findUserByIdWithAssociations, setUsersStatusRuled} = require("../services/userService");
@@ -99,6 +99,13 @@ router.get('/user/:id/bets/:filter', authenticateJWT, async (req, res) => {
     if (filter === 'week') {
       const weekPoints = await getWeekPoints(userId);
       return res.json({ points: weekPoints });
+    } else if (filter === 'matchday') {
+      const matchday = parseInt(req.query.matchday, 10);
+      if (!matchday) {
+        return res.status(400).json({ error: 'Matchday parameter is required' });
+      }
+      const matchdayPoints = await getCurrentMatchdayPoints(userId, matchday);
+      return res.json({ points: matchdayPoints });
     } else if (filter === 'month') {
       const monthPoints = await getMonthPoints(userId);
       return res.json({ points: monthPoints });

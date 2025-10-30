@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef, useContext} from 'react';
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import weekPointsShape from "../../assets/components/dashboard/week/week-points-shape.png";
-import weekPointsText from "../../assets/components/dashboard/week/week-points-txt.png";
 import monthPointsShape from "../../assets/components/dashboard/month/month-points-shape.png";
 import monthPointsText from "../../assets/components/dashboard/month/month-points-txt.png";
 import seasonPointsShape from "../../assets/components/dashboard/season/season-points-shape.png";
@@ -27,7 +26,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
     betColors,
   } = useUserData(user, token, apiUrl);
   const { currentRule } = useContext(RuleContext);
-  const { noMatches, matchs, canDisplayBets, fetchMatchs } = useContext(AppContext);
+  const { noMatches, matchs, canDisplayBets, fetchMatchs, currentMatchday } = useContext(AppContext);
   const navigate = useNavigate();
 
   // Check if viewed user is my duo partner
@@ -86,7 +85,28 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             {/*<WeekPoints/>*/}
             <div className="w-full relative">
               <img className="block" src={weekPointsShape} alt=""/>
-              <img className="absolute inset-0 rotate-animation delay-500 origin-center" src={weekPointsText} alt=""/>
+              {currentMatchday && (
+                <svg className="absolute inset-0 rotate-animation delay-500 origin-center w-full h-full" viewBox="0 0 100 100">
+                  <defs>
+                    <path id="circlePath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 82,0 a 40,40 0 1,1 -82,0" />
+                  </defs>
+                  <text fill="black" fontSize="12" fontWeight="medium" fontFamily="Rubik, sans-serif" letterSpacing="0">
+                    <textPath href="#circlePath" startOffset="0%" textAnchor="left">
+                      JOURNÉE {currentMatchday}
+                    </textPath>
+                  </text>
+                  <text fill="black" fontSize="12" fontWeight="medium" fontFamily="Rubik, sans-serif" letterSpacing="0">
+                    <textPath href="#circlePath" startOffset="45%" textAnchor="middle">
+                      JOURNÉE {currentMatchday}
+                    </textPath>
+                  </text>
+                  <text fill="black" fontSize="12" fontWeight="medium" fontFamily="Rubik, sans-serif" letterSpacing="0">
+                    <textPath href="#circlePath" startOffset="65%" textAnchor="right">
+                      JOURNÉE {currentMatchday}
+                    </textPath>
+                  </text>
+                </svg>
+              )}
             </div>
             <p
               translate="no"

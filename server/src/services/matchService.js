@@ -340,7 +340,6 @@ async function fetchAndProgramWeekMatches() {
 
       try {
         logger.info('[WEEK END] Tous les matchs de la semaine sont terminés (dernier match clôturé).');
-        await autoContribution();
         await scheduleWeeklyRankingUpdate();
         await weekEndedNotification();
         eventBus.emit('weekEnded');

@@ -7,6 +7,7 @@ node_modules/
 # Ignore environment-specific files (e.g., .env for configuration)
 .env
 client/.env
+client/public/videos
 /client/dist
 .gitignore
 .idea/

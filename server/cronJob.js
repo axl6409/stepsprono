@@ -39,7 +39,6 @@ const runCronJob = () => {
   // Every Sunday at 23:00
   cron.schedule('00 23 * * 0', async () => {
     logger.info("[CRON]=> 00 23 * * 0 => eventBus.emit('weekEnded')");
-    await autoContribution()
     eventBus.emit('weekEnded');
     eventBus.emit('betsChecked');
     await weekEndedNotification()
