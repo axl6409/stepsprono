@@ -53,7 +53,6 @@ const AdminCompetitions = () => {
           setLogMessage(false, 'Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + response.data.message, true)
         }
       } catch (error) {
-        console.log(error)
         setLogMessage(false, 'Erreur lors de la mise à jour des équipes pour la nouvelle saison : ' + error.response.data.message, true)
       }
     };
@@ -74,7 +73,6 @@ const AdminCompetitions = () => {
           setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + response.data.message, true)
         }
       } catch (error) {
-        console.log(error)
         setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + error.response.data.message, true)
       }
     };
@@ -95,7 +93,6 @@ const AdminCompetitions = () => {
         setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + response.data.message, true)
       }
     } catch (error) {
-      console.log(error)
       setLogMessage(false, 'Erreur lors de la mise à jour des matchs : ' + error.response.data.message, true)
     }
   };

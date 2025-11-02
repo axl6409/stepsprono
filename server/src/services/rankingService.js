@@ -288,8 +288,6 @@ const getSeasonRankingEvolution = async (seasonId, userId, period = "season", mo
     const endDate = new Date();
     rangeMatchdays = await getPeriodMatchdays(startDate, endDate);
   } else if (period === "month" && month) {
-    logger.info('[DEBUG] => getSeasonRankingEvolution')
-    console.log("month", month);
     const startDate = getCurrentMoment(month, "YYYY-MM").startOf("month").toDate();
     const endDate = getCurrentMoment(month, "YYYY-MM").endOf("month").toDate();
     rangeMatchdays = await getPeriodMatchdays(startDate, endDate);

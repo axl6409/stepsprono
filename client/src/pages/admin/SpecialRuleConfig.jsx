@@ -81,7 +81,6 @@ function SpecialRuleConfig() {
 
   const handleSave = async () => {
     try {
-      console.log(formValues)
       const res = await axios.patch(
         `${apiUrl}/api/admin/special-rule/datas/${id}`,
         { config: formValues },

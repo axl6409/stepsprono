@@ -36,7 +36,6 @@ const storage = multer.diskStorage({
     const absoluteDest = path.join(__dirname, '../../../client', relativeDest);
     try {
       mkdirSync(absoluteDest, { recursive: true });
-      console.log(`Dossier créé : ${absoluteDest}`);
       cb(null, absoluteDest);
     } catch (error) {
       console.error(`Erreur lors de la création du dossier : ${error}`);

@@ -21,7 +21,6 @@ const NotificationProvider = ({ children }) => {
 
       try {
         const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        console.log('✅ Service worker enregistré :', registration);
 
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -38,8 +37,6 @@ const NotificationProvider = ({ children }) => {
           console.warn('⚠️ Aucun token FCM reçu');
           return;
         }
-
-        console.log('📬 Token FCM :', fcmToken);
 
         if (token) {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notifications/subscribe`, {
@@ -69,7 +66,6 @@ const NotificationProvider = ({ children }) => {
     getMessagingInstance().then((messaging) => {
       if (!messaging) return;
       onMessage(messaging, (payload) => {
-        console.log('🔔 Notification reçue (foreground) :', payload);
         const { title, body } = payload.notification;
         new Notification(title, {
           body,

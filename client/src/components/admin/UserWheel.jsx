@@ -22,9 +22,7 @@ const UserWheel = ({ users, onSelect, initialUser }) => {
 
   useEffect(() => {
     if (initialUser && users.length) {
-      console.log(users);
       const index = users.findIndex((u) => Number(u.id) === Number(initialUser));
-      console.log(index);
       if (index !== -1) {
         setPrizeIndex(index);
       }

@@ -31,7 +31,7 @@ const Admin = () => {
     setUpdateMessage('');
     setIsModalOpen(false);
   };
-  console.log(isDebuggerActive)
+
   return (
     <div className="inline-block relative z-20 w-full h-auto py-20 overflow-x-hidden">
       {isModalOpen && (

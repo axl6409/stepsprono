@@ -30,7 +30,6 @@ export const RuleProvider = ({children}) => {
           'Authorization': `Bearer ${token}`,
         }
       })
-      console.log(response.data)
       setCurrentRule(response.data)
       if (response.data.rule_key === "hunt_day") {
         const selectedUser = await axios.get(`${apiUrl}/api/user/${response.data.config.selected_user}`, {
@@ -70,7 +69,6 @@ export const RuleProvider = ({children}) => {
       }
       audioRef.current.play()
         .then(() => {
-          console.log("Lecture OK → stockage dans sessionStorage");
           setAudioPlayed(true);
           sessionStorage.setItem("audioPlayed", "true");
         })

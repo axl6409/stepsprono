@@ -232,7 +232,6 @@ const scheduleTaskForEndOfMonthMatch = async () => {
 
     // Vérifier si cette journée sportive se situe en fin de mois
     if (firstMatchDate.getMonth() === lastDayOfMonth.getMonth()) {
-      console.log("La dernière journée sportive est en fin de mois.");
 
       // Planifier la tâche cron pour 2 heures après le dernier match
       const taskTime = new Date(lastMatchDate.getTime() + 2 * 60 * 60 * 1000);
@@ -302,11 +301,9 @@ const scheduleBetsCloseEvent = async () => {
     betsCloseTime.setHours(12, 0, 0, 0);
 
     schedule.scheduleJob(betsCloseTime, () => {
-      console.log("Événement betsClose déclenché à 12h le jour du premier match.");
       eventBus.emit('betsClosed');
     });
 
-    console.log(`Événement betsClose planifié pour le ${betsCloseTime}.`);
   } catch (error) {
     console.error("Erreur lors de la planification de l'événement betsClose:", error);
     throw error;

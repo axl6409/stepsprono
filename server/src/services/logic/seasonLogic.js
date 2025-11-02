@@ -37,7 +37,6 @@ const getCurrentSeasonYear = async (competitionId) => {
         current: true,
       }
     });
-    console.log(competitionId)
     return currentSeason.year;
   } catch (error) {
     console.log('Erreur lors de la récupération des données:', error);

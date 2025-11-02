@@ -90,7 +90,6 @@ async function matchEndedNotification(homeTeamName, awayTeamName, homeTeamScore 
 
 async function earnTrophyNotification(user, trophyName) {
   try {
-    console.log(user.id);
     const notificationMessage = {
       title: `🏅 Nouveau badge gagné !`,
       body : `Adio ${user.username} ! tu as remporté le badge ${trophyName}`,

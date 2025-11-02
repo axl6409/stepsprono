@@ -45,8 +45,6 @@ const Week = ({token, user}) => {
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
       const matchIds = sortedMatchs.map(match => match.id);
-      console.log('[WEEK] Fetching bets for match IDs:', matchIds);
-      console.log('[WEEK] Matchdays:', sortedMatchs.map(m => m.matchday));
       try {
         const response = await axios.post(`${apiUrl}/api/bets/user/${user.id}`, {
           matchIds: matchIds
@@ -55,12 +53,11 @@ const Week = ({token, user}) => {
             'Authorization': `Bearer ${token}`,
           }
         });
-        console.log('[WEEK] Bets received:', response.data.data.length);
         const betsByMatchId = response.data.data.reduce((acc, bet) => {
           acc[bet.match_id] = bet
           return acc
         }, {})
-        console.log('[WEEK] Bets by match ID:', betsByMatchId);
+
         setBets(betsByMatchId)
         setIsLoading(false)
       } catch (error) {
