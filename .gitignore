@@ -20,6 +20,8 @@ wait-for-it.sh
 /client/src/assets/uploads/
 /server/config/
 firebase-messaging-sw.js
+PROJECT_MEMORY.md
+.claude
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
 

@@ -7,7 +7,7 @@ const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayServic
 const {getPeriodMatchdays} = require("./logic/matchLogic");
 const moment = require("moment");
 
-const getRawRanking = async (seasonId, period, matchday = null) => {
+const getRawRanking = async (seasonId, period, matchday = null, month = null) => {
   try {
     const setting = await Setting.findOne({
       where: { key: "rankingMode" },
@@ -20,8 +20,8 @@ const getRawRanking = async (seasonId, period, matchday = null) => {
     let excludedMatchdays = new Set();
 
     if (period === "month") {
-      const { start } = getMonthDateRange();
-      matchdays = await getCurrentMonthMatchdays();
+      const { start } = getMonthDateRange(month);
+      matchdays = await getCurrentMonthMatchdays(null, month);
 
       if (matchdays.length > 0) {
         for (const matchday of matchdays) {
@@ -141,6 +141,8 @@ const getRawRanking = async (seasonId, period, matchday = null) => {
  *
  * @param {number} seasonId - The ID of the season.
  * @param {string} period - The period for which to retrieve the ranking ('month', 'week', or 'season').
+ * @param {number|null} matchday - The matchday number (for 'week' period).
+ * @param {string|null} month - The month in YYYY-MM format (for 'month' period).
  * @return {Promise<Array<Object>>} A promise that resolves to an array of user ranking objects, sorted by points.
  * Each object contains user_id, username, points, tie_breaker_points, mode, and img.
  * @throws {Error} If there is an error while retrieving the ranking.
@@ -148,9 +150,9 @@ const getRawRanking = async (seasonId, period, matchday = null) => {
 /**
  * Classement enrichi (applique les règles spéciales si ranking_effect = true)
  */
-const getRanking = async (seasonId, period, matchday = null) => {
+const getRanking = async (seasonId, period, matchday = null, month = null) => {
   try {
-    let sortedRanking = await getRawRanking(seasonId, period, matchday);
+    let sortedRanking = await getRawRanking(seasonId, period, matchday, month);
 
     let appliedRules = [];
 
@@ -166,7 +168,7 @@ const getRanking = async (seasonId, period, matchday = null) => {
     });
 
     if (ruleResults && ruleResults.length > 0) {
-      const matchdays = period === "month" ? await getCurrentMonthMatchdays() : [];
+      const matchdays = period === "month" ? await getCurrentMonthMatchdays(null, month) : [];
 
       for (const rr of ruleResults) {
         const cfg = rr.config || {};
