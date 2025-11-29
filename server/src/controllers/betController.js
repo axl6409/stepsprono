@@ -65,7 +65,8 @@ router.get('/bets/season-ranking', authenticateJWT, async (req, res) => {
 router.get('/bets/month-ranking', authenticateJWT, async (req, res) => {
   try {
     const seasonId = await getCurrentSeasonId(61);
-    const ranking = await getRanking(seasonId, 'month');
+    const month = req.query.month || null; // Format YYYY-MM
+    const ranking = await getRanking(seasonId, 'month', null, month);
     if (!ranking || ranking.length === 0) {
       return res.status(204).json({ message: 'Aucun classement trouvé pour ce mois.' });
     }

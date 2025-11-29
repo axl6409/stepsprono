@@ -1,6 +1,8 @@
 import React, {useContext, useEffect, useState} from 'react';
 import axios from "axios";
 import { Link } from "react-router-dom";
+import moment from "moment";
+import 'moment/locale/fr';
 import Loader from "../partials/Loader.jsx";
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import crown from "../../assets/components/ranking/crown.svg";
@@ -17,14 +19,50 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
-  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking } = useContext(RankingContext);
+  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking, selectedMonth, setSelectedMonth } = useContext(RankingContext);
   const { currentRule } = useContext(RuleContext);
-  const { currentMatchday } = useContext(AppContext);
+  const { currentMatchday, currentSeason } = useContext(AppContext);
 
   const showDuoTab = currentRule?.rule_key === 'alliance_day' && currentRule?.status;
 
+  // Initialiser selectedMonth au mois actuel quand on sélectionne "mois" pour la première fois
+  useEffect(() => {
+    if (rankingType === 'month' && !selectedMonth) {
+      setSelectedMonth(moment().format('YYYY-MM'));
+    }
+  }, [rankingType, selectedMonth, setSelectedMonth]);
+
+  // Générer la liste des mois disponibles depuis le début de la saison
+  const getAvailableMonths = () => {
+    moment.locale('fr');
+    const months = [];
+    if (!currentSeason?.start_date) return months;
+
+    const seasonStart = moment(currentSeason.start_date);
+    const now = moment();
+    let current = seasonStart.clone().startOf('month');
+
+    while (current.isSameOrBefore(now, 'month')) {
+      months.push({
+        value: current.format('YYYY-MM'),
+        label: current.format('MMMM YYYY').charAt(0).toUpperCase() + current.format('MMMM YYYY').slice(1)
+      });
+      current.add(1, 'month');
+    }
+
+    return months.reverse(); // Plus récent en premier
+  };
+
   const handleFilterChange = (newFilter) => {
     changeRankingType(newFilter);
+    // Réinitialiser selectedMonth quand on change de type
+    if (newFilter === 'month' && !selectedMonth) {
+      setSelectedMonth(moment().format('YYYY-MM'));
+    }
+  };
+
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value);
   };
 
   const getTieBreakerExplanation = () => {
@@ -194,6 +232,33 @@ const UserRanking = () => {
           </button>
         </div>
       </div>
+
+      {/* Sélecteur de mois - Affiché uniquement quand rankingType === 'month' */}
+      {rankingType === 'month' && (
+        <div className="relative z-[25] mt-4 mb-4 px-4">
+          <div className="relative bg-white rounded-md border border-black shadow-flat-black-adjust">
+            <select
+              id="month-selector"
+              name="month-selector"
+              value={selectedMonth || moment().format('YYYY-MM')}
+              onChange={handleMonthChange}
+              className="w-full px-4 py-2 bg-transparent text-center font-roboto text-xxs font-medium uppercase appearance-none cursor-pointer focus:outline-none"
+              aria-label="Sélectionner un mois"
+            >
+              {getAvailableMonths().map((month) => (
+                <option key={month.value} value={month.value}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative z-[15] mb-4">
         <p className="text-xs italic">{getTieBreakerExplanation()}</p>

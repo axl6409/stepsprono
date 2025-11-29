@@ -180,7 +180,6 @@ async function updateSingleMatch(matchId) {
     }
     logger.info("Match updated", matchId);
   } catch (error) {
-    console.log('Erreur lors de la mise à jour du match et des pronostics:', error);
     logger.error("Error updating match and bets:", error);
   }
 }

@@ -122,7 +122,6 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   };
 
   const handleSuccess = (message, timeout) => {
-    console.log("Success:", message);
     setAlertMessage(message);
     setAlertType('success');
     setTimeout(() => {
@@ -131,7 +130,6 @@ const EditField = ({ title, fieldName, fieldLabel, user, token, setUser, type = 
   };
 
   const handleError = (message, timeout) => {
-    console.log("Error:", message);
     setAlertMessage(message);
     setAlertType('error');
     setTimeout(() => {

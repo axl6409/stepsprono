@@ -70,7 +70,6 @@ const WeekMatchesToggle = ({ token }) => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error);
       setUpdateMessage('Erreur lors du déclenchement : ' + error.response.data.message);
       setIsModalOpen(true);
       setTimeout(closeModal, 2500);

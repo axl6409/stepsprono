@@ -64,7 +64,6 @@ const AdminTeams = () => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour de l\'équipe : ' + error.response.data.message);
       setIsModalOpen(true)
     }
@@ -91,7 +90,6 @@ const AdminTeams = () => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour des joueurs de l\'équipe : ' + error.response.data.message);
       setIsModalOpen(true)
     }
@@ -119,7 +117,6 @@ const AdminTeams = () => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour des équipes : ' + error.response.data.message);
       setIsModalOpen(true)
     }
@@ -147,7 +144,6 @@ const AdminTeams = () => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour des données des équipes : ' + error.response.data.message);
       setIsModalOpen(true)
     }
@@ -175,7 +171,6 @@ const AdminTeams = () => {
       }
     } catch (error) {
       setUpdateStatus(false);
-      console.log(error)
       setUpdateMessage('Erreur lors de la mise à jour des données de l\'équipe : ' + error.response.data.message);
       setIsModalOpen(true)
     }

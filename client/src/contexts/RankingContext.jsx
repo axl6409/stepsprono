@@ -16,10 +16,11 @@ const RankingProvider = ({ children }) => {
   const [rankingType, setRankingType] = useState('season');
   const [isLoading, setIsLoading] = useState(true);
   const [rankingMode, setRankingMode] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null); // Format YYYY-MM
 
   const [rankingCache, setRankingCache] = useState({
     season: { data: [], lastFetched: null },
-    month: { data: [], lastFetched: null },
+    month: { data: [], lastFetched: null, selectedMonth: null },
     week: { data: [], lastFetched: null },
     duo: { data: [], lastFetched: null, isDuoRanking: false }
   });
@@ -36,7 +37,7 @@ const RankingProvider = ({ children }) => {
       fetchRanking(rankingType);
       fetchRankingMode();
     }
-  }, [user, rankingType, currentMatchday]);
+  }, [user, rankingType, currentMatchday, selectedMonth]);
 
   const CACHE_DURATION = 5 * 1000; // 5 secondes pour faciliter les tests (normalement 10 * 60 * 1000)
 
@@ -66,22 +67,37 @@ const RankingProvider = ({ children }) => {
 
     const cachedRanking = rankingCache[type];
     const now = new Date().getTime();
-    if (cachedRanking.data.length > 0 && cachedRanking.lastFetched && (now - cachedRanking.lastFetched) < CACHE_DURATION) {
+
+    // Pour le type 'month', vérifier aussi si le mois sélectionné a changé
+    if (type === 'month' && cachedRanking.selectedMonth !== selectedMonth) {
+      // Invalider le cache si le mois a changé
+      setRankingCache((prevCache) => ({
+        ...prevCache,
+        month: { data: [], lastFetched: null, selectedMonth: null }
+      }));
+    } else if (cachedRanking.data.length > 0 && cachedRanking.lastFetched && (now - cachedRanking.lastFetched) < CACHE_DURATION) {
       setIsLoading(false);
       return;
     }
 
     try {
       let endpoint;
+      let params = {};
+
       // Pour le type 'week', utiliser l'endpoint matchday
       if (type === 'week') {
         endpoint = `${apiUrl}/api/users/bets/ranking/${currentMatchday}`;
       } else {
         endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+        // Ajouter le paramètre month si type === 'month' et selectedMonth existe
+        if (type === 'month' && selectedMonth) {
+          params.month = selectedMonth;
+        }
       }
 
       const response = await axios.get(endpoint, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params
       });
 
       // Handle duo ranking differently
@@ -118,7 +134,8 @@ const RankingProvider = ({ children }) => {
           ...prevCache,
           [type]: {
             data: sortedRanking,
-            lastFetched: now
+            lastFetched: now,
+            ...(type === 'month' && { selectedMonth })
           }
         }));
       }
@@ -144,15 +161,22 @@ const RankingProvider = ({ children }) => {
 
     try {
       let endpoint;
+      let params = {};
+
       // Pour le type 'week', utiliser l'endpoint matchday
       if (type === 'week') {
         endpoint = `${apiUrl}/api/users/bets/ranking/${currentMatchday}`;
       } else {
         endpoint = `${apiUrl}/api/bets/${type}-ranking`;
+        // Ajouter le paramètre month si type === 'month' et selectedMonth existe
+        if (type === 'month' && selectedMonth) {
+          params.month = selectedMonth;
+        }
       }
 
       const response = await axios.get(endpoint, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params
       });
 
       if (type === 'duo') {
@@ -182,7 +206,8 @@ const RankingProvider = ({ children }) => {
           ...prevCache,
           [type]: {
             data: response.data.ranking,
-            lastFetched: new Date().getTime()
+            lastFetched: new Date().getTime(),
+            ...(type === 'month' && { selectedMonth })
           }
         }));
       }
@@ -209,7 +234,9 @@ const RankingProvider = ({ children }) => {
       isDuoRanking: rankingCache[rankingType].isDuoRanking || false,
       duoRules: rankingCache[rankingType].rules || [],
       duoMessage: rankingCache[rankingType].message,
-      weekRanking: rankingCache.week.data
+      weekRanking: rankingCache.week.data,
+      selectedMonth,
+      setSelectedMonth
     }}>
       {children}
     </RankingContext.Provider>

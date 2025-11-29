@@ -42,7 +42,6 @@ const UserStats = () => {
         params
       });
       setPositionsByMatchdayForAllUsers(res.data);
-      console.log(' Positions: ', res.data)
     } catch (err) {
       console.error('Erreur lors du chargement des positions:', err);
     }
@@ -54,7 +53,6 @@ const UserStats = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(response.data);
-      console.log(' Stats: ', response.data)
       setLoading(false);
     } catch (err) {
       setError('Erreur lors de la récupération des statistiques.');
@@ -70,7 +68,6 @@ const UserStats = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const season = res.data.currentSeason;
-        console.log(season)
         const start = moment(season.start_date).startOf("month");
         const now = moment().startOf("month");
 
@@ -84,7 +81,6 @@ const UserStats = () => {
           });
           current.add(1, "month");
         }
-        console.log(' Months: ', months)
         setAvailableMonths(months);
       } catch (err) {
         console.error("Erreur lors de la récupération des mois :", err);

@@ -2,7 +2,7 @@ const axios = require("axios");
 const apiKey = process.env.FB_API_KEY;
 const apiHost = process.env.FB_API_HOST;
 const apiBaseUrl = process.env.FB_API_URL;
-const {SpecialRule, SpecialRuleResult, Sequelize} = require("../models");
+const {SpecialRule, SpecialRuleResult, Sequelize, Match} = require("../models");
 const {Op} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
@@ -14,6 +14,7 @@ const {getCurrentMatchdayRanking} = require("./logic/rankLogic");
 const {status} = require("express/lib/response");
 const {getCurrentSeasonId} = require("./logic/seasonLogic");
 const {getRanking, getRawRanking} = require("./rankingService");
+const {getCurrentCompetitionId} = require("./competitionService");
 
 const toggleSpecialRule = async (id, active) => {
   try {
@@ -27,25 +28,90 @@ const toggleSpecialRule = async (id, active) => {
   }
 }
 
+const getVideoUrlFromRuleKey = (ruleKey) => {
+  // Mapping des rule_key vers les noms de fichiers vidéo
+  const videoMap = {
+    'hunt_day': 'jour-de-chasse',
+    'alliance_day': 'alliance-day',
+    'hidden_predictions': 'hidden-predictions'
+  };
+
+  const videoName = videoMap[ruleKey];
+  return videoName ? `/videos/2526-${videoName}.mp4` : null;
+};
+
 const getCurrentSpecialRule = async () => {
   try {
     const currentMatchday = parseInt(await getCurrentMatchday(), 10);
     if (!currentMatchday) throw new Error('Current matchday not found');
 
+    // Vérifier si tous les matchs de la journée actuelle sont terminés
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const matchesOfCurrentMatchday = await Match.findAll({
+      where: {
+        competition_id: competitionId,
+        season_id: seasonId,
+        matchday: currentMatchday
+      }
+    });
+
+    const allMatchesFinished = matchesOfCurrentMatchday.length > 0 &&
+      matchesOfCurrentMatchday.every(match => match.status === 'FINISHED');
+
+    // Si tous les matchs sont terminés, chercher la règle de la journée suivante
+    let matchdayToSearch = currentMatchday;
+    if (allMatchesFinished) {
+      logger.info(`[getCurrentSpecialRule] All matches of matchday ${currentMatchday} are finished. Looking for next matchday rule.`);
+      matchdayToSearch = currentMatchday + 1;
+    }
+
+    // Chercher la règle pour la journée déterminée
     const rule = await SpecialRule.findOne({
       where: {
         status: true,
         [Op.and]: [
           Sequelize.where(
             Sequelize.literal("(config->>'matchday')::int"),
-            { [Op.eq]: currentMatchday }
+            { [Op.eq]: matchdayToSearch }
           )
         ]
       }
     });
 
-    if (!rule) {
-      return null;
+    if (!rule && allMatchesFinished) {
+      // Si aucune règle n'est trouvée pour la journée suivante, chercher pour la journée actuelle
+      logger.info(`[getCurrentSpecialRule] No rule found for matchday ${matchdayToSearch}. Falling back to current matchday ${currentMatchday}.`);
+      const fallbackRule = await SpecialRule.findOne({
+        where: {
+          status: true,
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.literal("(config->>'matchday')::int"),
+              { [Op.eq]: currentMatchday }
+            )
+          ]
+        }
+      });
+
+      // Ajouter dynamiquement le video_url si la règle existe
+      if (fallbackRule) {
+        const videoUrl = getVideoUrlFromRuleKey(fallbackRule.rule_key);
+        if (videoUrl) {
+          fallbackRule.config = { ...fallbackRule.config, video_url: videoUrl };
+        }
+      }
+
+      return fallbackRule;
+    }
+
+    // Ajouter dynamiquement le video_url si la règle existe
+    if (rule) {
+      const videoUrl = getVideoUrlFromRuleKey(rule.rule_key);
+      if (videoUrl) {
+        rule.config = { ...rule.config, video_url: videoUrl };
+      }
     }
 
     return rule;

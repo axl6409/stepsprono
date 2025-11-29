@@ -58,8 +58,14 @@ function getWeekDateRange() {
   };
 }
 
-function getMonthDateRange() {
-  const now = getCurrentMoment();
+function getMonthDateRange(monthString = null) {
+  let now;
+  if (monthString) {
+    // monthString format: YYYY-MM
+    now = getCurrentMoment(monthString, "YYYY-MM");
+  } else {
+    now = getCurrentMoment();
+  }
   return {
     start: now.clone().startOf("month").utc().format(),
     end:   now.clone().endOf("month").utc().format(),

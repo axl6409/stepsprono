@@ -873,11 +873,8 @@ const checkBlindBet = async (userId, startDate, endDate) => {
 
       if (userBet) {
         const winningBets = bets.filter(bet => bet.winner_id === bet.MatchId.winner_id);
-        console.log("WinningBets => " + winningBets.length)
         const countOtherResults = totalBets - winningBets.length;
-        console.log("totalBets => " + totalBets)
         const percentage = (countOtherResults / totalBets) * 100;
-        console.log("Percentage => " + percentage)
 
         if (userBet.winner_id !== userBet.MatchId.winner_id && percentage >= 99) {
           userIsBlind = true;

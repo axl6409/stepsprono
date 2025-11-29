@@ -13,7 +13,8 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 const AdminRules = () => {
   const [cookies] = useCookies(['token']);
   const token = localStorage.getItem('token') || cookies.token;
-
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   const [specialDays, setSpecialDays] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +28,6 @@ const AdminRules = () => {
       const res = await axios.get(`${apiUrl}/api/special-rules`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      console.log(res.data)
       setSpecialDays(res.data);
     } catch (err) {
       console.error(err);
@@ -44,7 +44,6 @@ const AdminRules = () => {
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      console.log(day.status)
       fetchSpecialDays();
     } catch (err) {
       console.error(err);
@@ -56,7 +55,6 @@ const AdminRules = () => {
       const res = await axios.get(`${apiUrl}/api/admin/special-rule/check/${dayId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      console.log(res.data)
       if (res.status === 200) {
         setAlertMessage("Vérification effectuée avec succès.");
         setAlertType('success');

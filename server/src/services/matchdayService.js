@@ -24,8 +24,8 @@ const getCurrentWeekMatchdays = async (seasonIdParam) => {
   return [...new Set(matches.map(m => m.matchday))];
 };
 
-const getCurrentMonthMatchdays = async (seasonIdParam) => {
-  const { start, end } = getMonthDateRange();
+const getCurrentMonthMatchdays = async (seasonIdParam, month = null) => {
+  const { start, end } = getMonthDateRange(month);
   const competitionId = await getCurrentCompetitionId();
   const seasonId = seasonIdParam || await getCurrentSeasonId(competitionId);
 
