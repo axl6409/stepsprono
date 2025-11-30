@@ -14,6 +14,7 @@ import BulletRain from "./components/animated/BulletRain.jsx";
 import {RuleContext} from "./contexts/RuleContext.jsx";
 import DebugConsole from "./components/admin/DebugConsole.jsx";
 import HiddenPredictions from "./components/animated/HiddenPredictions.jsx";
+import SnowFall from "./components/animated/SnowFall.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser, hasAdminAccess } = useContext(UserContext);
@@ -73,6 +74,17 @@ const AuthenticatedApp = () => {
                 fadeOutTime={1500}
                 delayTime={1000}
                 maxOpacity={0.3}
+              />
+            ) : currentRule?.rule_key === "half_penalty_day" &&
+              currentRule.status ? (
+              <SnowFall
+                snowflakeCount={50}
+                minSpeed={0.5}
+                maxSpeed={2}
+                minSize={5}
+                maxSize={12}
+                snowflakeColor="#ededed"
+                className=""
               />
             ) : (
               <Particles
