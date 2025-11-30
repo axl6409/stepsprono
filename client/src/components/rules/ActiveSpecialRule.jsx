@@ -4,6 +4,7 @@ import { useCookies } from 'react-cookie';
 import HuntDay from "./HuntDay.jsx";
 import HiddenPredictions from "./HiddenPredictions.jsx";
 import AllianceDay from "./AllianceDay.jsx";
+import HalfPenaltyDay from "./HalfPenaltyDay.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -47,6 +48,14 @@ const ActiveSpecialRule = ({currentRule, user, viewedUser, isOwnProfile}) => {
           />
         );
       case "half_penalty_day":
+        return (
+          <HalfPenaltyDay
+            rule={currentRule}
+            user={user}
+            viewedUser={viewedUser}
+            isOwnProfile={isOwnProfile}
+          />
+        );
       case "goal_day":
       case "high_penalty_day":
       case "massacre_day":

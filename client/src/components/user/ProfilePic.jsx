@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef, useContext} from 'react';
 import defaultUserImage from "../../assets/components/user/default-user-profile.png";
 import defaultTeamImage from "../../assets/components/icons/hidden-trophy.webp";
 import chasedUserImage from "../../assets/components/rules/jour-de-chasse-icon.png";
+import halfPenaltyDayImage from "../../assets/components/rules/half-penalty-day.png";
 import {RuleContext} from "../../contexts/RuleContext.jsx";
 import SimpleTitle from "../partials/SimpleTitle.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
@@ -76,6 +77,16 @@ const ProfilePic = ({ user }) => {
           <img
             className="h-full w-full object-contain"
             src={chasedUserImage}
+            alt=""
+          />
+        </div>
+      )}
+      {/* Si l’utilisateur est la cible */}
+      {currentRule?.rule_key === "half_penalty_day" && (
+        <div className="absolute rotate-[-13deg] -left-12 -top-8 rounded-full z-20">
+          <img
+            className="h-full w-[145px] object-contain"
+            src={halfPenaltyDayImage}
             alt=""
           />
         </div>
