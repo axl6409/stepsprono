@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useCallback, useContext} from "react";
+import React, {useEffect, useState, useRef, useCallback, useContext, useMemo} from "react";
 import {Swiper, SwiperSlide, useSwiper} from "swiper/react";
 import "swiper/css";
 import 'swiper/css/effect-cube';
@@ -15,6 +15,7 @@ import checkedIcon from "../../assets/icons/checked-green.svg";
 import AlertModal from "../modals/AlertModal.jsx";
 import useUserData from "../../hooks/useUserData.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
+import {RuleContext} from "../../contexts/RuleContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const Week = ({token, user}) => {
@@ -26,6 +27,7 @@ const Week = ({token, user}) => {
     hasMultiplePeriods,
     clock,
   } = useContext(AppContext);
+  const { currentRule } = useContext(RuleContext);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(null);
   const swiperRef = useRef(null);
@@ -37,10 +39,87 @@ const Week = ({token, user}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mysteryBoxItem, setMysteryBoxItem] = useState(null);
+  const [communismeInfo, setCommunismeInfo] = useState(null);
   const swiperInstance = swiperRef.current?.swiper
 
   // IMPORTANT: Utiliser clock.now du backend pour supporter la simulation de dates
   const now = clock?.now || moment();
+
+  // Récupérer l'item Mystery Box si la règle est active
+  useEffect(() => {
+    const fetchMysteryBoxItem = async () => {
+      if (currentRule?.rule_key !== 'mystery_box' || !currentRule?.status) {
+        setMysteryBoxItem(null);
+        setCommunismeInfo(null);
+        return;
+      }
+      try {
+        const response = await axios.get(`${apiUrl}/api/mystery-box/user/${user.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.status === 200 && response.data) {
+          setMysteryBoxItem(response.data);
+        }
+      } catch (error) {
+        console.error('Erreur récupération item Mystery Box:', error);
+      }
+    };
+
+    const fetchCommunismeInfo = async () => {
+      if (currentRule?.rule_key !== 'mystery_box' || !currentRule?.status) {
+        setCommunismeInfo(null);
+        return;
+      }
+      try {
+        const response = await axios.get(`${apiUrl}/api/mystery-box/communisme/info`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.status === 200 && response.data) {
+          setCommunismeInfo(response.data);
+        }
+      } catch (error) {
+        if (error.response?.status !== 204) {
+          console.error('Erreur récupération info Communisme:', error);
+        }
+        setCommunismeInfo(null);
+      }
+    };
+
+    fetchMysteryBoxItem();
+    fetchCommunismeInfo();
+  }, [currentRule, user.id, token]);
+
+  // Filtrer les matchs selon Communisme
+  const displayMatches = useMemo(() => {
+    if (!communismeInfo?.isActive) {
+      return matchs;
+    }
+
+    // Séparer le match bonus des matchs normaux
+    const bonusMatch = matchs.find(m => m.require_details);
+    const normalMatches = matchs.filter(m => !m.require_details);
+
+    // Trier les matchs normaux par date
+    const sortedNormalMatches = [...normalMatches].sort((a, b) =>
+      moment(a.utc_date).diff(moment(b.utc_date))
+    );
+
+    // User A: matchs 1-4 (indices 0-3), User B: matchs 5-8 (indices 4-7)
+    let userMatches;
+    if (communismeInfo.isUserA) {
+      userMatches = sortedNormalMatches.slice(0, 4);
+    } else {
+      userMatches = sortedNormalMatches.slice(4, 8);
+    }
+
+    // Ajouter le match bonus à la fin
+    if (bonusMatch) {
+      userMatches.push(bonusMatch);
+    }
+
+    return userMatches;
+  }, [matchs, communismeInfo]);
 
   useEffect(() => {
     const fetchBets = async (sortedMatchs) => {
@@ -84,12 +163,12 @@ const Week = ({token, user}) => {
         swiperInstance.off('slideChange', updateActiveIndex)
       }
     }
-  }, [matchs, swiperRef.current])
+  }, [matchs, displayMatches, swiperRef.current])
 
   useEffect(() => {
     const { disabled, text, icon } = buttonState();
     setButtonDisabled(disabled);
-  }, [activeIndex, bets, matchs, clock, activePeriod, hasMultiplePeriods]);
+  }, [activeIndex, bets, matchs, displayMatches, clock, activePeriod, hasMultiplePeriods, communismeInfo]);
 
   // Calculer la deadline pour un matchday spécifique
   // Deadline = 12h00 le jour du premier match de ce matchday (en heure locale)
@@ -141,7 +220,7 @@ const Week = ({token, user}) => {
   const handleGlobalSubmit = async () => {
     const currentIndex = swiperRef.current?.swiper.activeIndex;
     if (currentIndex !== undefined) {
-      const currentMatch = matchs[currentIndex];
+      const currentMatch = displayMatches[currentIndex];
       const currentFormComponent = formRefs.current[currentIndex];
       if (currentFormComponent && currentMatch && (isMatchEditable(currentMatch) || !isBetPlaced(currentMatch.id))) {
         try {
@@ -177,7 +256,7 @@ const Week = ({token, user}) => {
     if (!swiperRef.current || !swiperRef.current.swiper) return { disabled: true, text: 'Loading...' };
 
     const activeIndex = swiperRef.current.swiper.activeIndex;
-    const currentMatch = matchs[activeIndex];
+    const currentMatch = displayMatches[activeIndex];
     if (!currentMatch) return { disabled: true, text: 'Invalid Match' };
 
     // Utiliser canSubmitBet qui calcule la deadline spécifique au matchday
@@ -249,29 +328,42 @@ const Week = ({token, user}) => {
           modules={[EffectCards, Pagination, Navigation]}
           className="mySwiper relative flex flex-col justify-start"
         >
-          {matchs.length > 0 && matchs.map((match, index) => {
+          {displayMatches.length > 0 && displayMatches.map((match, index) => {
             if (!match.HomeTeam || !match.AwayTeam) {
               return null;
             }
 
             const matchDate = moment(match.utc_date)
             const enableSubmit = canSubmitBet(match);
+            const isBonusMatch = match.require_details;
 
             return (
               <SwiperSlide
                 className="flex flex-row flex-wrap relative h-auto m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
                 key={match.id} data-match-id={match.id}>
+                {/* Indicateur Communisme sur match bonus */}
+                {communismeInfo?.isActive && isBonusMatch && (
+                  <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-rose-100 border border-rose-400 rounded-full px-2 py-1">
+                    <span className="text-sm">🤝</span>
+                    <span className="text-xs font-roboto text-rose-700">
+                      Partagé avec {communismeInfo.partner?.username}
+                    </span>
+                  </div>
+                )}
                 <Pronostic
                   ref={(el) => (formRefs.current[index] = el)}
                   match={match}
                   utcDate={matchDate}
                   userId={user.id}
+                  userTeamId={user.team_id}
                   lastMatch={lastMatch}
                   token={token}
                   betDetails={bets[match.id]}
                   handleSuccess={handleSuccess}
                   handleError={handleError}
                   disabled={!enableSubmit}
+                  mysteryBoxItem={mysteryBoxItem}
+                  communismeInfo={communismeInfo}
                   refreshBets={refreshBets} />
               </SwiperSlide>
             );

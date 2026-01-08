@@ -6,6 +6,7 @@ const {Op} = require("sequelize");
 const {getCurrentMonthMatchdays, getCurrentMatchday} = require("./matchdayService");
 const {getPeriodMatchdays} = require("./logic/matchLogic");
 const moment = require("moment");
+const {getAllMysteryBoxSelections} = require("./mysteryBoxService");
 
 const getRawRanking = async (seasonId, period, matchday = null, month = null) => {
   try {
@@ -206,6 +207,42 @@ const getRanking = async (seasonId, period, matchday = null, month = null) => {
           }
         }
       }
+    }
+
+    // Appliquer les pénalités balle_perdue de Mystery Box
+    try {
+      const mysteryBoxSelections = await getAllMysteryBoxSelections();
+      const ballePerduPenalties = [];
+
+      for (const selection of mysteryBoxSelections) {
+        if (
+          selection.item?.key === 'balle_perdue' &&
+          selection.usage?.used &&
+          selection.usage?.data?.target_user_id
+        ) {
+          const targetUserId = selection.usage.data.target_user_id;
+          const target = sortedRanking.find((u) => u.user_id === targetUserId);
+          if (target) {
+            target.points -= 1;
+            ballePerduPenalties.push({
+              shooter_id: selection.user?.id,
+              shooter_username: selection.user?.username,
+              target_id: targetUserId,
+              target_username: target.username,
+              penalty: -1
+            });
+          }
+        }
+      }
+
+      if (ballePerduPenalties.length > 0) {
+        appliedRules.push({
+          type: "balle_perdue",
+          penalties: ballePerduPenalties
+        });
+      }
+    } catch (mbError) {
+      logger.warn('[getRanking] Could not apply balle_perdue penalties:', mbError.message);
     }
 
     // Resort après application des règles

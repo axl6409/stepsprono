@@ -208,6 +208,23 @@ const configSpecialRule = async (ruleId, payload) => {
           img: u.img || null
         }))
       );
+    } else if (payload.config?.selection) {
+      // Mystery Box: stocker les attributions user/item
+      newConfig.selection = payload.config.selection.map(s => ({
+        user: {
+          id: s.user.id,
+          username: s.user.username,
+          img: s.user.img || null
+        },
+        item: {
+          key: s.item.key,
+          type: s.item.type,
+          label: s.item.label,
+          max_count: s.item.max_count,
+          data: s.item.data || null,
+          isPartner: s.item.isPartner || false
+        }
+      }));
     }
 
     rule.config = newConfig;
