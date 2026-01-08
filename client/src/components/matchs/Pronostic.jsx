@@ -11,6 +11,7 @@ const Pronostic = forwardRef(
       match,
       utcDate,
       userId,
+      userTeamId,
       lastMatch,
       token,
       disabled,
@@ -18,6 +19,8 @@ const Pronostic = forwardRef(
       refreshBets,
       handleSuccess,
       handleError,
+      mysteryBoxItem,
+      communismeInfo,
     },
     ref
   ) => {
@@ -32,7 +35,9 @@ const Pronostic = forwardRef(
     const [homeScore, setHomeScore] = useState("");
     const [awayScore, setAwayScore] = useState("");
     const [scorer, setScorer] = useState("");
+    const [scorer2, setScorer2] = useState("");
     const [players, setPlayers] = useState([]);
+    const [partnerBet, setPartnerBet] = useState(null);
     const colors = ["#6666FF", "#CC99FF", "#00CC99", "#F7B009", "#F41731"];
     const [homeTeamColor, setHomeTeamColor] = useState("");
     const [awayTeamColor, setAwayTeamColor] = useState("");
@@ -56,7 +61,20 @@ const Pronostic = forwardRef(
             ? betDetails.away_score.toString()
             : ""
         );
-        setScorer(betDetails.player_goal || "");
+        // Gérer le double_buteur (format "id1,id2")
+        const playerGoal = betDetails.player_goal || "";
+        if (playerGoal.includes(',')) {
+          const [s1, s2] = playerGoal.split(',');
+          setScorer(s1);
+          setScorer2(s2);
+          setValue("scorer", s1);
+          setValue("scorer2", s2);
+        } else {
+          setScorer(playerGoal);
+          setScorer2("");
+          setValue("scorer", playerGoal);
+          setValue("scorer2", "");
+        }
         setValue(
           "homeScore",
           betDetails.home_score !== null && betDetails.home_score !== undefined
@@ -69,13 +87,13 @@ const Pronostic = forwardRef(
             ? betDetails.away_score.toString()
             : ""
         );
-        setValue("scorer", betDetails.player_goal || "");
       } else {
         reset();
         setSelectedTeam(null);
         setHomeScore("");
         setAwayScore("");
         setScorer("");
+        setScorer2("");
       }
     }, [betDetails, setValue, reset]);
 
@@ -111,7 +129,48 @@ const Pronostic = forwardRef(
       setAwayTeamColor(getRandomColor(initialHomeColor));
     }, []);
 
-    // Mise à jour automatique de l’équipe gagnante en fonction des scores
+    // Récupérer le pari du partenaire Communisme sur le match bonus
+    useEffect(() => {
+      const fetchPartnerBet = async () => {
+        if (!communismeInfo?.isActive || !match?.require_details) {
+          setPartnerBet(null);
+          return;
+        }
+        try {
+          const response = await axios.get(
+            `${apiUrl}/api/mystery-box/communisme/partner-bet/${match.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (response.status === 200 && response.data) {
+            setPartnerBet(response.data);
+          }
+        } catch (error) {
+          if (error.response?.status !== 204) {
+            console.error('Erreur récupération pari partenaire:', error);
+          }
+          setPartnerBet(null);
+        }
+      };
+      fetchPartnerBet();
+    }, [communismeInfo, match?.id, match?.require_details, token]);
+
+    // Vérifier si l'utilisateur a le malus "mal_au_coeur"
+    const hasMalAuCoeur = mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used;
+
+    // Identifier si le match contient l'équipe de cœur et quelle position
+    const isHomeTeamHeartTeam = userTeamId && match?.HomeTeam?.id === userTeamId;
+    const isAwayTeamHeartTeam = userTeamId && match?.AwayTeam?.id === userTeamId;
+    const matchHasHeartTeam = isHomeTeamHeartTeam || isAwayTeamHeartTeam;
+
+    // Vérifier si l'utilisateur a le bonus "double_dose" sur ce match
+    const hasDoubleDose = mysteryBoxItem?.item?.key === 'double_dose' &&
+                          mysteryBoxItem?.usage?.used &&
+                          mysteryBoxItem?.usage?.data?.match_id === match?.id;
+
+    // Vérifier si l'utilisateur a le bonus "double_buteur" (sur match bonus uniquement)
+    const hasDoubleButeur = mysteryBoxItem?.item?.key === 'double_buteur';
+
+    // Mise à jour automatique de l'équipe gagnante en fonction des scores
     useEffect(() => {
       if (match && match.require_details && homeScore !== "" && awayScore !== "") {
         const home = parseInt(homeScore, 10);
@@ -200,7 +259,12 @@ const Pronostic = forwardRef(
           handleError("Le buteur est obligatoire");
           return;
         }
-        payload.scorer = data.scorer ? data.scorer : null;
+        // Double buteur: envoyer les deux buteurs au format "id1,id2"
+        if (hasDoubleButeur && data.scorer && data.scorer2) {
+          payload.scorer = `${data.scorer},${data.scorer2}`;
+        } else {
+          payload.scorer = data.scorer ? data.scorer : null;
+        }
       } else {
         // Si require_details est désactivé, on enregistre uniquement l’équipe gagnante
         payload.winnerId = selectedTeam;
@@ -302,67 +366,192 @@ const Pronostic = forwardRef(
                   </p>
                 </div>
                 <div className="flex flex-row justify-evenly items-center mb-4">
-                  <label
-                    translate="no"
-                    className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
-                      selectedTeam === match.HomeTeam.id ? "checked" : ""
-                    }`}
-                    style={{ "--team-color": homeTeamColor }}
-                  >
-                    <input
-                      translate="no"
-                      type="radio"
-                      value={match.HomeTeam.id}
-                      className="hidden"
-                      {...register("team")}
-                      onChange={() => setSelectedTeam(match.HomeTeam.id)}
-                    />
-                    <div className="border border-black rounded-lg z-[2] bg-white py-2.5 px-1 transition-all duration-300">
-                      <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
-                        {match.HomeTeam.name}
-                      </p>
-                    </div>
-                  </label>
-                  <label
-                    className={`label-element w-1/5 flex flex-col justify-center relative px-2 cursor-pointer ${
-                      selectedTeam === null ? "checked" : ""
-                    }`}
-                  >
-                    <input
-                      translate="no"
-                      type="radio"
-                      value=""
-                      className="hidden"
-                      {...register("team")}
-                      onChange={() => setSelectedTeam(null)}
-                    />
-                    <div className="py-1.5 h-[45px] w-[45px] mx-auto rounded-full bg-white border border-black transition-all duration-300">
-                      <p translate="no" className="font-roboto text-center leading-8 font-medium text-sm">
-                        nul
-                      </p>
-                    </div>
-                  </label>
-                  <label
-                    className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
-                      selectedTeam === match.AwayTeam.id ? "checked" : ""
-                    }`}
-                    style={{ "--team-color": awayTeamColor }}
-                  >
-                    <input
-                      translate="no"
-                      type="radio"
-                      value={match.AwayTeam.id}
-                      className="hidden"
-                      {...register("team")}
-                      onChange={() => setSelectedTeam(match.AwayTeam.id)}
-                    />
-                    <div className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-1 px-auto transition-all duration-300 ease-in-out">
-                      <p translate="no" className="font-roboto text-center no-correct leading-4 font-bold text-xs">
-                        {match.AwayTeam.name}
-                      </p>
-                    </div>
-                  </label>
+                  {/* Mode Double Dose: boutons "Équipe ou Nul" */}
+                  {hasDoubleDose ? (
+                    <>
+                      {/* Bouton Home Team ou Nul */}
+                      <label
+                        translate="no"
+                        className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
+                          selectedTeam === match.HomeTeam.id ? "checked" : ""
+                        }`}
+                        style={{ "--team-color": homeTeamColor }}
+                      >
+                        <input
+                          translate="no"
+                          type="radio"
+                          value={match.HomeTeam.id}
+                          className="hidden"
+                          {...register("team")}
+                          onChange={() => setSelectedTeam(match.HomeTeam.id)}
+                        />
+                        <div className="border-2 border-cyan-500 rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
+                          <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
+                            {match.HomeTeam.name}
+                          </p>
+                          <p className="font-roboto text-center text-[10px] text-cyan-600 mt-1">ou Nul</p>
+                        </div>
+                      </label>
+                      {/* Indicateur Double Dose */}
+                      <div className="w-1/5 flex flex-col justify-center items-center">
+                        <span className="text-2xl">🎯</span>
+                        <p className="font-roboto text-[10px] text-cyan-600 text-center">Double Dose</p>
+                      </div>
+                      {/* Bouton Away Team ou Nul */}
+                      <label
+                        translate="no"
+                        className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
+                          selectedTeam === match.AwayTeam.id ? "checked" : ""
+                        }`}
+                        style={{ "--team-color": awayTeamColor }}
+                      >
+                        <input
+                          translate="no"
+                          type="radio"
+                          value={match.AwayTeam.id}
+                          className="hidden"
+                          {...register("team")}
+                          onChange={() => setSelectedTeam(match.AwayTeam.id)}
+                        />
+                        <div className="border-2 border-cyan-500 rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
+                          <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
+                            {match.AwayTeam.name}
+                          </p>
+                          <p className="font-roboto text-center text-[10px] text-cyan-600 mt-1">ou Nul</p>
+                        </div>
+                      </label>
+                    </>
+                  ) : (
+                    <>
+                      {/* Mode normal: boutons standards */}
+                      {/* Bouton équipe domicile */}
+                      {hasMalAuCoeur && isHomeTeamHeartTeam ? (
+                        <div
+                          className="label-element w-2/5 flex flex-col justify-center relative px-2 cursor-not-allowed opacity-50"
+                          title="Mal au cœur : tu ne peux pas miser la victoire de ton équipe"
+                        >
+                          <div className="border border-gray-400 rounded-lg z-[2] bg-gray-200 py-2.5 px-1">
+                            <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs text-gray-500">
+                              {match.HomeTeam.name}
+                            </p>
+                            <p className="text-xs text-red-500 mt-1">💔</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <label
+                          translate="no"
+                          className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
+                            selectedTeam === match.HomeTeam.id ? "checked" : ""
+                          }`}
+                          style={{ "--team-color": homeTeamColor }}
+                        >
+                          <input
+                            translate="no"
+                            type="radio"
+                            value={match.HomeTeam.id}
+                            className="hidden"
+                            {...register("team")}
+                            onChange={() => setSelectedTeam(match.HomeTeam.id)}
+                          />
+                          <div className="border border-black rounded-lg z-[2] bg-white py-2.5 px-1 transition-all duration-300">
+                            <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
+                              {match.HomeTeam.name}
+                            </p>
+                          </div>
+                        </label>
+                      )}
+                      <label
+                        className={`label-element w-1/5 flex flex-col justify-center relative px-2 cursor-pointer ${
+                          selectedTeam === null ? "checked" : ""
+                        }`}
+                      >
+                        <input
+                          translate="no"
+                          type="radio"
+                          value=""
+                          className="hidden"
+                          {...register("team")}
+                          onChange={() => setSelectedTeam(null)}
+                        />
+                        <div className="py-1.5 h-[45px] w-[45px] mx-auto rounded-full bg-white border border-black transition-all duration-300">
+                          <p translate="no" className="font-roboto text-center leading-8 font-medium text-sm">
+                            nul
+                          </p>
+                        </div>
+                      </label>
+                      {/* Bouton équipe extérieure */}
+                      {hasMalAuCoeur && isAwayTeamHeartTeam ? (
+                        <div
+                          className="label-element w-2/5 flex flex-col justify-center relative px-2 cursor-not-allowed opacity-50"
+                          title="Mal au cœur : tu ne peux pas miser la victoire de ton équipe"
+                        >
+                          <div className="border border-gray-400 rounded-lg z-[2] bg-gray-200 py-2.5 px-1">
+                            <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs text-gray-500">
+                              {match.AwayTeam.name}
+                            </p>
+                            <p className="text-xs text-red-500 mt-1">💔</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <label
+                          className={`label-element w-2/5 flex flex-col justify-center relative px-2 cursor-pointer ${
+                            selectedTeam === match.AwayTeam.id ? "checked" : ""
+                          }`}
+                          style={{ "--team-color": awayTeamColor }}
+                        >
+                          <input
+                            translate="no"
+                            type="radio"
+                            value={match.AwayTeam.id}
+                            className="hidden"
+                            {...register("team")}
+                            onChange={() => setSelectedTeam(match.AwayTeam.id)}
+                          />
+                          <div className="border border-black relative rounded-lg z-[2] bg-white h-full py-2.5 px-1 px-auto transition-all duration-300 ease-in-out">
+                            <p translate="no" className="font-roboto text-center no-correct leading-4 font-bold text-xs">
+                              {match.AwayTeam.name}
+                            </p>
+                          </div>
+                        </label>
+                      )}
+                    </>
+                  )}
                 </div>
+
+                {/* Affichage du pari du partenaire Communisme */}
+                {partnerBet && communismeInfo?.isActive && match?.require_details && (
+                  <div className="mx-4 mb-3 p-3 bg-rose-50 border border-rose-300 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm">🤝</span>
+                      <p className="font-roboto text-xs font-bold text-rose-700">
+                        Prono de {partnerBet.partner?.username}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-roboto text-rose-600">Résultat :</span>
+                        <span className="font-bold text-rose-800">
+                          {partnerBet.winner_id === match.HomeTeam.id
+                            ? match.HomeTeam.name
+                            : partnerBet.winner_id === match.AwayTeam.id
+                            ? match.AwayTeam.name
+                            : partnerBet.winner_id === null
+                            ? 'Nul'
+                            : '-'}
+                        </span>
+                      </div>
+                      {partnerBet.home_score !== null && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-roboto text-rose-600">Score :</span>
+                          <span className="font-bold text-rose-800">
+                            {partnerBet.home_score} - {partnerBet.away_score}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {(match.require_details || match.id === lastMatch.id) && (
                   <div className="flex flex-row justify-between items-center">
                     <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
@@ -397,26 +586,55 @@ const Pronostic = forwardRef(
                       </label>
                     </div>
                     {eligiblePlayers.length > 0 && (
-                      <div className="flex flex-row justify-evenly my-2 w-1/2">
-                        <label className="flex no-correct flex-col w-11/12 ml-auto text-center">
-                          <select
-                            translate="no"
-                            className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
-                            value={scorer}
-                            {...register("scorer")}
-                            onChange={(e) => {
-                              setScorer(e.target.value);
-                              setValue("scorer", e.target.value);
-                            }}
-                          >
-                            <option value="" className="no-correct">Aucun buteur</option>
-                            {eligiblePlayers.map((player, index) => (
-                              <option key={`${player.player_id}-${index}`} value={player.player_id} className="no-correct">
-                                {cleanPlayerName(decodeHtml(player.Player.name))}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                      <div className={`flex flex-col my-2 ${hasDoubleButeur ? 'w-full' : 'w-1/2'}`}>
+                        {hasDoubleButeur && (
+                          <div className="flex items-center justify-center gap-1 mb-2">
+                            <span className="text-lg">⚽⚽</span>
+                            <p className="font-roboto text-xs text-green-600 font-medium">Double Buteur</p>
+                          </div>
+                        )}
+                        <div className={`flex ${hasDoubleButeur ? 'flex-row gap-2 px-2' : 'flex-row justify-evenly'}`}>
+                          <label className={`flex no-correct flex-col text-center ${hasDoubleButeur ? 'flex-1' : 'w-11/12 ml-auto'}`}>
+                            <select
+                              translate="no"
+                              className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
+                              value={scorer}
+                              {...register("scorer")}
+                              onChange={(e) => {
+                                setScorer(e.target.value);
+                                setValue("scorer", e.target.value);
+                              }}
+                            >
+                              <option value="" className="no-correct">{hasDoubleButeur ? 'Buteur 1' : 'Aucun buteur'}</option>
+                              {eligiblePlayers.map((player, index) => (
+                                <option key={`${player.player_id}-${index}`} value={player.player_id} className="no-correct">
+                                  {cleanPlayerName(decodeHtml(player.Player.name))}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          {hasDoubleButeur && (
+                            <label className="flex no-correct flex-col flex-1 text-center">
+                              <select
+                                translate="no"
+                                className="border border-green-500 rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center bg-green-50"
+                                value={scorer2}
+                                {...register("scorer2")}
+                                onChange={(e) => {
+                                  setScorer2(e.target.value);
+                                  setValue("scorer2", e.target.value);
+                                }}
+                              >
+                                <option value="" className="no-correct">Buteur 2</option>
+                                {eligiblePlayers.map((player, index) => (
+                                  <option key={`scorer2-${player.player_id}-${index}`} value={player.player_id} className="no-correct">
+                                    {cleanPlayerName(decodeHtml(player.Player.name))}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -435,6 +653,7 @@ Pronostic.propTypes = {
   match: PropTypes.object.isRequired,
   utcDate: PropTypes.object.isRequired,
   userId: PropTypes.number.isRequired,
+  userTeamId: PropTypes.number,
   lastMatch: PropTypes.object,
   token: PropTypes.string.isRequired,
   disabled: PropTypes.bool,
@@ -442,6 +661,8 @@ Pronostic.propTypes = {
   refreshBets: PropTypes.func.isRequired,
   handleSuccess: PropTypes.func.isRequired,
   handleError: PropTypes.func.isRequired,
+  mysteryBoxItem: PropTypes.object,
+  communismeInfo: PropTypes.object,
 };
 
 export default Pronostic;

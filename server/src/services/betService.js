@@ -11,6 +11,7 @@ const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 const {applySpecialRulePoints} = require("./logic/ruleLogic");
+const { getUserMysteryBoxItem } = require("./mysteryBoxService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -328,6 +329,16 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
     if (existingBet) {
       throw new Error('Un prono existe déjà pour ce match');
     }
+
+    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur
+    const mysteryBoxItem = await getUserMysteryBoxItem(userId);
+    if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
+      const user = await User.findByPk(userId);
+      if (user?.team_id && winnerId === user.team_id) {
+        throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+      }
+    }
+
     if (winnerId === null) {
       if (homeScore !== awayScore) {
         throw new Error('Le score n\'est pas valide, un match nul doit avoir un score identique pour les deux équipes');
@@ -388,6 +399,16 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       logger.error('Pronostic non trouvé');
       throw new Error('Pronostic non trouvé');
     }
+
+    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur
+    const mysteryBoxItem = await getUserMysteryBoxItem(userId);
+    if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
+      const user = await User.findByPk(userId);
+      if (user?.team_id && winnerId === user.team_id) {
+        throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+      }
+    }
+
     const updatedFields = {};
     if (winnerId !== undefined) updatedFields.winner_id = winnerId;
     if (homeScore !== undefined) updatedFields.home_score = homeScore;
@@ -760,6 +781,27 @@ const getClosestPastMatchday = async (seasonId) => {
   }
 };
 
+/**
+ * Récupère un pari par match et utilisateur
+ * @param {number} matchId - ID du match
+ * @param {number} userId - ID de l'utilisateur
+ * @returns {Object|null} - Pari ou null
+ */
+const getBetByMatchAndUser = async (matchId, userId) => {
+  try {
+    const bet = await Bet.findOne({
+      where: {
+        match_id: matchId,
+        user_id: userId
+      }
+    });
+    return bet;
+  } catch (error) {
+    logger.error('[getBetByMatchAndUser] Error:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   checkupBets,
   getNullBets,
@@ -775,5 +817,6 @@ module.exports = {
   getAllLastBets,
   getMatchdayRanking,
   updateAllBetsForCurrentSeason,
-  scheduleWeeklyRankingUpdate
+  scheduleWeeklyRankingUpdate,
+  getBetByMatchAndUser
 };
