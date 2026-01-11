@@ -11,7 +11,7 @@ const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 const {applySpecialRulePoints} = require("./logic/ruleLogic");
-const { getUserMysteryBoxItem, saveDoubleButeurChoice } = require("./mysteryBoxService");
+const { getUserMysteryBoxItem, saveDoubleButeurChoice, getCommunismeInfo } = require("./mysteryBoxService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -136,10 +136,23 @@ const getCurrentMatchdayPoints = async (userId, matchday) => {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
 
+    // Récupérer les user_ids à inclure (utilisateur + partenaire communisme si applicable)
+    const userIds = [userId];
+    try {
+      const communismeInfo = await getCommunismeInfo(userId);
+      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+        userIds.push(communismeInfo.partnerId);
+      }
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
-        user_id: userId,
+        user_id: {
+          [Op.in]: userIds
+        },
         matchday: matchday,
         points: {
           [Op.not]: null
@@ -174,10 +187,23 @@ const getWeekPoints = async (userId) => {
     const seasonId = await getCurrentSeasonId(competitionId);
     const matchdays = await getCurrentWeekMatchdays();
 
+    // Récupérer les user_ids à inclure (utilisateur + partenaire communisme si applicable)
+    const userIds = [userId];
+    try {
+      const communismeInfo = await getCommunismeInfo(userId);
+      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+        userIds.push(communismeInfo.partnerId);
+      }
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
-        user_id: userId,
+        user_id: {
+          [Op.in]: userIds
+        },
         matchday: {
           [Op.in]: matchdays
         }
@@ -240,10 +266,23 @@ const getMonthPoints = async (userId) => {
       matchdays = matchdays.filter(md => !excludedMatchdays.has(md));
     }
 
+    // Récupérer les user_ids à inclure (utilisateur + partenaire communisme si applicable)
+    const userIds = [userId];
+    try {
+      const communismeInfo = await getCommunismeInfo(userId);
+      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+        userIds.push(communismeInfo.partnerId);
+      }
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
-        user_id: userId,
+        user_id: {
+          [Op.in]: userIds
+        },
         matchday: {
           [Op.in]: matchdays
         },
@@ -277,10 +316,24 @@ const getSeasonPoints = async (userId) => {
   try {
     const competitionId = await getCurrentCompetitionId();
     const seasonId = await getCurrentSeasonId(competitionId);
+
+    // Récupérer les user_ids à inclure (utilisateur + partenaire communisme si applicable)
+    const userIds = [userId];
+    try {
+      const communismeInfo = await getCommunismeInfo(userId);
+      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+        userIds.push(communismeInfo.partnerId);
+      }
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
+
     const bets = await Bet.findAll({
       where: {
         season_id: seasonId,
-        user_id: userId,
+        user_id: {
+          [Op.in]: userIds
+        },
         points: {
           [Op.not]: null
         }

@@ -37,7 +37,6 @@ const Pronostic = forwardRef(
     const [scorer, setScorer] = useState("");
     const [scorer2, setScorer2] = useState("");
     const [players, setPlayers] = useState([]);
-    const [partnerBet, setPartnerBet] = useState(null);
     const colors = ["#6666FF", "#CC99FF", "#00CC99", "#F7B009", "#F41731"];
     const [homeTeamColor, setHomeTeamColor] = useState("");
     const [awayTeamColor, setAwayTeamColor] = useState("");
@@ -130,31 +129,6 @@ const Pronostic = forwardRef(
       setHomeTeamColor(initialHomeColor);
       setAwayTeamColor(getRandomColor(initialHomeColor));
     }, []);
-
-    // Récupérer le pari du partenaire Communisme sur le match bonus
-    useEffect(() => {
-      const fetchPartnerBet = async () => {
-        if (!communismeInfo?.isActive || !match?.require_details) {
-          setPartnerBet(null);
-          return;
-        }
-        try {
-          const response = await axios.get(
-            `${apiUrl}/api/mystery-box/communisme/partner-bet/${match.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          if (response.status === 200 && response.data) {
-            setPartnerBet(response.data);
-          }
-        } catch (error) {
-          if (error.response?.status !== 204) {
-            console.error('Erreur récupération pari partenaire:', error);
-          }
-          setPartnerBet(null);
-        }
-      };
-      fetchPartnerBet();
-    }, [communismeInfo, match?.id, match?.require_details, token]);
 
     // Vérifier si l'utilisateur a le malus "mal_au_coeur"
     const hasMalAuCoeur = mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used;
@@ -308,9 +282,25 @@ const Pronostic = forwardRef(
       return name;
     };
 
+    // Vérifier si c'est un prono pré-rempli du partenaire
+    const isPartnerPrefill = betDetails?.isPartnerBetPrefill;
+
     return (
       <div className="modal z-[40] p-1.5 bg-white w-full">
         <div className="modal-content my-auto block w-full mx-auto bg-white">
+          {isPartnerPrefill && communismeInfo?.isActive && (
+            <div className="mx-2 mb-2 p-2 bg-purple-50 border border-purple-300 rounded-lg">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-sm">🤝✨</span>
+                <p className="font-roboto text-center text-xs font-bold text-purple-700">
+                  Prono partagé avec {communismeInfo.partner?.username}
+                </p>
+              </div>
+              <p className="font-roboto text-center text-xxs text-purple-600 mt-1">
+                Modifiez ou validez le prono ci-dessous
+              </p>
+            </div>
+          )}
           <div className="pt-1.5 pb-3 mx-auto w-full">
             {match && (
               <form
@@ -518,48 +508,6 @@ const Pronostic = forwardRef(
                     </>
                   )}
                 </div>
-
-                {/* Affichage du pari du partenaire Communisme */}
-                {partnerBet && communismeInfo?.isActive && match?.require_details && (
-                  <div className="mx-2 mb-1 p-2 bg-rose-50 border border-rose-300 rounded-lg">
-                    <div className="flex items-center justify-center w-full">
-                      <span className="text-sm">🤝</span>
-                      <p className="font-roboto text-center text-xs font-bold text-rose-700">
-                        Prono de {partnerBet.partner?.username}
-                      </p>
-                    </div>
-                    <div className="flex flex-row flex-wrap justify-between items-center text-sm">
-                      <div className="flex flex-col items-center">
-                        <span className="font-roboto text-xxs text-rose-600">Résultat</span>
-                        <span className="font-bold text-xxs text-rose-800">
-                          {partnerBet.winner_id === match.HomeTeam.id
-                            ? match.HomeTeam.name
-                            : partnerBet.winner_id === match.AwayTeam.id
-                            ? match.AwayTeam.name
-                            : partnerBet.winner_id === null
-                            ? 'Nul'
-                            : '-'}
-                        </span>
-                      </div>
-                      {partnerBet.home_score !== null && (
-                        <div className="flex flex-col items-center">
-                          <span className="font-roboto text-xxs text-rose-600">Score</span>
-                          <span className="font-bold text-xxs text-rose-800">
-                            {partnerBet.home_score} - {partnerBet.away_score}
-                          </span>
-                        </div>
-                      )}
-                      {partnerBet.player_goal_name && (
-                        <div className="flex flex-col items-center w-full">
-                          <span className="font-roboto text-xxs text-rose-600">Buteur</span>
-                          <span className="font-bold text-xxs text-rose-800">
-                            {partnerBet.player_goal_name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
                 {(match.require_details || match.id === lastMatch.id) && (
                   <div className="flex flex-row justify-between items-center">

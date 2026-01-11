@@ -133,7 +133,11 @@ const Week = ({token, user}) => {
           }
         });
         const betsByMatchId = response.data.data.reduce((acc, bet) => {
-          acc[bet.match_id] = bet
+          // Privilégier le bet de l'utilisateur (isPartnerBetPrefill !== true)
+          // Ne garder le bet du partenaire que si pas de bet de l'utilisateur
+          if (!acc[bet.match_id] || !bet.isPartnerBetPrefill) {
+            acc[bet.match_id] = bet
+          }
           return acc
         }, {})
 
@@ -294,7 +298,11 @@ const Week = ({token, user}) => {
         }
       });
       const betsByMatchId = response.data.data.reduce((acc, bet) => {
-        acc[bet.match_id] = bet
+        // Privilégier le bet de l'utilisateur (isPartnerBetPrefill !== true)
+        // Ne garder le bet du partenaire que si pas de bet de l'utilisateur
+        if (!acc[bet.match_id] || !bet.isPartnerBetPrefill) {
+          acc[bet.match_id] = bet
+        }
         return acc
       }, {})
       setBets(betsByMatchId)

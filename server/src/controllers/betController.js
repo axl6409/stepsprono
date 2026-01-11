@@ -9,6 +9,7 @@ const {getSeasonRankingEvolution} = require("../services/rankingService");
 const logger = require("../utils/logger/logger");
 const {getCurrentSeasonYear, getCurrentSeasonId} = require("../services/logic/seasonLogic");
 const {getCurrentMatchday} = require("../services/matchdayService");
+const {getCommunismeInfo} = require("../services/mysteryBoxService");
 
 /* PUBLIC - GET */
 router.get('/bets', authenticateJWT, async (req, res) => {
@@ -111,6 +112,7 @@ router.get('/bets/duo-ranking', authenticateJWT, async (req, res) => {
 /* PUBLIC - POST */
 router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   const matchIds = req.body.matchIds;
+  const userId = parseInt(req.params.id, 10);
   let seasonId = req.query.seasonId;
   if (!seasonId) {
     seasonId = await getCurrentSeasonId(61);
@@ -118,13 +120,57 @@ router.post('/bets/user/:id', authenticateJWT, async (req, res) => {
   try {
     const bets = await Bet.findAll({
       where: {
-        user_id: req.params.id,
+        user_id: userId,
         match_id: {
           [Op.in]: matchIds
         },
         ...(seasonId && { season_id: seasonId }),
       },
     });
+
+    // Vérifier si l'utilisateur a le communisme
+    let communismeInfo = null;
+    try {
+      communismeInfo = await getCommunismeInfo(userId);
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
+
+    // Si communisme actif, récupérer les matchs bonus et vérifier les bets du partenaire
+    if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+      // Récupérer les matchs pour identifier les bonus (require_details = true)
+      const matches = await Match.findAll({
+        where: {
+          id: { [Op.in]: matchIds },
+          require_details: true
+        }
+      });
+
+      const bonusMatchIds = matches.map(m => m.id);
+      const userBetMatchIds = bets.map(b => b.match_id);
+
+      // Trouver les matchs bonus où l'utilisateur n'a pas encore de bet
+      const missingBonusMatchIds = bonusMatchIds.filter(id => !userBetMatchIds.includes(id));
+
+      if (missingBonusMatchIds.length > 0) {
+        // Récupérer les bets du partenaire pour ces matchs
+        const partnerBets = await Bet.findAll({
+          where: {
+            user_id: communismeInfo.partnerId,
+            match_id: { [Op.in]: missingBonusMatchIds },
+            ...(seasonId && { season_id: seasonId }),
+          }
+        });
+
+        // Ajouter ces bets avec un flag pour pré-remplir le formulaire
+        partnerBets.forEach(bet => {
+          const betObj = bet.toJSON ? bet.toJSON() : bet;
+          betObj.isPartnerBetPrefill = true;
+          bets.push(betObj);
+        });
+      }
+    }
+
     res.json({
       data: bets,
     });

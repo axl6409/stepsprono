@@ -20,7 +20,7 @@ const {updateLastConnect, getUserStats, findUserByIdWithAssociations, setUsersSt
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 const {blockedUserNotification, unlockedUserNotification, unruledUserNotification} = require("../services/notificationService");
-const {getUserMysteryBoxItem} = require("../services/mysteryBoxService");
+const {getUserMysteryBoxItem, getCommunismeInfo} = require("../services/mysteryBoxService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -58,7 +58,22 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
     if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
     const userId = parseInt(req.params.id, 10);
-    const bets = await getLastBetsByUserId(userId);
+
+    // Récupérer les bets de l'utilisateur
+    let bets = await getLastBetsByUserId(userId);
+
+    // Vérifier si l'utilisateur a le communisme
+    let communismeInfo = null;
+    let partnerBets = [];
+    try {
+      communismeInfo = await getCommunismeInfo(userId);
+      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
+        // Récupérer aussi les bets du partenaire
+        partnerBets = await getLastBetsByUserId(communismeInfo.partnerId);
+      }
+    } catch (e) {
+      // Ignorer les erreurs de communisme
+    }
 
     // Vérifier si l'utilisateur a la double dose et sur quel match
     let doubleDoseMatchId = null;
@@ -80,16 +95,18 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       // Ignorer les erreurs de mystery box
     }
 
-    // Enrichir les bets avec l'info de double dose et double buteur
+    // Enrichir les bets de l'utilisateur
     const enrichedBets = await Promise.all(bets.map(async (bet) => {
       const betObj = bet.toJSON ? bet.toJSON() : bet;
       betObj.isDoubleDose = doubleDoseMatchId && betObj.MatchId?.id === doubleDoseMatchId;
+      betObj.isOwnBet = true;
       // Ajouter le 2ème buteur si double_buteur et match correspond
-      if (doubleButeurData && betObj.MatchId?.id === doubleButeurData.match_id) {
-        betObj.secondScorerId = doubleButeurData.second_scorer_id;
-        // Récupérer le nom du 2ème joueur
-        if (doubleButeurData.second_scorer_id) {
-          const secondPlayer = await Player.findByPk(doubleButeurData.second_scorer_id);
+      if (doubleButeurData?.choices && Array.isArray(doubleButeurData.choices)) {
+        const matchChoice = doubleButeurData.choices.find(c => c.match_id === betObj.MatchId?.id);
+        if (matchChoice && matchChoice.second_scorer_id) {
+          betObj.secondScorerId = matchChoice.second_scorer_id;
+          // Récupérer le nom du 2ème joueur
+          const secondPlayer = await Player.findByPk(matchChoice.second_scorer_id);
           if (secondPlayer) {
             betObj.SecondPlayerGoal = { id: secondPlayer.id, name: secondPlayer.name };
           }
@@ -98,10 +115,58 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       return betObj;
     }));
 
-    if (enrichedBets.length === 0) {
-      res.status(200).json({ bets: enrichedBets, message: 'Aucun pronos pour la semaine en cours' })
+    // Enrichir les bets du partenaire
+    const enrichedPartnerBets = await Promise.all(partnerBets.map(async (bet) => {
+      const betObj = bet.toJSON ? bet.toJSON() : bet;
+      betObj.isOwnBet = false;
+      betObj.isPartnerBet = true;
+      betObj.partnerInfo = communismeInfo?.partner;
+      return betObj;
+    }));
+
+    // Combiner les bets et trier par date de match
+    let allBets = [...enrichedBets, ...enrichedPartnerBets].sort((a, b) =>
+      new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date)
+    );
+
+    // Dédupliquer le match bonus (require_details = true) pour le communisme
+    // Ne garder que le bet le plus récent (celui avec updated_at le plus récent)
+    if (communismeInfo?.isActive) {
+      const bonusMatchIds = new Set();
+      const duplicateBonusMatches = new Map(); // matchId -> [bets]
+
+      allBets.forEach(bet => {
+        if (bet.MatchId?.require_details) {
+          if (!duplicateBonusMatches.has(bet.MatchId.id)) {
+            duplicateBonusMatches.set(bet.MatchId.id, []);
+          }
+          duplicateBonusMatches.get(bet.MatchId.id).push(bet);
+        }
+      });
+
+      // Pour chaque match bonus dupliqué, ne garder que le plus récent
+      duplicateBonusMatches.forEach((bets, matchId) => {
+        if (bets.length > 1) {
+          // Trier par updated_at et garder le plus récent
+          bets.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+          const mostRecent = bets[0];
+
+          // Marquer comme partagé entre les deux partenaires
+          mostRecent.isSharedBet = true;
+          mostRecent.sharedWithPartner = communismeInfo.partner;
+
+          // Retirer tous les bets de ce match sauf le plus récent
+          allBets = allBets.filter(bet =>
+            bet.MatchId?.id !== matchId || bet.id === mostRecent.id
+          );
+        }
+      });
+    }
+
+    if (allBets.length === 0) {
+      res.status(200).json({ bets: allBets, message: 'Aucun pronos pour la semaine en cours' })
     } else {
-      res.json({bets: enrichedBets})
+      res.json({bets: allBets})
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })
