@@ -49,6 +49,7 @@ const MysteryBox = ({ rule, user, viewedUser, isOwnProfile }) => {
   const [showGoldenTicketModal, setShowGoldenTicketModal] = useState(false);
   const [showBallePerduModal, setShowBallePerduModal] = useState(false);
   const [showDoubleDoseModal, setShowDoubleDoseModal] = useState(false);
+  const [ballePerduTargetUser, setBallePerduTargetUser] = useState(null);
 
   const fetchUserItem = async () => {
     try {
@@ -58,6 +59,21 @@ const MysteryBox = ({ rule, user, viewedUser, isOwnProfile }) => {
       );
       if (response.status === 200 && response.data) {
         setUserItem(response.data);
+
+        // Si balle_perdue utilisee, recuperer le nom de la cible
+        if (response.data.item?.key === 'balle_perdue' && response.data.usage?.used && response.data.usage?.data?.target_user_id) {
+          try {
+            const targetResponse = await axios.get(
+              `${apiUrl}/api/user/${response.data.usage.data.target_user_id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (targetResponse.status === 200 && targetResponse.data) {
+              setBallePerduTargetUser(targetResponse.data);
+            }
+          } catch (e) {
+            console.error('Erreur récupération cible balle perdue:', e);
+          }
+        }
       }
     } catch (error) {
       console.error('Erreur récupération item Mystery Box:', error);
@@ -88,7 +104,7 @@ const MysteryBox = ({ rule, user, viewedUser, isOwnProfile }) => {
 
   // Vérifier si c'est le steps_shop et non utilisé (pour afficher le bouton)
   const canUseStepsShop = isOwnProfile && item.key === 'steps_shop' && !isUsed;
-  const shopSelectedItem = userItem.usage?.data?.selected_item;
+  const shopSelectedItemName = userItem.usage?.data?.selected_item_name;
 
   // Vérifier si c'est le golden_ticket et non utilisé
   const canUseGoldenTicket = isOwnProfile && item.key === 'golden_ticket' && !isUsed;
@@ -134,9 +150,15 @@ const MysteryBox = ({ rule, user, viewedUser, isOwnProfile }) => {
               {item.label}
             </p>
             {/* Afficher l'article sélectionné si steps_shop utilisé */}
-            {item.key === 'steps_shop' && shopSelectedItem && (
-              <p className="font-roboto text-xs text-green-700 mt-1 font-medium">
-                Article choisi : {shopSelectedItem}
+            {item.key === 'steps_shop' && shopSelectedItemName && (
+              <p className="font-roboto text-xs text-white mt-1 font-medium">
+                Article choisi : <br/>{shopSelectedItemName}
+              </p>
+            )}
+            {/* Afficher la cible si balle_perdue utilisé */}
+            {item.key === 'balle_perdue' && isUsed && ballePerduTargetUser && (
+              <p className="font-roboto text-xs text-white mt-1 font-medium">
+                Cible touchee : <span className="font-bold">{ballePerduTargetUser.username}</span>
               </p>
             )}
           </div>

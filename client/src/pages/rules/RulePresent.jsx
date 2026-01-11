@@ -82,7 +82,7 @@ const RulePresent = () => {
         <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
           <video
             ref={videoRef}
-            src={currentRule.config?.video_url}
+            src={currentRule.config?.video_url ? currentRule.config?.video_url : currentRule.rule_key === 'mystery_box' ? '/videos/2526-mystery-box.mp4' : ''}
             className="w-full h-full object-contain md:object-cover"
             autoPlay
             muted={isMuted}

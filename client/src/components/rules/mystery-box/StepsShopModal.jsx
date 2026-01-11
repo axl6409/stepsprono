@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 
+// Import des images
+import sacocheImg from '../../../assets/components/rules/mystery-box/sacoche_steps.jpg';
+import bonnetImg from '../../../assets/components/rules/mystery-box/bonnet.jpg';
+import casquetteImg from '../../../assets/components/rules/mystery-box/casquette.jpg';
+import verreBiereImg from '../../../assets/components/rules/mystery-box/verre_biere.png';
+
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 // Items placeholder - à modifier selon les vrais articles
 const SHOP_ITEMS = [
-  { id: 'mug_steps', name: 'Mug Steps', description: 'Un mug aux couleurs de Steps Prono' },
-  { id: 'tshirt_steps', name: 'T-Shirt Steps', description: 'Un t-shirt exclusif Steps Prono' },
-  { id: 'stickers_pack', name: 'Pack Stickers', description: 'Un pack de stickers Steps Prono' },
-  { id: 'casquette_steps', name: 'Casquette Steps', description: 'Une casquette Steps Prono' },
+  { id: 'sacoche_steps', name: 'Sacoche Steps', description: 'La sacoche officiel Steps Prono', img: sacocheImg },
+  { id: 'bonnet', name: 'Bonnet Steps', description: 'Le bonnet exclusif Steps Prono', img: bonnetImg },
+  { id: 'casquette', name: 'Casquette Steps', description: 'La fameuse casquette Steps Prono', img: casquetteImg },
+  { id: 'verre_biere', name: 'Verre à bière', description: 'Le verre à bière officiel Steps Prono', img: verreBiereImg },
 ];
 
 const StepsShopModal = ({ isOpen, onClose, onSuccess }) => {
@@ -31,7 +37,7 @@ const StepsShopModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const response = await axios.post(
         `${apiUrl}/api/mystery-box/steps-shop/select`,
-        { selectedItem: selectedItem.id },
+        { selectedItem: selectedItem.id, selectedItemName: selectedItem.name },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -50,7 +56,7 @@ const StepsShopModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl border-2 border-black shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl border-2 border-black shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[70vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-rubik font-bold text-xl uppercase text-black">Steps Shop</h2>
@@ -72,14 +78,21 @@ const StepsShopModal = ({ isOpen, onClose, onSuccess }) => {
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+              className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
                 selectedItem?.id === item.id
                   ? 'border-green-500 bg-green-50 shadow-md'
                   : 'border-gray-300 bg-white hover:border-gray-400'
               }`}
             >
-              <h3 className="font-rubik font-bold text-base text-black">{item.name}</h3>
-              <p className="font-roboto text-sm text-gray-600">{item.description}</p>
+              <img
+                src={item.img}
+                alt={item.name}
+                className="w-16 h-16 object-cover rounded-lg border border-black"
+              />
+              <div className="flex-1">
+                <h3 className="font-rubik font-bold text-base text-black">{item.name}</h3>
+                <p className="font-roboto text-sm text-gray-600">{item.description}</p>
+              </div>
             </div>
           ))}
         </div>

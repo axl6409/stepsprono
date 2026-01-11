@@ -20,6 +20,7 @@ const {updateLastConnect, getUserStats, findUserByIdWithAssociations, setUsersSt
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 const {blockedUserNotification, unlockedUserNotification, unruledUserNotification} = require("../services/notificationService");
+const {getUserMysteryBoxItem} = require("../services/mysteryBoxService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -56,11 +57,51 @@ router.get('/user/:id', authenticateJWT, async (req, res) => {
 router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
   try {
     if (!req.params.id) return res.status(400).json({ error: 'Veuillez renseigner l\'id de l\'utilisateur' });
-    const bets = await getLastBetsByUserId(req.params.id);
-    if (bets.length === 0) {
-      res.status(200).json({ bets: bets, message: 'Aucun pronos pour la semaine en cours' })
+    const userId = parseInt(req.params.id, 10);
+    const bets = await getLastBetsByUserId(userId);
+
+    // Vérifier si l'utilisateur a la double dose et sur quel match
+    let doubleDoseMatchId = null;
+    let doubleButeurData = null;
+    try {
+      const mysteryBoxItem = await getUserMysteryBoxItem(userId);
+      if (
+        mysteryBoxItem?.item?.key === 'double_dose' &&
+        mysteryBoxItem?.usage?.used &&
+        mysteryBoxItem?.usage?.data?.match_id
+      ) {
+        doubleDoseMatchId = mysteryBoxItem.usage.data.match_id;
+      }
+      // Vérifier si l'utilisateur a le double_buteur
+      if (mysteryBoxItem?.item?.key === 'double_buteur' && mysteryBoxItem?.usage?.data) {
+        doubleButeurData = mysteryBoxItem.usage.data;
+      }
+    } catch (e) {
+      // Ignorer les erreurs de mystery box
+    }
+
+    // Enrichir les bets avec l'info de double dose et double buteur
+    const enrichedBets = await Promise.all(bets.map(async (bet) => {
+      const betObj = bet.toJSON ? bet.toJSON() : bet;
+      betObj.isDoubleDose = doubleDoseMatchId && betObj.MatchId?.id === doubleDoseMatchId;
+      // Ajouter le 2ème buteur si double_buteur et match correspond
+      if (doubleButeurData && betObj.MatchId?.id === doubleButeurData.match_id) {
+        betObj.secondScorerId = doubleButeurData.second_scorer_id;
+        // Récupérer le nom du 2ème joueur
+        if (doubleButeurData.second_scorer_id) {
+          const secondPlayer = await Player.findByPk(doubleButeurData.second_scorer_id);
+          if (secondPlayer) {
+            betObj.SecondPlayerGoal = { id: secondPlayer.id, name: secondPlayer.name };
+          }
+        }
+      }
+      return betObj;
+    }));
+
+    if (enrichedBets.length === 0) {
+      res.status(200).json({ bets: enrichedBets, message: 'Aucun pronos pour la semaine en cours' })
     } else {
-      res.json({bets: bets})
+      res.json({bets: enrichedBets})
     }
   } catch (error) {
     res.status(400).json({ error: 'Impossible de récupérer les pronostics : ' + error })

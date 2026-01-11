@@ -61,20 +61,22 @@ const Pronostic = forwardRef(
             ? betDetails.away_score.toString()
             : ""
         );
-        // Gérer le double_buteur (format "id1,id2")
-        const playerGoal = betDetails.player_goal || "";
-        if (playerGoal.includes(',')) {
-          const [s1, s2] = playerGoal.split(',');
-          setScorer(s1);
-          setScorer2(s2);
-          setValue("scorer", s1);
-          setValue("scorer2", s2);
+        // Charger le 1er buteur depuis player_goal
+        const playerGoal = betDetails.player_goal?.toString() || "";
+        setScorer(playerGoal);
+        setValue("scorer", playerGoal);
+
+        // Charger le 2ème buteur depuis mysteryBoxItem.usage.data (si double_buteur)
+        if (mysteryBoxItem?.item?.key === 'double_buteur' &&
+            mysteryBoxItem?.usage?.data?.match_id === match?.id) {
+          const secondScorer = mysteryBoxItem.usage.data.second_scorer_id?.toString() || "";
+          setScorer2(secondScorer);
+          setValue("scorer2", secondScorer);
         } else {
-          setScorer(playerGoal);
           setScorer2("");
-          setValue("scorer", playerGoal);
           setValue("scorer2", "");
         }
+
         setValue(
           "homeScore",
           betDetails.home_score !== null && betDetails.home_score !== undefined
@@ -95,7 +97,7 @@ const Pronostic = forwardRef(
         setScorer("");
         setScorer2("");
       }
-    }, [betDetails, setValue, reset]);
+    }, [betDetails, setValue, reset, mysteryBoxItem, match?.id]);
 
     // Récupérer la liste des joueurs uniquement si require_details est activé
     useEffect(() => {
@@ -259,11 +261,10 @@ const Pronostic = forwardRef(
           handleError("Le buteur est obligatoire");
           return;
         }
-        // Double buteur: envoyer les deux buteurs au format "id1,id2"
-        if (hasDoubleButeur && data.scorer && data.scorer2) {
-          payload.scorer = `${data.scorer},${data.scorer2}`;
-        } else {
-          payload.scorer = data.scorer ? data.scorer : null;
+        // Envoyer scorer et scorer2 séparément (le 2ème buteur sera stocké dans special_rules_results)
+        payload.scorer = data.scorer ? data.scorer : null;
+        if (hasDoubleButeur && data.scorer2) {
+          payload.scorer2 = data.scorer2;
         }
       } else {
         // Si require_details est désactivé, on enregistre uniquement l’équipe gagnante
@@ -385,7 +386,7 @@ const Pronostic = forwardRef(
                           {...register("team")}
                           onChange={() => setSelectedTeam(match.HomeTeam.id)}
                         />
-                        <div className="border-2 border-cyan-500 rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
+                        <div className="border border-black rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
                           <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
                             {match.HomeTeam.name}
                           </p>
@@ -413,7 +414,7 @@ const Pronostic = forwardRef(
                           {...register("team")}
                           onChange={() => setSelectedTeam(match.AwayTeam.id)}
                         />
-                        <div className="border-2 border-cyan-500 rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
+                        <div className="border border-black rounded-lg z-[2] bg-cyan-50 py-2.5 px-1 transition-all duration-300">
                           <p translate="no" className="font-roboto text-center leading-4 font-bold text-xs">
                             {match.AwayTeam.name}
                           </p>
@@ -520,17 +521,17 @@ const Pronostic = forwardRef(
 
                 {/* Affichage du pari du partenaire Communisme */}
                 {partnerBet && communismeInfo?.isActive && match?.require_details && (
-                  <div className="mx-4 mb-3 p-3 bg-rose-50 border border-rose-300 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div className="mx-2 mb-1 p-2 bg-rose-50 border border-rose-300 rounded-lg">
+                    <div className="flex items-center justify-center w-full">
                       <span className="text-sm">🤝</span>
-                      <p className="font-roboto text-xs font-bold text-rose-700">
+                      <p className="font-roboto text-center text-xs font-bold text-rose-700">
                         Prono de {partnerBet.partner?.username}
                       </p>
                     </div>
-                    <div className="flex flex-row justify-between items-center text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="font-roboto text-rose-600">Résultat :</span>
-                        <span className="font-bold text-rose-800">
+                    <div className="flex flex-row flex-wrap justify-between items-center text-sm">
+                      <div className="flex flex-col items-center">
+                        <span className="font-roboto text-xxs text-rose-600">Résultat</span>
+                        <span className="font-bold text-xxs text-rose-800">
                           {partnerBet.winner_id === match.HomeTeam.id
                             ? match.HomeTeam.name
                             : partnerBet.winner_id === match.AwayTeam.id
@@ -541,10 +542,18 @@ const Pronostic = forwardRef(
                         </span>
                       </div>
                       {partnerBet.home_score !== null && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-roboto text-rose-600">Score :</span>
-                          <span className="font-bold text-rose-800">
+                        <div className="flex flex-col items-center">
+                          <span className="font-roboto text-xxs text-rose-600">Score</span>
+                          <span className="font-bold text-xxs text-rose-800">
                             {partnerBet.home_score} - {partnerBet.away_score}
+                          </span>
+                        </div>
+                      )}
+                      {partnerBet.player_goal_name && (
+                        <div className="flex flex-col items-center w-full">
+                          <span className="font-roboto text-xxs text-rose-600">Buteur</span>
+                          <span className="font-bold text-xxs text-rose-800">
+                            {partnerBet.player_goal_name}
                           </span>
                         </div>
                       )}
@@ -586,15 +595,18 @@ const Pronostic = forwardRef(
                       </label>
                     </div>
                     {eligiblePlayers.length > 0 && (
-                      <div className={`flex flex-col my-2 ${hasDoubleButeur ? 'w-full' : 'w-1/2'}`}>
+                      <div className={`flex flex-col my-2 w-1/2`}>
                         {hasDoubleButeur && (
                           <div className="flex items-center justify-center gap-1 mb-2">
-                            <span className="text-lg">⚽⚽</span>
-                            <p className="font-roboto text-xs text-green-600 font-medium">Double Buteur</p>
+                            <span className="text-lg text-nowrap">⚽⚽</span>
+                            <p className="font-roboto text-xxs text-green-600 font-medium">Double Buteur</p>
                           </div>
                         )}
-                        <div className={`flex ${hasDoubleButeur ? 'flex-row gap-2 px-2' : 'flex-row justify-evenly'}`}>
-                          <label className={`flex no-correct flex-col text-center ${hasDoubleButeur ? 'flex-1' : 'w-11/12 ml-auto'}`}>
+                        <div className={`flex ${hasDoubleButeur ? 'flex-col gap-2 px-2' : 'flex-row justify-evenly'}`}>
+                          <label className={`flex no-correct flex-col text-center ${hasDoubleButeur ? 'w-full' : 'w-11/12 ml-auto'}`}>
+                            {hasDoubleButeur && (
+                              <span className="font-roboto text-xxs text-gray-600 mb-1">1er buteur</span>
+                            )}
                             <select
                               translate="no"
                               className="border border-black rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center"
@@ -605,16 +617,19 @@ const Pronostic = forwardRef(
                                 setValue("scorer", e.target.value);
                               }}
                             >
-                              <option value="" className="no-correct">{hasDoubleButeur ? 'Buteur 1' : 'Aucun buteur'}</option>
-                              {eligiblePlayers.map((player, index) => (
-                                <option key={`${player.player_id}-${index}`} value={player.player_id} className="no-correct">
-                                  {cleanPlayerName(decodeHtml(player.Player.name))}
-                                </option>
-                              ))}
+                              <option value="" className="no-correct">{hasDoubleButeur ? 'Choisir le 1er buteur' : 'Aucun buteur'}</option>
+                              {eligiblePlayers
+                                .filter(player => !hasDoubleButeur || player.player_id.toString() !== scorer2)
+                                .map((player, index) => (
+                                  <option key={`${player.player_id}-${index}`} value={player.player_id} className="no-correct">
+                                    {cleanPlayerName(decodeHtml(player.Player.name))}
+                                  </option>
+                                ))}
                             </select>
                           </label>
                           {hasDoubleButeur && (
-                            <label className="flex no-correct flex-col flex-1 text-center">
+                            <label className="flex no-correct flex-col w-full text-center">
+                              <span className="font-roboto text-xxs text-green-600 mb-1">2ème buteur</span>
                               <select
                                 translate="no"
                                 className="border border-green-500 rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center bg-green-50"
@@ -625,12 +640,14 @@ const Pronostic = forwardRef(
                                   setValue("scorer2", e.target.value);
                                 }}
                               >
-                                <option value="" className="no-correct">Buteur 2</option>
-                                {eligiblePlayers.map((player, index) => (
-                                  <option key={`scorer2-${player.player_id}-${index}`} value={player.player_id} className="no-correct">
-                                    {cleanPlayerName(decodeHtml(player.Player.name))}
-                                  </option>
-                                ))}
+                                <option value="" className="no-correct">Choisir le 2ème buteur</option>
+                                {eligiblePlayers
+                                  .filter(player => player.player_id.toString() !== scorer)
+                                  .map((player, index) => (
+                                    <option key={`scorer2-${player.player_id}-${index}`} value={player.player_id} className="no-correct">
+                                      {cleanPlayerName(decodeHtml(player.Player.name))}
+                                    </option>
+                                  ))}
                               </select>
                             </label>
                           )}

@@ -10,7 +10,8 @@ const {
   getAvailableItems,
   getMysteryBoxData,
   getCommunismePartner,
-  getCommunismeInfo
+  getCommunismeInfo,
+  getBallePerduTargetInfo
 } = require("../services/mysteryBoxService");
 const { getBetByMatchAndUser } = require("../services/betService");
 const { checkUserContribution, validateUserContribution } = require("../services/contributionService");
@@ -105,13 +106,33 @@ router.get('/mystery-box/usage/:userId/:itemKey', authenticateJWT, async (req, r
 });
 
 /**
+ * GET /api/mystery-box/balle-perdue/target
+ * Vérifie si l'utilisateur connecté est ciblé par une balle perdue
+ */
+router.get('/mystery-box/balle-perdue/target', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const targetInfo = await getBallePerduTargetInfo(userId);
+
+    if (!targetInfo) {
+      return res.status(204).json({ message: 'Pas de balle perdue reçue' });
+    }
+
+    res.json(targetInfo);
+  } catch (error) {
+    logger.error('[GET /mystery-box/balle-perdue/target] Error:', error);
+    res.status(500).json({ message: 'Erreur lors de la vérification', error: error.message });
+  }
+});
+
+/**
  * POST /api/mystery-box/use
  * Utilise un item Mystery Box
  * Body: { itemKey: string, data?: object }
  */
 router.post('/mystery-box/use', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { itemKey, data } = req.body;
 
     if (!itemKey) {
@@ -132,7 +153,7 @@ router.post('/mystery-box/use', authenticateJWT, async (req, res) => {
  */
 router.get('/mystery-box/communisme/partner', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const partner = await getCommunismePartner(userId);
 
     if (!partner) {
@@ -152,7 +173,7 @@ router.get('/mystery-box/communisme/partner', authenticateJWT, async (req, res) 
  */
 router.get('/mystery-box/communisme/info', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const info = await getCommunismeInfo(userId);
 
     if (!info) {
@@ -172,7 +193,7 @@ router.get('/mystery-box/communisme/info', authenticateJWT, async (req, res) => 
  */
 router.get('/mystery-box/communisme/partner-bet/:matchId', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const matchId = parseInt(req.params.matchId, 10);
 
     // Récupérer les infos Communisme
@@ -188,12 +209,23 @@ router.get('/mystery-box/communisme/partner-bet/:matchId', authenticateJWT, asyn
       return res.status(204).json({ message: 'Aucun pari du partenaire' });
     }
 
+    // Récupérer le nom du buteur si présent
+    let playerGoalName = null;
+    if (partnerBet.player_goal) {
+      const { Player } = require('../models');
+      const player = await Player.findByPk(partnerBet.player_goal);
+      if (player) {
+        playerGoalName = player.name;
+      }
+    }
+
     // Retourner les infos essentielles du pari
     res.json({
       winner_id: partnerBet.winner_id,
       home_score: partnerBet.home_score,
       away_score: partnerBet.away_score,
       player_goal: partnerBet.player_goal,
+      player_goal_name: playerGoalName,
       partner: info.partner
     });
   } catch (error) {
@@ -208,7 +240,7 @@ router.get('/mystery-box/communisme/partner-bet/:matchId', authenticateJWT, asyn
  */
 router.get('/mystery-box/golden-ticket/contributions', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     // Vérifier que l'utilisateur a le bonus golden_ticket
     const userItem = await getUserMysteryBoxItem(userId);
@@ -235,7 +267,7 @@ router.get('/mystery-box/golden-ticket/contributions', authenticateJWT, async (r
  */
 router.post('/mystery-box/golden-ticket/use', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { contributionId } = req.body;
 
     if (!contributionId) {
@@ -276,8 +308,8 @@ router.post('/mystery-box/golden-ticket/use', authenticateJWT, async (req, res) 
  */
 router.post('/mystery-box/steps-shop/select', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { selectedItem } = req.body;
+    const userId = req.user.userId;
+    const { selectedItem, selectedItemName } = req.body;
 
     if (!selectedItem) {
       return res.status(400).json({ message: 'selectedItem requis' });
@@ -293,7 +325,7 @@ router.post('/mystery-box/steps-shop/select', authenticateJWT, async (req, res) 
       return res.status(400).json({ message: 'Tu as déjà utilisé ton bonus Steps Shop' });
     }
 
-    const result = await useItem(userId, 'steps_shop', { selected_item: selectedItem });
+    const result = await useItem(userId, 'steps_shop', { selected_item: selectedItem, selected_item_name: selectedItemName });
     res.json(result);
   } catch (error) {
     logger.error('[POST /mystery-box/steps-shop/select] Error:', error);
@@ -351,6 +383,7 @@ router.get('/admin/mystery-box/shop-selections', authenticateJWT, checkManagerTr
         user: s.user,
         used: s.usage?.used || false,
         selectedItem: s.usage?.data?.selected_item || null,
+        selectedItemName: s.usage?.data?.selected_item_name || null,
         usedAt: s.usage?.used_at || null
       }));
 

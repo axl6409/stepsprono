@@ -63,6 +63,8 @@ const Contributions = () => {
 
       const enriched = response.data.map(u => {
         const totalReceived = u.contributions.reduce((sum, c) => {
+          // Ne pas compter les contributions payées avec golden ticket
+          if (c.paid_with_golden_ticket) return sum;
           return sum + (c.status === 'received' ? (Number(c.amount) || 0) : 0);
         }, 0);
         return { ...u, totalReceived };
@@ -270,6 +272,8 @@ const Contributions = () => {
 
   const totalContributions = contributions.reduce((sumUsers, u) => {
     return sumUsers + u.contributions.reduce((sum, c) => {
+      // Ne pas compter les contributions payées avec golden ticket
+      if (c.paid_with_golden_ticket) return sum;
       return sum + (c.status === 'received' ? (Number(c.amount) || 0) : 0);
     }, 0);
   }, 0);
@@ -372,10 +376,15 @@ const Contributions = () => {
                   const rowInteractive =
                     hasTreasurerAccess ? 'cursor-pointer hover:bg-black/5 active:scale-[0.995] transition-all duration-300 hover:shadow-none focus:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 focus:translate-x-0.5 focus:translate-y-0.5' : '';
 
+                  // Fond jaune si payé avec golden ticket
+                  const bgColor = contrib.paid_with_golden_ticket
+                    ? '#FFD700'
+                    : userColors[contribution.user.id] + "20";
+
                   return (
                     <li
                       className={`flex flex-row justify-between shadow-flat-black-adjust border border-black relative my-2 rounded-md px-1 py-1 ${rowInteractive}`}
-                      style={{backgroundColor: userColors[contribution.user.id] + "20"}}
+                      style={{backgroundColor: bgColor}}
                       key={index}
                       onClick={() => openActionModal(contrib, contribution.user.id)}
                       aria-disabled={!hasTreasurerAccess}
@@ -383,9 +392,10 @@ const Contributions = () => {
                       <p
                         className="font-sans text-xs font-regular text-black">
                         {contrib.matchday === 0 ? 'Adhésion' : 'Journée ' + contrib.matchday}
+                        {contrib.paid_with_golden_ticket && <span className="ml-1" title="Payé avec Golden Ticket">🎟️</span>}
                       </p>
                       <p className="font-sans text-xs font-semibold text-black">
-                        {formatEUR(contrib.amount)}€
+                        {contrib.paid_with_golden_ticket ? '0' : formatEUR(contrib.amount)}€
                       </p>
                       <p className="font-sans text-base font-medium text-black">
                         {contrib.status === 'pending' ? (
@@ -447,51 +457,62 @@ const Contributions = () => {
             <h3 className="font-sans text-l leading-5 font-black uppercase mb-2">Action sur la contribution</h3>
             <p className="text-sm mb-4">
               <b>{selectedContribution.contrib.matchday === 0 ? 'Adhésion' : 'Journée ' + selectedContribution.contrib.matchday}</b> — Montant&nbsp;
-              <b>{formatEUR(selectedContribution.contrib.amount)}€</b><br/>
+              <b>{selectedContribution.contrib.paid_with_golden_ticket ? '0' : formatEUR(selectedContribution.contrib.amount)}€</b><br/>
               Statut actuel&nbsp;: <b>{selectedContribution.contrib.status === 'pending' ? 'En attente' : 'Reçue'}</b>
+              {selectedContribution.contrib.paid_with_golden_ticket && (
+                <><br/><span className="text-yellow-600 font-bold">🎟️ Payé avec Golden Ticket (annulée)</span></>
+              )}
             </p>
 
             <div className="flex flex-col gap-2">
-              {/* Affiche Valider si en attente */}
-              {selectedContribution.contrib.status === 'pending' && (
-                <button
-                  className="w-full uppercase bg-green-medium text-black border-2 border-black rounded-lg py-2 font-sans font-regular shadow-flat-black-adjust hover:shadow-none"
-                  onClick={async () => {
-                    await handleValidateContribution(selectedContribution.contrib.id, selectedContribution.userId);
-                    setIsActionModalOpen(false);
-                    setSelectedContribution(null);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faCheck} className="mr-2"/> Valider (reçue)
-                </button>
-              )}
+              {!selectedContribution.contrib.paid_with_golden_ticket ? (
+                <>
+                  {/* Affiche Valider si en attente */}
+                  {selectedContribution.contrib.status === 'pending' && (
+                    <button
+                      className="w-full uppercase bg-green-medium text-black border-2 border-black rounded-lg py-2 font-sans font-regular shadow-flat-black-adjust hover:shadow-none"
+                      onClick={async () => {
+                        await handleValidateContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                        setIsActionModalOpen(false);
+                        setSelectedContribution(null);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCheck} className="mr-2"/> Valider (reçue)
+                    </button>
+                  )}
 
-              {/* Affiche Repasser en attente si reçue */}
-              {selectedContribution.contrib.status === 'received' && (
-                <button
-                  className="w-full uppercase bg-yellow-300 text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
-                  onClick={async () => {
-                    await handlePendingContribution(selectedContribution.contrib.id, selectedContribution.userId);
-                    setIsActionModalOpen(false);
-                    setSelectedContribution(null);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faSackXmark} className="mr-2"/> Repasser en attente
-                </button>
-              )}
+                  {/* Affiche Repasser en attente si reçue */}
+                  {selectedContribution.contrib.status === 'received' && (
+                    <button
+                      className="w-full uppercase bg-yellow-300 text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
+                      onClick={async () => {
+                        await handlePendingContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                        setIsActionModalOpen(false);
+                        setSelectedContribution(null);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faSackXmark} className="mr-2"/> Repasser en attente
+                    </button>
+                  )}
 
-              {/* Supprimer toujours disponible pour admin/treasurer */}
-              {hasTreasurerAccess && (
-                <button
-                  className="w-full uppercase bg-red-light text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
-                  onClick={async () => {
-                    await handleDeleteContribution(selectedContribution.contrib.id, selectedContribution.userId);
-                    setIsActionModalOpen(false);
-                    setSelectedContribution(null);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faTrash} className="mr-2"/> Supprimer
-                </button>
+                  {/* Supprimer toujours disponible pour admin/treasurer */}
+                  {hasTreasurerAccess && (
+                    <button
+                      className="w-full uppercase bg-red-light text-black border-2 border-black rounded-lg py-2 font-sans font-black shadow-flat-black-adjust hover:shadow-none"
+                      onClick={async () => {
+                        await handleDeleteContribution(selectedContribution.contrib.id, selectedContribution.userId);
+                        setIsActionModalOpen(false);
+                        setSelectedContribution(null);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="mr-2"/> Supprimer
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-center text-gray-600 italic">
+                  Cette contribution a été annulée avec un Golden Ticket. Aucune action possible.
+                </p>
               )}
 
               <button

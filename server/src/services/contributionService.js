@@ -1,5 +1,5 @@
 const {Op} = require("sequelize");
-const {UserContribution, User} = require("../models");
+const {UserContribution, User, SpecialRule, SpecialRuleResult} = require("../models");
 const logger = require("../utils/logger/logger");
 const {getCurrentCompetitionId} = require("./competitionService");
 const {getCurrentSeasonId} = require("./logic/seasonLogic");
@@ -94,6 +94,33 @@ const getContributionsByUsers = async () => {
       order: [['createdAt', 'DESC']]
     });
 
+    // Récupérer les contributions payées avec golden ticket
+    const goldenTicketContributions = new Set();
+    try {
+      const mysteryBoxRule = await SpecialRule.findOne({
+        where: { rule_key: 'mystery_box' }
+      });
+
+      if (mysteryBoxRule) {
+        const mysteryBoxResult = await SpecialRuleResult.findOne({
+          where: {
+            rule_id: mysteryBoxRule.id,
+            season_id: currentSeasonId
+          }
+        });
+
+        if (mysteryBoxResult?.results) {
+          mysteryBoxResult.results.forEach(r => {
+            if (r.item_key === 'golden_ticket' && r.used && r.data?.contribution_id) {
+              goldenTicketContributions.add(r.data.contribution_id);
+            }
+          });
+        }
+      }
+    } catch (err) {
+      logger.error('Erreur lors de la récupération des golden tickets:', err);
+    }
+
     const contributionsByUser = contributions.reduce((acc, contribution) => {
       const userId = contribution.User.id;
 
@@ -114,7 +141,8 @@ const getContributionsByUsers = async () => {
         matchday: contribution.matchday,
         amount: contribution.amount,
         createdAt: contribution.createdAt,
-        updatedAt: contribution.updatedAt
+        updatedAt: contribution.updatedAt,
+        paid_with_golden_ticket: goldenTicketContributions.has(contribution.id)
       });
 
       return acc;

@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { Bet, Match } = require("../../models");
 const logger = require("../../utils/logger/logger");
-const { getUserMysteryBoxItem } = require("../mysteryBoxService");
+const { getUserMysteryBoxItem, getDoubleButeurChoice } = require("../mysteryBoxService");
 
 /**
  * Updates a bet with the given parameters.
@@ -98,7 +98,7 @@ const checkBetByMatchId = async (ids) => {
       if (match.require_details) {
         const matchScorers = JSON.parse(match.scorers || '[]');
 
-        // Vérifier si l'utilisateur a le bonus buteur_or
+        // Vérifier si l'utilisateur a le bonus buteur_or ou double_buteur
         let hasButeurOr = false;
         let hasDoubleButeur = false;
         try {
@@ -109,40 +109,52 @@ const checkBetByMatchId = async (ids) => {
           logger.warn(`[betLogic] Erreur vérification bonus buteur pour user ${bet.user_id}: ${e.message}`);
         }
 
+        let scorerFound1 = false;
+        let scorerFound2 = false;
+
+        // Vérifier le 1er buteur (dans bet.player_goal)
         if (bet.player_goal) {
-          // Double Buteur: format "id1,id2" - vérifier si l'un des deux est correct
-          const playerGoals = String(bet.player_goal).split(',').map(p => p.trim()).filter(p => p);
+          scorerFound1 = matchScorers.some(scorer => {
+            const isScorerMatch = String(scorer.playerId) === String(bet.player_goal);
+            logger.info(`[betService] Vérification du buteur 1 - ID du pronostic: ${bet.player_goal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
+            return isScorerMatch;
+          });
+        }
 
-          let scorerFound = false;
-          for (const playerGoal of playerGoals) {
-            const found = matchScorers.some(scorer => {
-              const isScorerMatch = String(scorer.playerId) === String(playerGoal);
-              logger.info(`[betService] Vérification du buteur - ID du pronostic: ${playerGoal}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
-              return isScorerMatch;
-            });
-            if (found) {
-              scorerFound = true;
-              break;
+        // Vérifier le 2ème buteur (dans special_rules_results) si double_buteur
+        if (hasDoubleButeur) {
+          try {
+            const secondScorer = await getDoubleButeurChoice(bet.user_id, match.id);
+            if (secondScorer) {
+              scorerFound2 = matchScorers.some(scorer => {
+                const isScorerMatch = String(scorer.playerId) === String(secondScorer);
+                logger.info(`[betService] Vérification du buteur 2 - ID du pronostic: ${secondScorer}, ID du buteur: ${scorer.playerId}, Correspondance: ${isScorerMatch}`);
+                return isScorerMatch;
+              });
             }
+          } catch (e) {
+            logger.warn(`[betLogic] Erreur récupération 2ème buteur pour user ${bet.user_id}: ${e.message}`);
           }
+        }
 
-          if (scorerFound) {
-            // Buteur en or : 2 points au lieu de 1
-            scorerPoints = hasButeurOr ? 2 : 1;
-            if (hasButeurOr) {
-              logger.info(`[betService] BUTEUR EN OR - Points doublés pour le pronostic ID: ${bet.id}`);
-            }
-            if (hasDoubleButeur && playerGoals.length > 1) {
-              logger.info(`[betService] DOUBLE BUTEUR - Buteur validé parmi ${playerGoals.length} choix pour le pronostic ID: ${bet.id}`);
-            }
-            logger.info(`[betService] Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
-          } else {
-            logger.info(`[betService] Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
+        // Calcul des points
+        if (hasDoubleButeur && bet.player_goal) {
+          // Double buteur : 1 pt par buteur correct (max 2 pts)
+          scorerPoints = (scorerFound1 ? 1 : 0) + (scorerFound2 ? 1 : 0);
+          logger.info(`[betService] DOUBLE BUTEUR - Buteur 1: ${scorerFound1 ? 'OK' : 'KO'}, Buteur 2: ${scorerFound2 ? 'OK' : 'KO'}, Points: ${scorerPoints} pour le pronostic ID: ${bet.id}`);
+        } else if (scorerFound1) {
+          // Mode normal : 1 pt (ou 2 si buteur_or)
+          scorerPoints = hasButeurOr ? 2 : 1;
+          if (hasButeurOr) {
+            logger.info(`[betService] BUTEUR EN OR - Points doublés pour le pronostic ID: ${bet.id}`);
           }
-        } else if (matchScorers.length === 0) {
-          // Pas de buteur pronostiqué et pas de but dans le match = 1 point (buteur_or ne s'applique pas)
+          logger.info(`[betService] Buteur trouvé pour le pronostic ID: ${bet.id}, Points pour buteur: ${scorerPoints}`);
+        } else if (matchScorers.length === 0 && !bet.player_goal) {
+          // Pas de buteur pronostiqué et pas de but dans le match = 1 point
           scorerPoints = 1;
           logger.info(`[betService] Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point pour buteur par défaut.`);
+        } else {
+          logger.info(`[betService] Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
         }
       }
 

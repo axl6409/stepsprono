@@ -11,7 +11,7 @@ const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 const {applySpecialRulePoints} = require("./logic/ruleLogic");
-const { getUserMysteryBoxItem } = require("./mysteryBoxService");
+const { getUserMysteryBoxItem, saveDoubleButeurChoice } = require("./mysteryBoxService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -151,6 +151,9 @@ const getCurrentMatchdayPoints = async (userId, matchday) => {
     for (const bet of bets) {
       points += bet.points;
     }
+
+    // Appliquer les règles spéciales (y compris balle_perdue)
+    points = await applySpecialRulePoints(seasonId, "week", userId, points);
 
     return points;
   } catch (error) {
@@ -311,9 +314,9 @@ const getSeasonPoints = async (userId) => {
  * @throws {Error} If the match is not found, or if the created bet is invalid.
  * @return {Promise<Object>} The created bet object.
  */
-const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer }) => {
+const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer, scorer2 }) => {
   try {
-    logger.info({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer });
+    logger.info({ userId, matchday, matchId, winnerId, homeScore, awayScore, scorer, scorer2 });
     const match = await Match.findOne({
       where: {id: matchId},
     });
@@ -362,7 +365,16 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
       away_score: awayScore,
       player_goal: scorer ? scorer : null
     });
-    logger.info(`[createBet] => Prono créé avec succès (MatchID: ${matchId} | Utilisateur: ${userId} | WinnerID: ${winnerId} | HomeScore: ${homeScore} | AwayScore: ${awayScore} | Scorer: ${scorer})`);
+
+    // Si double_buteur et scorer2 fourni, stocker dans special_rules_results
+    if (scorer2) {
+      if (mysteryBoxItem?.item?.key === 'double_buteur') {
+        await saveDoubleButeurChoice(userId, matchId, scorer2);
+        logger.info(`[createBet] Double buteur - 2ème buteur ${scorer2} enregistré pour match ${matchId}`);
+      }
+    }
+
+    logger.info(`[createBet] => Prono créé avec succès (MatchID: ${matchId} | Utilisateur: ${userId} | WinnerID: ${winnerId} | HomeScore: ${homeScore} | AwayScore: ${awayScore} | Scorer: ${scorer} | Scorer2: ${scorer2})`);
     return bet;
   } catch (error) {
     logger.error('Erreur lors de la creation du pronostic :', error);
@@ -384,8 +396,8 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
  * @throws {Error} If the match is not found, or if the updated bet is invalid.
  * @return {Promise<Object>} The updated bet object.
  */
-const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer }) => {
-  logger.info({ id, userId, matchId, winnerId, homeScore, awayScore, scorer });
+const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, scorer, scorer2 }) => {
+  logger.info({ id, userId, matchId, winnerId, homeScore, awayScore, scorer, scorer2 });
   try {
     const match = await Match.findOne({
       where: { id: matchId },
@@ -426,7 +438,16 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       }
     }
     await bet.update(updatedFields);
-    logger.info(`[updateBet] => Prono mis à jour avec succès (MatchID: ${matchId}, Utilisateur: ${userId})`);
+
+    // Si double_buteur et scorer2 fourni, stocker dans special_rules_results
+    if (scorer2 !== undefined) {
+      if (mysteryBoxItem?.item?.key === 'double_buteur' && scorer2) {
+        await saveDoubleButeurChoice(userId, matchId, scorer2);
+        logger.info(`[updateBet] Double buteur - 2ème buteur ${scorer2} enregistré pour match ${matchId}`);
+      }
+    }
+
+    logger.info(`[updateBet] => Prono mis à jour avec succès (MatchID: ${matchId}, Utilisateur: ${userId}, Scorer2: ${scorer2})`);
     return bet;
   } catch (error) {
     logger.error('Erreur lors de la mise à jour du prono: ', error);

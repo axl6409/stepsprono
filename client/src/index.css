@@ -175,6 +175,10 @@ body {
     text-orientation: mixed;
 }
 
+.text-nowrap {
+    text-wrap: nowrap;
+}
+
 .text-glitch-animation::before {
     content: attr(data-text);
     position: absolute;

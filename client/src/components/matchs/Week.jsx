@@ -339,7 +339,7 @@ const Week = ({token, user}) => {
 
             return (
               <SwiperSlide
-                className="flex flex-row flex-wrap relative h-auto m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
+                className="h-fit my-auto flex flex-row flex-wrap relative m-0 border border-black bg-white rounded-2xl shadow-flat-black min-h-[300px]"
                 key={match.id} data-match-id={match.id}>
                 {/* Indicateur Communisme sur match bonus */}
                 {communismeInfo?.isActive && isBonusMatch && (
@@ -369,11 +369,11 @@ const Week = ({token, user}) => {
             );
           })}
           <div
-            className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-7 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            className="swiper-button-prev w-[40px] h-[40px] rounded-full bg-white top-1/2 -translate-y-1/2 left-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <img src={arrowIcon} alt="Icône flèche"/>
           </div>
           <div
-            className="swiper-button-next w-[40px] h-[40px] rounded-full bg-white top-7 right-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
+            className="swiper-button-next w-[40px] h-[40px] rounded-full bg-white top-1/2 -translate-y-1/2 right-2 shadow-flat-black-adjust border-2 border-black transition-all duration-300 hover:shadow-none focus:shadow-none">
             <img className="rotate-180" src={arrowIcon} alt="Icône flèche"/>
           </div>
         </Swiper>

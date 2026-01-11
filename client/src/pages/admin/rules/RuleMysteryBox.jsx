@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
+import axios from "axios";
+import { useCookies } from "react-cookie";
 import UserWheel from "../../../components/admin/UserWheel.jsx";
 import MatchdaySelect from "../../../components/admin/MatchdaySelect.jsx";
 import { Wheel } from "react-custom-roulette";
@@ -21,9 +23,15 @@ const wheelStyleProps = {
 };
 
 const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
+  const [cookies] = useCookies(["token"]);
+  const token = localStorage.getItem("token") || cookies.token;
+
   // pool des joueurs restants à attribuer
   const [pool, setPool] = useState(users);
   const [assigned, setAssigned] = useState(formValues.selection || []);
+
+  // State pour les choix Steps Shop
+  const [shopSelections, setShopSelections] = useState([]);
 
   // state pour tirage joueur
   const [spinningUser, setSpinningUser] = useState(false);
@@ -64,6 +72,22 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
       isComplete: allAssigned && hasMatchday
     }));
   }, [pool.length, assigned.length, formValues.matchday]);
+
+  // Charger les choix Steps Shop
+  useEffect(() => {
+    const fetchShopSelections = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/api/admin/mystery-box/shop-selections`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setShopSelections(response.data || []);
+      } catch (error) {
+        console.error("Erreur chargement shop selections:", error);
+      }
+    };
+    fetchShopSelections();
+  }, [token]);
 
   // lancer roue joueur
   const startUserSpin = () => {
@@ -339,6 +363,51 @@ const RuleMysteryBox = ({ users, matchdays, formValues, setFormValues }) => {
           Joueurs restants : <span className="font-bold">{pool.length}</span> / {users.length}
         </p>
       </div>
+
+      {/* Récap des choix Steps Shop */}
+      {shopSelections.length > 0 && (
+        <div className="border border-black p-4 rounded-xl shadow-flat-black bg-blue-50">
+          <h4 translate="no" className="font-bold text-black font-rubik text-base uppercase mb-3 flex items-center gap-2">
+            <span>🛒</span> Choix Steps Shop
+          </h4>
+          <div className="space-y-2">
+            {shopSelections.map((selection, idx) => (
+              <div
+                key={idx}
+                className={`flex flex-row justify-between items-center p-3 rounded-lg border ${
+                  selection.used
+                    ? "bg-green-100 border-green-500"
+                    : "bg-gray-100 border-gray-400"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 border border-black shadow-flat-black-adjust overflow-hidden rounded-full">
+                    <img
+                      className="w-full h-full object-cover object-center"
+                      src={selection.user?.img ? `${apiUrl}/uploads/users/${selection.user.id}/${selection.user.img}` : defaultUserImage}
+                      alt=""
+                    />
+                  </span>
+                  <span className="font-rubik text-black text-sm font-medium">
+                    {selection.user?.username}
+                  </span>
+                </div>
+                <div className="text-right">
+                  {selection.used ? (
+                    <span className="font-rubik text-green-700 text-sm font-bold">
+                      {selection.selectedItemName || selection.selectedItem}
+                    </span>
+                  ) : (
+                    <span className="font-rubik text-gray-500 text-xs italic">
+                      Pas encore choisi
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Choix journée sportive */}
       <MatchdaySelect

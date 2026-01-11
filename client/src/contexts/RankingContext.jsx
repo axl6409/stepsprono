@@ -19,9 +19,9 @@ const RankingProvider = ({ children }) => {
   const [selectedMonth, setSelectedMonth] = useState(null); // Format YYYY-MM
 
   const [rankingCache, setRankingCache] = useState({
-    season: { data: [], lastFetched: null },
-    month: { data: [], lastFetched: null, selectedMonth: null },
-    week: { data: [], lastFetched: null },
+    season: { data: [], lastFetched: null, rules: [] },
+    month: { data: [], lastFetched: null, selectedMonth: null, rules: [] },
+    week: { data: [], lastFetched: null, rules: [] },
     duo: { data: [], lastFetched: null, isDuoRanking: false }
   });
 
@@ -130,11 +130,13 @@ const RankingProvider = ({ children }) => {
           }
           return b.points - a.points;
         });
+        const rules = response.data.ranking.rules || [];
         setRankingCache((prevCache) => ({
           ...prevCache,
           [type]: {
             data: sortedRanking,
             lastFetched: now,
+            rules: rules,
             ...(type === 'month' && { selectedMonth })
           }
         }));
@@ -202,11 +204,13 @@ const RankingProvider = ({ children }) => {
           }
         }));
       } else {
+        const rules = response.data.ranking.rules || [];
         setRankingCache((prevCache) => ({
           ...prevCache,
           [type]: {
-            data: response.data.ranking,
+            data: response.data.ranking.ranking || response.data.ranking,
             lastFetched: new Date().getTime(),
+            rules: rules,
             ...(type === 'month' && { selectedMonth })
           }
         }));
@@ -220,6 +224,21 @@ const RankingProvider = ({ children }) => {
 
   const changeRankingType = (type) => {
     setRankingType(type);
+  };
+
+  // Extraire les cibles de balle_perdue des rules
+  const getBallePerduTargets = () => {
+    const rules = rankingCache[rankingType].rules || [];
+    const ballePerduRule = rules.find(r => r.type === 'balle_perdue');
+    if (ballePerduRule?.penalties) {
+      return ballePerduRule.penalties.map(p => ({
+        targetId: p.target_id,
+        targetUsername: p.target_username,
+        shooterId: p.shooter_id,
+        shooterUsername: p.shooter_username
+      }));
+    }
+    return [];
   };
 
   return (
@@ -236,7 +255,9 @@ const RankingProvider = ({ children }) => {
       duoMessage: rankingCache[rankingType].message,
       weekRanking: rankingCache.week.data,
       selectedMonth,
-      setSelectedMonth
+      setSelectedMonth,
+      rankingRules: rankingCache[rankingType].rules || [],
+      ballePerduTargets: getBallePerduTargets()
     }}>
       {children}
     </RankingContext.Provider>
