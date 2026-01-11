@@ -15,6 +15,7 @@ import pstIcon from "../../assets/components/icons/delayed.webp";
 import ProfilePic from "../../components/user/ProfilePic.jsx";
 import {AppContext} from "../../contexts/AppContext.jsx";
 import {RuleContext} from "../../contexts/RuleContext.jsx";
+import BallePerduAlert from "../../components/rules/mystery-box/BallePerduAlert.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const CurrentBets = ({ loggedUser, user, token }) => {
@@ -129,6 +130,13 @@ const CurrentBets = ({ loggedUser, user, token }) => {
             </p>
           </div>
         </div>
+
+        {/* Alerte Balle Perdue - affichee uniquement sur son propre profil */}
+        {loggedUser.id === user.id && (
+          <div className="pt-4">
+            <BallePerduAlert userId={loggedUser.id} />
+          </div>
+        )}
 
         {loggedUser.id === user.id && (
             loggedUser.status !== 'blocked' ? (
@@ -302,9 +310,23 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                       {bet.home_score} - {bet.away_score}
                                     </p>
                                     {bet.PlayerGoal !== null && (
-                                      <p translate="no"
-                                         className="font-title no-correct text-base font-bold">{bet.PlayerGoal.name}</p>
+                                      <p translate="no" className="font-title no-correct text-base font-bold">
+                                        {bet.PlayerGoal.name}
+                                        {bet.SecondPlayerGoal && (
+                                          <span className="text-green-600"> / {bet.SecondPlayerGoal.name}</span>
+                                        )}
+                                      </p>
                                     )}
+                                  </div>
+                                ) : bet.isDoubleDose ? (
+                                  <div className="flex flex-row items-center gap-1">
+                                    <img className="h-auto w-8"
+                                         src={bet.winner_id === bet.MatchId.HomeTeam.id
+                                           ? apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url
+                                           : apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                         alt=""/>
+                                    <span className="text-cyan-600 text-xs font-bold">/</span>
+                                    <img className="h-auto w-6" src={nullSymbol} alt="ou nul"/>
                                   </div>
                                 ) : (
                                   bet.winner_id === bet.MatchId.HomeTeam.id ? (
@@ -425,9 +447,23 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                     {bet.home_score} - {bet.away_score}
                                   </p>
                                   {bet.PlayerGoal !== null && (
-                                    <p translate="no"
-                                       className="font-title no-correct text-base font-bold">{bet.PlayerGoal.name}</p>
+                                    <p translate="no" className="font-title no-correct text-base font-bold">
+                                      {bet.PlayerGoal.name}
+                                      {bet.SecondPlayerGoal && (
+                                        <span className="text-green-600"> / {bet.SecondPlayerGoal.name}</span>
+                                      )}
+                                    </p>
                                   )}
+                                </div>
+                              ) : bet.isDoubleDose ? (
+                                <div className="flex flex-row items-center gap-1">
+                                  <img className="h-auto w-8"
+                                       src={bet.winner_id === bet.MatchId.HomeTeam.id
+                                         ? apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url
+                                         : apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                       alt=""/>
+                                  <span className="text-cyan-600 text-xs font-bold">/</span>
+                                  <img className="h-auto w-6" src={nullSymbol} alt="ou nul"/>
                                 </div>
                               ) : (
                                 bet.winner_id === bet.MatchId.HomeTeam.id ? (

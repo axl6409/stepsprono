@@ -24,11 +24,14 @@ const BallePerduModal = ({ isOpen, onClose, onSuccess, currentUserId }) => {
     setError(null);
     try {
       const response = await axios.get(
-        `${apiUrl}/api/users`,
+        `${apiUrl}/api/users/all`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Filtrer l'utilisateur courant
-      const otherUsers = (response.data || []).filter(u => u.id !== currentUserId);
+      const allowedStatus = ['approved', 'ruled'];
+      const otherUsers = (response.data || []).filter(
+        u => u.id !== currentUserId && allowedStatus.includes(u.status)
+      );
       setUsers(otherUsers);
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur lors de la récupération des utilisateurs');
@@ -115,7 +118,7 @@ const BallePerduModal = ({ isOpen, onClose, onSuccess, currentUserId }) => {
                 >
                   {user.img ? (
                     <img
-                      src={user.img}
+                      src={`${apiUrl}/uploads/users/${user.id}/${user.img}`}
                       alt={user.username}
                       className="w-10 h-10 rounded-full object-cover border border-gray-300"
                     />

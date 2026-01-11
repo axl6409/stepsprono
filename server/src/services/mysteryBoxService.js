@@ -18,7 +18,7 @@ const getUserMysteryBoxItem = async (userId) => {
     if (!rule || !rule.config?.selection) return null;
 
     const selection = rule.config.selection;
-    const userSelection = selection.find(s => s.user?.id === userId);
+    const userSelection = selection.find(s => Number(s.user?.id) === Number(userId));
 
     if (!userSelection) return null;
 
@@ -35,7 +35,7 @@ const getUserMysteryBoxItem = async (userId) => {
 
     let usageData = null;
     if (result?.results) {
-      const userResult = result.results.find(r => r.user_id === userId);
+      const userResult = result.results.find(r => Number(r.user_id) === Number(userId));
       if (userResult) {
         usageData = userResult;
       }
@@ -78,7 +78,7 @@ const getAllMysteryBoxSelections = async () => {
     const selections = rule.config.selection.map(s => {
       let usageData = null;
       if (result?.results) {
-        usageData = result.results.find(r => r.user_id === s.user?.id);
+        usageData = result.results.find(r => Number(r.user_id) === Number(s.user?.id));
       }
       return {
         ...s,
@@ -112,7 +112,7 @@ const useItem = async (userId, itemKey, data = {}) => {
 
     // Vérifier que l'utilisateur a bien cet item
     const selection = rule.config?.selection || [];
-    const userSelection = selection.find(s => s.user?.id === userId && s.item?.key === itemKey);
+    const userSelection = selection.find(s => Number(s.user?.id) === Number(userId) && s.item?.key === itemKey);
 
     if (!userSelection) {
       throw new Error('User does not have this item');
@@ -140,7 +140,7 @@ const useItem = async (userId, itemKey, data = {}) => {
 
     // Mettre à jour les résultats
     let results = result.results || [];
-    const existingIndex = results.findIndex(r => r.user_id === userId);
+    const existingIndex = results.findIndex(r => Number(r.user_id) === Number(userId));
 
     const usageEntry = {
       user_id: userId,
@@ -157,7 +157,10 @@ const useItem = async (userId, itemKey, data = {}) => {
       results.push(usageEntry);
     }
 
-    await result.update({ results });
+    // Forcer Sequelize à détecter le changement du champ JSON
+    result.results = results;
+    result.changed('results', true);
+    await result.save();
 
     logger.info(`[useItem] User ${userId} used item ${itemKey}`);
 
@@ -194,7 +197,7 @@ const getItemUsage = async (userId, itemKey) => {
 
     if (!result?.results) return null;
 
-    const userResult = result.results.find(r => r.user_id === userId && r.item_key === itemKey);
+    const userResult = result.results.find(r => Number(r.user_id) === Number(userId) && r.item_key === itemKey);
     return userResult || null;
   } catch (error) {
     logger.error('[getItemUsage] Error:', error);
@@ -294,7 +297,7 @@ const getCommunismePartner = async (userId) => {
     const selection = rule.config.selection;
 
     // Trouver si l'utilisateur a le malus communisme
-    const userSelection = selection.find(s => s.user?.id === userId && s.item?.key === 'communisme');
+    const userSelection = selection.find(s => Number(s.user?.id) === Number(userId) && s.item?.key === 'communisme');
 
     if (!userSelection || !userSelection.item?.data?.partner_id) return null;
 
@@ -326,8 +329,8 @@ const getCommunismeInfo = async (userId) => {
 
     const selection = rule.config.selection;
 
-    // Cas 1: L'utilisateur a le malus communisme directement (User A)
-    const userSelection = selection.find(s => s.user?.id === userId && s.item?.key === 'communisme');
+    // Chercher si l'utilisateur a l'item communisme (directement ou comme partenaire)
+    const userSelection = selection.find(s => Number(s.user?.id) === Number(userId) && s.item?.key === 'communisme');
 
     if (userSelection && userSelection.item?.data?.partner_id) {
       const partnerId = userSelection.item.data.partner_id;
@@ -335,38 +338,103 @@ const getCommunismeInfo = async (userId) => {
         attributes: ['id', 'username', 'img']
       });
 
+      // Utiliser isPartner pour déterminer qui est User A (false) ou User B (true)
+      const isUserA = !userSelection.item.isPartner;
+
+      logger.info(`[getCommunismeInfo] User ${userId} has communisme, isPartner=${userSelection.item.isPartner}, isUserA=${isUserA}, partner: ${partnerId}`);
       return {
         isActive: true,
-        isUserA: true,
+        isUserA: isUserA,
         partnerId: partnerId,
         partner: partner ? { id: partner.id, username: partner.username, img: partner.img } : null
       };
     }
 
-    // Cas 2: L'utilisateur est le partenaire de quelqu'un qui a communisme (User B)
-    const partnerSelection = selection.find(
-      s => s.item?.key === 'communisme' && s.item?.data?.partner_id === userId
-    );
-
-    if (partnerSelection) {
-      const partnerId = partnerSelection.user.id;
-      const partner = await User.findByPk(partnerId, {
-        attributes: ['id', 'username', 'img']
-      });
-
-      return {
-        isActive: true,
-        isUserA: false,
-        partnerId: partnerId,
-        partner: partner ? { id: partner.id, username: partner.username, img: partner.img } : null
-      };
-    }
-
+    logger.info(`[getCommunismeInfo] User ${userId} is not involved in Communisme`);
     return null;
   } catch (error) {
     logger.error('[getCommunismeInfo] Error:', error);
     throw error;
   }
+};
+
+/**
+ * Enregistre le choix du 2ème buteur pour le double_buteur
+ * @param {number} userId - ID de l'utilisateur
+ * @param {number} matchId - ID du match
+ * @param {number} secondScorerId - ID du 2ème buteur
+ * @returns {Object} - Résultat de l'opération
+ */
+const saveDoubleButeurChoice = async (userId, matchId, secondScorerId) => {
+  return useItem(userId, 'double_buteur', {
+    match_id: matchId,
+    second_scorer_id: secondScorerId
+  });
+};
+
+/**
+ * Vérifie si un utilisateur est ciblé par une balle perdue
+ * @param {number} userId - ID de l'utilisateur
+ * @returns {Object|null} - Données du tireur ou null
+ */
+const getBallePerduTargetInfo = async (userId) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
+
+    if (!rule || !rule.config?.selection) return null;
+
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const result = await SpecialRuleResult.findOne({
+      where: {
+        rule_id: rule.id,
+        season_id: seasonId
+      }
+    });
+
+    if (!result?.results) return null;
+
+    // Chercher si cet utilisateur est la cible d'une balle_perdue
+    for (const selection of rule.config.selection) {
+      if (selection.item?.key === 'balle_perdue') {
+        const usage = result.results.find(
+          r => Number(r.user_id) === Number(selection.user?.id) && r.item_key === 'balle_perdue' && r.used
+        );
+        if (usage && Number(usage.data?.target_user_id) === Number(userId)) {
+          // Cet utilisateur est la cible
+          const shooter = await User.findByPk(selection.user.id, {
+            attributes: ['id', 'username', 'img']
+          });
+          return {
+            isTarget: true,
+            shooter: shooter ? { id: shooter.id, username: shooter.username, img: shooter.img } : { id: selection.user.id, username: selection.user.username },
+            penalty: -1
+          };
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    logger.error('[getBallePerduTargetInfo] Error:', error);
+    return null;
+  }
+};
+
+/**
+ * Récupère le 2ème buteur choisi pour un match
+ * @param {number} userId - ID de l'utilisateur
+ * @param {number} matchId - ID du match (optionnel, pour vérifier)
+ * @returns {number|null} - ID du 2ème buteur ou null
+ */
+const getDoubleButeurChoice = async (userId, matchId = null) => {
+  const usage = await getItemUsage(userId, 'double_buteur');
+  if (!usage?.data?.second_scorer_id) return null;
+  if (matchId && usage.data.match_id !== matchId) return null;
+  return usage.data.second_scorer_id;
 };
 
 module.exports = {
@@ -378,5 +446,8 @@ module.exports = {
   getAvailableItems,
   getMysteryBoxData,
   getCommunismePartner,
-  getCommunismeInfo
+  getCommunismeInfo,
+  saveDoubleButeurChoice,
+  getDoubleButeurChoice,
+  getBallePerduTargetInfo
 };

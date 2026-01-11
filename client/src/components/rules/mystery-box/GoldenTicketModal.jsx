@@ -66,7 +66,7 @@ const GoldenTicketModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl border-2 border-yellow-500 shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl border-2 border-yellow-500 shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[70vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-rubik font-bold text-xl uppercase text-yellow-700 flex items-center gap-2">
@@ -134,7 +134,7 @@ const GoldenTicketModal = ({ isOpen, onClose, onSuccess }) => {
         )}
 
         {/* Actions */}
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-row gap-3 mt-4">
           <button
             onClick={onClose}
             className="flex-1 py-2 px-4 rounded-full border border-black font-roboto font-medium text-black bg-gray-100 hover:bg-gray-200"

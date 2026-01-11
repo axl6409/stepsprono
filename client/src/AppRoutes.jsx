@@ -33,6 +33,7 @@ import ViewedProfileRouteSync from './contexts/ViewedProfileRouteSync.jsx';
 import AdminRules from './pages/admin/AdminRules.jsx';
 import SpecialRuleConfig from "./pages/admin/SpecialRuleConfig.jsx";
 import RulePresent from "./pages/rules/RulePresent.jsx";
+import MysteryBoxPage from "./pages/rules/MysteryBoxPage.jsx";
 
 const RankingLayout = () => (
   <RankingProvider>
@@ -69,6 +70,7 @@ const AppRoutes = memo(({ user, token, setUser }) => {
           <Route path="/hunt-day" element={<ProtectedRoute component={RulePresent} />} />
           <Route path="/hidden-predictions" element={<ProtectedRoute component={RulePresent} />} />
           <Route path="/alliance-day" element={<ProtectedRoute component={RulePresent} />} />
+          <Route path="/mystery-box" element={<ProtectedRoute component={MysteryBoxPage} />} />
           {/* End Rules */}
           <Route path="/settings/username" element={<ProtectedRoute component={() => <EditField title="Changer le pseudo" fieldName="username" fieldLabel="Nouveau pseudo" user={user} token={token} setUser={setUser} />} />} />
           <Route path="/settings/email" element={<ProtectedRoute component={() => <EditField title="Changer le mail" fieldName="email" fieldLabel="Nouveau mail" user={user} token={token} setUser={setUser} type="email" />} />} />

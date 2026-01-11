@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import vsIcon from "../../../assets/components/matchs/vs-icon.png";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -23,14 +24,15 @@ const DoubleDoseModal = ({ isOpen, onClose, onSuccess }) => {
     setLoading(true);
     setError(null);
     try {
-      // Récupère les matchs de la journée en cours
+      // Récupère les matchs de la semaine en cours
       const response = await axios.get(
-        `${apiUrl}/api/matchs/week`,
+        `${apiUrl}/api/matchs/current-week`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Filtrer uniquement les matchs non commencés
       const now = new Date();
-      const upcomingMatches = (response.data || []).filter(match => {
+      const matchesData = response.data?.data || [];
+      const upcomingMatches = matchesData.filter(match => {
         const matchDate = new Date(match.utc_date);
         return matchDate > now;
       });
@@ -87,7 +89,7 @@ const DoubleDoseModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl border-2 border-cyan-500 shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl border-2 border-cyan-500 shadow-flat-black p-6 mx-4 max-w-md w-full max-h-[70vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-rubik font-bold text-xl uppercase text-cyan-700 flex items-center gap-2">
@@ -132,7 +134,36 @@ const DoubleDoseModal = ({ isOpen, onClose, onSuccess }) => {
                       : 'border-gray-300 bg-white hover:border-gray-400'
                   }`}
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col justify-between items-center">
+                    <div className="relative flex flex-row justify-center items-center">
+                      <img
+                        className="mx-auto object-contain object-center h-[60px] w-[60px]"
+                        src={
+                          apiUrl +
+                          "/uploads/teams/" +
+                          match.HomeTeam.id +
+                          "/" +
+                          match.HomeTeam.logo_url
+                        }
+                        alt={`${match.HomeTeam.name} Logo`}
+                      />
+                      <img
+                        className="h-[50px] w-[50px] object-contain object-center"
+                        src={vsIcon}
+                        alt=""
+                      />
+                      <img
+                        className="mx-auto object-contain object-center h-[60px] w-[60px]"
+                        src={
+                          apiUrl +
+                          "/uploads/teams/" +
+                          match.AwayTeam.id +
+                          "/" +
+                          match.AwayTeam.logo_url
+                        }
+                        alt={`${match.AwayTeam.name} Logo`}
+                      />
+                    </div>
                     <div className="flex-1">
                       <p className="font-rubik font-bold text-base text-black">
                         {match.HomeTeam?.name || 'Équipe 1'} - {match.AwayTeam?.name || 'Équipe 2'}

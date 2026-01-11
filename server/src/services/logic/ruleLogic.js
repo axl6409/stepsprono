@@ -1,5 +1,5 @@
 const {getCurrentMatchday} = require("../matchdayService");
-const {SpecialRuleResult, Sequelize} = require("../../models");
+const {SpecialRuleResult, SpecialRule, Sequelize} = require("../../models");
 const {Op} = require("sequelize");
 
 const applySpecialRulePoints = async (seasonId, period, userId, basePoints, matchdays = []) => {
@@ -14,34 +14,67 @@ const applySpecialRulePoints = async (seasonId, period, userId, basePoints, matc
   });
 
   if (!ruleResults || ruleResults.length === 0) {
-    return basePoints;
+    // Continue pour vérifier balle_perdue même sans autres règles
+  } else {
+    const currentMatchday = await getCurrentMatchday();
+
+    for (const rr of ruleResults) {
+      const cfg = rr.config || {};
+      let applyRule = false;
+
+      if (period === "week") {
+        if (cfg.matchday && Number(cfg.matchday) === Number(currentMatchday)) {
+          applyRule = true;
+        }
+      } else if (period === "month") {
+        if (cfg.matchday && matchdays.includes(Number(cfg.matchday))) {
+          applyRule = true;
+        }
+      } else if (period === "season") {
+        applyRule = true; // déjà filtré par season_id
+      }
+
+      if (applyRule) {
+        const specialResults = rr.results || [];
+        const sr = specialResults.find(r => Number(r.user_id) === Number(userId));
+        if (sr) {
+          basePoints += sr.hunt_result || 0;
+        }
+      }
+    }
   }
 
-  const currentMatchday = await getCurrentMatchday();
+  // Appliquer la pénalité balle_perdue de Mystery Box
+  try {
+    const mysteryBoxRule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
 
-  for (const rr of ruleResults) {
-    const cfg = rr.config || {};
-    let applyRule = false;
+    if (mysteryBoxRule && mysteryBoxRule.config?.selection) {
+      const mysteryBoxResult = await SpecialRuleResult.findOne({
+        where: {
+          rule_id: mysteryBoxRule.id,
+          season_id: seasonId
+        }
+      });
 
-    if (period === "week") {
-      if (cfg.matchday && Number(cfg.matchday) === Number(currentMatchday)) {
-        applyRule = true;
+      if (mysteryBoxResult?.results) {
+        // Chercher si cet utilisateur est la cible d'une balle_perdue
+        for (const selection of mysteryBoxRule.config.selection) {
+          if (selection.item?.key === 'balle_perdue') {
+            // Trouver l'usage de ce balle_perdue
+            const usage = mysteryBoxResult.results.find(
+              r => Number(r.user_id) === Number(selection.user?.id) && r.item_key === 'balle_perdue' && r.used
+            );
+            if (usage && Number(usage.data?.target_user_id) === Number(userId)) {
+              basePoints -= 1;
+            }
+          }
+        }
       }
-    } else if (period === "month") {
-      if (cfg.matchday && matchdays.includes(Number(cfg.matchday))) {
-        applyRule = true;
-      }
-    } else if (period === "season") {
-      applyRule = true; // déjà filtré par season_id
     }
-
-    if (applyRule) {
-      const specialResults = rr.results || [];
-      const sr = specialResults.find(r => Number(r.user_id) === Number(userId));
-      if (sr) {
-        basePoints += sr.hunt_result || 0;
-      }
-    }
+  } catch (error) {
+    // Ignorer les erreurs de mystery box pour ne pas bloquer le calcul
   }
 
   return basePoints;

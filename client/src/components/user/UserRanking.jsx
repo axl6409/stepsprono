@@ -19,9 +19,14 @@ import {AppContext} from "../../contexts/AppContext.jsx";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
 const UserRanking = () => {
-  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking, selectedMonth, setSelectedMonth } = useContext(RankingContext);
+  const { ranking, rankingType, changeRankingType, refreshRanking, isLoading, rankingMode, isDuoRanking, selectedMonth, setSelectedMonth, ballePerduTargets } = useContext(RankingContext);
   const { currentRule } = useContext(RuleContext);
   const { currentMatchday, currentSeason } = useContext(AppContext);
+
+  // Helper pour vérifier si un utilisateur a reçu la balle perdue
+  const hasBallePerdu = (userId) => {
+    return ballePerduTargets.find(t => t.targetId === userId);
+  };
 
   const showDuoTab = currentRule?.rule_key === 'alliance_day' && currentRule?.status;
 
@@ -106,7 +111,10 @@ const UserRanking = () => {
                 alt={ranking[1]?.username}/>
             </div>
             <div className="relative w-full">
-              <p translate="no" className="font-bold text-center">{ranking[1]?.username}</p>
+              <p translate="no" className="font-bold text-center">
+                {ranking[1]?.username}
+                {hasBallePerdu(ranking[1]?.user_id) && <span className="ml-1 text-red-500" title={`Touche par ${hasBallePerdu(ranking[1]?.user_id)?.shooterUsername}`}>💥</span>}
+              </p>
               <p translate="no"
                  className="flex flex-row relative z-[3] justify-center items-center font-rubik font-medium leading-[30px] text-xl2">{ranking[1]?.points}</p>
               {ranking[1]?.mode === 'history' && rankingType !== 'week' && (
@@ -137,7 +145,10 @@ const UserRanking = () => {
             <div className="relative w-full">
               <p translate="no"
                  className="font-black w-full fade-in text-center relative mx-auto text-xl2">
-                <span translate="no" className="relative z-[3]">{ranking[0]?.username}</span>
+                <span translate="no" className="relative z-[3]">
+                  {ranking[0]?.username}
+                  {hasBallePerdu(ranking[0]?.user_id) && <span className="ml-1 text-red-500" title={`Touche par ${hasBallePerdu(ranking[0]?.user_id)?.shooterUsername}`}>💥</span>}
+                </span>
                 <span
                   translate="no"
                   className="absolute left-0 top-0 right-0 text-purple-soft z-[2] translate-x-0.5 translate-y-0.5">{ranking[0]?.username}</span>
@@ -170,7 +181,10 @@ const UserRanking = () => {
                 alt={ranking[2]?.username}/>
             </div>
             <div className="relative w-full">
-              <p translate="no" className="font-bold text-center">{ranking[2]?.username}</p>
+              <p translate="no" className="font-bold text-center">
+                {ranking[2]?.username}
+                {hasBallePerdu(ranking[2]?.user_id) && <span className="ml-1 text-red-500" title={`Touche par ${hasBallePerdu(ranking[2]?.user_id)?.shooterUsername}`}>💥</span>}
+              </p>
               <p translate="no"
                  className="flex flex-row relative z-[3] justify-center items-center font-rubik font-medium leading-[30px] text-xl2">{ranking[2]?.points}</p>
               {ranking[2]?.mode === 'history' && rankingType !== 'week' && (
@@ -341,7 +355,8 @@ const UserRanking = () => {
                        alt={user.username}/>
                 </div>
                 <p translate="no" className="font-title text-black text-xl font-bold h-fit my-auto w-3/5 pl-6 pr-2">
-                  <span translate="no" className="inline-block mr-2">{user.username}</span>
+                  <span translate="no" className="inline-block mr-1">{user.username}</span>
+                  {hasBallePerdu(user.user_id) && <span className="text-red-500 text-sm" title={`Touche par ${hasBallePerdu(user.user_id)?.shooterUsername}`}>💥</span>}
                 </p>
                 <div className="w-px h-auto mx-1 border-l-2 border-black border-dotted"></div>
                 <p translate="no"
