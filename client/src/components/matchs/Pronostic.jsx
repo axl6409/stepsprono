@@ -67,9 +67,9 @@ const Pronostic = forwardRef(
         setValue("scorer", playerGoal);
 
         // Charger le 2ème buteur depuis mysteryBoxItem.usage.data (si double_buteur)
-        if (mysteryBoxItem?.item?.key === 'double_buteur' &&
-            mysteryBoxItem?.usage?.data?.match_id === match?.id) {
-          const secondScorer = mysteryBoxItem.usage.data.second_scorer_id?.toString() || "";
+        if (mysteryBoxItem?.item?.key === 'double_buteur' && mysteryBoxItem?.usage?.data?.choices) {
+          const matchChoice = mysteryBoxItem.usage.data.choices.find(c => c.match_id === match?.id);
+          const secondScorer = matchChoice?.second_scorer_id?.toString() || "";
           setScorer2(secondScorer);
           setValue("scorer2", secondScorer);
         } else {
