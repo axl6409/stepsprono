@@ -366,10 +366,88 @@ const getCommunismeInfo = async (userId) => {
  * @returns {Object} - Résultat de l'opération
  */
 const saveDoubleButeurChoice = async (userId, matchId, secondScorerId) => {
-  return useItem(userId, 'double_buteur', {
-    match_id: matchId,
-    second_scorer_id: secondScorerId
-  });
+  try {
+    const rule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
+
+    if (!rule) {
+      throw new Error('Mystery Box rule not found');
+    }
+
+    // Vérifier que l'utilisateur a bien cet item
+    const selection = rule.config?.selection || [];
+    const userSelection = selection.find(s => Number(s.user?.id) === Number(userId) && s.item?.key === 'double_buteur');
+
+    if (!userSelection) {
+      throw new Error('User does not have double_buteur');
+    }
+
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    // Récupérer ou créer le SpecialRuleResult
+    let result = await SpecialRuleResult.findOne({
+      where: {
+        rule_id: rule.id,
+        season_id: seasonId
+      }
+    });
+
+    if (!result) {
+      result = await SpecialRuleResult.create({
+        rule_id: rule.id,
+        season_id: seasonId,
+        config: { matchday: rule.config?.matchday },
+        results: []
+      });
+    }
+
+    // Mettre à jour les résultats
+    let results = result.results || [];
+    let userResultIndex = results.findIndex(r => Number(r.user_id) === Number(userId) && r.item_key === 'double_buteur');
+
+    if (userResultIndex >= 0) {
+      // L'utilisateur a déjà des choix enregistrés
+      let choices = results[userResultIndex].data?.choices || [];
+      const matchChoiceIndex = choices.findIndex(c => c.match_id === matchId);
+
+      if (matchChoiceIndex >= 0) {
+        // Mettre à jour le choix existant pour ce match
+        choices[matchChoiceIndex].second_scorer_id = secondScorerId;
+      } else {
+        // Ajouter un nouveau choix pour ce match
+        choices.push({ match_id: matchId, second_scorer_id: secondScorerId });
+      }
+
+      results[userResultIndex].data = { choices };
+      results[userResultIndex].used = true;
+    } else {
+      // Créer une nouvelle entrée pour cet utilisateur
+      results.push({
+        user_id: userId,
+        item_key: 'double_buteur',
+        item_type: userSelection.item.type,
+        used: true,
+        used_at: new Date().toISOString(),
+        data: {
+          choices: [{ match_id: matchId, second_scorer_id: secondScorerId }]
+        }
+      });
+    }
+
+    // Forcer Sequelize à détecter le changement du champ JSON
+    result.results = results;
+    result.changed('results', true);
+    await result.save();
+
+    logger.info(`[saveDoubleButeurChoice] User ${userId} saved 2nd scorer ${secondScorerId} for match ${matchId}`);
+
+    return { success: true, message: '2ème buteur enregistré avec succès' };
+  } catch (error) {
+    logger.error('[saveDoubleButeurChoice] Error:', error);
+    throw error;
+  }
 };
 
 /**
@@ -427,14 +505,15 @@ const getBallePerduTargetInfo = async (userId) => {
 /**
  * Récupère le 2ème buteur choisi pour un match
  * @param {number} userId - ID de l'utilisateur
- * @param {number} matchId - ID du match (optionnel, pour vérifier)
+ * @param {number} matchId - ID du match
  * @returns {number|null} - ID du 2ème buteur ou null
  */
-const getDoubleButeurChoice = async (userId, matchId = null) => {
+const getDoubleButeurChoice = async (userId, matchId) => {
   const usage = await getItemUsage(userId, 'double_buteur');
-  if (!usage?.data?.second_scorer_id) return null;
-  if (matchId && usage.data.match_id !== matchId) return null;
-  return usage.data.second_scorer_id;
+  if (!usage?.data?.choices) return null;
+
+  const matchChoice = usage.data.choices.find(c => c.match_id === matchId);
+  return matchChoice?.second_scorer_id || null;
 };
 
 module.exports = {
