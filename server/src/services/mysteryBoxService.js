@@ -516,6 +516,61 @@ const getDoubleButeurChoice = async (userId, matchId) => {
   return matchChoice?.second_scorer_id || null;
 };
 
+/**
+ * Récupère l'auteur d'un prono pour le Communisme
+ * @param {number} userId - ID de l'utilisateur
+ * @param {number} matchId - ID du match
+ * @returns {Object|null} - { authorId, partnerId } ou null
+ */
+const getCommunismeBetAuthor = async (userId, matchId) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
+
+    if (!rule) return null;
+
+    const competitionId = await getCurrentCompetitionId();
+    const seasonId = await getCurrentSeasonId(competitionId);
+
+    const result = await SpecialRuleResult.findOne({
+      where: {
+        rule_id: rule.id,
+        season_id: seasonId
+      }
+    });
+
+    if (!result?.results) return null;
+
+    // Chercher qui a fait ce prono dans les résultats Communisme
+    const communismeEntries = result.results.filter(r => r.item_key === 'communisme');
+
+    for (const entry of communismeEntries) {
+      if (Number(entry.user_id) === Number(userId) && entry.bets_made?.includes(matchId)) {
+        // L'utilisateur actuel a créé ce prono
+        return {
+          authorId: userId,
+          partnerId: entry.partner_id,
+          isOwnBet: true
+        };
+      }
+      if (Number(entry.partner_id) === Number(userId) && entry.bets_made?.includes(matchId)) {
+        // Le partenaire a créé ce prono
+        return {
+          authorId: entry.user_id,
+          partnerId: userId,
+          isOwnBet: false
+        };
+      }
+    }
+
+    return null;
+  } catch (error) {
+    logger.error('[getCommunismeBetAuthor] Error:', error);
+    return null;
+  }
+};
+
 module.exports = {
   getUserMysteryBoxItem,
   getAllMysteryBoxSelections,
@@ -528,5 +583,6 @@ module.exports = {
   getCommunismeInfo,
   saveDoubleButeurChoice,
   getDoubleButeurChoice,
-  getBallePerduTargetInfo
+  getBallePerduTargetInfo,
+  getCommunismeBetAuthor
 };

@@ -644,7 +644,40 @@ const getAllLastBets = async () => {
       }
     ],
   });
-  return bets;
+
+  // Enrichir les pronos avec les infos Communisme
+  const { getCommunismeBetAuthor, getCommunismeInfo } = require('./mysteryBoxService');
+  const enrichedBets = await Promise.all(bets.map(async (bet) => {
+    const betObj = bet.toJSON ? bet.toJSON() : bet;
+
+    try {
+      const communismeInfo = await getCommunismeInfo(betObj.user_id);
+      if (communismeInfo?.isActive) {
+        // Cas spécial : le match bonus (require_details = true) est fait en commun
+        if (betObj.MatchId?.require_details) {
+          betObj.isSharedBet = true;
+          betObj.sharedWithPartner = communismeInfo.partner;
+          betObj.isOwnBet = true;
+          betObj.isPartnerBet = false;
+        } else {
+          const authorInfo = await getCommunismeBetAuthor(betObj.user_id, betObj.match_id);
+          if (authorInfo) {
+            betObj.isOwnBet = authorInfo.isOwnBet;
+            if (!authorInfo.isOwnBet) {
+              betObj.isPartnerBet = true;
+              betObj.partnerInfo = communismeInfo.partner;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Ignorer les erreurs Communisme
+    }
+
+    return betObj;
+  }));
+
+  return enrichedBets;
 }
 
 const getMatchdayRanking = async (matchday, seasonIdParam = null) => {

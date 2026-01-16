@@ -49,6 +49,39 @@ const CurrentBets = ({ loggedUser, user, token }) => {
   // Allow viewing bets if: normal deadline passed OR user is my duo partner during alliance_day
   const canViewBets = canDisplayBets || isMyDuoPartner();
 
+  // Déterminer les classes CSS en fonction du type de prono
+  const getBetClasses = (bet) => {
+    if (bet.isSharedBet) {
+      return 'bg-purple-50 border-purple-400';
+    }
+    if (bet.isPartnerBet) {
+      // Communisme (Mystery Box) = bleu, Alliance Day = rose
+      const isCommunisme = currentRule?.rule_key === 'mystery_box';
+      return isCommunisme ? 'bg-blue-50 border-blue-400' : 'bg-rose-50 border-rose-400';
+    }
+    return 'bg-white';
+  };
+
+  // Déterminer les classes de bordure pour les séparateurs
+  const getBorderClasses = (bet) => {
+    if (bet.isSharedBet) return 'border-purple-300';
+    if (bet.isPartnerBet) {
+      const isCommunisme = currentRule?.rule_key === 'mystery_box';
+      return isCommunisme ? 'border-blue-300' : 'border-rose-300';
+    }
+    return 'border-black';
+  };
+
+  // Déterminer les classes de couleur pour le texte du label
+  const getLabelClasses = (bet) => {
+    if (bet.isSharedBet) return 'text-purple-600';
+    if (bet.isPartnerBet) {
+      const isCommunisme = currentRule?.rule_key === 'mystery_box';
+      return isCommunisme ? 'text-blue-600' : 'text-rose-600';
+    }
+    return '';
+  };
+
   const handleNavigate = (bet) => {
     navigate(`/matchs/history/${bet.MatchId.id}`, {
       state: { canDisplayBets: canDisplayBets }
@@ -269,18 +302,18 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                         ) : (
                           <div key={bet.id}
                                onClick={() => handleNavigate(bet)}
-                               className={`relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust ${bet.isPartnerBet ? 'bg-rose-50 border-rose-400' : bet.isSharedBet ? 'bg-purple-50 border-purple-400' : 'bg-white'}`}>
+                               className={`relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust ${getBetClasses(bet)}`}>
                             {bet.isSharedBet ? (
-                              <div className="absolute -top-6 left-2 flex items-center gap-1">
+                              <div className="absolute -top-4 left-2 flex items-center gap-1">
                                 <span className="text-xs text-purple-600">🤝✨</span>
                                 <p className="font-roboto text-xxs text-purple-600 font-medium">
                                   Prono partagé ({user.username} & {bet.sharedWithPartner?.username})
                                 </p>
                               </div>
                             ) : bet.isPartnerBet ? (
-                              <div className="absolute -top-6 left-2 flex items-center gap-1">
-                                <span className="text-xs text-rose-600">🤝</span>
-                                <p className="font-roboto text-xxs text-rose-600 font-medium">
+                              <div className="absolute -top-4 left-2 flex items-center gap-1">
+                                <span className={`text-xs ${getLabelClasses(bet)}`}>🤝</span>
+                                <p className={`font-roboto text-xxs ${getLabelClasses(bet)} font-medium`}>
                                   {bet.partnerInfo?.username}
                                 </p>
                               </div>
@@ -289,7 +322,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                translate="no"
                                style={{color: betColors[bet.id]}}>{index + 1}</p>
                             <div
-                              className={`relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 ${bet.isSharedBet ? 'border-purple-300' : bet.isPartnerBet ? 'border-rose-300' : 'border-black'} border-dotted`}>
+                              className={`relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 ${getBorderClasses(bet)} border-dotted`}>
                               <div className="flex flex-col justify-evenly h-full">
                                 {bet.home_score !== null && bet.away_score !== null ? (
                                   <>
@@ -317,7 +350,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                 )}
                               </div>
                             </div>
-                            <div className={`relative z-[2] w-[30%] py-2 border-r-2 ${bet.isSharedBet ? 'border-purple-300' : bet.isPartnerBet ? 'border-rose-300' : 'border-black'} border-dotted`}>
+                            <div className={`relative z-[2] w-[30%] py-2 border-r-2 ${getBorderClasses(bet)} border-dotted`}>
                               <div className="h-full flex flex-row justify-center items-center">
                                 {bet.home_score !== null && bet.away_score !== null ? (
                                   <div>
@@ -421,7 +454,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                       {bets.map((bet, index) => (
                         <div key={bet.id}
                              onClick={() => handleNavigate(bet)}
-                             className={`relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust ${bet.isPartnerBet ? 'bg-rose-50 border-rose-400' : bet.isSharedBet ? 'bg-purple-50 border-purple-400' : 'bg-white'}`}>
+                             className={`relative min-h-[65px] flex flex-row my-2 border border-black rounded-xl shadow-flat-black-adjust ${getBetClasses(bet)}`}>
                           {bet.isSharedBet ? (
                             <div className="absolute -top-6 left-2 flex items-center gap-1">
                               <span className="text-xs text-purple-600">🤝✨</span>
@@ -431,8 +464,8 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                             </div>
                           ) : bet.isPartnerBet ? (
                             <div className="absolute -top-6 left-2 flex items-center gap-1">
-                              <span className="text-xs text-rose-600">🤝</span>
-                              <p className="font-roboto text-xxs text-rose-600 font-medium">
+                              <span className={`text-xs ${getLabelClasses(bet)}`}>🤝</span>
+                              <p className={`font-roboto text-xxs ${getLabelClasses(bet)} font-medium`}>
                                 {bet.partnerInfo?.username}
                               </p>
                             </div>
@@ -441,7 +474,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                              translate="no"
                              style={{color: betColors[bet.id]}}>{index + 1}</p>
                           <div
-                            className={`relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 ${bet.isSharedBet ? 'border-purple-300' : bet.isPartnerBet ? 'border-rose-300' : 'border-black'} border-dotted`}>
+                            className={`relative z-[2] w-[50%] py-2 pl-2 pr-4 border-r-2 ${getBorderClasses(bet)} border-dotted`}>
                             <div className="flex flex-col justify-evenly h-full">
                               {bet.home_score !== null && bet.away_score !== null ? (
                                 <>
@@ -469,7 +502,7 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                               )}
                             </div>
                           </div>
-                          <div className={`relative z-[2] w-[30%] py-2 border-r-2 ${bet.isSharedBet ? 'border-purple-300' : bet.isPartnerBet ? 'border-rose-300' : 'border-black'} border-dotted`}>
+                          <div className={`relative z-[2] w-[30%] py-2 border-r-2 ${getBorderClasses(bet)} border-dotted`}>
                             <div className="h-full flex flex-row justify-center items-center">
                               {bet.home_score !== null && bet.away_score !== null ? (
                                 <div>

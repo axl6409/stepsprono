@@ -20,7 +20,7 @@ const {updateLastConnect, getUserStats, findUserByIdWithAssociations, setUsersSt
 const {getSeasonRankingEvolution, getSeasonRanking} = require("../services/rankingService");
 const {getCurrentCompetitionId} = require("../services/competitionService");
 const {blockedUserNotification, unlockedUserNotification, unruledUserNotification} = require("../services/notificationService");
-const {getUserMysteryBoxItem, getCommunismeInfo} = require("../services/mysteryBoxService");
+const {getUserMysteryBoxItem, getCommunismeInfo, getCommunismeBetAuthor} = require("../services/mysteryBoxService");
 
 /* PUBLIC - GET */
 router.get('/users/all', authenticateJWT, async (req, res) => {
@@ -64,13 +64,8 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
 
     // Vérifier si l'utilisateur a le communisme
     let communismeInfo = null;
-    let partnerBets = [];
     try {
       communismeInfo = await getCommunismeInfo(userId);
-      if (communismeInfo?.isActive && communismeInfo?.partnerId) {
-        // Récupérer aussi les bets du partenaire
-        partnerBets = await getLastBetsByUserId(communismeInfo.partnerId);
-      }
     } catch (e) {
       // Ignorer les erreurs de communisme
     }
@@ -99,7 +94,31 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
     const enrichedBets = await Promise.all(bets.map(async (bet) => {
       const betObj = bet.toJSON ? bet.toJSON() : bet;
       betObj.isDoubleDose = doubleDoseMatchId && betObj.MatchId?.id === doubleDoseMatchId;
-      betObj.isOwnBet = true;
+
+      // Vérifier qui a créé ce prono pour le Communisme
+      let betAuthorInfo = null;
+      if (communismeInfo?.isActive) {
+        betAuthorInfo = await getCommunismeBetAuthor(userId, betObj.MatchId?.id);
+
+        // Cas spécial : le match bonus (require_details = true) est fait en commun
+        if (betObj.MatchId?.require_details) {
+          betObj.isSharedBet = true;
+          betObj.sharedWithPartner = communismeInfo.partner;
+          betObj.isOwnBet = true;
+          betObj.isPartnerBet = false;
+        } else if (betAuthorInfo) {
+          betObj.isOwnBet = betAuthorInfo.isOwnBet;
+          if (!betAuthorInfo.isOwnBet) {
+            betObj.isPartnerBet = true;
+            betObj.partnerInfo = communismeInfo?.partner;
+          }
+        } else {
+          betObj.isOwnBet = true;
+        }
+      } else {
+        betObj.isOwnBet = true;
+      }
+
       // Ajouter le 2ème buteur si double_buteur et match correspond
       if (doubleButeurData?.choices && Array.isArray(doubleButeurData.choices)) {
         const matchChoice = doubleButeurData.choices.find(c => c.match_id === betObj.MatchId?.id);
@@ -115,17 +134,8 @@ router.get('/user/:id/bets/last', authenticateJWT, async (req, res) => {
       return betObj;
     }));
 
-    // Enrichir les bets du partenaire
-    const enrichedPartnerBets = await Promise.all(partnerBets.map(async (bet) => {
-      const betObj = bet.toJSON ? bet.toJSON() : bet;
-      betObj.isOwnBet = false;
-      betObj.isPartnerBet = true;
-      betObj.partnerInfo = communismeInfo?.partner;
-      return betObj;
-    }));
-
-    // Combiner les bets et trier par date de match
-    let allBets = [...enrichedBets, ...enrichedPartnerBets].sort((a, b) =>
+    // Trier les bets par date de match
+    let allBets = enrichedBets.sort((a, b) =>
       new Date(a.MatchId.utc_date) - new Date(b.MatchId.utc_date)
     );
 

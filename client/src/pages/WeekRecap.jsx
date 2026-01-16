@@ -7,6 +7,7 @@ import DashboardButton from "../components/nav/DashboardButton.jsx";
 import SimpleTitle from "../components/partials/SimpleTitle.jsx";
 import nullSymbol from "../assets/icons/null-symbol.svg";
 import {UserContext} from "../contexts/UserContext.jsx";
+import {RuleContext} from "../contexts/RuleContext.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -14,6 +15,7 @@ const WeekRecap = () => {
   const [cookies] = useCookies(["user"]);
   const token = localStorage.getItem('token') || cookies.token;
   const { user } = useContext(UserContext);
+  const { currentRule } = useContext(RuleContext);
   const [matchs, setMatchs] = useState([]);
   const [predictions, setPredictions] = useState([]);
   const [betColors, setBetColors] = useState({});
@@ -21,6 +23,16 @@ const WeekRecap = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const colors = ['#6666FF', '#CC99FF', '#00CC99', '#F7B009', '#F41731'];
+
+  // Déterminer si un prono a été fait par le partenaire Communisme
+  const isCommunismePartnerBet = (prediction) => {
+    return currentRule?.rule_key === 'mystery_box' && prediction?.isPartnerBet;
+  };
+
+  // Déterminer si un prono est partagé (match bonus Communisme)
+  const isCommunismeSharedBet = (prediction) => {
+    return currentRule?.rule_key === 'mystery_box' && prediction?.isSharedBet;
+  };
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -163,18 +175,38 @@ const WeekRecap = () => {
 
                         if (match.require_details) {
                           return (
-                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 h-full relative text-xxs flex flex-col justify-center border-r border-black ${ matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 h-full relative text-xxs flex flex-col justify-center border-r border-black ${ isCommunismeSharedBet(prediction) ? 'bg-purple-100' : isCommunismePartnerBet(prediction) ? 'bg-blue-100' : matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               <span className="font-rubik font-bold text-l text-center">{prediction.home_score} : {prediction.away_score}</span>
                               <span className="font-rubik font-medium text-xxxs text-center leading-[10px]">{prediction.PlayerGoal ? `${prediction.PlayerGoal.name.length > 8 ? prediction.PlayerGoal.name.substring(0, 8) + '...' : prediction.PlayerGoal.name}` : 'Aucun butteur'}</span>
+                              {isCommunismeSharedBet(prediction) && (
+                                <span className="font-rubik font-medium text-xxxs text-purple-600 text-center leading-[10px] mt-1">
+                                  🤝✨ Partagé
+                                </span>
+                              )}
+                              {isCommunismePartnerBet(prediction) && (
+                                <span className="font-rubik font-medium text-xxxs text-blue-600 text-center leading-[10px] mt-1">
+                                  🤝 {prediction.partnerInfo?.username}
+                                </span>
+                              )}
                             </div>
                           );
                         } else {
                           return (
-                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${ matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
+                            <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${ isCommunismeSharedBet(prediction) ? 'bg-purple-100' : isCommunismePartnerBet(prediction) ? 'bg-blue-100' : matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               {winnerTeam ? (
                                 <img className="h-[50px] w-[50px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
                               ) : (
                                 <img className="h-[25px] w-[25px] mx-auto object-contain object-center relative z-[1]" src={nullSymbol} alt="match nul symbol" />
+                              )}
+                              {isCommunismeSharedBet(prediction) && (
+                                <span className="font-rubik font-medium text-xxxs text-purple-600 text-center leading-[10px] mt-1">
+                                  🤝✨
+                                </span>
+                              )}
+                              {isCommunismePartnerBet(prediction) && (
+                                <span className="font-rubik font-medium text-xxxs text-blue-600 text-center leading-[10px] mt-1">
+                                  🤝
+                                </span>
                               )}
                             </div>
                           );
