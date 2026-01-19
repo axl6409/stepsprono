@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { Bet, Match } = require("../../models");
 const logger = require("../../utils/logger/logger");
-const { getUserMysteryBoxItem, getDoubleButeurChoice } = require("../mysteryBoxService");
+const { getUserMysteryBoxItem, getDoubleButeurChoice, isMatchOnMysteryBoxMatchday } = require("../mysteryBoxService");
 
 /**
  * Updates a bet with the given parameters.
@@ -62,16 +62,27 @@ const checkBetByMatchId = async (ids) => {
       let scorePoints = 0;
       let scorerPoints = 0;
 
+      // Vérifier si le match est sur la journée Mystery Box (pour appliquer les bonus)
+      let isOnMysteryBoxMatchday = false;
+      try {
+        isOnMysteryBoxMatchday = await isMatchOnMysteryBoxMatchday(match.matchday);
+      } catch (e) {
+        logger.warn(`[betLogic] Erreur vérification mystery box matchday: ${e.message}`);
+      }
+
       // Vérifier si l'utilisateur a le bonus double_dose sur ce match
+      // Note: double_dose ne s'applique que si le match est sur la journée mystery box
       let hasDoubleDose = false;
       try {
-        const mysteryBoxItem = await getUserMysteryBoxItem(bet.user_id);
-        if (
-          mysteryBoxItem?.item?.key === 'double_dose' &&
-          mysteryBoxItem?.usage?.used &&
-          mysteryBoxItem?.usage?.data?.match_id === match.id
-        ) {
-          hasDoubleDose = true;
+        if (isOnMysteryBoxMatchday) {
+          const mysteryBoxItem = await getUserMysteryBoxItem(bet.user_id);
+          if (
+            mysteryBoxItem?.item?.key === 'double_dose' &&
+            mysteryBoxItem?.usage?.used &&
+            mysteryBoxItem?.usage?.data?.match_id === match.id
+          ) {
+            hasDoubleDose = true;
+          }
         }
       } catch (e) {
         logger.warn(`[betLogic] Erreur vérification double_dose pour user ${bet.user_id}: ${e.message}`);
@@ -99,12 +110,15 @@ const checkBetByMatchId = async (ids) => {
         const matchScorers = JSON.parse(match.scorers || '[]');
 
         // Vérifier si l'utilisateur a le bonus buteur_or ou double_buteur
+        // Note: ces bonus ne s'appliquent que si le match est sur la journée mystery box
         let hasButeurOr = false;
         let hasDoubleButeur = false;
         try {
-          const mysteryBoxItem = await getUserMysteryBoxItem(bet.user_id);
-          hasButeurOr = mysteryBoxItem?.item?.key === 'buteur_or';
-          hasDoubleButeur = mysteryBoxItem?.item?.key === 'double_buteur';
+          if (isOnMysteryBoxMatchday) {
+            const mysteryBoxItem = await getUserMysteryBoxItem(bet.user_id);
+            hasButeurOr = mysteryBoxItem?.item?.key === 'buteur_or';
+            hasDoubleButeur = mysteryBoxItem?.item?.key === 'double_buteur';
+          }
         } catch (e) {
           logger.warn(`[betLogic] Erreur vérification bonus buteur pour user ${bet.user_id}: ${e.message}`);
         }

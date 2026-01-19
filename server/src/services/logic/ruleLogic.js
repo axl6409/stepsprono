@@ -44,7 +44,7 @@ const applySpecialRulePoints = async (seasonId, period, userId, basePoints, matc
     }
   }
 
-  // Appliquer la pénalité balle_perdue de Mystery Box
+  // Appliquer la pénalité balle_perdue de Mystery Box (rétroactif - s'applique même après la journée)
   try {
     const mysteryBoxRule = await SpecialRule.findOne({
       where: { rule_key: 'mystery_box' }
