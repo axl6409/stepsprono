@@ -3,6 +3,51 @@ const { Op } = require("sequelize");
 const logger = require("../utils/logger/logger");
 const { getCurrentSeasonId } = require("./logic/seasonLogic");
 const { getCurrentCompetitionId } = require("./competitionService");
+const { getCurrentMatchday } = require("./matchdayService");
+
+/**
+ * Vérifie si la journée Mystery Box est actuellement active
+ * @returns {Promise<boolean>} - true si la journée mystery box est la journée actuelle
+ */
+const isMysteryBoxMatchdayActive = async () => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
+
+    if (!rule || !rule.config?.matchday) return false;
+
+    const currentMatchday = await getCurrentMatchday();
+    if (!currentMatchday) return false;
+
+    const isActive = Number(rule.config.matchday) === Number(currentMatchday);
+    logger.info(`[isMysteryBoxMatchdayActive] Mystery Box matchday: ${rule.config.matchday}, Current matchday: ${currentMatchday}, isActive: ${isActive}`);
+    return isActive;
+  } catch (error) {
+    logger.error('[isMysteryBoxMatchdayActive] Error:', error);
+    return false;
+  }
+};
+
+/**
+ * Vérifie si un match spécifique est sur la journée Mystery Box
+ * @param {number} matchMatchday - La journée du match
+ * @returns {Promise<boolean>} - true si le match est sur la journée mystery box
+ */
+const isMatchOnMysteryBoxMatchday = async (matchMatchday) => {
+  try {
+    const rule = await SpecialRule.findOne({
+      where: { rule_key: 'mystery_box' }
+    });
+
+    if (!rule || !rule.config?.matchday) return false;
+
+    return Number(rule.config.matchday) === Number(matchMatchday);
+  } catch (error) {
+    logger.error('[isMatchOnMysteryBoxMatchday] Error:', error);
+    return false;
+  }
+};
 
 /**
  * Récupère l'item Mystery Box attribué à un utilisateur
@@ -288,6 +333,12 @@ const getMysteryBoxData = async () => {
  */
 const getCommunismePartner = async (userId) => {
   try {
+    // Vérifier si la journée mystery box est active
+    const isMatchdayActive = await isMysteryBoxMatchdayActive();
+    if (!isMatchdayActive) {
+      return null;
+    }
+
     const rule = await SpecialRule.findOne({
       where: { rule_key: 'mystery_box' }
     });
@@ -321,6 +372,12 @@ const getCommunismePartner = async (userId) => {
  */
 const getCommunismeInfo = async (userId) => {
   try {
+    // Vérifier si la journée mystery box est active
+    const isMatchdayActive = await isMysteryBoxMatchdayActive();
+    if (!isMatchdayActive) {
+      return null;
+    }
+
     const rule = await SpecialRule.findOne({
       where: { rule_key: 'mystery_box' }
     });
@@ -452,6 +509,7 @@ const saveDoubleButeurChoice = async (userId, matchId, secondScorerId) => {
 
 /**
  * Vérifie si un utilisateur est ciblé par une balle perdue
+ * Note: balle_perdue est rétroactif, donc pas de vérification de la journée active
  * @param {number} userId - ID de l'utilisateur
  * @returns {Object|null} - Données du tireur ou null
  */
@@ -524,6 +582,12 @@ const getDoubleButeurChoice = async (userId, matchId) => {
  */
 const getCommunismeBetAuthor = async (userId, matchId) => {
   try {
+    // Vérifier si la journée mystery box est active
+    const isMatchdayActive = await isMysteryBoxMatchdayActive();
+    if (!isMatchdayActive) {
+      return null;
+    }
+
     const rule = await SpecialRule.findOne({
       where: { rule_key: 'mystery_box' }
     });
@@ -584,5 +648,7 @@ module.exports = {
   saveDoubleButeurChoice,
   getDoubleButeurChoice,
   getBallePerduTargetInfo,
-  getCommunismeBetAuthor
+  getCommunismeBetAuthor,
+  isMysteryBoxMatchdayActive,
+  isMatchOnMysteryBoxMatchday
 };
