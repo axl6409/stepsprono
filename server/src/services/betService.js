@@ -11,7 +11,7 @@ const {getCurrentMatchday} = require("./matchdayService");
 const {checkBetByMatchId} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 const {applySpecialRulePoints} = require("./logic/ruleLogic");
-const { getUserMysteryBoxItem, saveDoubleButeurChoice, getCommunismeInfo } = require("./mysteryBoxService");
+const { getUserMysteryBoxItem, saveDoubleButeurChoice, getCommunismeInfo, isMatchOnMysteryBoxMatchday } = require("./mysteryBoxService");
 
 /**
  * Checks up on bets based on their IDs. If an array of IDs is provided, checks each ID individually.
@@ -386,12 +386,15 @@ const createBet = async ({ userId, matchday, matchId, winnerId, homeScore, awayS
       throw new Error('Un prono existe déjà pour ce match');
     }
 
-    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur
-    const mysteryBoxItem = await getUserMysteryBoxItem(userId);
-    if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
-      const user = await User.findByPk(userId);
-      if (user?.team_id && winnerId === user.team_id) {
-        throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur (uniquement sur la journée mystery-box)
+    const isOnMysteryBoxMatchday = await isMatchOnMysteryBoxMatchday(matchday);
+    if (isOnMysteryBoxMatchday) {
+      const mysteryBoxItem = await getUserMysteryBoxItem(userId);
+      if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
+        const user = await User.findByPk(userId);
+        if (user?.team_id && winnerId === user.team_id) {
+          throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+        }
       }
     }
 
@@ -465,12 +468,15 @@ const updateBet = async ({ id, userId, matchId, winnerId, homeScore, awayScore, 
       throw new Error('Pronostic non trouvé');
     }
 
-    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur
-    const mysteryBoxItem = await getUserMysteryBoxItem(userId);
-    if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
-      const user = await User.findByPk(userId);
-      if (user?.team_id && winnerId === user.team_id) {
-        throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+    // Validation mal_au_coeur : empêche de miser la victoire de son équipe de cœur (uniquement sur la journée mystery-box)
+    const isOnMysteryBoxMatchday = await isMatchOnMysteryBoxMatchday(match.matchday);
+    if (isOnMysteryBoxMatchday) {
+      const mysteryBoxItem = await getUserMysteryBoxItem(userId);
+      if (mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used) {
+        const user = await User.findByPk(userId);
+        if (user?.team_id && winnerId === user.team_id) {
+          throw new Error('Mal au cœur : tu ne peux pas miser la victoire de ton équipe de cœur');
+        }
       }
     }
 
