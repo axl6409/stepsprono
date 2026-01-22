@@ -130,8 +130,9 @@ const Pronostic = forwardRef(
       setAwayTeamColor(getRandomColor(initialHomeColor));
     }, []);
 
-    // Vérifier si l'utilisateur a le malus "mal_au_coeur"
-    const hasMalAuCoeur = mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used;
+    // Vérifier si l'utilisateur a le malus "mal_au_coeur" (uniquement sur la journée mystery-box)
+    const isMatchOnMysteryBoxMatchday = mysteryBoxItem?.matchday && Number(match?.matchday) === Number(mysteryBoxItem.matchday);
+    const hasMalAuCoeur = mysteryBoxItem?.item?.key === 'mal_au_coeur' && !mysteryBoxItem?.usage?.used && isMatchOnMysteryBoxMatchday;
 
     // Identifier si le match contient l'équipe de cœur et quelle position
     const isHomeTeamHeartTeam = userTeamId && match?.HomeTeam?.id === userTeamId;

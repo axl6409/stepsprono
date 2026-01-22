@@ -89,7 +89,8 @@ const getUserMysteryBoxItem = async (userId) => {
     return {
       item: userSelection.item,
       user: userSelection.user,
-      usage: usageData
+      usage: usageData,
+      matchday: rule.config.matchday
     };
   } catch (error) {
     logger.error('[getUserMysteryBoxItem] Error:', error);
