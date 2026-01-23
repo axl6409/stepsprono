@@ -516,6 +516,10 @@ const saveDoubleButeurChoice = async (userId, matchId, secondScorerId) => {
  */
 const getBallePerduTargetInfo = async (userId) => {
   try {
+    // Ne pas afficher l'alerte si la journée mystery-box est terminée
+    const isMatchdayActive = await isMysteryBoxMatchdayActive();
+    if (!isMatchdayActive) return null;
+
     const rule = await SpecialRule.findOne({
       where: { rule_key: 'mystery_box' }
     });
