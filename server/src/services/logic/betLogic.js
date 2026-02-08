@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const { Bet, Match } = require("../../models");
 const logger = require("../../utils/logger/logger");
 const { getUserMysteryBoxItem, getDoubleButeurChoice, isMatchOnMysteryBoxMatchday } = require("../mysteryBoxService");
+const { isGoalDayMatchday } = require("../specialRuleService");
 
 /**
  * Updates a bet with the given parameters.
@@ -172,6 +173,43 @@ const checkBetByMatchId = async (ids) => {
         }
       }
 
+      // Goal Day : vérifier le buteur même sur les matchs sans require_details
+      if (!match.require_details && bet.player_goal) {
+        let isOnGoalDayMatchday = false;
+        try {
+          isOnGoalDayMatchday = await isGoalDayMatchday(match.matchday);
+        } catch (e) {
+          logger.warn(`[betLogic] Erreur vérification goal_day matchday: ${e.message}`);
+        }
+
+        if (isOnGoalDayMatchday) {
+          const matchScorers = JSON.parse(match.scorers || '[]');
+          const scorerFound = matchScorers.some(s => String(s.playerId) === String(bet.player_goal));
+
+          if (scorerFound) {
+            scorerPoints = 1;
+            logger.info(`[betService] GOAL DAY - Buteur trouvé pour le pronostic ID: ${bet.id}`);
+          } else {
+            logger.info(`[betService] GOAL DAY - Aucun buteur correspondant pour le pronostic ID: ${bet.id}`);
+          }
+        }
+      }
+
+      // Goal Day : match 0-0 sans buteur pronostiqué = 1 point
+      if (!match.require_details && !bet.player_goal) {
+        let isOnGoalDayMatchday = false;
+        try {
+          isOnGoalDayMatchday = await isGoalDayMatchday(match.matchday);
+        } catch (e) { /* ignorer */ }
+
+        if (isOnGoalDayMatchday) {
+          const matchScorers = JSON.parse(match.scorers || '[]');
+          if (matchScorers.length === 0) {
+            scorerPoints = 1;
+            logger.info(`[betService] GOAL DAY - Aucun buteur pour le match ID: ${match.id}, et aucun buteur pronostiqué pour le pari ID: ${bet.id}. Attribution d'un point.`);
+          }
+        }
+      }
 
       const totalPoints = resultPoints + scorePoints + scorerPoints;
 

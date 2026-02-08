@@ -372,6 +372,7 @@ const Week = ({token, user}) => {
                   disabled={!enableSubmit}
                   mysteryBoxItem={mysteryBoxItem}
                   communismeInfo={communismeInfo}
+                  isGoalDay={currentRule?.rule_key === 'goal_day' && currentRule?.status === true}
                   refreshBets={refreshBets} />
               </SwiperSlide>
             );

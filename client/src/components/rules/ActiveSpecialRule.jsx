@@ -6,6 +6,7 @@ import HiddenPredictions from "./HiddenPredictions.jsx";
 import AllianceDay from "./AllianceDay.jsx";
 import HalfPenaltyDay from "./HalfPenaltyDay.jsx";
 import MysteryBox from "./MysteryBox.jsx";
+import GoalDay from "./GoalDay.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001';
 
@@ -95,6 +96,14 @@ const ActiveSpecialRule = ({currentRule, user, viewedUser, isOwnProfile}) => {
           />
         );
       case "goal_day":
+        return (
+          <GoalDay
+            rule={currentRule}
+            user={user}
+            viewedUser={viewedUser}
+            isOwnProfile={isOwnProfile}
+          />
+        );
       case "high_penalty_day":
       case "massacre_day":
       case "swap_predictions":

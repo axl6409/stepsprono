@@ -21,6 +21,7 @@ const Pronostic = forwardRef(
       handleError,
       mysteryBoxItem,
       communismeInfo,
+      isGoalDay,
     },
     ref
   ) => {
@@ -98,9 +99,9 @@ const Pronostic = forwardRef(
       }
     }, [betDetails, setValue, reset, mysteryBoxItem, match?.id]);
 
-    // Récupérer la liste des joueurs uniquement si require_details est activé
+    // Récupérer la liste des joueurs si require_details est activé ou si goal_day est actif
     useEffect(() => {
-      if (!match || !match.require_details) return;
+      if (!match || (!match.require_details && !isGoalDay)) return;
       const fetchPlayers = async () => {
         try {
           const params = new URLSearchParams();
@@ -121,7 +122,7 @@ const Pronostic = forwardRef(
         }
       };
       fetchPlayers();
-    }, [match, token]);
+    }, [match, token, isGoalDay]);
 
     // Définir des couleurs aléatoires pour chaque équipe
     useEffect(() => {
@@ -209,8 +210,16 @@ const Pronostic = forwardRef(
         scorer: null,
       };
 
+      // Goal Day (matchs sans require_details) : pas de score, uniquement équipe + buteur
+      if (isGoalDay && !match.require_details) {
+        payload.winnerId = selectedTeam;
+        if (!data.scorer) {
+          handleError("Buteur obligatoire (Goal Day)");
+          return;
+        }
+        payload.scorer = data.scorer;
       // Si require_details est activé, valider et enregistrer le score et le buteur
-      if (match.require_details) {
+      } else if (match.require_details) {
         if (data.homeScore === "" || data.awayScore === "") {
           handleError("Score obligatoire");
           return;
@@ -242,7 +251,7 @@ const Pronostic = forwardRef(
           payload.scorer2 = data.scorer2;
         }
       } else {
-        // Si require_details est désactivé, on enregistre uniquement l’équipe gagnante
+        // Si require_details est désactivé, on enregistre uniquement l'équipe gagnante
         payload.winnerId = selectedTeam;
       }
 
@@ -510,7 +519,35 @@ const Pronostic = forwardRef(
                   )}
                 </div>
 
-                {(match.require_details || match.id === lastMatch.id) && (
+                {isGoalDay && !match.require_details && players.length > 0 && (
+                  <div className="flex flex-col items-center my-2 px-4">
+                    <div className="flex items-center justify-center gap-1 mb-2">
+                      <span className="text-lg">⚽</span>
+                      <p className="font-roboto text-xs text-orange-600 font-medium">Goal Day - Buteur</p>
+                    </div>
+                    <label className="flex no-correct flex-col w-full text-center">
+                      <select
+                        translate="no"
+                        className="border border-orange-400 rounded-lg p-1 font-roboto text-sans font-regular text-sm text-center bg-orange-50"
+                        value={scorer}
+                        {...register("scorer")}
+                        onChange={(e) => {
+                          setScorer(e.target.value);
+                          setValue("scorer", e.target.value);
+                        }}
+                      >
+                        <option value="" className="no-correct">Choisir un buteur</option>
+                        {players.map((player, index) => (
+                          <option key={`gd-${player.player_id}-${index}`} value={player.player_id} className="no-correct">
+                            {cleanPlayerName(decodeHtml(player.Player.name))}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {(match.require_details || (match.id === lastMatch?.id && !isGoalDay)) && (
                   <div className="flex flex-row justify-between items-center">
                     <div className="flex flex-row justify-evenly items-center my-2 w-1/2">
                       <p translate="no" className="font-roboto no-correct text-sm font-regular">Score</p>
@@ -629,6 +666,7 @@ Pronostic.propTypes = {
   handleError: PropTypes.func.isRequired,
   mysteryBoxItem: PropTypes.object,
   communismeInfo: PropTypes.object,
+  isGoalDay: PropTypes.bool,
 };
 
 export default Pronostic;

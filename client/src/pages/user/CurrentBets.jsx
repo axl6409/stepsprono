@@ -377,18 +377,25 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                     <img className="h-auto w-6" src={nullSymbol} alt="ou nul"/>
                                   </div>
                                 ) : (
-                                  bet.winner_id === bet.MatchId.HomeTeam.id ? (
-                                    <img className="h-auto w-10"
-                                         src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
-                                         alt={bet.MatchId.HomeTeam.name}/>
-                                  ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
-                                    <img className="h-auto w-10"
-                                         src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
-                                         alt={bet.MatchId.AwayTeam.name}/>
-                                  ) : (
-                                    <img className="h-auto w-8" src={nullSymbol}
-                                         alt="symbole match null"/>
-                                  )
+                                  <div className="flex flex-col items-center">
+                                    {bet.winner_id === bet.MatchId.HomeTeam.id ? (
+                                      <img className="h-auto w-10"
+                                           src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
+                                           alt={bet.MatchId.HomeTeam.name}/>
+                                    ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
+                                      <img className="h-auto w-10"
+                                           src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                           alt={bet.MatchId.AwayTeam.name}/>
+                                    ) : (
+                                      <img className="h-auto w-8" src={nullSymbol}
+                                           alt="symbole match null"/>
+                                    )}
+                                    {bet.PlayerGoal && (
+                                      <p translate="no" className="font-title no-correct text-xxs font-bold text-orange-600 mt-1">
+                                        {bet.PlayerGoal.name}
+                                      </p>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -529,18 +536,25 @@ const CurrentBets = ({ loggedUser, user, token }) => {
                                   <img className="h-auto w-6" src={nullSymbol} alt="ou nul"/>
                                 </div>
                               ) : (
-                                bet.winner_id === bet.MatchId.HomeTeam.id ? (
-                                  <img className="h-auto w-10"
-                                       src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
-                                       alt={bet.MatchId.HomeTeam.name}/>
-                                ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
-                                  <img className="h-auto w-10"
-                                       src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
-                                       alt={bet.MatchId.AwayTeam.name}/>
-                                ) : (
-                                  <img className="h-auto w-8" src={nullSymbol}
-                                       alt="symbole match null"/>
-                                )
+                                <div className="flex flex-col items-center">
+                                  {bet.winner_id === bet.MatchId.HomeTeam.id ? (
+                                    <img className="h-auto w-10"
+                                         src={apiUrl + "/uploads/teams/" + bet.MatchId.HomeTeam.id + "/" + bet.MatchId.HomeTeam.logo_url}
+                                         alt={bet.MatchId.HomeTeam.name}/>
+                                  ) : bet.winner_id === bet.MatchId.AwayTeam.id ? (
+                                    <img className="h-auto w-10"
+                                         src={apiUrl + "/uploads/teams/" + bet.MatchId.AwayTeam.id + "/" + bet.MatchId.AwayTeam.logo_url}
+                                         alt={bet.MatchId.AwayTeam.name}/>
+                                  ) : (
+                                    <img className="h-auto w-8" src={nullSymbol}
+                                         alt="symbole match null"/>
+                                  )}
+                                  {bet.PlayerGoal && (
+                                    <p translate="no" className="font-title no-correct text-xxs font-bold text-orange-600 mt-1">
+                                      {bet.PlayerGoal.name}
+                                    </p>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
