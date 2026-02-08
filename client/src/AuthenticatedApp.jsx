@@ -15,6 +15,7 @@ import {RuleContext} from "./contexts/RuleContext.jsx";
 import DebugConsole from "./components/admin/DebugConsole.jsx";
 import HiddenPredictions from "./components/animated/HiddenPredictions.jsx";
 import SnowFall from "./components/animated/SnowFall.jsx";
+import GoalBackground from "./components/animated/OhMyGoal.jsx";
 
 const AuthenticatedApp = () => {
   const { user, setUser, hasAdminAccess } = useContext(UserContext);
@@ -86,6 +87,9 @@ const AuthenticatedApp = () => {
                 snowflakeColor="#ededed"
                 className=""
               />
+            ) : currentRule?.rule_key === "goal_day" &&
+              currentRule.status ? (
+              <GoalBackground />
             ) : (
               <Particles
                 particleColors={["#000000", "#000000"]}

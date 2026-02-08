@@ -33,7 +33,8 @@ const getVideoUrlFromRuleKey = (ruleKey) => {
   const videoMap = {
     'hunt_day': 'jour-de-chasse',
     'alliance_day': 'alliance-day',
-    'hidden_predictions': 'hidden-predictions'
+    'hidden_predictions': 'hidden-predictions',
+    'goal_day': 'oh_my_goal'
   };
 
   const videoName = videoMap[ruleKey];
@@ -323,11 +324,18 @@ const checkHuntDay = async (rule) => {
   return results;
 };
 
+const isGoalDayMatchday = async (matchday) => {
+  const rule = await SpecialRule.findOne({ where: { rule_key: 'goal_day', status: true } });
+  if (!rule) return false;
+  return rule.config?.matchday && Number(rule.config.matchday) === Number(matchday);
+};
+
 module.exports = {
   toggleSpecialRule,
   getCurrentSpecialRule,
   configSpecialRule,
   checkSpecialRule,
   getSpecialRuleByMatchday,
-  getSpecialResultByMatchday
+  getSpecialResultByMatchday,
+  isGoalDayMatchday
 }

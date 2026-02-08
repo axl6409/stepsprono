@@ -70,6 +70,7 @@ const AppRoutes = memo(({ user, token, setUser }) => {
           <Route path="/hunt-day" element={<ProtectedRoute component={RulePresent} />} />
           <Route path="/hidden-predictions" element={<ProtectedRoute component={RulePresent} />} />
           <Route path="/alliance-day" element={<ProtectedRoute component={RulePresent} />} />
+          <Route path="/goal-day" element={<ProtectedRoute component={RulePresent} />} />
           <Route path="/mystery-box" element={<ProtectedRoute component={MysteryBoxPage} />} />
           {/* End Rules */}
           <Route path="/settings/username" element={<ProtectedRoute component={() => <EditField title="Changer le pseudo" fieldName="username" fieldLabel="Nouveau pseudo" user={user} token={token} setUser={setUser} />} />} />
