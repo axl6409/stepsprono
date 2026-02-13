@@ -203,18 +203,23 @@ const MatchDetails = () => {
                           )}
                         </div>
                       ) : (
-                        bet.winner_id === match.HomeTeam.id ? (
-                          <img className="h-auto w-8"
-                               src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url}
-                               alt={match.HomeTeam.name}/>
-                        ) : bet.winner_id === match.AwayTeam.id ? (
-                          <img className="h-auto w-8"
-                               src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
-                               alt={match.AwayTeam.name}/>
-                        ) : (
-                          <img className="h-auto w-8" src={nullSymbol}
-                               alt="symbole match null"/>
-                        )
+                        <div className="flex flex-col items-center">
+                          {bet.winner_id === match.HomeTeam.id ? (
+                            <img className="h-auto w-8"
+                                 src={apiUrl + "/uploads/teams/" + match.HomeTeam.id + "/" + match.HomeTeam.logo_url}
+                                 alt={match.HomeTeam.name}/>
+                          ) : bet.winner_id === match.AwayTeam.id ? (
+                            <img className="h-auto w-8"
+                                 src={apiUrl + "/uploads/teams/" + match.AwayTeam.id + "/" + match.AwayTeam.logo_url}
+                                 alt={match.AwayTeam.name}/>
+                          ) : (
+                            <img className="h-auto w-8" src={nullSymbol}
+                                 alt="symbole match null"/>
+                          )}
+                          {bet.PlayerGoal && (
+                            <p translate="no" className="font-title text-xs font-bold text-orange-600 mt-1">{bet.PlayerGoal.name}</p>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
