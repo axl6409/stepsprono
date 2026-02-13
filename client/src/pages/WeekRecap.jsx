@@ -194,9 +194,14 @@ const WeekRecap = () => {
                           return (
                             <div key={`${user.id}-${match.id}`} className={`px-1 py-2 border-r border-black h-full flex flex-col justify-center items-center ${ isCommunismeSharedBet(prediction) ? 'bg-purple-100' : isCommunismePartnerBet(prediction) ? 'bg-blue-100' : matchResult === null ? user.id === userFromCookie.id ? 'bg-yellow-light' : 'bg-grey-light' : matchResult === prediction.winner_id ? 'bg-green-light' : matchResult !== prediction.winner_id ? 'bg-red-light' : ''}`} style={{ width: `${90 / matchs.length}%` }}>
                               {winnerTeam ? (
-                                <img className="h-[50px] w-[50px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
+                                <img className="h-[40px] w-[40px] object-contain object-center relative z-[1]" src={`${apiUrl}/uploads/teams/${winnerTeam.id}/${winnerTeam.logo_url}`} alt={winnerTeam.name} />
                               ) : (
-                                <img className="h-[25px] w-[25px] mx-auto object-contain object-center relative z-[1]" src={nullSymbol} alt="match nul symbol" />
+                                <img className="h-[40px] w-[40px] mx-auto object-contain object-center relative z-[1]" src={nullSymbol} alt="match nul symbol" />
+                              )}
+                              {prediction.PlayerGoal && (
+                                <span translate="no" className="font-rubik font-medium text-xxxs text-orange-600 text-center leading-[10px] mt-1">
+                                  {prediction.PlayerGoal.name.length > 8 ? prediction.PlayerGoal.name.substring(0, 8) + '...' : prediction.PlayerGoal.name}
+                                </span>
                               )}
                               {isCommunismeSharedBet(prediction) && (
                                 <span className="font-rubik font-medium text-xxxs text-purple-600 text-center leading-[10px] mt-1">
