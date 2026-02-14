@@ -7,7 +7,7 @@ const {getCurrentSeasonId, getCurrentSeasonYear} = require("./logic/seasonLogic"
 const {Op, Sequelize} = require("sequelize");
 const { sequelize } = require('../models');
 const {schedule, scheduleJob} = require("node-schedule");
-const {checkBetByMatchId} = require("./logic/betLogic");
+const {checkBetByMatchId, applyGoalDayScorerPoints} = require("./logic/betLogic");
 const moment = require("moment");
 const {getPeriodMatchdays} = require("./logic/matchLogic");
 const { getWeekDateRange, getMonthDateRange, getCurrentMoment} = require("./logic/dateLogic");
@@ -171,6 +171,7 @@ async function updateSingleMatch(matchId) {
       const updatedMatchData = await Match.findByPk(matchId);
       if (updatedMatchData.status === 'FT') {
         await checkBetByMatchId(matchId);
+        await applyGoalDayScorerPoints(matchId);
         logger.info(`Pronostics vérifiés pour le match: ${matchId}`);
         eventBus.emit('matchUpdated', { matchId });
       } else {

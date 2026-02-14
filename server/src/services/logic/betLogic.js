@@ -234,4 +234,77 @@ const checkBetByMatchId = async (ids) => {
   }
 };
 
-module.exports = { checkBetByMatchId };
+/**
+ * Recalcule les scorer_points pour les paris Goal Day déjà calculés.
+ * Filet de sécurité : si checkBetByMatchId a été exécuté avant que la règle Goal Day
+ * soit active ou correctement configurée, cette fonction corrige les scorer_points.
+ *
+ * @param {number|number[]} matchIds - L'ID ou les IDs des matchs à vérifier.
+ * @return {Promise<Object>} Résultat avec le nombre de paris mis à jour.
+ */
+const applyGoalDayScorerPoints = async (matchIds) => {
+  try {
+    if (!Array.isArray(matchIds)) {
+      matchIds = [matchIds];
+    }
+
+    let totalUpdated = 0;
+
+    for (const matchId of matchIds) {
+      const match = await Match.findByPk(matchId);
+      if (!match || match.status !== 'FT' || match.require_details) continue;
+
+      let isOnGoalDay = false;
+      try {
+        isOnGoalDay = await isGoalDayMatchday(match.matchday);
+      } catch (e) {
+        logger.warn(`[GOAL DAY RECALC] Erreur vérification goal_day matchday: ${e.message}`);
+      }
+      if (!isOnGoalDay) continue;
+
+      const matchScorers = JSON.parse(match.scorers || '[]');
+
+      const bets = await Bet.findAll({
+        where: {
+          match_id: matchId,
+          points: { [Op.not]: null },
+        }
+      });
+
+      for (const bet of bets) {
+        let newScorerPoints = 0;
+
+        if (bet.player_goal) {
+          const scorerFound = matchScorers.some(s => String(s.playerId) === String(bet.player_goal));
+          if (scorerFound) newScorerPoints = 1;
+        } else if (matchScorers.length === 0) {
+          newScorerPoints = 1;
+        }
+
+        if (newScorerPoints > 0 && (bet.scorer_points || 0) !== newScorerPoints) {
+          const newTotal = (bet.result_points || 0) + (bet.score_points || 0) + newScorerPoints;
+          await Bet.update(
+            {
+              scorer_points: newScorerPoints,
+              points: newTotal,
+            },
+            { where: { id: bet.id } }
+          );
+          totalUpdated++;
+          logger.info(`[GOAL DAY RECALC] Bet ${bet.id} mis à jour: scorer_points=${newScorerPoints}, total=${newTotal}`);
+        }
+      }
+    }
+
+    if (totalUpdated > 0) {
+      logger.info(`[GOAL DAY RECALC] ${totalUpdated} pronostics corrigés.`);
+    }
+
+    return { success: true, updated: totalUpdated };
+  } catch (error) {
+    logger.error(`[GOAL DAY RECALC] Erreur:`, error);
+    return { success: false, error: error.message };
+  }
+};
+
+module.exports = { checkBetByMatchId, applyGoalDayScorerPoints };
