@@ -8,7 +8,7 @@ const sequelize = require("../../database");
 const {getCurrentCompetitionId} = require("./competitionService");
 const moment = require("moment-timezone");
 const {getCurrentMatchday} = require("./matchdayService");
-const {checkBetByMatchId} = require("./logic/betLogic");
+const {checkBetByMatchId, applyGoalDayScorerPoints} = require("./logic/betLogic");
 const {getCurrentWeekMatchdays, getCurrentMonthMatchdays} = require("./matchdayService");
 const {applySpecialRulePoints} = require("./logic/ruleLogic");
 const { getUserMysteryBoxItem, saveDoubleButeurChoice, getCommunismeInfo, isMatchOnMysteryBoxMatchday } = require("./mysteryBoxService");
@@ -791,6 +791,7 @@ const updateAllBetsForCurrentSeason = async () => {
     }
 
     const result = await checkBetByMatchId(matchIds);
+    await applyGoalDayScorerPoints(matchIds);
     logger.info("Mise à jour des pronostics de la saison :", result.message);
     return { success: true, message: "Mise à jour des pronostics de la saison :" + result.message };
   } catch (error) {
