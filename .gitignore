@@ -24,6 +24,9 @@ firebase-messaging-sw.js
 DESCRIPTION_APPLICATION.txt
 MYSTERY_BOX_PLAN.md
 PROJECT_MEMORY.md
+.agents
+_bmad
+_bmad-output
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
 
