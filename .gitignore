@@ -27,6 +27,7 @@ PROJECT_MEMORY.md
 .agents
 _bmad
 _bmad-output
+docs/
 # Ignore any other project-specific files or directories
 # Add more patterns as needed
 
